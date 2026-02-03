@@ -26,9 +26,9 @@ jobs:
 
       # Setup CMake
       - name: Setup CMake
-        uses: lukka/get-cmake@v4
+        uses: lukka/get-cmake@lastest
         with:
-          cmake-version: '3.27.4'
+          cmakeVersion: latest
 
       # Cache CMake & build
       - name: Cache CMake
@@ -92,7 +92,7 @@ jobs:
       # Upload test results
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.build_type }}
           path: build/Testing/Temporary
@@ -100,7 +100,7 @@ jobs:
       # Upload compiled binaries
       - name: Upload Artifacts
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}-${{ matrix.build_type }}
           path: build/
