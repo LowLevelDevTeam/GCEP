@@ -26,7 +26,7 @@ jobs:
 
       # Setup CMake
       - name: Setup CMake
-        uses: lukka/get-cmake@lastest
+        uses: lukka/get-cmake@latest
         with:
           cmakeVersion: latest
 
