@@ -1,0 +1,106 @@
+name: C++ Vulkan CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: Build, Lint, Test on ${{ matrix.os }} (${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        build_type: [Debug, Release]
+        compiler: [gcc, clang]
+
+    env:
+      CMAKE_BUILD_TYPE: ${{ matrix.build_type }}
+
+    steps:
+      # Checkout
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Setup CMake
+      - name: Setup CMake
+        uses: lukka/get-cmake@v4
+        with:
+          cmake-version: '3.27.4'
+
+      # Cache CMake & build
+      - name: Cache CMake
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/cmake
+            build
+          key: ${{ runner.os }}-cmake-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-${{ matrix.build_type }}-
+
+      # Install Vulkan & build tools
+      - name: Install Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libvulkan-dev vulkan-utils clang-tidy clang-format git
+
+      - name: Install Dependencies (macOS)
+        if: runner.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake vulkan-sdk clang-tidy clang-format
+
+      - name: Install Dependencies (Windows)
+        if: runner.os == 'windows-latest'
+        run: |
+          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"' -y
+          choco install vulkan-sdk -y
+          choco install llvm -y
+
+      # Run clang-format (lint)
+      - name: Run clang-format
+        run: |
+          clang-format -i $(git ls-files '*.cpp' '*.h')
+
+      # Run clang-tidy (static analysis)
+      - name: Run clang-tidy
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          cd ..
+          clang-tidy -p build $(git ls-files '*.cpp')
+
+      # Configure project with CMake
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}
+
+      # Build project
+      - name: Build
+        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc || echo 4)
+
+      # Run tests
+      - name: Run Unit Tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      # Upload test results
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.build_type }}
+          path: build/Testing/Temporary
+
+      # Upload compiled binaries
+      - name: Upload Artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ matrix.os }}-${{ matrix.build_type }}
+          path: build/
