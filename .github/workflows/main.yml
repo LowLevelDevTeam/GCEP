@@ -2,9 +2,9 @@ name: C++ Vulkan CI/CD
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   build-test:
@@ -14,7 +14,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         build_type: [Debug, Release]
-        compiler: [gcc, clang]
+        compiler: [clang]
 
     env:
       CMAKE_BUILD_TYPE: ${{ matrix.build_type }}
@@ -22,45 +22,33 @@ jobs:
     steps:
       # Checkout
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Setup CMake
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: latest
-
-      # Cache CMake & build
-      - name: Cache CMake
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/cmake
-            build
-          key: ${{ runner.os }}-cmake-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-${{ matrix.build_type }}-
+        uses: actions/checkout@v4
 
       # Install Vulkan & build tools
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt update
-          sudo apt install -y build-essential libvulkan-dev vulkan-utils clang-tidy clang-format git
+          sudo apt install -y build-essential clang-tidy clang-format git
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install cmake vulkan-sdk clang-tidy clang-format
+          brew install llvm
 
-      - name: Install Dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"' -y
-          choco install vulkan-sdk -y
-          choco install llvm -y
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: 1.4.304.1
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
 
+      # Setup Ninja build tool
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      # Get the LLVM binaries in the PATH environnement variables
       - name: Add LLVM to PATH
         shell: bash
         run: |
@@ -74,17 +62,21 @@ jobs:
 
       # Run clang-format (lint)
       - name: Run clang-format
+        shell: bash
         run: |
-          clang-format -i $(git ls-files '*.cpp' '*.h')
+          for f in $(git ls-files '*.cpp' '*.h'); do
+            clang-format "$f"
+          done
 
+      # --- Uncomment this part when any cpp file arrives ---
       # Run clang-tidy (static analysis)
-      - name: Run clang-tidy
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-          cd ..
-          clang-tidy -p build $(git ls-files '*.cpp')
+      # - name: Run clang-tidy
+      #   run: |
+      #     mkdir -p build
+      #     cd build
+      #     cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+      #     cd ..
+      #     clang-tidy -p build $(git ls-files '*.cpp')
 
       # Configure project with CMake
       - name: Configure CMake
@@ -92,7 +84,7 @@ jobs:
 
       # Build project
       - name: Build
-        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc || echo 4)
+        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
 
       # Run tests
       - name: Run Unit Tests
