@@ -15,9 +15,10 @@
 | Leo Grognet      | lgrognet@gaming.tech    |
 
 ## Revision History
-| Date       | Version | Description                | Author                        |
-|------------|---------|----------------------------|-------------------------------|
-| 2026-02-03 | 1.0     | Initial document creation  | [Leo Grognet, Clément BOBEDA] |
+| Date       | Version | Description                  | Author                                                         |
+|------------|---------|------------------------------|----------------------------------------------------------------|
+| 2026-02-03 | 1.1     | Document General improvement | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali] |
+| 2026-02-03 | 1.0     | Initial document creation    | [Leo Grognet, Clément BOBEDA]                                  |
 
 ## Table of Contents
 1. [Introduction](#1-introduction)
@@ -49,34 +50,79 @@ This document outlines the technical design for a modular C++ Game Engine, detai
 - **API:** Application Programming Interface
 - **FPS:** Frames Per Second
 - **IDE:** Integrated Development Environment
+- **GUI:** Graphical User Interface
+- **Gizmo:** Gizmo are directly manipulable, self-contained, visual screen idioms
 
-### 1.4 References
-- [C++ Standard Documentation](https://isocpp.org)
+### 1.4 References / Dependencies
+- [C++ Standard Documentation](https://en.cppreference.com/)
 - [Google Test Framework](https://github.com/google/googletest)
+- [Mini audio for sound management](https://github.com/mackron/miniaudio)
+- [Jolt physics for physics management](https://github.com/jrouwe/JoltPhysics)
+- [GLM for mathematics](https://github.com/g-truc/glm)
+- [GLFW for window handling](https://github.com/glfw/glfw)
+- [ImGui for all GUI handling](https://github.com/ocornut/imgui/tree/docking)
+- [ImGuizmo for the implementation of gizmo](https://github.com/CedricGuillemet/ImGuizmo)
 
 ### 1.5 Document Overview
-This TDD details the design, module interactions, and testing strategies for the game engine, ensuring clarity from high-level architecture to low-level implementation details.
+This Technical Design Document (TDD) details the architecture of a high-performance, lightweight game engine specifically tailored for academic environments. The primary goal is to provide a robust yet accessible platform for game design students, balancing low-level technical transparency with high-level usability.
+To fulfill these requirements, the engine’s design focuses on three core pillars:
+
+- **Performance** & **Optimization**: Leveraging the Vulkan API through a custom RHI (Render Hardware Interface) to ensure a minimal memory footprint and high frame rates on varied hardware.
+
+- **Educational Accessibility**: Abstracting the verbosity of modern graphics APIs into a clean, intuitive interface, allowing students to focus on game logic and scene composition rather than hardware-specific boilerplate.
+
+- **Modular Decoupling**: A strict separation between the Editor (creation tool) and the Runtime (execution layer). This ensures that students can experiment in a stable environment where game-logic errors remain isolated from the core engine tools.
+
+This document serves as the structural roadmap for implementation, covering module interactions, data flow, and the testing strategies necessary to maintain a stable learning tool.
+
 
 ---
 
 ## 2. System Overview
 
 ### 2.1 High-Level Description
-The engine is a modular system written in C++ (C++20 or later), designed to manage rendering, physics simulation, audio processing, and input handling in real-time.
+The engine is built as a **layered modular system** using **C++20**. It is architected to decouple high-level game logic from low-level hardware interactions, ensuring both high performance and ease of use for academic purposes.
+
+The system is organized into three primary layers:
+
+1. **Application** & **Tools Layer**: The **Editor** and **Runtime** environments. The **Editor** provides a visual interface for scene composition, while the **Runtime** offers a lightweight execution path for the final game. Both communicate with the core through a unified API.
+
+2. **Core Engine** : This layer acts as the "brain" of the engine. It manages the **Scene Graph** (object hierarchy) and dispatches tasks to specialized Servers (Rendering, Physics, Audio).
+
+3. **Abstraction Layer (RHI & Drivers)**: To ensure long-term stability and performance, the engine utilizes a **Render Hardware Interface (RHI)**. This layer translates high-level draw calls into optimized Vulkan commands. This abstraction hides the complexity of **Vulkan** from the end-user while maintaining "close-to-metal" speed.
+
 
 ### 2.2 System Context Diagram
 
 ```mermaid
 graph TD;
-    A["External Systems (Assets, Controllers)"] --> B["Game Engine (Rendering, Physics, Audio, Input, Logic)"];
-    B --> C["Platform Hardware (GPU, CPU, Audio HW)"];
+    A{Repo};
+    A --> README.md;
+    A --> .gitignore;
+    A --> B{Editor};
+    A --> C{Core};
+    A --> D{Dependencies};
+    A --> E[Shaders];
+    B --> InputSystem;
+    B --> UI_Layer;
+    C --> F{RHI};
+    D --> Miniaudio;
+    D --> JoltPhysics;
+    D --> GLM;
+    D --> GLFW;
+    D --> ImGui;
+    D --> ImGuizmo;
+    F --> RHI_Vulkan;
+    F --> RHI_Miniaudio;
 ```
 
 ### 2.3 Major Components
-- **Rendering Engine:** Handles graphics using APIs like OpenGL or DirectX.
-- **Physics Engine:** Manages collision detection and physics simulations.
-- **Audio Engine:** Processes sound effects and music.
-- **Input Manager:** Captures keyboard, mouse, and gamepad events.
+- **Rendering Engine:** Handles graphics using the Vulkan API.
+- **Physics Engine:** Manages collision detection and physics simulations using Jolt Physics.
+- **Audio Engine:** Processes sound effects and music using miniaudio.
+- **Input Manager:** Captures keyboard, mouse, and gamepad events using GLFW.
+- **Window Manager:** Manages application window and dispatches events using GLFW 
+- **Editor GUI:** Graphical user interface using ImGui
 - **Game Logic:** Integrates modules via a scripting interface.
 
 ---
@@ -104,6 +150,7 @@ graph TD;
 
 ### 3.4 Design Constraints and Assumptions
 - Use modern C++ (C++20 or later).
+- Use Slang as the primary shader language.
 - Rely on hardware-accelerated graphics.
 - Assume a minimum hardware configuration for target platforms.
 
@@ -117,7 +164,7 @@ The engine employs a component-based architecture. Each module has well-defined 
 ### 4.2 Module Breakdown
 - **Rendering Module:** Handles shaders, textures, and communicates with the GPU.
 - **Physics Module:** Implements collision detection and rigid body dynamics.
-- **Audio Module:** Interfaces with audio libraries (e.g., OpenAL).
+- **Audio Module:** Interfaces with audio libraries (mini audio).
 - **Input Module:** Abstracts device-specific input.
 - **Game Logic Module:** Manages scripting and event coordination.
 
@@ -142,6 +189,7 @@ graph TD;
 ### 4.4 Design Decisions and Rationale
 - **Language Choice:** C++ for high performance.
 - **Modular Design:** Supports isolated testing and independent module development.
+- **Graphic API:** Vulkan is a modern Graphic API and cross-platform allowing us to get the best performances.
 - **TDD:** Ensures high code quality and early bug detection.
 
 ---

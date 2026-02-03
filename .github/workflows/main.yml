@@ -49,17 +49,28 @@ jobs:
           sudo apt install -y build-essential libvulkan-dev vulkan-utils clang-tidy clang-format git
 
       - name: Install Dependencies (macOS)
-        if: runner.os == 'macos-latest'
+        if: runner.os == 'macOS'
         run: |
           brew update
           brew install cmake vulkan-sdk clang-tidy clang-format
 
       - name: Install Dependencies (Windows)
-        if: runner.os == 'windows-latest'
+        if: runner.os == 'Windows'
         run: |
           choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"' -y
           choco install vulkan-sdk -y
           choco install llvm -y
+
+      - name: Add LLVM to PATH
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "C:\Program Files\LLVM\bin" >> $GITHUB_PATH
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "$(brew --prefix llvm)/bin" >> $GITHUB_PATH
+          else
+            echo "/usr/bin" >> $GITHUB_PATH
+          fi
 
       # Run clang-format (lint)
       - name: Run clang-format
