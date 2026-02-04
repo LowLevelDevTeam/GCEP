@@ -15,10 +15,11 @@
 | Leo Grognet      | lgrognet@gaming.tech    |
 
 ## Revision History
-| Date       | Version | Description                  | Author                                                         |
-|------------|---------|------------------------------|----------------------------------------------------------------|
-| 2026-02-03 | 1.1     | Document General improvement | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali] |
-| 2026-02-03 | 1.0     | Initial document creation    | [Leo Grognet, Clément BOBEDA]                                  |
+| Date       | Version | Description                        | Author                                                                          |
+|------------|---------|------------------------------------|---------------------------------------------------------------------------------|
+| 2026-02-04 | 1.2     | Document bottom half document fill | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-03 | 1.1     | Document General improvement       | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]                  |
+| 2026-02-03 | 1.0     | Initial document creation          | [Leo Grognet, Clément BOBEDA]                                                   |
 
 ## Table of Contents
 1. [Introduction](#1-introduction)
@@ -95,25 +96,78 @@ The system is organized into three primary layers:
 ### 2.2 System Context Diagram
 
 ```mermaid
-graph TD;
-    A{Repo};
-    A --> README.md;
-    A --> .gitignore;
-    A --> B{Editor};
-    A --> C{Core};
-    A --> D{Dependencies};
-    A --> E[Shaders];
-    B --> InputSystem;
-    B --> UI_Layer;
-    C --> F{RHI};
-    D --> Miniaudio;
-    D --> JoltPhysics;
-    D --> GLM;
-    D --> GLFW;
-    D --> ImGui;
-    D --> ImGuizmo;
-    F --> RHI_Vulkan;
-    F --> RHI_Miniaudio;
+graph TB
+    subgraph Repo [Repository]
+
+
+        direction TB
+
+    %% --- ENGINE ---
+        subgraph Engine [Engine]
+            direction TB
+            subgraph Core [Core]
+                subgraph RHI[RHI]
+                    RenderW[RenderWrapper]
+                end
+                PhysW[PhysicsWrapper]
+                AudioW[AudioWrapper]
+            end
+
+
+        end
+
+    %% --- EXTERNAL ---
+        subgraph Dependencies [External]
+            direction LR
+            subgraph UI_Lib [UI]
+                ImGui{ImGui}
+                ImGuizmo{ImGuizmo}
+            end
+            subgraph Audio_Lib [Audio]
+                Miniaudio{Miniaudio}
+            end
+            subgraph Physics_Lib [Physics]
+                JoltPhysics{JoltPhysics}
+            end
+            subgraph Math_Window [Math & Window]
+                GLM{GLM}
+                GLFW{GLFW}
+            end
+        end
+
+    %% --- EDITOR ---
+        subgraph Editor [Editor]
+            UIW[UIWrapper]
+            Viewport[Viewport]
+        end
+
+    %% --- LIAISONS LOGIQUES (CONNECTIVITY) ---
+    %% L'Editor utilise l'Engine et les Libs
+        Editor --> Engine
+        UIW --- ImGui
+        Viewport --- ImGuizmo
+
+    %% L'Engine utilise les Libs
+        Engine --> GLFW
+        Engine --> GLM
+        PhysW --> JoltPhysics
+        AudioW --> Miniaudio
+        README{README}
+        GitIgnore{.gitignore}
+
+    end
+
+%% --- STYLES ---
+    style Repo fill:#3a424a,stroke:#000,stroke-width:4px
+    style Engine fill:#705c51,stroke:#000,stroke-width:4px
+    style Dependencies fill:#c2c1a5,stroke:#000, stroke-width:4px
+    style Editor fill:#c2c1a5,stroke:#000,stroke-width:4px
+    style Core fill:#677051,stroke:#000,stroke-width:4px
+    style RHI fill:#517059,stroke:#000, stroke-width: 4px
+    style Physics_Lib stroke:#000, stroke-width: 4px
+    style Audio_Lib stroke:#000, stroke-width: 4px
+    style UI_Lib stroke:#000, stroke-width: 4px
+    style Math_Window stroke:#000, stroke-width: 4px
 ```
 
 ### 2.3 Major Components
@@ -121,7 +175,7 @@ graph TD;
 - **Physics Engine:** Manages collision detection and physics simulations using Jolt Physics.
 - **Audio Engine:** Processes sound effects and music using miniaudio.
 - **Input Manager:** Captures keyboard, mouse, and gamepad events using GLFW.
-- **Window Manager:** Manages application window and dispatches events using GLFW 
+- **Window Manager:** Manages application window, dispatches and receive input events using GLFW 
 - **Editor GUI:** Graphical user interface using ImGui
 - **Game Logic:** Integrates modules via a scripting interface.
 
@@ -135,12 +189,14 @@ graph TD;
 - Play background music and trigger sound effects.
 - Capture and process user inputs.
 - Provide a scripting interface for game behavior customization.
+- Supports OBJ parsing. 
 
 ### 3.2 Non-Functional Requirements
-- **Performance:** Maintain a minimum of 60 FPS.
-- **Scalability:** Modular design for easy extension.
+- **Performance:** Maintain a minimum of 60 FPS. Smart Pointers, Allocation Pools, Cache-Efficients Structures to achieve an optimized memory management.
+- **Scalability:** Modular design for easy extension. Use of RHI to allow the use of multiple graphics API. Feature proof choice of dependencies and technologies.
 - **Portability:** Support Windows, Linux, and macOS.
-- **Maintainability:** Clear code structure with thorough documentation.
+- **Maintainability:** Clear code structure with thorough documentation. 
+- **Quality of Life:** Dynamic Asset Loading. ImGui Editor with window docking system and entity and ressources management.  
 
 ### 3.3 Use Cases
 - **Rendering:** Load and display complex scenes.
@@ -154,19 +210,20 @@ graph TD;
 - Rely on hardware-accelerated graphics.
 - Assume a minimum hardware configuration for target platforms.
 
----
+--- 
 
 ## 4. System Architecture & Design
 
 ### 4.1 Architectural Overview
-The engine employs a component-based architecture. Each module has well-defined interfaces, ensuring loose coupling and isolated development.
+The engine employs an entity component system and a component based architecture. Each module has well-defined interfaces, ensuring loose coupling and isolated development.
 
 ### 4.2 Module Breakdown
-- **Rendering Module:** Handles shaders, textures, and communicates with the GPU.
-- **Physics Module:** Implements collision detection and rigid body dynamics.
-- **Audio Module:** Interfaces with audio libraries (mini audio).
-- **Input Module:** Abstracts device-specific input.
-- **Game Logic Module:** Manages scripting and event coordination.
+- **Rendering Module:** Handles shaders, textures, and communicates with the GPU. (Vulkan)
+- **Physics Module:** Implements collision detection and rigid body dynamics.(Jolt Physics)
+- **Audio Module:** Interfaces with audio libraries. (miniaudio)
+- **Input Module:** Abstracts device-specific input. (GLFW)
+- **Game Logic Module:** Manages scripting and event coordination. (Core)
+- **Editor Module:** Manages Graphical User interface. (ImGui)  
 
 ### 4.3 Interaction Diagrams
 
@@ -182,15 +239,16 @@ User Input -> Game Logic -> Rendering Module -> GPU
 graph TD;
     A[Start Loop] --> B[Process Input];
     B --> C[Update Game State];
-    C --> D[Render];
-    D --> E[End Loop];
+    A --> D[Update Game Physics];
+    C --> E[Render];
+    E --> F[End Loop];
+    D --> F
 ```
 
 ### 4.4 Design Decisions and Rationale
 - **Language Choice:** C++ for high performance.
 - **Modular Design:** Supports isolated testing and independent module development.
 - **Graphic API:** Vulkan is a modern Graphic API and cross-platform allowing us to get the best performances.
-- **TDD:** Ensures high code quality and early bug detection.
 
 ---
 
@@ -200,7 +258,7 @@ graph TD;
 - **Rendering:** `Renderer`, `Shader`, `Texture`
 - **Physics:** `PhysicsEngine`, `Collider`, `RigidBody`
 - **Audio:** `AudioEngine`, `Sound`, `MusicPlayer`
-- **Input:** `InputManager`, `Controller`
+- **Input:** `InputManager`, `Keyboard`, `Mouse`, `Controller`
 
 ### 5.2 Key Algorithms and Code Snippets
 
@@ -242,7 +300,7 @@ int main() {
 
 ### 6.2 External APIs and File Formats
 
-- Support standard file formats: OBJ (models), PNG (textures), WAV (audio).
+- Support standard file formats: OBJ (models), PNG and JPG (textures), WAV, MP3, FLAC (audio).
 - Provide documentation for external scripting interfaces.
 
 ### 6.3 User Interface (if applicable)
@@ -255,28 +313,26 @@ int main() {
 
 ### 7.1 Performance Goals
 
-- Consistently achieve 60 FPS.
+- Physics Update runs consistently at 60 tick per seconds.
+- Consistently achieve 120 FPS. 
 - Optimize memory usage and processing overhead.
 
 ### 7.2 Profiling and Benchmarking
 
-- Integrate profiling tools such as Valgrind or Visual Studio Profiler.
-- Include benchmarking tests as part of the TDD suite.
+- Integrate Valgrind profiling tool.
 
 ### 7.3 Optimization Techniques
 
 - Use object pooling and memory management best practices.
 - Implement batching and frustum culling in the rendering process.
+- Use of multiple threads on updating different type of loop.
+- Use of Entity Component System by grouping each entity updates together in memory.
 
 ---
 
-## 8. Testing Strategy (TDD Implementation)
+## 8. Testing Strategy
 
-### 8.1 Overview of TDD
-
-- Write tests before implementation to drive design decisions and ensure code reliability.
-
-### 8.2 Unit Testing
+### 8.1 Unit Testing
 
 - Develop tests for individual components.
 - **Example using Google Test:**
@@ -291,18 +347,18 @@ TEST(RendererTest, InitializeSuccess) {
 }
 ```
 
-### 8.3 Integration Testing
+### 8.2 Integration Testing
 
 - Verify that modules interact correctly through integration tests.
 
-### 8.4 Regression Testing
+### 8.3 Regression Testing
 
 - Maintain a suite of automated tests to catch and fix regressions early.
 
-### 8.5 Testing Tools and Frameworks
+### 8.4 Testing Tools and Frameworks
 
 - **Framework:** Google Test
-- **CI/CD:** Automate testing with CI pipelines (e.g., GitHub Actions).
+- **CI/CD:** Automate testing with CI pipelines (GitHub Actions).
 
 ---
 
@@ -310,8 +366,8 @@ TEST(RendererTest, InitializeSuccess) {
 
 ### 9.1 Development Tools and IDEs
 
-- Recommended IDEs: Visual Studio, CLion, or VSCode.
-- Code editors that support C++17 features.
+- Recommended IDEs: CLion.
+- Code editors that support C++20 features.
 
 ### 9.2 Build System and Automation
 
@@ -330,36 +386,28 @@ TEST(RendererTest, InitializeSuccess) {
 
 ---
 
-## 10. Security and Safety Considerations
-
-- Validate all external input to avoid runtime vulnerabilities.
-- Implement robust error handling.
-- Perform regular code reviews and security audits.
-
----
-
-## 11. Project Timeline and Milestones
+## 10. Project Timeline and Milestones
 
 - **Phase 1:** Requirement Analysis & Detailed Design
-- **Phase 2:** Core Module Development (Rendering, Physics, Audio, Input)
+- **Phase 2:** Core Module Development (Rendering, Physics, Audio, Input, GUI)
 - **Phase 3:** Integration and Testing
 - **Phase 4:** Optimization and Final Deployment
 - Outline milestones with deadlines and deliverables.
 
 ---
 
-## 12. Appendices
+## 11. Appendices
 
-### 12.1 Glossary
+### 11.1 Glossary
 
 - **Game Engine:** The core framework managing all game processes.
 - **Module:** A self-contained component providing specific functionality.
 - **Shader:** A program executed on the GPU to control rendering.
 
-### 12.2 Additional Diagrams
+### 11.2 Additional Diagrams
 
 - Include any additional architectural diagrams or flowcharts as needed.
 
-### 12.3 References and Further Reading
+### 11.3 References and Further Reading
 
 - Additional resources on C++ game development and engine architecture.
