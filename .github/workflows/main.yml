@@ -2,9 +2,8 @@ name: C++ Vulkan CI/CD
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags:
+      - 'release*'
 
 jobs:
   build-test:
@@ -20,11 +19,9 @@ jobs:
       CMAKE_BUILD_TYPE: ${{ matrix.build_type }}
 
     steps:
-      # Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install Vulkan & build tools
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -44,11 +41,9 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
-      # Setup Ninja build tool
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      # Get the LLVM binaries in the PATH environnement variables
       - name: Add LLVM to PATH
         shell: bash
         run: |
@@ -60,7 +55,6 @@ jobs:
             echo "/usr/bin" >> $GITHUB_PATH
           fi
 
-      # Run clang-format (lint)
       - name: Run clang-format
         shell: bash
         run: |
@@ -68,31 +62,17 @@ jobs:
             clang-format "$f"
           done
 
-      # --- Uncomment this part when any cpp file arrives ---
-      # Run clang-tidy (static analysis)
-      # - name: Run clang-tidy
-      #   run: |
-      #     mkdir -p build
-      #     cd build
-      #     cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-      #     cd ..
-      #     clang-tidy -p build $(git ls-files '*.cpp')
-
-      # Configure project with CMake
       - name: Configure CMake
         run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}
 
-      # Build project
       - name: Build
         run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
 
-      # Run tests
       - name: Run Unit Tests
         run: |
           cd build
           ctest --output-on-failure
 
-      # Upload test results
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -100,7 +80,6 @@ jobs:
           name: test-results-${{ matrix.os }}-${{ matrix.build_type }}
           path: build/Testing/Temporary
 
-      # Upload compiled binaries
       - name: Upload Artifacts
         if: success()
         uses: actions/upload-artifact@v4
