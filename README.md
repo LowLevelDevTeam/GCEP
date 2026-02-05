@@ -2,8 +2,8 @@
 
 ## Document Header
 - **Project Title:** C++ MoteurVulkan
-- **Version:** 1.0
-- **Date:** 2026-02-03
+- **Version:** 1.3
+- **Date:** 2026-02-05
 ---
 ## Authors
 | Author           | Contact                 |
@@ -15,11 +15,12 @@
 | Leo Grognet      | lgrognet@gaming.tech    |
 
 ## Revision History
-| Date       | Version | Description                        | Author                                                                          |
-|------------|---------|------------------------------------|---------------------------------------------------------------------------------|
-| 2026-02-04 | 1.2     | Document bottom half document fill | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
-| 2026-02-03 | 1.1     | Document General improvement       | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]                  |
-| 2026-02-03 | 1.0     | Initial document creation          | [Leo Grognet, Clément BOBEDA]                                                   |
+| Date       | Version | Description                                                        | Author                                                                          |
+|------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| 2026-02-04 | 1.3     | Naming Convention, Schematic tweaks and dependencies justification | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-04 | 1.2     | Document bottom half document fill                                 | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-03 | 1.1     | Document General improvement                                       | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]                  |
+| 2026-02-03 | 1.0     | Initial document creation                                          | [Leo Grognet, Clément BOBEDA]                                                   |
 
 ## Table of Contents
 1. [Introduction](#1-introduction)
@@ -97,10 +98,8 @@ The system is organized into three primary layers:
 
 ```mermaid
 graph TB
-    subgraph Repo [Repository]
 
 
-        direction TB
 
     %% --- ENGINE ---
         subgraph Engine [Engine]
@@ -143,7 +142,7 @@ graph TB
 
     %% --- LIAISONS LOGIQUES (CONNECTIVITY) ---
     %% L'Editor utilise l'Engine et les Libs
-        Editor --> Engine
+        Engine --> Editor
         UIW --- ImGui
         Viewport --- ImGuizmo
 
@@ -152,13 +151,9 @@ graph TB
         Engine --> GLM
         PhysW --> JoltPhysics
         AudioW --> Miniaudio
-        README{README}
-        GitIgnore{.gitignore}
 
-    end
 
 %% --- STYLES ---
-    style Repo fill:#3a424a,stroke:#000,stroke-width:4px
     style Engine fill:#705c51,stroke:#000,stroke-width:4px
     style Dependencies fill:#c2c1a5,stroke:#000, stroke-width:4px
     style Editor fill:#c2c1a5,stroke:#000,stroke-width:4px
@@ -175,7 +170,7 @@ graph TB
 - **Physics Engine:** Manages collision detection and physics simulations using Jolt Physics.
 - **Audio Engine:** Processes sound effects and music using miniaudio.
 - **Input Manager:** Captures keyboard, mouse, and gamepad events using GLFW.
-- **Window Manager:** Manages application window, dispatches and receive input events using GLFW 
+- **Window Manager:** Manages application window, dispatches and receive input events using GLFW
 - **Editor GUI:** Graphical user interface using ImGui
 - **Game Logic:** Integrates modules via a scripting interface.
 
@@ -189,14 +184,14 @@ graph TB
 - Play background music and trigger sound effects.
 - Capture and process user inputs.
 - Provide a scripting interface for game behavior customization.
-- Supports OBJ parsing. 
+- Supports OBJ parsing.
 
 ### 3.2 Non-Functional Requirements
 - **Performance:** Maintain a minimum of 60 FPS. Smart Pointers, Allocation Pools, Cache-Efficients Structures to achieve an optimized memory management.
 - **Scalability:** Modular design for easy extension. Use of RHI to allow the use of multiple graphics API. Feature proof choice of dependencies and technologies.
 - **Portability:** Support Windows, Linux, and macOS.
-- **Maintainability:** Clear code structure with thorough documentation. 
-- **Quality of Life:** Dynamic Asset Loading. ImGui Editor with window docking system and entity and ressources management.  
+- **Maintainability:** Clear code structure with thorough documentation.
+- **Quality of Life:** Dynamic Asset Loading. ImGui Editor with window docking system and entity and ressources management.
 
 ### 3.3 Use Cases
 - **Rendering:** Load and display complex scenes.
@@ -223,7 +218,7 @@ The engine employs an entity component system and a component based architecture
 - **Audio Module:** Interfaces with audio libraries. (miniaudio)
 - **Input Module:** Abstracts device-specific input. (GLFW)
 - **Game Logic Module:** Manages scripting and event coordination. (Core)
-- **Editor Module:** Manages Graphical User interface. (ImGui)  
+- **Editor Module:** Manages Graphical User interface. (ImGui)
 
 ### 4.3 Interaction Diagrams
 
@@ -236,13 +231,12 @@ User Input -> Game Logic -> Rendering Module -> GPU
 
 #### Game Loop Flowchart
 ```mermaid
-graph TD;
+graph
     A[Start Loop] --> B[Process Input];
     B --> C[Update Game State];
-    A --> D[Update Game Physics];
+    A --> |Fixed Update|D[Update Game Physics];
     C --> E[Render];
     E --> F[End Loop];
-    D --> F
 ```
 
 ### 4.4 Design Decisions and Rationale
@@ -314,7 +308,7 @@ int main() {
 ### 7.1 Performance Goals
 
 - Physics Update runs consistently at 60 tick per seconds.
-- Consistently achieve 120 FPS. 
+- Consistently achieve 120 FPS.
 - Optimize memory usage and processing overhead.
 
 ### 7.2 Profiling and Benchmarking
@@ -396,18 +390,66 @@ TEST(RendererTest, InitializeSuccess) {
 
 ---
 
-## 11. Appendices
+## 11. Project choices
 
-### 11.1 Glossary
+### 11.1 Graphical APIs
+
+- **Vulkan:** Cross-platfrom, multithreading, low-level with control over each step.
+- **Direct3D 12:** Not cross-platform.
+
+### 11.2 Audio APIs
+
+- **Miniaudio:** Minimal implementation, easy to abstract.
+
+### 11.3 Physics APIs
+
+- **Jolt:** Powerfull, Modern and Efficient
+
+### 11.4 Window manager APIs
+
+- **GLFW:** Can work easily with Vulkan.
+
+### 11.5 GUI library
+
+- **Dear ImGui:** Cross platform, multiple API compatibility layer.
+- **ImGuizmo:** works with ImGui
+
+### 11.6 Maths library
+
+- **GLM:** because their data structures are aligned with shaders.
+
+### 11.7 Build system
+
+- **CMake:** cross platform and highly customizable.
+
+### 11.8 Conventions
+
+
+| Élément          | Convention           | Exemple                 |
+|------------------|----------------------|-------------------------|
+| Nom de classe    | PascalCase           | `PlayerManager`         |
+| Nom de Structure | PascalCase           | `DataStruct`            |
+| Nom de fonction  | camelCase            | `calculateDamage()`     |
+| Variable         | camelCase            | `playerHealth`          |
+| Constante        | UPPER_CASE           | `MAX_SPEED`             |
+| Namespace        | lowercase            | `std`                   |
+| Macro            | Préfixe en majuscules | `#define DEBUG_MODE`    |
+| Fichier          | snake_case           | `player_controller.cpp` |
+
+---
+
+## 12. Appendices
+
+### 12.1 Glossary
 
 - **Game Engine:** The core framework managing all game processes.
 - **Module:** A self-contained component providing specific functionality.
 - **Shader:** A program executed on the GPU to control rendering.
 
-### 11.2 Additional Diagrams
+### 12.2 Additional Diagrams
 
 - Include any additional architectural diagrams or flowcharts as needed.
 
-### 11.3 References and Further Reading
+### 12.3 References and Further Reading
 
 - Additional resources on C++ game development and engine architecture.
