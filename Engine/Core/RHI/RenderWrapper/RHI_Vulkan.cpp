@@ -1,16 +1,29 @@
 #include "RHI_Vulkan.hpp"
 
-// Libs
-#include <GLFW/glfw3.h>
-
 // STL
-#include <ranges>
+#include <cstring>
 #include <iostream>
+#include <map>
+#include <ranges>
+
+using namespace gcep;
+
+RHI_Vulkan::RHI_Vulkan() {
+    std::cout << "RHI Vulkan" << std::endl;
+}
+
+void RHI_Vulkan::setWindow(GLFWwindow *window)
+{
+    m_window = window;
+}
 
 void RHI_Vulkan::initRHI()
 {
     createInstance();
     setupDebugMessenger();
+    createWindowSurface();
+    pickPhysicalDevice();
+    createLogicalDevice();
 }
 
 std::vector<const char*> getRequiredExtensions() {
@@ -19,7 +32,7 @@ std::vector<const char*> getRequiredExtensions() {
 
     std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
     if (enableValidationLayers) {
-        extensions.push_back(vk::EXTDebugUtilsExtensionName );
+        extensions.push_back(vk::EXTDebugUtilsExtensionName);
     }
 
     return extensions;
@@ -43,7 +56,7 @@ void RHI_Vulkan::createInstance()
     }
 
     // Check if the required layers are supported by Vulkan implementation.
-    std::vector<vk::LayerProperties> layerProperties = context.enumerateInstanceLayerProperties();
+    std::vector<vk::LayerProperties> layerProperties = m_context.enumerateInstanceLayerProperties();
     if (std::ranges::any_of(requiredLayers, [&layerProperties](auto const& requiredLayer) {
         return std::ranges::none_of(layerProperties,
                                    [requiredLayer](auto const& layerProperty)
@@ -53,19 +66,17 @@ void RHI_Vulkan::createInstance()
         throw std::runtime_error("One or more required layers are not supported!");
     }
 
+    // Get the required extensions.
     auto requiredExtensions = getRequiredExtensions();
-    auto extensionsProperties = context.enumerateInstanceExtensionProperties();
 
-    for (uint32_t i = 0; i < extensionsProperties.size(); ++i)
+    // Check if the required extensions are supported by the Vulkan implementation.
+    auto extensionProperties = m_context.enumerateInstanceExtensionProperties();
+    for (auto const &requiredExtension : requiredExtensions)
     {
-        auto isExtensionsPresent = [extension = requiredExtensions[i]](auto const& extensionProperty)
+        if (std::ranges::none_of(extensionProperties,
+                                 [requiredExtension](auto const &extensionProperty) { return strcmp(extensionProperty.extensionName, requiredExtension) == 0; }))
         {
-            return strcmp(extensionProperty.extensionName, extension) == 0;
-        };
-
-        if (std::ranges::none_of(extensionsProperties, isExtensionsPresent))
-        {
-            throw std::runtime_error("Required GLFW extension not supported: " + std::string(requiredExtensions[i]));
+            throw std::runtime_error("Required extension not supported: " + std::string(requiredExtension));
         }
     }
 
@@ -76,13 +87,15 @@ void RHI_Vulkan::createInstance()
     createInfo.enabledExtensionCount   = requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-    instance = vk::raii::Instance(context, createInfo);
+    m_instance = vk::raii::Instance(m_context, createInfo);
 }
 
 void RHI_Vulkan::setupDebugMessenger()
 {
     if (!enableValidationLayers)
+    {
         return;
+    }
 
     vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
     vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
@@ -92,7 +105,7 @@ void RHI_Vulkan::setupDebugMessenger()
     debugUtilsMessengerCreateInfoEXT.messageType     = messageTypeFlags;
     debugUtilsMessengerCreateInfoEXT.pfnUserCallback = &debugCallback;
 
-    debugMessenger = instance.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfoEXT);
+    m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfoEXT);
 }
 
 VKAPI_ATTR vk::Bool32 VKAPI_CALL RHI_Vulkan::debugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type, const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void*)
@@ -105,12 +118,150 @@ VKAPI_ATTR vk::Bool32 VKAPI_CALL RHI_Vulkan::debugCallback(vk::DebugUtilsMessage
     return vk::False;
 }
 
-vk::raii::Context *RHI_Vulkan::getContext()
+void RHI_Vulkan::pickPhysicalDevice()
 {
-    return &context;
+    std::vector<vk::raii::PhysicalDevice> devices = m_instance.enumeratePhysicalDevices();
+    if (devices.empty())
+    {
+        throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+    }
+
+    std::multimap<int, vk::raii::PhysicalDevice> candidates;
+    for (auto& device : devices)
+    {
+        if (!isSuitable(device))
+        {
+            continue;
+        }
+        auto deviceProperties = device.getProperties();
+        uint32_t score = 0;
+
+        if (deviceProperties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
+        {
+            score += 1000;
+        }
+
+        score += deviceProperties.limits.maxImageDimension2D;
+        candidates.insert(std::make_pair(score, device));
+    }
+
+    if (candidates.empty())
+    {
+        throw std::runtime_error("Failed to find a suitable physical device!");
+    }
+    m_physicalDevice = candidates.rbegin()->second;
+
 }
 
-vk::raii::Instance *RHI_Vulkan::getInstance()
+bool RHI_Vulkan::isSuitable(vk::raii::PhysicalDevice device)
 {
-    return &instance;
+    auto extensions = device.enumerateDeviceExtensionProperties();
+    auto deviceFeatures = device.getFeatures();
+
+    //Check required features :
+    if (deviceFeatures.geometryShader == VK_TRUE
+       && deviceFeatures.samplerAnisotropy == VK_TRUE)
+    {
+        std::cout << "Suitable Vulkan extensions" << std::endl;
+        return true;
+    }
+
+    std::cout << "Not Suitable Vulkan extensions" << std::endl;
+    return false;
+}
+
+void RHI_Vulkan::drawTriangle() {
+    std::cout << "Triangle!" << std::endl;
+}
+
+uint32_t RHI_Vulkan::findQueueFamilies(vk::raii::PhysicalDevice device)
+{
+    std::vector<vk::QueueFamilyProperties> queueFamilyProperties = device.getQueueFamilyProperties();
+    auto graphicsQueueFamilyProperty =
+        std::find_if( queueFamilyProperties.begin(),
+                    queueFamilyProperties.end(),
+                    []( vk::QueueFamilyProperties const & qfp ) { return qfp.queueFlags & vk::QueueFlagBits::eGraphics; } );
+
+    if (graphicsQueueFamilyProperty == queueFamilyProperties.end())
+    {
+        throw std::runtime_error("Failed to find graphics queue family!");
+    }
+
+    // Index of graphicsQueueFamilyProperty inside queueFamilyProperties
+    return static_cast<uint32_t>(std::distance(queueFamilyProperties.begin(), graphicsQueueFamilyProperty));
+}
+
+void RHI_Vulkan::createLogicalDevice()
+{
+    std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
+
+	// get the first index into queueFamilyProperties which supports both graphics and present
+	uint32_t queueIndex = ~0;
+
+	for (uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++)
+	{
+		if ((queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
+			m_physicalDevice.getSurfaceSupportKHR(qfpIndex, *m_surface))
+		{
+			// found a queue family that supports both graphics and present
+			queueIndex = qfpIndex;
+			break;
+		}
+	}
+
+	if (queueIndex == ~0)
+	{
+		throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
+	}
+
+	// query for Vulkan 1.3 features
+	//vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features, vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT> featureChain = {
+	//	{},                                   // vk::PhysicalDeviceFeatures2
+	//	{.dynamicRendering = true},           // vk::PhysicalDeviceVulkan13Features
+	//	{.extendedDynamicState = true}        // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+	//};
+
+	// create a Device
+	float                     queuePriority = 0.5f;
+	vk::DeviceQueueCreateInfo deviceQueueCreateInfo{};
+    deviceQueueCreateInfo.queueFamilyIndex = queueIndex;
+    deviceQueueCreateInfo.queueCount = 1;
+    deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+	vk::DeviceCreateInfo deviceCreateInfo{};
+    //deviceCreateInfo.pNext                   = &featureChain.get<vk::PhysicalDeviceFeatures2>();
+    deviceCreateInfo.queueCreateInfoCount    = 1;
+    deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
+    deviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(m_deviceExtensions.size());
+    deviceCreateInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
+
+	m_device        = vk::raii::Device(m_physicalDevice, deviceCreateInfo);
+	m_graphicsQueue = vk::raii::Queue(m_device, queueIndex, 0);
+}
+
+void RHI_Vulkan::createWindowSurface()
+{
+    VkSurfaceKHR surface;
+
+    if (glfwCreateWindowSurface(*m_instance, m_window, nullptr, &surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create window surface!");
+    }
+
+    m_surface = vk::raii::SurfaceKHR(m_instance, surface);
+}
+
+vk::raii::Context* RHI_Vulkan::getContext()
+{
+    return &m_context;
+}
+
+vk::raii::Instance* RHI_Vulkan::getInstance()
+{
+    return &m_instance;
+}
+
+vk::raii::PhysicalDevice* RHI_Vulkan::getPhysicalDevice()
+{
+    return &m_physicalDevice;
 }
