@@ -2,9 +2,11 @@
 
 #include <GLFW/glfw3.h>
 
-namespace gcep {
+namespace gcep
+{
 
-class Window {
+class Window
+{
 public:
     static Window& getInstance()
     {
@@ -16,15 +18,16 @@ public:
     Window& operator=(const Window&) = delete;
 
     void initWindow();
-public:
 
+public:
     GLFWwindow* getGlfwWindow();
+
 private:
     Window() = default;
     ~Window() = default;
 
 private:
-    GLFWwindow *m_window;
+    GLFWwindow* m_window;
 };
 
 } // Namespace gcep

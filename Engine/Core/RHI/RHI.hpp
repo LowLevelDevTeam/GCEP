@@ -3,13 +3,15 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-namespace gcep {
+namespace gcep
+{
 
-class RHI {
-public:
+class RHI
+{
+    public:
     virtual ~RHI() = default;
 
-protected:
+    protected:
     virtual void initRHI() = 0;
     virtual void drawTriangle() = 0;
     virtual void setWindow(GLFWwindow* window) = 0;
