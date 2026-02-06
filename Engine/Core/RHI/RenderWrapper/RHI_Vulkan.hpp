@@ -31,8 +31,6 @@ public:
 
     void setWindow(GLFWwindow* window) override;
 
-    void cleanupRHI() override;
-
 public:
     // @brief Get the current Vulkan RHI context.
     [[nodiscard("Context value ignored")]]
@@ -81,16 +79,15 @@ private:
     // @brief Creates the swap chain's image views.
     void createImageViews();
 
-    // @brief Destroys the debug messenger
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
-
-
 private:
+    // Keep these two variables declared first - order of destruction is reversed - they need to get destroyed last.
+
     vk::raii::Context                m_context;
-    vk::raii::DebugUtilsMessengerEXT m_debugMessenger = nullptr;
     vk::raii::Instance               m_instance = nullptr;
+
     vk::raii::PhysicalDevice         m_physicalDevice = nullptr;
     vk::raii::Device                 m_device = nullptr;
+    vk::raii::DebugUtilsMessengerEXT m_debugMessenger = nullptr;
     vk::raii::SurfaceKHR             m_surface = nullptr;
     vk::raii::Queue                  m_graphicsQueue = nullptr;
     vk::raii::SwapchainKHR           m_swapChain = nullptr;
