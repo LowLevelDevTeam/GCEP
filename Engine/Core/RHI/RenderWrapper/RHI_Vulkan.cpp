@@ -6,16 +6,9 @@
 #include <map>
 #include <ranges>
 
-using namespace gcep;
+namespace gcep {
 
-RHI_Vulkan::RHI_Vulkan() {
-    std::cout << "RHI Vulkan" << std::endl;
-}
-
-void RHI_Vulkan::setWindow(GLFWwindow *window)
-{
-    m_window = window;
-}
+RHI_Vulkan::RHI_Vulkan() = default;
 
 void RHI_Vulkan::initRHI()
 {
@@ -26,12 +19,21 @@ void RHI_Vulkan::initRHI()
     createLogicalDevice();
 }
 
-std::vector<const char*> getRequiredExtensions() {
+void RHI_Vulkan::drawTriangle() {}
+
+void RHI_Vulkan::setWindow(GLFWwindow *window)
+{
+    m_window = window;
+}
+
+std::vector<const char*> getRequiredExtensions()
+{
     uint32_t glfwExtensionCount = 0;
     auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    if (enableValidationLayers) {
+    if (enableValidationLayers)
+    {
         extensions.push_back(vk::EXTDebugUtilsExtensionName);
     }
 
@@ -92,7 +94,7 @@ void RHI_Vulkan::createInstance()
 
 void RHI_Vulkan::setupDebugMessenger()
 {
-    if (!enableValidationLayers)
+    if constexpr (!enableValidationLayers)
     {
         return;
     }
@@ -162,16 +164,10 @@ bool RHI_Vulkan::isSuitable(vk::raii::PhysicalDevice device)
     if (deviceFeatures.geometryShader == VK_TRUE
        && deviceFeatures.samplerAnisotropy == VK_TRUE)
     {
-        std::cout << "Suitable Vulkan extensions" << std::endl;
         return true;
     }
 
-    std::cout << "Not Suitable Vulkan extensions" << std::endl;
     return false;
-}
-
-void RHI_Vulkan::drawTriangle() {
-    std::cout << "Triangle!" << std::endl;
 }
 
 uint32_t RHI_Vulkan::findQueueFamilies(vk::raii::PhysicalDevice device)
@@ -195,48 +191,52 @@ void RHI_Vulkan::createLogicalDevice()
 {
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
 
-	// get the first index into queueFamilyProperties which supports both graphics and present
-	uint32_t queueIndex = ~0;
+    // get the first index into queueFamilyProperties which supports both graphics and present
+    uint32_t queueIndex = ~0;
 
-	for (uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++)
-	{
-		if ((queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
-			m_physicalDevice.getSurfaceSupportKHR(qfpIndex, *m_surface))
-		{
-			// found a queue family that supports both graphics and present
-			queueIndex = qfpIndex;
-			break;
-		}
-	}
+    for (uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++)
+    {
+        if ((queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
+            m_physicalDevice.getSurfaceSupportKHR(qfpIndex, *m_surface))
+        {
+            // found a queue family that supports both graphics and present
+            queueIndex = qfpIndex;
+            break;
+        }
+    }
 
-	if (queueIndex == ~0)
-	{
-		throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
-	}
+    if (queueIndex == ~0)
+    {
+        throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
+    }
 
-	// query for Vulkan 1.3 features
-	//vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features, vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT> featureChain = {
-	//	{},                                   // vk::PhysicalDeviceFeatures2
-	//	{.dynamicRendering = true},           // vk::PhysicalDeviceVulkan13Features
-	//	{.extendedDynamicState = true}        // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
-	//};
+    // Query for Vulkan 1.3 features
+    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT deviceExtendedDynamicStateFeatures{};
+    deviceExtendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
 
-	// create a Device
-	float                     queuePriority = 0.5f;
-	vk::DeviceQueueCreateInfo deviceQueueCreateInfo{};
+    vk::PhysicalDeviceVulkan13Features device13Features{};
+    device13Features.dynamicRendering = VK_TRUE;
+    device13Features.pNext = &deviceExtendedDynamicStateFeatures;
+
+    vk::PhysicalDeviceFeatures2 deviceFeatures2{};
+    deviceFeatures2.pNext = &device13Features;
+
+    // Create a Device
+    float queuePriority = 0.5f;
+    vk::DeviceQueueCreateInfo deviceQueueCreateInfo{};
     deviceQueueCreateInfo.queueFamilyIndex = queueIndex;
     deviceQueueCreateInfo.queueCount = 1;
     deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
 
-	vk::DeviceCreateInfo deviceCreateInfo{};
-    //deviceCreateInfo.pNext                   = &featureChain.get<vk::PhysicalDeviceFeatures2>();
+    vk::DeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.pNext                   = &deviceFeatures2;
     deviceCreateInfo.queueCreateInfoCount    = 1;
     deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
     deviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(m_deviceExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
-	m_device        = vk::raii::Device(m_physicalDevice, deviceCreateInfo);
-	m_graphicsQueue = vk::raii::Queue(m_device, queueIndex, 0);
+    m_device        = vk::raii::Device(m_physicalDevice, deviceCreateInfo);
+    m_graphicsQueue = vk::raii::Queue(m_device, queueIndex, 0);
 }
 
 void RHI_Vulkan::createWindowSurface()
@@ -265,3 +265,5 @@ vk::raii::PhysicalDevice* RHI_Vulkan::getPhysicalDevice()
 {
     return &m_physicalDevice;
 }
+
+} // Namespace gcep

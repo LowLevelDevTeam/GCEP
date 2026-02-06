@@ -8,9 +8,6 @@
 #define XSTR(x) #x
 #define STR(x) XSTR(x)
 
-#define EditorDir ../../../../Editor
-#include STR(EditorDir/Window/Window.hpp)
-
 namespace gcep {
 
 const std::vector<const char*> validationLayers = {

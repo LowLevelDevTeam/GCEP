@@ -3,7 +3,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-using namespace gcep;
+namespace gcep {
 
 void Window::initWindow()
 {
@@ -24,3 +24,5 @@ GLFWwindow *Window::getGlfwWindow()
 {
     return m_window;
 }
+
+} // Namespace gcep

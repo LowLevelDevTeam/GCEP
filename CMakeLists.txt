@@ -12,7 +12,6 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 
 file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp)
-message(STATUS ${CPP_SOURCES})
 
 # Adding the executable
 add_executable(GCEngine)
@@ -39,3 +38,6 @@ target_link_libraries(GCEngine PRIVATE Vulkan::Vulkan)
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
+
+# Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
+target_include_directories(GCEngine PRIVATE /)
