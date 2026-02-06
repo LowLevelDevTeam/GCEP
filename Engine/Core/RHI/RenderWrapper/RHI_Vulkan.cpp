@@ -30,6 +30,14 @@ void RHI_Vulkan::setWindow(GLFWwindow* window)
     m_window = window;
 }
 
+void RHI_Vulkan::cleanupRHI()
+{
+    if constexpr(enableValidationLayers)
+    {
+        DestroyDebugUtilsMessengerEXT(*m_instance, *m_debugMessenger, nullptr);
+    }
+}
+
 std::vector<const char*> getRequiredExtensions()
 {
     uint32_t glfwExtensionCount = 0;
@@ -122,6 +130,15 @@ void RHI_Vulkan::setupDebugMessenger()
     debugUtilsMessengerCreateInfoEXT.pfnUserCallback = &debugCallback;
 
     m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfoEXT);
+}
+
+void RHI_Vulkan::DestroyDebugUtilsMessengerEXT(const VkInstance instance, const VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator) {
+    const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")
+    );
+    if (func != nullptr) {
+        func(instance, debugMessenger, pAllocator);
+    }
 }
 
 VKAPI_ATTR vk::Bool32 VKAPI_CALL RHI_Vulkan::debugCallback(

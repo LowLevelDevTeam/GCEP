@@ -15,6 +15,7 @@ class RHI
     virtual void initRHI() = 0;
     virtual void drawTriangle() = 0;
     virtual void setWindow(GLFWwindow* window) = 0;
+    virtual void cleanupRHI() = 0;
 };
 
 } // Namespace gcep

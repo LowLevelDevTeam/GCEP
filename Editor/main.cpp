@@ -3,12 +3,6 @@
 #include <Editor/Window/Window.hpp>
 #include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
 
-void cleanup()
-{
-    glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
-    glfwTerminate();
-}
-
 int main()
 {
     gcep::RHI_Vulkan rhi;
@@ -27,6 +21,9 @@ int main()
     {
         glfwPollEvents();
     }
-    cleanup();
+    rhi.cleanupRHI();
+    glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
+    glfwTerminate();
+
     return 0;
 }

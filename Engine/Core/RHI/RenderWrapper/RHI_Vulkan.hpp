@@ -31,6 +31,8 @@ public:
 
     void setWindow(GLFWwindow* window) override;
 
+    void cleanupRHI() override;
+
 public:
     // @brief Get the current Vulkan RHI context.
     [[nodiscard("Context value ignored")]]
@@ -78,6 +80,9 @@ private:
 
     // @brief Creates the swap chain's image views.
     void createImageViews();
+
+    // @brief Destroys the debug messenger
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
 
 
 private:
