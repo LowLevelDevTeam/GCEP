@@ -31,6 +31,8 @@ public:
 
     void setWindow(GLFWwindow* window) override;
 
+    void cleanup() override;
+
 public:
     // @brief Get the current Vulkan RHI context.
     [[nodiscard("Context value ignored")]]
@@ -122,10 +124,13 @@ private:
     vk::raii::PipelineLayout         m_pipelineLayout   = nullptr;
     vk::raii::Pipeline               m_graphicsPipeline = nullptr;
     vk::raii::CommandPool            m_commandPool      = nullptr;
-    vk::raii::CommandBuffer          m_commandBuffer    = nullptr;
-    vk::raii::Semaphore m_presentCompleteSemaphore      = nullptr;
-    vk::raii::Semaphore m_renderFinishedSemaphore       = nullptr;
-    vk::raii::Fence m_drawFence                         = nullptr;
+    std::vector<vk::raii::CommandBuffer> m_commandBuffers;
+    std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
+    std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
+    std::vector<vk::raii::Fence> m_inFlightFences;
+
+    uint32_t m_frameIndex = 0;
+    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     std::vector<const char*> m_deviceExtensions = {vk::KHRSwapchainExtensionName};
 

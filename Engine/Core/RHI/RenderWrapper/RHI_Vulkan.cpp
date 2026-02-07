@@ -31,39 +31,53 @@ void RHI_Vulkan::initRHI()
 
 void RHI_Vulkan::drawFrame()
 {
-    auto fenceResult = m_device.waitForFences(*m_drawFence, vk::True, UINT64_MAX);
+    auto fenceResult = m_device.waitForFences(*m_inFlightFences[m_frameIndex], vk::True, UINT64_MAX);
+    if (fenceResult != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("failed to wait for fence!");
+    }
 
-    auto [result, imageIndex] = m_swapChain.acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphore, nullptr);
+    m_device.resetFences(*m_inFlightFences[m_frameIndex]);
 
+
+    auto [result, imageIndex] = m_swapChain.acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphores[m_frameIndex], nullptr);
+
+    m_commandBuffers[m_frameIndex].reset();
     recordCommandBuffer(imageIndex);
-    m_device.resetFences(*m_drawFence);
 
     vk::PipelineStageFlags waitDestinationStageMask (vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
     vk::SubmitInfo submitInfo{};
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &*m_presentCompleteSemaphore;
+    submitInfo.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex];
     submitInfo.pWaitDstStageMask = &waitDestinationStageMask;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &*m_commandBuffer;
+    submitInfo.pCommandBuffers = &*m_commandBuffers[m_frameIndex];
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &*m_renderFinishedSemaphore;
+    submitInfo.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex];
 
-    m_graphicsQueue.submit(submitInfo, *m_drawFence);
+    m_graphicsQueue.submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
     vk::PresentInfoKHR presentInfoKHR{};
     presentInfoKHR.waitSemaphoreCount = 1;
-    presentInfoKHR.pWaitSemaphores = &*m_renderFinishedSemaphore;
+    presentInfoKHR.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex];
     presentInfoKHR.swapchainCount = 1;
     presentInfoKHR.pSwapchains = &*m_swapChain;
     presentInfoKHR.pImageIndices = &imageIndex;
 
     result = m_graphicsQueue.presentKHR(presentInfoKHR);
+
+    m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void RHI_Vulkan::setWindow(GLFWwindow* window)
 {
     m_window = window;
+}
+
+void RHI_Vulkan::cleanup()
+{
+    m_device.waitIdle();
 }
 
 std::vector<const char*> getRequiredExtensions()
@@ -266,6 +280,7 @@ void RHI_Vulkan::createLogicalDevice()
 
     vk::PhysicalDeviceVulkan13Features device13Features{};
     device13Features.dynamicRendering = vk::True;
+    device13Features.synchronization2 = vk::True;
     device13Features.pNext            = &deviceExtendedDynamicStateFeatures;
 
     vk::PhysicalDeviceFeatures2 deviceFeatures2{};
@@ -456,7 +471,7 @@ void RHI_Vulkan::createGraphicsPipeline()
     colorBlending.pAttachments    = &colorBlendAttachment;
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.setLayoutCount         = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
@@ -529,9 +544,9 @@ void RHI_Vulkan::createCommandBuffer()
 
     allocInfo.commandPool        = m_commandPool;
     allocInfo.level              = vk::CommandBufferLevel::ePrimary;
-    allocInfo.commandBufferCount = 1;
+    allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
 
-    m_commandBuffer = std::move(vk::raii::CommandBuffers(m_device, allocInfo).front());
+    m_commandBuffers = vk::raii::CommandBuffers(m_device, allocInfo);
 }
 
 
@@ -548,30 +563,31 @@ void RHI_Vulkan::transitionImageLayout(uint32_t imageIndex,
     subresourceRange.layerCount     = 1;
 
     vk::ImageMemoryBarrier2 barrier {};
-    barrier.srcStageMask  = srcStageMask;
-    barrier.srcAccessMask = srcAccessMask;
-    barrier.dstStageMask = dstStageMask;
-    barrier.dstAccessMask = dstAccessMask;
-    barrier.oldLayout = oldLayout;
-    barrier.newLayout = newLayout;
+    barrier.srcStageMask        = srcStageMask;
+    barrier.srcAccessMask       = srcAccessMask;
+    barrier.dstStageMask        = dstStageMask;
+    barrier.dstAccessMask       = dstAccessMask;
+    barrier.oldLayout           = oldLayout;
+    barrier.newLayout           = newLayout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = m_swapChainImages[imageIndex];
-    barrier.subresourceRange = subresourceRange;
+    barrier.image               = m_swapChainImages[imageIndex];
+    barrier.subresourceRange    = subresourceRange;
 
     vk::DependencyFlags dependencyFlags = {};
 
     vk::DependencyInfo dependencyInfo {};
-    dependencyInfo.dependencyFlags = dependencyFlags;
+    dependencyInfo.dependencyFlags         = dependencyFlags;
     dependencyInfo.imageMemoryBarrierCount = 1;
-    dependencyInfo.pImageMemoryBarriers = &barrier;
+    dependencyInfo.pImageMemoryBarriers    = &barrier;
 
-    m_commandBuffer.pipelineBarrier2(dependencyInfo);
-
+    m_commandBuffers[m_frameIndex].pipelineBarrier2(dependencyInfo);
 }
 
 void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
 {
+    auto& m_commandBuffer = m_commandBuffers[m_frameIndex];
+
     m_commandBuffer.begin({});
     transitionImageLayout(imageIndex,
                           vk::ImageLayout::eUndefined,
@@ -585,22 +601,22 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     // TODO: Replace with ImGui ImVec4
     vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.33f, 0.46f, 1.0f);
     vk::RenderingAttachmentInfo attachmentInfo{};
-    attachmentInfo.imageView = m_swapChainImageViews[imageIndex];
-    attachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    attachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
-    attachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
-    attachmentInfo.clearValue = clearColor;
+    attachmentInfo.imageView    = m_swapChainImageViews[imageIndex];
+    attachmentInfo.imageLayout  = vk::ImageLayout::eColorAttachmentOptimal;
+    attachmentInfo.loadOp       = vk::AttachmentLoadOp::eClear;
+    attachmentInfo.storeOp      = vk::AttachmentStoreOp::eStore;
+    attachmentInfo.clearValue   = clearColor;
 
     vk::Rect2D renderArea{};
     renderArea.offset.x = 0;
     renderArea.offset.y = 0;
-    renderArea.extent = m_swapChainExtent;
+    renderArea.extent   = m_swapChainExtent;
 
     vk::RenderingInfo renderingInfo{};
-    renderingInfo.renderArea = renderArea;
-    renderingInfo.layerCount  = 1;
+    renderingInfo.renderArea           = renderArea;
+    renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = 1;
-    renderingInfo.pColorAttachments = &attachmentInfo;
+    renderingInfo.pColorAttachments    = &attachmentInfo;
 
     m_commandBuffer.beginRendering(renderingInfo);
 
@@ -626,10 +642,15 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
 
 void RHI_Vulkan::createSyncObjects()
 {
-    m_presentCompleteSemaphore = vk::raii::Semaphore(m_device, vk::SemaphoreCreateInfo());
-    m_renderFinishedSemaphore  = vk::raii::Semaphore(m_device, vk::SemaphoreCreateInfo());
-    m_drawFence                = vk::raii::Fence(m_device, vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
-
+    for (size_t i = 0; i < m_swapChainImages.size(); i++)
+    {
+        m_renderFinishedSemaphores.emplace_back(m_device, vk::SemaphoreCreateInfo());
+    }
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        m_presentCompleteSemaphores.emplace_back(m_device, vk::SemaphoreCreateInfo());
+        m_inFlightFences.emplace_back(m_device, vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
+    }
 }
 
 vk::raii::Context* RHI_Vulkan::getContext()

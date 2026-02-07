@@ -22,6 +22,7 @@ int main()
         glfwPollEvents();
         rhi.drawFrame();
     }
+    rhi.cleanup();
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
     glfwTerminate();
 
