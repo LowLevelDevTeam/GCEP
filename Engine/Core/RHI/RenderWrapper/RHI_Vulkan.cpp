@@ -359,7 +359,7 @@ void RHI_Vulkan::createImageViews()
 
 void RHI_Vulkan::createGraphicsPipeline()
 {
-    auto shaderCode = readShader("slang.spv");
+    auto shaderCode = readShader("triangle.spv");
     vk::raii::ShaderModule shaderModule= createShaderModule(shaderCode);
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo {};
