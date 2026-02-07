@@ -45,5 +45,5 @@ add_subdirectory(Externals)
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Compile the shaders
-add_slang_shader_target(Shaders SOURCES Engine/Core/RHI/RenderWrapper/Shaders/base_Shader.slang)
+add_slang_shader_target(Shaders SOURCES Engine/Core/RHI/RenderWrapper/Shaders/Base_Shader.slang)
 add_dependencies(GCEngine Shaders)

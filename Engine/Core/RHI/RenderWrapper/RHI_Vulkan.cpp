@@ -224,9 +224,14 @@ void RHI_Vulkan::createLogicalDevice()
         throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
     }
 
+    // Enable shaderDrawParameters (Vulkan 1.1 feature) required by SPIR-V DrawParameters capability
+    vk::PhysicalDeviceVulkan11Features device11Features{};
+    device11Features.shaderDrawParameters = vk::True;
+
     // Query for Vulkan 1.3 features
     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT deviceExtendedDynamicStateFeatures{};
     deviceExtendedDynamicStateFeatures.extendedDynamicState = vk::True;
+    deviceExtendedDynamicStateFeatures.pNext = &device11Features;
 
     vk::PhysicalDeviceVulkan13Features device13Features{};
     device13Features.dynamicRendering = vk::True;
@@ -359,17 +364,17 @@ void RHI_Vulkan::createImageViews()
 
 void RHI_Vulkan::createGraphicsPipeline()
 {
-    auto shaderCode = readShader("triangle.spv");
-    vk::raii::ShaderModule shaderModule= createShaderModule(shaderCode);
+    auto shaderCode = readShader("Base_Shader.spv");
+    vk::raii::ShaderModule shaderModule = createShaderModule(shaderCode);
 
     vk::PipelineShaderStageCreateInfo vertexShaderStageInfo {};
     vertexShaderStageInfo.stage     = vk::ShaderStageFlagBits::eVertex;
-    vertexShaderStageInfo.module = shaderModule;
+    vertexShaderStageInfo.module    = shaderModule;
     vertexShaderStageInfo.pName     = "vertMain";
 
     vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo {};
     fragmentShaderStageInfo.stage     = vk::ShaderStageFlagBits::eFragment;
-    fragmentShaderStageInfo.module = shaderModule;
+    fragmentShaderStageInfo.module    = shaderModule;
     fragmentShaderStageInfo.pName     = "fragMain";
 
     vk::PipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageInfo, fragmentShaderStageInfo};
@@ -393,8 +398,6 @@ std::vector<char> RHI_Vulkan::readShader(const std::string& fileName)
     file.seekg(0, std::ios::beg);
     file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
 
-
-    std::cout << buffer.size() << std::endl;
     file.close();
     return buffer;
 }

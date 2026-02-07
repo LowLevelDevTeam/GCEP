@@ -2,28 +2,35 @@ function(add_slang_shader_target TARGET)
     set(SHADERS_DIR ${CMAKE_BINARY_DIR}/Shaders)
     file(MAKE_DIRECTORY ${SHADERS_DIR})
 
-    file(GLOB_RECURSE SHADER_SOURCES
-            CONFIGURE_DEPENDS
-            "${CMAKE_SOURCE_DIR}/Engine/*.slang"
+    file(GLOB_RECURSE SLANG_FILES
+         CONFIGURE_DEPENDS
+         "${CMAKE_SOURCE_DIR}/Engine/*.slang"
     )
 
     find_program(SLANGC_EXECUTABLE slangc REQUIRED)
 
-    add_custom_command(
-            OUTPUT ${SHADERS_DIR}/triangle.spv
-            COMMAND ${SLANGC_EXECUTABLE}
-            ${SHADER_SOURCES}
-            -target spirv
-            -profile spirv_1_4
-            -emit-spirv-directly
-            -fvk-use-entrypoint-name
-            -entry vertMain
-            -entry fragMain
-            -o ${SHADERS_DIR}/triangle.spv
-            DEPENDS ${SHADER_SOURCES}
-            COMMENT "Compiling Slang Shaders"
-            VERBATIM
-    )
+    set(GENERATED_SPVS)
+    foreach(SRC IN LISTS SLANG_FILES)
+        get_filename_component(FNAME ${SRC} NAME_WE)
+        set(OUT ${SHADERS_DIR}/${FNAME}.spv)
 
-    add_custom_target(${TARGET} DEPENDS ${SHADERS_DIR}/triangle.spv)
+        add_custom_command(
+            OUTPUT ${OUT}
+            COMMAND ${SLANGC_EXECUTABLE} ${SRC}
+                    -target spirv
+                    -profile spirv_1_4
+                    -emit-spirv-directly
+                    -fvk-use-entrypoint-name
+                    -entry vertMain
+                    -entry fragMain
+                    -o ${OUT}
+            DEPENDS ${SRC}
+            COMMENT "Compiling ${SRC} -> ${OUT}"
+            VERBATIM
+        )
+
+        list(APPEND GENERATED_SPVS ${OUT})
+    endforeach()
+
+    add_custom_target(${TARGET} DEPENDS ${GENERATED_SPVS})
 endfunction()
