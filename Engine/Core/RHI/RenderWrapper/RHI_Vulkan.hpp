@@ -27,7 +27,7 @@ public:
     void initRHI() override;
 
     // @brief Draws the hello triangle.
-    void drawTriangle() override;
+    void drawFrame() override;
 
     void setWindow(GLFWwindow* window) override;
 
@@ -84,22 +84,48 @@ private:
     static std::vector<char> readShader(const std::string& fileName);
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
 
+    // @brief Creates the command pool for the command buffers
+    void createCommandPool();
+
+    // @brief Creates the command buffer for recording draw commands.
+    void createCommandBuffer();
+
+    // @brief Records the command buffer at a given image index
+    void recordCommandBuffer(uint32_t imageIndex);
+
+    // @brief Helper function to transition an image layout using given source and destination masks.
+    void transitionImageLayout(uint32_t imageIndex,
+        vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+        vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
+        vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask);
+
+    // @brief Creates the synchronization objects for the draw frame function.
+    void createSyncObjects();
+
 private:
     // Keep these two variables declared first - order of destruction is reversed - they need to get destroyed last.
 
     vk::raii::Context                m_context;
-    vk::raii::Instance               m_instance = nullptr;
+    vk::raii::Instance               m_instance         = nullptr;
 
-    vk::raii::PhysicalDevice         m_physicalDevice = nullptr;
-    vk::raii::Device                 m_device = nullptr;
-    vk::raii::DebugUtilsMessengerEXT m_debugMessenger = nullptr;
-    vk::raii::SurfaceKHR             m_surface = nullptr;
-    vk::raii::Queue                  m_graphicsQueue = nullptr;
-    vk::raii::SwapchainKHR           m_swapChain = nullptr;
+    vk::raii::PhysicalDevice         m_physicalDevice   = nullptr;
+    vk::raii::Device                 m_device           = nullptr;
+    vk::raii::DebugUtilsMessengerEXT m_debugMessenger   = nullptr;
+    vk::raii::SurfaceKHR             m_surface          = nullptr;
+    vk::raii::Queue                  m_graphicsQueue    = nullptr;
+    uint32_t                         m_graphicsIndex    = 0;
+    vk::raii::SwapchainKHR           m_swapChain        = nullptr;
     vk::SurfaceFormatKHR             m_swapChainSurfaceFormat;
     vk::Extent2D                     m_swapChainExtent;
     std::vector<vk::Image>           m_swapChainImages;
     std::vector<vk::raii::ImageView> m_swapChainImageViews;
+    vk::raii::PipelineLayout         m_pipelineLayout   = nullptr;
+    vk::raii::Pipeline               m_graphicsPipeline = nullptr;
+    vk::raii::CommandPool            m_commandPool      = nullptr;
+    vk::raii::CommandBuffer          m_commandBuffer    = nullptr;
+    vk::raii::Semaphore m_presentCompleteSemaphore      = nullptr;
+    vk::raii::Semaphore m_renderFinishedSemaphore       = nullptr;
+    vk::raii::Fence m_drawFence                         = nullptr;
 
     std::vector<const char*> m_deviceExtensions = {vk::KHRSwapchainExtensionName};
 

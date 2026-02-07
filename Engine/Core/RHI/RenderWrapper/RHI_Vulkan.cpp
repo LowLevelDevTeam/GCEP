@@ -24,9 +24,42 @@ void RHI_Vulkan::initRHI()
     createSwapChain();
     createImageViews();
     createGraphicsPipeline();
+    createCommandPool();
+    createCommandBuffer();
+    createSyncObjects();
 }
 
-void RHI_Vulkan::drawTriangle() {}
+void RHI_Vulkan::drawFrame()
+{
+    auto fenceResult = m_device.waitForFences(*m_drawFence, vk::True, UINT64_MAX);
+
+    auto [result, imageIndex] = m_swapChain.acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphore, nullptr);
+
+    recordCommandBuffer(imageIndex);
+    m_device.resetFences(*m_drawFence);
+
+    vk::PipelineStageFlags waitDestinationStageMask (vk::PipelineStageFlagBits::eColorAttachmentOutput);
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &*m_presentCompleteSemaphore;
+    submitInfo.pWaitDstStageMask = &waitDestinationStageMask;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &*m_commandBuffer;
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &*m_renderFinishedSemaphore;
+
+    m_graphicsQueue.submit(submitInfo, *m_drawFence);
+
+    vk::PresentInfoKHR presentInfoKHR{};
+    presentInfoKHR.waitSemaphoreCount = 1;
+    presentInfoKHR.pWaitSemaphores = &*m_renderFinishedSemaphore;
+    presentInfoKHR.swapchainCount = 1;
+    presentInfoKHR.pSwapchains = &*m_swapChain;
+    presentInfoKHR.pImageIndices = &imageIndex;
+
+    result = m_graphicsQueue.presentKHR(presentInfoKHR);
+}
 
 void RHI_Vulkan::setWindow(GLFWwindow* window)
 {
@@ -207,19 +240,17 @@ void RHI_Vulkan::createLogicalDevice()
 {
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
 
-    uint32_t queueIndex = ~0;
-
     for (uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++)
     {
         if ((queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
             m_physicalDevice.getSurfaceSupportKHR(qfpIndex, *m_surface))
         {
-            queueIndex = qfpIndex;
+            m_graphicsIndex = qfpIndex;
             break;
         }
     }
 
-    if (queueIndex == ~0)
+    if (m_graphicsIndex == ~0)
     {
         throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
     }
@@ -242,7 +273,7 @@ void RHI_Vulkan::createLogicalDevice()
 
     float queuePriority = 0.5f;
     vk::DeviceQueueCreateInfo deviceQueueCreateInfo{};
-    deviceQueueCreateInfo.queueFamilyIndex = queueIndex;
+    deviceQueueCreateInfo.queueFamilyIndex = m_graphicsIndex;
     deviceQueueCreateInfo.queueCount       = 1;
     deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
 
@@ -254,7 +285,7 @@ void RHI_Vulkan::createLogicalDevice()
     deviceCreateInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
     m_device        = vk::raii::Device(m_physicalDevice, deviceCreateInfo);
-    m_graphicsQueue = vk::raii::Queue(m_device, queueIndex, 0);
+    m_graphicsQueue = vk::raii::Queue(m_device, m_graphicsIndex, 0);
 }
 
 void RHI_Vulkan::createWindowSurface()
@@ -378,6 +409,77 @@ void RHI_Vulkan::createGraphicsPipeline()
     fragmentShaderStageInfo.pName     = "fragMain";
 
     vk::PipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageInfo, fragmentShaderStageInfo};
+
+    std::vector dynamicStates =
+    {
+        vk::DynamicState::eViewport,
+        vk::DynamicState::eScissor,
+    };
+
+    vk::PipelineDynamicStateCreateInfo dynamicState{};
+    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState.pDynamicStates    = dynamicStates.data();
+
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly {};
+    inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+
+    vk::PipelineViewportStateCreateInfo viewportState{};
+    viewportState.viewportCount = 1;
+    viewportState.scissorCount  = 1;
+
+    vk::PipelineRasterizationStateCreateInfo rasterizer {};
+    rasterizer.depthClampEnable        = vk::False;
+    rasterizer.rasterizerDiscardEnable = vk::False;
+    rasterizer.polygonMode             = vk::PolygonMode::eFill;
+    rasterizer.cullMode                = vk::CullModeFlagBits::eBack;
+    rasterizer.frontFace               = vk::FrontFace::eClockwise;
+    rasterizer.depthBiasEnable         = vk::False;
+    rasterizer.depthBiasSlopeFactor    = 1.0f;
+    rasterizer.lineWidth               = 1.0f;
+
+    vk::PipelineMultisampleStateCreateInfo multisampling = {};
+    multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    multisampling.sampleShadingEnable  = vk::False;
+
+    vk::PipelineDepthStencilStateCreateInfo depthStencil {};
+
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment {};
+    colorBlendAttachment.blendEnable    = vk::False;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+
+    vk::PipelineColorBlendStateCreateInfo colorBlending{};
+    colorBlending.logicOpEnable   = vk::False;
+    colorBlending.logicOp         = vk::LogicOp::eCopy;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments    = &colorBlendAttachment;
+
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+
+    m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
+
+    vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
+    pipelineRenderingCreateInfo.colorAttachmentCount    = 1;
+    pipelineRenderingCreateInfo.pColorAttachmentFormats = &m_swapChainSurfaceFormat.format;
+
+    vk::GraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.pNext               = &pipelineRenderingCreateInfo;
+    pipelineInfo.stageCount          = 2;
+    pipelineInfo.pStages             = shaderStages;
+    pipelineInfo.pVertexInputState   = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState      = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState   = &multisampling;
+    pipelineInfo.pColorBlendState    = &colorBlending;
+    pipelineInfo.pDynamicState       = &dynamicState;
+    pipelineInfo.layout              = m_pipelineLayout;
+    pipelineInfo.renderPass          = nullptr;
+
+    m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, pipelineInfo);
 }
 
 std::vector<char> RHI_Vulkan::readShader(const std::string& fileName)
@@ -410,6 +512,124 @@ vk::raii::ShaderModule RHI_Vulkan::createShaderModule(const std::vector<char>& s
 
     vk::raii::ShaderModule shaderModule{m_device, createInfo};
     return shaderModule;
+}
+
+void RHI_Vulkan::createCommandPool()
+{
+    vk::CommandPoolCreateInfo poolInfo{};
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    poolInfo.queueFamilyIndex = m_graphicsIndex;
+
+    m_commandPool = vk::raii::CommandPool(m_device, poolInfo);
+}
+
+void RHI_Vulkan::createCommandBuffer()
+{
+    vk::CommandBufferAllocateInfo allocInfo{};
+
+    allocInfo.commandPool        = m_commandPool;
+    allocInfo.level              = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = 1;
+
+    m_commandBuffer = std::move(vk::raii::CommandBuffers(m_device, allocInfo).front());
+}
+
+
+void RHI_Vulkan::transitionImageLayout(uint32_t imageIndex,
+                                       vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                                       vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
+                                       vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask)
+{
+    vk::ImageSubresourceRange subresourceRange;
+    subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
+    subresourceRange.baseMipLevel   = 0;
+    subresourceRange.levelCount     = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount     = 1;
+
+    vk::ImageMemoryBarrier2 barrier {};
+    barrier.srcStageMask  = srcStageMask;
+    barrier.srcAccessMask = srcAccessMask;
+    barrier.dstStageMask = dstStageMask;
+    barrier.dstAccessMask = dstAccessMask;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = m_swapChainImages[imageIndex];
+    barrier.subresourceRange = subresourceRange;
+
+    vk::DependencyFlags dependencyFlags = {};
+
+    vk::DependencyInfo dependencyInfo {};
+    dependencyInfo.dependencyFlags = dependencyFlags;
+    dependencyInfo.imageMemoryBarrierCount = 1;
+    dependencyInfo.pImageMemoryBarriers = &barrier;
+
+    m_commandBuffer.pipelineBarrier2(dependencyInfo);
+
+}
+
+void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
+{
+    m_commandBuffer.begin({});
+    transitionImageLayout(imageIndex,
+                          vk::ImageLayout::eUndefined,
+                          vk::ImageLayout::eColorAttachmentOptimal,
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput ,
+                          {},
+                          vk::AccessFlagBits2::eColorAttachmentWrite
+    );
+
+    // TODO: Replace with ImGui ImVec4
+    vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.33f, 0.46f, 1.0f);
+    vk::RenderingAttachmentInfo attachmentInfo{};
+    attachmentInfo.imageView = m_swapChainImageViews[imageIndex];
+    attachmentInfo.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    attachmentInfo.loadOp = vk::AttachmentLoadOp::eClear;
+    attachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
+    attachmentInfo.clearValue = clearColor;
+
+    vk::Rect2D renderArea{};
+    renderArea.offset.x = 0;
+    renderArea.offset.y = 0;
+    renderArea.extent = m_swapChainExtent;
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.renderArea = renderArea;
+    renderingInfo.layerCount  = 1;
+    renderingInfo.colorAttachmentCount = 1;
+    renderingInfo.pColorAttachments = &attachmentInfo;
+
+    m_commandBuffer.beginRendering(renderingInfo);
+
+    m_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline);
+    m_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_swapChainExtent.width), static_cast<float>(m_swapChainExtent.height), 0.0f, 1.0f));
+    m_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), m_swapChainExtent));
+
+    m_commandBuffer.draw(3,1,0,0);
+
+    m_commandBuffer.endRendering();
+
+    transitionImageLayout(imageIndex,
+        vk::ImageLayout::eColorAttachmentOptimal,
+        vk::ImageLayout::ePresentSrcKHR,
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        vk::PipelineStageFlagBits2::eBottomOfPipe,
+        vk::AccessFlagBits2::eColorAttachmentWrite,
+        {}
+    );
+
+    m_commandBuffer.end();
+}
+
+void RHI_Vulkan::createSyncObjects()
+{
+    m_presentCompleteSemaphore = vk::raii::Semaphore(m_device, vk::SemaphoreCreateInfo());
+    m_renderFinishedSemaphore  = vk::raii::Semaphore(m_device, vk::SemaphoreCreateInfo());
+    m_drawFence                = vk::raii::Fence(m_device, vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
+
 }
 
 vk::raii::Context* RHI_Vulkan::getContext()

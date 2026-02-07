@@ -20,6 +20,7 @@ int main()
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
+        rhi.drawFrame();
     }
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
     glfwTerminate();
