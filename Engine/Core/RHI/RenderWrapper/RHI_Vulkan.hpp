@@ -79,6 +79,11 @@ private:
     // @brief Creates the swap chain's image views.
     void createImageViews();
 
+    // @brief Create Graphics Pipeline
+    void createGraphicsPipeline();
+    static std::vector<char> readShader(const std::string& fileName);
+    [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
+
 private:
     // Keep these two variables declared first - order of destruction is reversed - they need to get destroyed last.
 

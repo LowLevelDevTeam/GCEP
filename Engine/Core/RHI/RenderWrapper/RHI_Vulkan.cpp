@@ -8,6 +8,8 @@
 #include <limits>
 #include <map>
 #include <ranges>
+#include <fstream>
+#include <filesystem>
 
 namespace gcep
 {
@@ -21,6 +23,7 @@ void RHI_Vulkan::initRHI()
     createLogicalDevice();
     createSwapChain();
     createImageViews();
+    createGraphicsPipeline();
 }
 
 void RHI_Vulkan::drawTriangle() {}
@@ -351,6 +354,59 @@ void RHI_Vulkan::createImageViews()
         imageViewCreateInfo.image = image;
         m_swapChainImageViews.emplace_back(m_device, imageViewCreateInfo);
     }
+}
+
+
+void RHI_Vulkan::createGraphicsPipeline()
+{
+    auto shaderCode = readShader("slang.spv");
+    vk::raii::ShaderModule shaderModule= createShaderModule(shaderCode);
+
+    vk::PipelineShaderStageCreateInfo vertexShaderStageInfo {};
+    vertexShaderStageInfo.stage     = vk::ShaderStageFlagBits::eVertex;
+    vertexShaderStageInfo.module = shaderModule;
+    vertexShaderStageInfo.pName     = "vertMain";
+
+    vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo {};
+    fragmentShaderStageInfo.stage     = vk::ShaderStageFlagBits::eFragment;
+    fragmentShaderStageInfo.module = shaderModule;
+    fragmentShaderStageInfo.pName     = "fragMain";
+
+    vk::PipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageInfo, fragmentShaderStageInfo};
+}
+
+std::vector<char> RHI_Vulkan::readShader(const std::string& fileName)
+{
+    const std::filesystem::path base = std::filesystem::current_path();
+    const std::filesystem::path path = base /"Shaders"/ fileName;
+
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        std::ostringstream oss;
+        oss << "Cannot open file: " << path.string();
+        throw std::runtime_error(oss.str());
+    }
+
+    std::vector<char> buffer(file.tellg());
+    file.seekg(0, std::ios::beg);
+    file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+
+
+    std::cout << buffer.size() << std::endl;
+    file.close();
+    return buffer;
+}
+
+vk::raii::ShaderModule RHI_Vulkan::createShaderModule(const std::vector<char>& shaderCode) const
+{
+    vk::ShaderModuleCreateInfo createInfo{};
+    createInfo.codeSize = shaderCode.size() * sizeof(char);
+    createInfo.pCode    = reinterpret_cast<const uint32_t*>(shaderCode.data());
+
+    vk::raii::ShaderModule shaderModule{m_device, createInfo};
+    return shaderModule;
 }
 
 vk::raii::Context* RHI_Vulkan::getContext()
