@@ -10,6 +10,7 @@
 #include <ranges>
 #include <fstream>
 #include <filesystem>
+#include <sstream>
 
 namespace gcep
 {
