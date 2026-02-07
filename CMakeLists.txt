@@ -40,4 +40,4 @@ add_subdirectory(Editor)
 add_subdirectory(Externals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
-target_include_directories(GCEngine PRIVATE /)
+target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

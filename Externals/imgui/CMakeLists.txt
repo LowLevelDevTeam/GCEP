@@ -11,8 +11,8 @@ set(IMGUI_SOURCES
 )
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 target_include_directories(ImGui PUBLIC
-        /
-        /backends
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/backends
 )
 target_link_libraries(ImGui PRIVATE glfw Vulkan::Vulkan)
 message(STATUS "ImGui: Version 1.92.5")
