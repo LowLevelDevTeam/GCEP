@@ -424,17 +424,29 @@ TEST(RendererTest, InitializeSuccess) {
 
 ### 11.8 Conventions
 
+| Element            | Convention                         | Example                          |
+|--------------------|------------------------------------|----------------------------------|
+| Namespace          | Lowercase                          | `gcep::render`                   |
+| Namespace prefix   | `gcep` (Gaming Campus Engine Paris)| `gcep::`                         |
+| Class name         | PascalCase                         | `RHI_Vulkan`                     |
+| Struct name        | PascalCase                         | `RenderData`                     |
+| Enum name          | PascalCase                         | `RenderBackend`                  |
+| Enum values        | PascalCase                         | `RenderBackend::Vulkan`          |
+| Function name      | camelCase, starts with a verb      | `createInstance()`               |
+| Getter name        | camelCase, starts with `get`       | `getContext()`                   |
+| Variable name      | camelCase                          | `frameIndex`                     |
+| Member variable    | `m_` + camelCase                   | `m_context`                      |
+| Constant           | UPPER_CASE                         | `MAX_FRAMES_IN_FLIGHT`           |
+| Macro              | UPPER_CASE                         | `DEBUG_MODE`                     |
+| File name          | snake_case                         | `rhi_vulkan.cpp`                 |
+| Header file        | snake_case                         | `rhi_vulkan.h`                   |
+| Indentation        | 4 spaces                           | `    int value;`                 |
+| Braces style       | Opening brace on new line          | `function()\n{}`                 |
+| Documentation      | Doxygen                            | `@brief Create instance`         |
+| Attributes         | `[[nodiscard]]` when applicable   | `[[nodiscard]] int getId();`     |
+| Includes ordering  | Internals / Externals / STL        | see include rules                |
+| Include sorting    | Alphabetical inside each group    | `<algorithm>` before `<vector>` |
 
-| Élément          | Convention           | Exemple                 |
-|------------------|----------------------|-------------------------|
-| Nom de classe    | PascalCase           | `PlayerManager`         |
-| Nom de Structure | PascalCase           | `DataStruct`            |
-| Nom de fonction  | camelCase            | `calculateDamage()`     |
-| Variable         | camelCase            | `playerHealth`          |
-| Constante        | UPPER_CASE           | `MAX_SPEED`             |
-| Namespace        | lowercase            | `std`                   |
-| Macro            | Préfixe en majuscules | `#define DEBUG_MODE`    |
-| Fichier          | snake_case           | `player_controller.cpp` |
 
 ---
 
