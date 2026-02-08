@@ -15,6 +15,7 @@ add_subdirectory(ImGuizmo)
 target_include_directories(GCEngine PRIVATE ImGuizmo)
 
 # JoltPhysics
+add_subdirectory(JoltPhysics/Build)
 target_include_directories(GCEngine PRIVATE JoltPhysics)
 
 # Miniaudio
@@ -22,4 +23,4 @@ add_subdirectory(miniaudio)
 target_include_directories(GCEngine PRIVATE miniaudio)
 
 # Final libraries linking
-target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio)
+target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio Jolt)
