@@ -1,12 +1,12 @@
 #pragma once
 
-// Libs
-#include <miniaudio.h>
-
 // STL
 #include <memory>
 
-namespace gce
+// Libs
+#include <miniaudio.h>
+
+namespace gcep
 {
     class AudioMixer;
     class AudioSource;
@@ -33,4 +33,4 @@ namespace gce
         AudioMixer* m_mixer = nullptr;
         uint32_t m_channels = 0;
     };
-} // gce
+} // gcep

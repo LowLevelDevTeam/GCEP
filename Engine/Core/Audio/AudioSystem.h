@@ -1,28 +1,33 @@
 #pragma once
 
-// Core
-#include "Audio.h"
-
 // STL
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
-namespace gce
+// Core
+#include "Audio.h"
+
+namespace gcep
 {
     class AudioSystem
     {
     public:
-        explicit AudioSystem(AudioDevice* device);
+        explicit AudioSystem();
         ~AudioSystem();
 
         std::shared_ptr<AudioSource> loadAudio(const std::string& filepath);
 
         void stopAll();
 
+        [[nodiscard]] static AudioSystem* getInstance();
+
     private:
-        AudioDevice* m_device;
+        static AudioSystem* s_instance;
+
+        AudioDevice m_device;
         AudioMixer m_mixer;
+        AudioListener m_listener;
 
         std::unordered_map<std::string, std::shared_ptr<AudioBuffer>> m_buffers;
         std::vector<std::shared_ptr<AudioSource>> m_sources;

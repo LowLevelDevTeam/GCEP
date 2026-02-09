@@ -1,13 +1,13 @@
 #include "AudioDevice.h"
 
+// STL
+#include <cstring>
+
 // Core
 #include "AudioMixer.h"
 #include "AudioSource.h"
 
-// STL
-#include <cstring>
-
-namespace gce
+namespace gcep
 {
 #pragma region Constructors/Destructor
     AudioDevice::AudioDevice() = default;
@@ -68,4 +68,4 @@ namespace gce
     	}
     }
 #pragma endregion
-} // gce
+} // gcep

@@ -1,6 +1,9 @@
 #include "AudioSource.h"
 
-namespace gce
+// STL
+#include <cmath>
+
+namespace gcep
 {
 #pragma region Constructors/Destructor
     AudioSource::AudioSource()
@@ -46,22 +49,27 @@ namespace gce
         m_frameCursor = 0;
     }
 
-	void AudioSource::advancePlayHead(uint64_t frames)
-	{
-	    if (m_buffer)
-	    {
-		    m_frameCursor += frames;
+	void AudioSource::advancePlayHead(double frames)
+    {
+    	if (!m_buffer) return;
 
-	    	if (m_isLooping)
-	    	{
-	    		m_frameCursor %= m_buffer->getFrameCount();
-	    	}
-	    	else if (m_frameCursor >= m_buffer->getFrameCount())
-	    	{
-	    		m_isPlaying = false;
-	    		m_frameCursor = m_buffer->getFrameCount();
-	    	}
-	    }
+    	m_frameCursor += frames;
+
+    	if (m_isLooping)
+    	{
+    		m_frameCursor = std::fmod(m_frameCursor, static_cast<double>(m_buffer->getFrameCount()));
+    		if (m_frameCursor < 0.0) m_frameCursor += m_buffer->getFrameCount(); // pour éviter négatif
+    	}
+    	else if (m_frameCursor >= static_cast<double>(m_buffer->getFrameCount()))
+    	{
+    		m_isPlaying = false;
+    		m_frameCursor = static_cast<double>(m_buffer->getFrameCount());
+    	}
+    }
+
+	void AudioSource::setPlayHeadPosition(double position)
+    {
+    	m_frameCursor = position;
     }
 
     void AudioSource::setLooping(bool isLooping)
@@ -69,12 +77,37 @@ namespace gce
 		m_isLooping = isLooping;
     }
 
+	void AudioSource::setPitch(float pitch)
+    {
+    	m_pitch = std::max(0.01f, pitch);
+    }
+
 	void AudioSource::setVolume(float volume)
 	{
 	    m_volume = volume;
     }
 
-    bool AudioSource::isPlaying() const
+	void AudioSource::setPosition(const glm::vec3 &position)
+	{
+    	m_position = position;
+	}
+
+	void AudioSource::setSpatialized(bool isSpatialized)
+	{
+		m_isSpatialized = isSpatialized;
+	}
+
+	void AudioSource::setMinDistance(float minDistance)
+	{
+		m_minDistance = minDistance;
+	}
+
+	void AudioSource::setMaxDistance(float maxDistance)
+	{
+		m_maxDistance = maxDistance;
+	}
+
+	bool AudioSource::isPlaying() const
     {
 		return m_isPlaying.load(std::memory_order_acquire);
     }
@@ -84,19 +117,44 @@ namespace gce
 		return m_isLooping;
     }
 
-	const std::shared_ptr<AudioBuffer>& AudioSource::getBuffer() const
+    bool AudioSource::isSpatialized() const
+	{
+	    return m_isSpatialized;
+    }
+
+    const std::shared_ptr<AudioBuffer>& AudioSource::getBuffer() const
 	{
 	    return m_buffer;
     }
 
-	uint64_t AudioSource::getPlayHeadPosition() const
+	double AudioSource::getPlayHeadPosition() const
 	{
 	    return m_frameCursor;
+    }
+
+	float AudioSource::getPitch() const
+    {
+    	return m_pitch;
     }
 
 	float AudioSource::getVolume() const
 	{
 		return m_volume;
 	}
+
+	const glm::vec3& AudioSource::getPosition() const
+	{
+		return m_position;
+    }
+
+	float AudioSource::getMinDistance() const
+	{
+		return m_minDistance;
+	}
+
+	float AudioSource::getMaxDistance() const
+	{
+	    return m_maxDistance;
+    }
 #pragma endregion
-} // gce
+} // gcep

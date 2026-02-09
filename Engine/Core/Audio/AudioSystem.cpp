@@ -3,17 +3,27 @@
 // STL
 #include <iostream>
 
-namespace gce
+namespace gcep
 {
-    AudioSystem::AudioSystem(AudioDevice *device)
-        : m_device(device), m_mixer(device, AudioMixer::GCE_BUFFER_FRAMES)
+    AudioSystem::AudioSystem()
+        : m_device(), m_mixer(&m_device, AudioMixer::GCEP_BUFFER_FRAMES)
     {
-        m_device->setMixer(&m_mixer);
+        if (!m_device.initialize(gcep::AudioBuffer::GCEP_SAMPLE_RATE, gcep::AudioBuffer::GCEP_CHANNELS))
+        {
+            std::cerr << "[AudioSystem]: Failed to initialize audio device.\n";
+        }
+
+        m_device.setMixer(&m_mixer);
+
+        // Temporary: create an audio listener and giving it to the mixer
+        m_mixer.setListener(&m_listener);
     }
 
     AudioSystem::~AudioSystem()
     {
-         stopAll();
+        stopAll();
+        m_device.shutdown();
+        delete s_instance;
     }
 
     std::shared_ptr<AudioSource> AudioSystem::loadAudio(const std::string &filepath)
@@ -59,4 +69,16 @@ namespace gce
 
         m_sources.clear();
 	}
-} // gce
+
+    AudioSystem* AudioSystem::getInstance()
+    {
+        if (!s_instance)
+        {
+            s_instance = new AudioSystem();
+        }
+
+        return s_instance;
+    }
+
+    AudioSystem* AudioSystem::s_instance = nullptr;
+} // gcep
