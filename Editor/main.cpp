@@ -13,7 +13,7 @@ int main() {
     std::shared_ptr<gcep::AudioSource> music = audioSystem->loadAudio("jazz.mp3");
 
     music->setLooping(true);
-    music->setPitch(1.f);
+    music->setPitch(0.5f);
     music->play();
     std::cout << "Playing music for 10 seconds..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(10));

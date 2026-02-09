@@ -1,9 +1,11 @@
 #include "AudioBuffer.h"
 
-#include <miniaudio.h>
-
+// STL
 #include <filesystem>
 #include <iostream>
+
+// Libs
+#include <miniaudio.h>
 
 namespace gcep
 {

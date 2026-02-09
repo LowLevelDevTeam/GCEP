@@ -1,5 +1,6 @@
 #include "AudioSource.h"
 
+// STL
 #include <cmath>
 
 namespace gcep
@@ -49,20 +50,20 @@ namespace gcep
     }
 
 	void AudioSource::advancePlayHead(double frames)
-	{
-    	if (m_buffer)
-    	{
-    		m_frameCursor += frames;
+    {
+    	if (!m_buffer) return;
 
-    		if (m_isLooping)
-    		{
-    			m_frameCursor %= m_buffer->getFrameCount();
-    		}
-    		else if (m_frameCursor >= m_buffer->getFrameCount())
-    		{
-    			m_isPlaying = false;
-    			m_frameCursor = m_buffer->getFrameCount();
-    		}
+    	m_frameCursor += frames;
+
+    	if (m_isLooping)
+    	{
+    		m_frameCursor = std::fmod(m_frameCursor, static_cast<double>(m_buffer->getFrameCount()));
+    		if (m_frameCursor < 0.0) m_frameCursor += m_buffer->getFrameCount(); // pour éviter négatif
+    	}
+    	else if (m_frameCursor >= static_cast<double>(m_buffer->getFrameCount()))
+    	{
+    		m_isPlaying = false;
+    		m_frameCursor = static_cast<double>(m_buffer->getFrameCount());
     	}
     }
 

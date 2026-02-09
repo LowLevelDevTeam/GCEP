@@ -1,10 +1,10 @@
 #pragma once
 
-// Libs
-#include <miniaudio.h>
-
 // STL
 #include <memory>
+
+// Libs
+#include <miniaudio.h>
 
 namespace gcep
 {

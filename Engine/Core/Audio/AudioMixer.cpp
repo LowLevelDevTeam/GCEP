@@ -1,9 +1,11 @@
 #include "AudioMixer.h"
 
+// STL
+#include <algorithm>
+
+// Core
 #include "AudioDevice.h"
 #include "AudioSource.h"
-
-#include <algorithm>
 
 namespace gcep
 {
@@ -58,7 +60,7 @@ namespace gcep
                     output[i * channels + ch] *= source->getVolume();
                 }
 
-                // Advance playhead by pitch (double)
+                // Advance playhead by pitch (float)
                 source->advancePlayHead(source->getPitch());
             }
         }

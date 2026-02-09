@@ -1,11 +1,11 @@
 #pragma once
 
-// Core
-#include "AudioBuffer.h"
-
 // STL
 #include <memory>
 #include <atomic>
+
+// Core
+#include "AudioBuffer.h"
 
 namespace gcep
 {
@@ -44,8 +44,7 @@ namespace gcep
         std::atomic<bool> m_isPlaying{ false };
         bool m_isLooping = false;
 
-        uint64_t m_frameCursor = 0;
-        double m_playHead = 0.0;
+        double m_frameCursor = 0;
         float m_pitch = 1.f;
         float m_volume = 1.f;
 

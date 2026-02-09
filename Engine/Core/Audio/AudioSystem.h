@@ -1,12 +1,12 @@
 #pragma once
 
-// Core
-#include "Audio.h"
-
 // STL
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
+// Core
+#include "Audio.h"
 
 namespace gcep
 {
