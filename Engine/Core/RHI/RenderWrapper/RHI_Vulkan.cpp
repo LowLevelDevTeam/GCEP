@@ -22,7 +22,7 @@ namespace gcep
 
 static void resizeCallback(GLFWwindow* window, int width, int height)
 {
-    auto app = reinterpret_cast<RHI_Vulkan*>(glfwGetWindowUserPointer(window));
+    auto* app = static_cast<RHI_Vulkan*>(glfwGetWindowUserPointer(window));
     app->setFramebufferResized(true);
 }
 
@@ -134,9 +134,9 @@ void RHI_Vulkan::createInstance()
 {
     vk::ApplicationInfo appInfo{};
     appInfo.pApplicationName   = "GC Engine";
-    appInfo.applicationVersion = vk::makeVersion(0, 1, 0);
+    appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.pEngineName        = "GC Engine";
-    appInfo.engineVersion      = vk::makeVersion(0, 1, 0);
+    appInfo.engineVersion      = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.apiVersion         = vk::ApiVersion14;
 
     // Get the required layers
@@ -598,6 +598,9 @@ void RHI_Vulkan::createVertexBuffer()
     m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
     m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
 
+    void* data = m_vertexBufferMemory.mapMemory(0, bufferInfo.size);
+    memcpy(data, vertices.data(), bufferInfo.size);
+    m_vertexBufferMemory.unmapMemory();
 }
 
 void RHI_Vulkan::createCommandBuffer()
@@ -655,7 +658,7 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
                           vk::ImageLayout::eUndefined,
                           vk::ImageLayout::eColorAttachmentOptimal,
                           vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                          vk::PipelineStageFlagBits2::eColorAttachmentOutput ,
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                           {},
                           vk::AccessFlagBits2::eColorAttachmentWrite
     );
@@ -686,6 +689,7 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     m_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_swapChainExtent.width), static_cast<float>(m_swapChainExtent.height), 0.0f, 1.0f));
     m_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), m_swapChainExtent));
 
+    m_commandBuffer.bindVertexBuffers(0, *m_vertexBuffer, {0});
     m_commandBuffer.draw(3,1,0,0);
 
     m_commandBuffer.endRendering();
@@ -770,11 +774,11 @@ vk::raii::PhysicalDevice* RHI_Vulkan::getPhysicalDevice()
 ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
 {
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance       = *m_instance;
-    init_info.PhysicalDevice = *m_physicalDevice;
-    init_info.Device         = *m_device;
+    init_info.Instance          = *m_instance;
+    init_info.PhysicalDevice    = *m_physicalDevice;
+    init_info.Device            = *m_device;
     init_info.QueueFamily       = m_graphicsIndex;
-    init_info.Queue          = *m_graphicsQueue;
+    init_info.Queue             = *m_graphicsQueue;
     init_info.PipelineCache     = VK_NULL_HANDLE;
     // TODO Set DescriptorPool init_info.DescriptorPool    = VK_NULL_HANDLE;
     init_info.MinImageCount     = 3;
