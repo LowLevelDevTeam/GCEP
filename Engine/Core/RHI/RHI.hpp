@@ -8,7 +8,7 @@ namespace gcep
 
 class RHI
 {
-    public:
+public:
     virtual ~RHI() = default;
 
     protected:

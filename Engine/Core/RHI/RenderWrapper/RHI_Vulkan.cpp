@@ -5,20 +5,51 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <map>
 #include <ranges>
-#include <fstream>
-#include <filesystem>
 #include <sstream>
 
 // Externals
 #define GLFW_INCLUDE_VULKAN
+#include <imgui_impl_vulkan.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace gcep
 {
+
+struct Vertex
+{
+    glm::vec2 pos;
+    glm::vec3 color;
+
+    static vk::VertexInputBindingDescription getBindingDescription()
+    {
+        return
+        {
+            0, sizeof(Vertex), vk::VertexInputRate::eVertex
+        };
+    }
+    static std::array<vk::VertexInputAttributeDescription, 2> getAttributeDescriptions()
+    {
+        return
+        {
+            vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos)),
+            vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color))
+        };
+    }
+};
+
+const std::vector<Vertex> vertices =
+{
+    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+    {{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
 
 static void resizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -71,22 +102,22 @@ void RHI_Vulkan::drawFrame()
     vk::PipelineStageFlags waitDestinationStageMask (vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
     vk::SubmitInfo submitInfo{};
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex];
-    submitInfo.pWaitDstStageMask = &waitDestinationStageMask;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &*m_commandBuffers[m_frameIndex];
+    submitInfo.waitSemaphoreCount   = 1;
+    submitInfo.pWaitSemaphores      = &*m_presentCompleteSemaphores[m_frameIndex];
+    submitInfo.pWaitDstStageMask    = &waitDestinationStageMask;
+    submitInfo.commandBufferCount   = 1;
+    submitInfo.pCommandBuffers      = &*m_commandBuffers[m_frameIndex];
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex];
+    submitInfo.pSignalSemaphores    = &*m_renderFinishedSemaphores[imageIndex];
 
     m_graphicsQueue.submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
     vk::PresentInfoKHR presentInfoKHR{};
     presentInfoKHR.waitSemaphoreCount = 1;
-    presentInfoKHR.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex];
-    presentInfoKHR.swapchainCount = 1;
-    presentInfoKHR.pSwapchains = &*m_swapChain;
-    presentInfoKHR.pImageIndices = &imageIndex;
+    presentInfoKHR.pWaitSemaphores    = &*m_renderFinishedSemaphores[imageIndex];
+    presentInfoKHR.swapchainCount     = 1;
+    presentInfoKHR.pSwapchains        = &*m_swapChain;
+    presentInfoKHR.pImageIndices      = &imageIndex;
 
     result = m_graphicsQueue.presentKHR(presentInfoKHR);
     if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
@@ -584,15 +615,15 @@ void RHI_Vulkan::createVertexBuffer()
 {
     vk::BufferCreateInfo bufferInfo{};
     bufferInfo.size        = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage    = vk::BufferUsageFlagBits::eVertexBuffer;
+    bufferInfo.usage       = vk::BufferUsageFlagBits::eVertexBuffer;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
     m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
 
     vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
 
-    vk::MemoryAllocateInfo memoryAllocateInfo = {};
-    memoryAllocateInfo.allocationSize = memRequirements.size;
+    vk::MemoryAllocateInfo memoryAllocateInfo{};
+    memoryAllocateInfo.allocationSize  = memRequirements.size;
     memoryAllocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
     m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
@@ -659,7 +690,7 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
                           vk::ImageLayout::eColorAttachmentOptimal,
                           vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                           vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                          {},
+                          vk::AccessFlagBits2::eNone,
                           vk::AccessFlagBits2::eColorAttachmentWrite
     );
 
@@ -700,7 +731,7 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,
         vk::PipelineStageFlagBits2::eBottomOfPipe,
         vk::AccessFlagBits2::eColorAttachmentWrite,
-        {}
+        vk::AccessFlagBits2::eNone
     );
 
     m_commandBuffer.end();
@@ -729,7 +760,8 @@ void RHI_Vulkan::recreateSwapChain()
 {
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_window, &width, &height);
-    while (width == 0 || height == 0) {
+    while (width == 0 || height == 0)
+    {
         glfwGetFramebufferSize(m_window, &width, &height);
         glfwWaitEvents();
     }

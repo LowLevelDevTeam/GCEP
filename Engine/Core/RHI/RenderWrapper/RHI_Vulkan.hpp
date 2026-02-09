@@ -2,38 +2,15 @@
 
 #include <Engine/Core/RHI/RHI.hpp>
 
-// Libs
+// Externals
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
-#include <imgui_impl_vulkan.h>
-#include <glm/glm.hpp>
 
-#define XSTR(x) #x
-#define STR(x) XSTR(x)
+// Forward declaration
+struct ImGui_ImplVulkan_InitInfo;
 
 namespace gcep
 {
-
-struct Vertex
-{
-    glm::vec2 pos;
-    glm::vec3 color;
-
-    static vk::VertexInputBindingDescription getBindingDescription() {
-        return { 0, sizeof(Vertex), vk::VertexInputRate::eVertex };
-    }
-    static std::array<vk::VertexInputAttributeDescription, 2> getAttributeDescriptions() {
-        return {
-            vk::VertexInputAttributeDescription( 0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos) ),
-            vk::VertexInputAttributeDescription( 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color) )
-        };
-    }
-};
-const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-    {{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-};
 
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
@@ -46,15 +23,19 @@ const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"
 class RHI_Vulkan final : public RHI
 {
 public:
-    RHI_Vulkan() = default;
     // @brief Vulkan RHI constructor.
+    RHI_Vulkan() = default;
+
+    // @brief Initializes the Vulkan renderer.
     void initRHI() override;
 
     // @brief Draws the hello triangle.
     void drawFrame() override;
 
+    // @brief Sets the native window handle for Vulkan.
     void setWindow(GLFWwindow* window) override;
 
+    // @brief Cleans up the Vulkan renderer.
     void cleanup() override;
 
 public:
@@ -147,8 +128,6 @@ private:
     uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
 private:
-    // Keep these two variables declared first - order of destruction is reversed - they need to get destroyed last.
-
     vk::raii::Context                m_context;
     vk::raii::Instance               m_instance         = nullptr;
 
