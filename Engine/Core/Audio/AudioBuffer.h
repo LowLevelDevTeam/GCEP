@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace gce
+namespace gcep
 {
     class AudioBuffer
     {
@@ -25,8 +25,8 @@ namespace gce
 
     public:
 
-        static constexpr uint32_t GCE_SAMPLE_RATE = 44100;
-        static constexpr uint32_t GCE_CHANNELS = 2;
+        static constexpr uint32_t GCEP_SAMPLE_RATE = 44100;
+        static constexpr uint32_t GCEP_CHANNELS = 2;
 
     private:
         void clear();
@@ -38,4 +38,4 @@ namespace gce
         uint32_t m_sampleRate = 0;
     };
 
-} // gce
+} // gcep

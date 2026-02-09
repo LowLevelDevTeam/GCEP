@@ -8,20 +8,24 @@
 #include <unordered_map>
 #include <vector>
 
-namespace gce
+namespace gcep
 {
     class AudioSystem
     {
     public:
-        explicit AudioSystem(AudioDevice* device);
+        explicit AudioSystem();
         ~AudioSystem();
 
         std::shared_ptr<AudioSource> loadAudio(const std::string& filepath);
 
         void stopAll();
 
+        [[nodiscard]] static AudioSystem* getInstance();
+
     private:
-        AudioDevice* m_device;
+        static AudioSystem* s_instance;
+
+        AudioDevice m_device;
         AudioMixer m_mixer;
 
         std::unordered_map<std::string, std::shared_ptr<AudioBuffer>> m_buffers;

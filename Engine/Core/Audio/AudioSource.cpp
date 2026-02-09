@@ -1,6 +1,8 @@
 #include "AudioSource.h"
 
-namespace gce
+#include <cmath>
+
+namespace gcep
 {
 #pragma region Constructors/Destructor
     AudioSource::AudioSource()
@@ -46,27 +48,32 @@ namespace gce
         m_frameCursor = 0;
     }
 
-	void AudioSource::advancePlayHead(uint64_t frames)
+	void AudioSource::advancePlayHead(double frames)
 	{
-	    if (m_buffer)
-	    {
-		    m_frameCursor += frames;
+    	if (m_buffer)
+    	{
+    		m_frameCursor += frames;
 
-	    	if (m_isLooping)
-	    	{
-	    		m_frameCursor %= m_buffer->getFrameCount();
-	    	}
-	    	else if (m_frameCursor >= m_buffer->getFrameCount())
-	    	{
-	    		m_isPlaying = false;
-	    		m_frameCursor = m_buffer->getFrameCount();
-	    	}
-	    }
+    		if (m_isLooping)
+    		{
+    			m_frameCursor %= m_buffer->getFrameCount();
+    		}
+    		else if (m_frameCursor >= m_buffer->getFrameCount())
+    		{
+    			m_isPlaying = false;
+    			m_frameCursor = m_buffer->getFrameCount();
+    		}
+    	}
     }
 
     void AudioSource::setLooping(bool isLooping)
     {
 		m_isLooping = isLooping;
+    }
+
+	void AudioSource::setPitch(float pitch)
+    {
+    	m_pitch = std::max(0.01f, pitch);
     }
 
 	void AudioSource::setVolume(float volume)
@@ -89,9 +96,14 @@ namespace gce
 	    return m_buffer;
     }
 
-	uint64_t AudioSource::getPlayHeadPosition() const
+	double AudioSource::getPlayHeadPosition() const
 	{
 	    return m_frameCursor;
+    }
+
+	float AudioSource::getPitch() const
+    {
+    	return m_pitch;
     }
 
 	float AudioSource::getVolume() const
@@ -99,4 +111,4 @@ namespace gce
 		return m_volume;
 	}
 #pragma endregion
-} // gce
+} // gcep

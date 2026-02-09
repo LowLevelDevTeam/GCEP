@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <iostream>
 
-namespace gce
+namespace gcep
 {
 #pragma region Constructors/Destructors
 	AudioBuffer::AudioBuffer() = default;
@@ -26,14 +26,14 @@ namespace gce
         clear();
 
 		ma_decoder decoder;
-		ma_decoder_config config = ma_decoder_config_init(ma_format_f32, GCE_CHANNELS, GCE_SAMPLE_RATE);
+		ma_decoder_config config = ma_decoder_config_init(ma_format_f32, GCEP_CHANNELS, GCEP_SAMPLE_RATE);
 
-    	std::cout << "Loading from path: " << std::filesystem::current_path().string() << std::endl;
+    	std::cout << "[AudioBuffer]: Loading from path: " << std::filesystem::current_path().string() << std::endl;
 
         if (ma_decoder_init_file(fileName.c_str(), &config, &decoder) != MA_SUCCESS) return false;
 
 		m_channels = decoder.outputChannels;
-		m_sampleRate = GCE_SAMPLE_RATE;
+		m_sampleRate = GCEP_SAMPLE_RATE;
 
 		ma_uint64 totalFrames = 0;
 		ma_decoder_get_length_in_pcm_frames(&decoder, &totalFrames);
@@ -88,4 +88,4 @@ namespace gce
         m_sampleRate = 0;
     }
 #pragma endregion
-} // gce
+} // gcep

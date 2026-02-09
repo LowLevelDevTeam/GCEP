@@ -6,7 +6,7 @@
 // STL
 #include <memory>
 
-namespace gce
+namespace gcep
 {
     class AudioMixer;
     class AudioSource;
@@ -33,4 +33,4 @@ namespace gce
         AudioMixer* m_mixer = nullptr;
         uint32_t m_channels = 0;
     };
-} // gce
+} // gcep

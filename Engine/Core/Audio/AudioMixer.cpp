@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-namespace gce
+namespace gcep
 {
     AudioMixer::AudioMixer(AudioDevice* device, size_t bufferFrames)
         : m_device(device), m_bufferFrames(bufferFrames)
@@ -30,38 +30,42 @@ namespace gce
         std::lock_guard<std::mutex> lock(m_mutex);
 
         const uint32_t channels = m_device->getChannels();
-
         std::fill(output, output + frameCount * channels, 0.0f);
 
-        for (auto& source : m_sources)
+        for (uint32_t i = 0; i < frameCount; ++i)
         {
-            if (!source->isPlaying() || !source->getBuffer())
-                continue;
-
-            auto buffer = source->getBuffer();
-            uint64_t playhead = source->getPlayHeadPosition();
-            uint64_t availableFrames = buffer->getFrameCount() - playhead;
-            uint32_t framesToMix = static_cast<uint32_t>(
-                std::min<uint64_t>(frameCount, availableFrames));
-
-            for (uint32_t i = 0; i < framesToMix; ++i)
+            for (auto& source : m_sources)
             {
+                if (!source->isPlaying() || !source->getBuffer())
+                    continue;
+
+                const auto& buffer = source->getBuffer();
+                double playHead = source->getPlayHeadPosition();
+                uint64_t frameA = static_cast<uint64_t>(playHead);
+                uint64_t frameB = frameA + 1;
+
+                if (frameA >= buffer->getFrameCount())
+                    continue;
+
+                float t = static_cast<float>(playHead - frameA);
+
                 for (uint32_t ch = 0; ch < channels; ++ch)
                 {
-                    float sample =
-                        buffer->getSample(playhead + i, ch) * source->getVolume();
+                    float sampleA = buffer->getSample(frameA, ch);
+                    float sampleB = (frameB < buffer->getFrameCount()) ? buffer->getSample(frameB, ch) : 0.0f;
 
-                    output[i * channels + ch] += sample;
+                    output[i * channels + ch] += (1.0f - t) * sampleA + t * sampleB;
+                    output[i * channels + ch] *= source->getVolume();
                 }
+
+                // Advance playhead by pitch (double)
+                source->advancePlayHead(source->getPitch());
             }
-
-            source->advancePlayHead(framesToMix);
         }
 
-        // Final clamp
+        // Clamp final output
         for (uint32_t i = 0; i < frameCount * channels; ++i)
-        {
             output[i] = std::clamp(output[i], -1.0f, 1.0f);
-        }
     }
-} // gce
+
+} // gcep

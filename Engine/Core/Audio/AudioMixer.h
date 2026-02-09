@@ -5,7 +5,7 @@
 #include <mutex>
 #include <vector>
 
-namespace gce
+namespace gcep
 {
     class AudioDevice;
     class AudioSource;
@@ -21,7 +21,7 @@ namespace gce
         void mix(float* output, uint32_t frameCount);
 
     public:
-        static constexpr size_t GCE_BUFFER_FRAMES = 4096;
+        static constexpr size_t GCEP_BUFFER_FRAMES = 4096;
 
     private:
         AudioDevice* m_device;
@@ -32,4 +32,4 @@ namespace gce
 
         std::mutex m_mutex;
     };
-} // gce
+} // gcep

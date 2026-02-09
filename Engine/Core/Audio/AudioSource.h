@@ -7,7 +7,7 @@
 #include <memory>
 #include <atomic>
 
-namespace gce
+namespace gcep
 {
     class AudioBuffer;
 
@@ -24,16 +24,18 @@ namespace gce
         void stop();
         void reset();
 
-        void advancePlayHead(uint64_t frames);
+        void advancePlayHead(double frames);
 
         void setLooping(bool isLooping);
+        void setPitch(float pitch);
         void setVolume(float volume);
 
         [[nodiscard("Call play() if you want to play the audio source.")]] bool isPlaying() const;
         [[nodiscard("Call setLooping(bool isLooping) if you want to change the isLooping attribute.")]] bool isLooping() const;
 
         [[nodiscard]] const std::shared_ptr<AudioBuffer>& getBuffer() const;
-        [[nodiscard]] uint64_t getPlayHeadPosition() const;
+        [[nodiscard]] double getPlayHeadPosition() const;
+        [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getVolume() const;
 
     private:
@@ -43,9 +45,10 @@ namespace gce
         bool m_isLooping = false;
 
         uint64_t m_frameCursor = 0;
-
+        double m_playHead = 0.0;
+        float m_pitch = 1.f;
         float m_volume = 1.f;
 
         friend class AudioDevice;
     };
-} // gce
+} // gcep

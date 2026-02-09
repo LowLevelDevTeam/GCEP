@@ -7,7 +7,7 @@
 // STL
 #include <cstring>
 
-namespace gce
+namespace gcep
 {
 #pragma region Constructors/Destructor
     AudioDevice::AudioDevice() = default;
@@ -68,4 +68,4 @@ namespace gce
     	}
     }
 #pragma endregion
-} // gce
+} // gcep

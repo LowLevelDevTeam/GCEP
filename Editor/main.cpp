@@ -9,36 +9,24 @@ int main() {
     Window& window = Window::getInstance();
     window.initWindow();
 
-    /* Audio tests
-    gce::AudioDevice audioDevice;
-    if (!audioDevice.initialize(gce::AudioBuffer::GCE_SAMPLE_RATE, gce::AudioBuffer::GCE_CHANNELS))
-    {
-        std::cerr << "Failed to initialize audio device.\n";
-        return -1;
-    }
+    gcep::AudioSystem* audioSystem = gcep::AudioSystem::getInstance();
+    std::shared_ptr<gcep::AudioSource> music = audioSystem->loadAudio("jazz.mp3");
 
-    gce::AudioSystem audioSystem(&audioDevice);
-
-    auto music = audioSystem.loadAudio("put_a_music_file_here.wav");
     music->setLooping(true);
+    music->setPitch(1.f);
     music->play();
-
     std::cout << "Playing music for 10 seconds..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     music->pause();
-
     std::cout << "Pausing music for 3 seconds..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    music->play();
-
+    music->setPitch(2.0f);
+    music->play();;
     std::cout << "Resuming music for 10 seconds..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-
+    std::this_thread::sleep_for(std::chrono::seconds(360));
     music->stop();
-    audioDevice.shutdown();
-     */
 
     return 0;
 }
