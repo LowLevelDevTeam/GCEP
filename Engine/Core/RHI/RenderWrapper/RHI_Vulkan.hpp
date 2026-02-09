@@ -103,6 +103,9 @@ private:
     // @brief Create vertex buffer
     void createVertexBuffer();
 
+    // @brief Create index buffer
+    void createIndexBuffer();
+
     // @brief Creates the command buffer for recording draw commands.
     void createCommandBuffer();
 
@@ -127,6 +130,12 @@ private:
     // @brief Finds the memory type of the device using a filter.
     uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
+    // @brief Creates a Vulkan buffer with all the provided arguments.
+    void createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Buffer& buffer, vk::raii::DeviceMemory& bufferMemory);
+
+    // @brief Copies a Vulkan buffer to another destination buffer
+    void copyBuffer(vk::raii::Buffer & srcBuffer, vk::raii::Buffer & dstBuffer, vk::DeviceSize size);
+
 private:
     vk::raii::Context                m_context;
     vk::raii::Instance               m_instance         = nullptr;
@@ -149,8 +158,10 @@ private:
     // TODO: Move later
     vk::raii::Buffer m_vertexBuffer                     = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory         = nullptr;
+    vk::raii::Buffer m_indexBuffer                        = nullptr;
+    vk::raii::DeviceMemory m_indexBufferMemory            = nullptr;
+    // End of TODO
 
-    //
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
     std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
     std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;

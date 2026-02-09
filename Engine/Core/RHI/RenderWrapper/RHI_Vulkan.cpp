@@ -46,9 +46,15 @@ struct Vertex
 
 const std::vector<Vertex> vertices =
 {
-    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-    {{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f,   0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+const std::vector<uint16_t> indices =
+{
+    0, 1, 2, 2, 3, 0
 };
 
 static void resizeCallback(GLFWwindow* window, int width, int height)
@@ -69,6 +75,7 @@ void RHI_Vulkan::initRHI()
     createGraphicsPipeline();
     createCommandPool();
     createVertexBuffer();
+    createIndexBuffer();
     createCommandBuffer();
     createSyncObjects();
 }
@@ -613,25 +620,49 @@ void RHI_Vulkan::createCommandPool()
 
 void RHI_Vulkan::createVertexBuffer()
 {
-    vk::BufferCreateInfo bufferInfo{};
-    bufferInfo.size        = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage       = vk::BufferUsageFlagBits::eVertexBuffer;
-    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+    vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
+    vk::raii::Buffer stagingBuffer             = nullptr;
+    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
 
-    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
+    createBuffer(bufferSize,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        stagingBuffer, stagingBufferMemory);
 
-    vk::MemoryAllocateInfo memoryAllocateInfo{};
-    memoryAllocateInfo.allocationSize  = memRequirements.size;
-    memoryAllocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, vertices.data(), bufferSize);
+    stagingBufferMemory.unmapMemory();
 
-    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
-    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+    createBuffer(bufferSize,
+        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_vertexBuffer, m_vertexBufferMemory);
 
-    void* data = m_vertexBufferMemory.mapMemory(0, bufferInfo.size);
-    memcpy(data, vertices.data(), bufferInfo.size);
-    m_vertexBufferMemory.unmapMemory();
+    copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+}
+
+void RHI_Vulkan::createIndexBuffer()
+{
+    vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    vk::raii::Buffer stagingBuffer             = nullptr;
+    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
+    createBuffer(bufferSize,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        stagingBuffer, stagingBufferMemory);
+
+    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, indices.data(), bufferSize);
+    stagingBufferMemory.unmapMemory();
+
+    createBuffer(bufferSize,
+        vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_indexBuffer, m_indexBufferMemory);
+
+    copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
 }
 
 void RHI_Vulkan::createCommandBuffer()
@@ -721,7 +752,8 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     m_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), m_swapChainExtent));
 
     m_commandBuffer.bindVertexBuffers(0, *m_vertexBuffer, {0});
-    m_commandBuffer.draw(3,1,0,0);
+    m_commandBuffer.bindIndexBuffer(*m_indexBuffer, 0, vk::IndexType::eUint16);
+    m_commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
     m_commandBuffer.endRendering();
 
@@ -786,6 +818,49 @@ uint32_t RHI_Vulkan::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags
     }
 
     throw std::runtime_error("Failed to find suitable memory type!");
+}
+
+void RHI_Vulkan::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Buffer &buffer, vk::raii::DeviceMemory &bufferMemory)
+{
+    vk::BufferCreateInfo bufferInfo{};
+    bufferInfo.size        = size;
+    bufferInfo.usage       = usage;
+    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+    buffer = vk::raii::Buffer(m_device, bufferInfo);
+
+    vk::MemoryRequirements memRequirements = buffer.getMemoryRequirements();
+
+    vk::MemoryAllocateInfo memoryAllocateInfo{};
+    memoryAllocateInfo.allocationSize  = memRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    bufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
+    buffer.bindMemory(*bufferMemory, 0);
+}
+
+void RHI_Vulkan::copyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size)
+{
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.commandPool        = m_commandPool;
+    allocInfo.level              = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = 1;
+
+    vk::raii::CommandBuffer commandCopyBuffer = std::move(m_device.allocateCommandBuffers(allocInfo).front());
+
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+
+    commandCopyBuffer.begin(beginInfo);
+    commandCopyBuffer.copyBuffer(srcBuffer, dstBuffer, vk::BufferCopy(0, 0, size));
+    commandCopyBuffer.end();
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &*commandCopyBuffer;
+
+    m_graphicsQueue.submit(submitInfo, nullptr);
+    m_graphicsQueue.waitIdle();
 }
 
 vk::raii::Context* RHI_Vulkan::getContext()
