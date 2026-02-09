@@ -2,6 +2,7 @@
 
 // STL
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -12,8 +13,18 @@
 #include <filesystem>
 #include <sstream>
 
+// Externals
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 namespace gcep
 {
+
+static void resizeCallback(GLFWwindow* window, int width, int height)
+{
+    auto app = reinterpret_cast<RHI_Vulkan*>(glfwGetWindowUserPointer(window));
+    app->setFramebufferResized(true);
+}
 
 void RHI_Vulkan::initRHI()
 {
@@ -26,6 +37,7 @@ void RHI_Vulkan::initRHI()
     createImageViews();
     createGraphicsPipeline();
     createCommandPool();
+    createVertexBuffer();
     createCommandBuffer();
     createSyncObjects();
 }
@@ -38,10 +50,20 @@ void RHI_Vulkan::drawFrame()
         throw std::runtime_error("failed to wait for fence!");
     }
 
-    m_device.resetFences(*m_inFlightFences[m_frameIndex]);
-
-
     auto [result, imageIndex] = m_swapChain.acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphores[m_frameIndex], nullptr);
+
+    if (result == vk::Result::eErrorOutOfDateKHR)
+    {
+        recreateSwapChain();
+        return;
+    }
+    if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+    {
+        assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
+        throw std::runtime_error("Failed to acquire swap chain image!");
+    }
+
+    m_device.resetFences(*m_inFlightFences[m_frameIndex]);
 
     m_commandBuffers[m_frameIndex].reset();
     recordCommandBuffer(imageIndex);
@@ -67,6 +89,15 @@ void RHI_Vulkan::drawFrame()
     presentInfoKHR.pImageIndices = &imageIndex;
 
     result = m_graphicsQueue.presentKHR(presentInfoKHR);
+    if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
+    {
+        m_framebufferResized = false;
+        recreateSwapChain();
+    }
+    else
+    {
+        assert(result == vk::Result::eSuccess && "Hum excuse me wtf");
+    }
 
     m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -74,11 +105,15 @@ void RHI_Vulkan::drawFrame()
 void RHI_Vulkan::setWindow(GLFWwindow* window)
 {
     m_window = window;
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetFramebufferSizeCallback(m_window, resizeCallback);
 }
 
 void RHI_Vulkan::cleanup()
 {
     m_device.waitIdle();
+
+    cleanupSwapChain();
 }
 
 std::vector<const char*> getRequiredExtensions()
@@ -436,7 +471,13 @@ void RHI_Vulkan::createGraphicsPipeline()
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates    = dynamicStates.data();
 
+    auto bindingDescription    = Vertex::getBindingDescription();
+    auto attributeDescriptions = Vertex::getAttributeDescriptions();
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssembly {};
     inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
@@ -533,10 +574,30 @@ vk::raii::ShaderModule RHI_Vulkan::createShaderModule(const std::vector<char>& s
 void RHI_Vulkan::createCommandPool()
 {
     vk::CommandPoolCreateInfo poolInfo{};
-    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    poolInfo.flags         = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = m_graphicsIndex;
 
     m_commandPool = vk::raii::CommandPool(m_device, poolInfo);
+}
+
+void RHI_Vulkan::createVertexBuffer()
+{
+    vk::BufferCreateInfo bufferInfo{};
+    bufferInfo.size        = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage    = vk::BufferUsageFlagBits::eVertexBuffer;
+    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
+
+    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
+
+    vk::MemoryAllocateInfo memoryAllocateInfo = {};
+    memoryAllocateInfo.allocationSize = memRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
+    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+
 }
 
 void RHI_Vulkan::createCommandBuffer()
@@ -654,6 +715,43 @@ void RHI_Vulkan::createSyncObjects()
     }
 }
 
+void RHI_Vulkan::cleanupSwapChain()
+{
+    m_swapChainImageViews.clear();
+    m_swapChain = nullptr;
+}
+
+void RHI_Vulkan::recreateSwapChain()
+{
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    m_device.waitIdle();
+
+    cleanupSwapChain();
+    createSwapChain();
+    createImageViews();
+}
+
+uint32_t RHI_Vulkan::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+{
+    vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("Failed to find suitable memory type!");
+}
+
 vk::raii::Context* RHI_Vulkan::getContext()
 {
     return &m_context;
@@ -667,6 +765,32 @@ vk::raii::Instance* RHI_Vulkan::getInstance()
 vk::raii::PhysicalDevice* RHI_Vulkan::getPhysicalDevice()
 {
     return &m_physicalDevice;
+}
+
+ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
+{
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance       = *m_instance;
+    init_info.PhysicalDevice = *m_physicalDevice;
+    init_info.Device         = *m_device;
+    init_info.QueueFamily       = m_graphicsIndex;
+    init_info.Queue          = *m_graphicsQueue;
+    init_info.PipelineCache     = VK_NULL_HANDLE;
+    // TODO Set DescriptorPool init_info.DescriptorPool    = VK_NULL_HANDLE;
+    init_info.MinImageCount     = 3;
+    init_info.ImageCount        = 3;
+    init_info.Allocator         = nullptr;
+    //init_info.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
+    //init_info.PipelineInfoMain.Subpass = 0;
+    init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    // TODO init_info.CheckVkResultFn = check_vk_result;
+
+    return init_info;
+};
+
+void RHI_Vulkan::setFramebufferResized(bool resized)
+{
+    m_framebufferResized = resized;
 }
 
 } // Namespace gcep

@@ -3,13 +3,37 @@
 #include <Engine/Core/RHI/RHI.hpp>
 
 // Libs
+#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
+#include <imgui_impl_vulkan.h>
+#include <glm/glm.hpp>
 
 #define XSTR(x) #x
 #define STR(x) XSTR(x)
 
 namespace gcep
 {
+
+struct Vertex
+{
+    glm::vec2 pos;
+    glm::vec3 color;
+
+    static vk::VertexInputBindingDescription getBindingDescription() {
+        return { 0, sizeof(Vertex), vk::VertexInputRate::eVertex };
+    }
+    static std::array<vk::VertexInputAttributeDescription, 2> getAttributeDescriptions() {
+        return {
+            vk::VertexInputAttributeDescription( 0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos) ),
+            vk::VertexInputAttributeDescription( 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color) )
+        };
+    }
+};
+const std::vector<Vertex> vertices = {
+    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
 
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
@@ -44,6 +68,12 @@ public:
 
     [[nodiscard("Physical device value ignored")]]
     vk::raii::PhysicalDevice* getPhysicalDevice();
+
+    // @brief Getter allowing the initialization in ImGui Window
+    ImGui_ImplVulkan_InitInfo getInitInfo();
+
+    // @brief m_framebufferResized setter.
+    void setFramebufferResized(bool resized);
 
 private:
     // @brief Create a Vulkan instance and check for validation layer support.
@@ -89,6 +119,9 @@ private:
     // @brief Creates the command pool for the command buffers
     void createCommandPool();
 
+    // @brief Create vertex buffer
+    void createVertexBuffer();
+
     // @brief Creates the command buffer for recording draw commands.
     void createCommandBuffer();
 
@@ -103,6 +136,15 @@ private:
 
     // @brief Creates the synchronization objects for the draw frame function.
     void createSyncObjects();
+
+    // @brief Cleans up the swap chain on recreation event.
+    void cleanupSwapChain();
+
+    // @brief Recreates the swapchain and its image views on resize events.
+    void recreateSwapChain();
+
+    // @brief Finds the memory type of the device using a filter.
+    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
 private:
     // Keep these two variables declared first - order of destruction is reversed - they need to get destroyed last.
@@ -124,10 +166,18 @@ private:
     vk::raii::PipelineLayout         m_pipelineLayout   = nullptr;
     vk::raii::Pipeline               m_graphicsPipeline = nullptr;
     vk::raii::CommandPool            m_commandPool      = nullptr;
+
+    // TODO: Move later
+    vk::raii::Buffer m_vertexBuffer                     = nullptr;
+    vk::raii::DeviceMemory m_vertexBufferMemory         = nullptr;
+
+    //
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
     std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
     std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
     std::vector<vk::raii::Fence> m_inFlightFences;
+
+    bool m_framebufferResized = false;
 
     uint32_t m_frameIndex = 0;
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;

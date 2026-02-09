@@ -2,6 +2,7 @@
 
 #include <Editor/Window/Window.hpp>
 #include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
+#include <Editor/Window/ui_manager.hpp>
 
 int main()
 {
@@ -17,10 +18,12 @@ int main()
     {
         std::cout << e.what() << std::endl;
     }
+    //gcep::UiManager uiManager(window.getGlfwWindow(), rhi.getInitInfo());
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
         rhi.drawFrame();
+        //uiManager.uiUpdate();
     }
     rhi.cleanup();
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
