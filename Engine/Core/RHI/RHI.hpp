@@ -1,7 +1,7 @@
 #pragma once
 
 // Forward declaration
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace gcep
 {
