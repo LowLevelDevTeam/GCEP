@@ -136,32 +136,53 @@ private:
     // @brief Copies a Vulkan buffer to another destination buffer
     void copyBuffer(vk::raii::Buffer & srcBuffer, vk::raii::Buffer & dstBuffer, vk::DeviceSize size);
 
+    // @brief Creates Vulkan uniform buffers
+    void createUniformBuffers();
+
+    // @brief Updates uniform buffers every frame
+    void updateUniformBuffer(uint32_t currentImage);
+
+    // @brief Creates the Vulkan renderer descriptor pool
+    void createDescriptorPool();
+
+    // @brief Creates the Vulkan renderer descriptor sets
+    void createDescriptorSets();
+
+    // @brief Creates the Vulkan renderer descriptor layout(s) (later on)
+    void createDescriptorSetLayout();
+
 private:
     vk::raii::Context                m_context;
-    vk::raii::Instance               m_instance         = nullptr;
+    vk::raii::Instance               m_instance            = nullptr;
 
-    vk::raii::PhysicalDevice         m_physicalDevice   = nullptr;
-    vk::raii::Device                 m_device           = nullptr;
-    vk::raii::DebugUtilsMessengerEXT m_debugMessenger   = nullptr;
-    vk::raii::SurfaceKHR             m_surface          = nullptr;
-    vk::raii::Queue                  m_graphicsQueue    = nullptr;
-    uint32_t                         m_graphicsIndex    = 0;
-    vk::raii::SwapchainKHR           m_swapChain        = nullptr;
+    vk::raii::PhysicalDevice         m_physicalDevice      = nullptr;
+    vk::raii::Device                 m_device              = nullptr;
+    vk::raii::DebugUtilsMessengerEXT m_debugMessenger      = nullptr;
+    vk::raii::SurfaceKHR             m_surface             = nullptr;
+    vk::raii::Queue                  m_graphicsQueue       = nullptr;
+    uint32_t                         m_graphicsIndex       = 0;
+    vk::raii::SwapchainKHR           m_swapChain           = nullptr;
     vk::SurfaceFormatKHR             m_swapChainSurfaceFormat;
     vk::Extent2D                     m_swapChainExtent;
     std::vector<vk::Image>           m_swapChainImages;
     std::vector<vk::raii::ImageView> m_swapChainImageViews;
-    vk::raii::PipelineLayout         m_pipelineLayout   = nullptr;
-    vk::raii::Pipeline               m_graphicsPipeline = nullptr;
-    vk::raii::CommandPool            m_commandPool      = nullptr;
+    vk::raii::DescriptorSetLayout    m_descriptorSetLayout = nullptr;
+    vk::raii::PipelineLayout         m_pipelineLayout      = nullptr;
+    vk::raii::Pipeline               m_graphicsPipeline    = nullptr;
+    vk::raii::CommandPool            m_commandPool         = nullptr;
+    vk::raii::DescriptorPool         m_descriptorPool      = nullptr;
 
     // TODO: Move later
-    vk::raii::Buffer m_vertexBuffer                     = nullptr;
-    vk::raii::DeviceMemory m_vertexBufferMemory         = nullptr;
-    vk::raii::Buffer m_indexBuffer                        = nullptr;
-    vk::raii::DeviceMemory m_indexBufferMemory            = nullptr;
+    vk::raii::Buffer m_vertexBuffer                        = nullptr;
+    vk::raii::DeviceMemory m_vertexBufferMemory            = nullptr;
+    vk::raii::Buffer m_indexBuffer                         = nullptr;
+    vk::raii::DeviceMemory m_indexBufferMemory             = nullptr;
     // End of TODO
 
+    std::vector<vk::raii::Buffer> m_uniformBuffers;
+    std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
+    std::vector<void*> m_uniformBuffersMapped;
+    std::vector<vk::raii::DescriptorSet> m_descriptorSets;
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
     std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
     std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
