@@ -8,11 +8,13 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Core/JobSystem.h>
-#include <Jolt/Core/TempAllocator.h>
-#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
-#include <glm/vec3.hpp>
-#include <glm/gtc/quaternion.hpp>
+//Core
+#include "PhysicsBodyDesc.hpp"
+#include "Layers/BPLayerInterfaceImpl.hpp"
+#include "Layers/ObjectLayerPairFilterImpl.hpp"
+#include "Layers/ObjectVsBroadPhaseLayerFilterImpl.hpp"
 
 
 namespace gcep
@@ -54,6 +56,9 @@ namespace gcep
         std::unique_ptr<JPH::PhysicsSystem> m_physicsSystem;
         std::unique_ptr<JPH::TempAllocator> m_tempAllocator;
         std::unique_ptr<JPH::JobSystem> m_jobSystem;
+        std::unique_ptr<BPLayerInterfaceImpl> m_broadPhaseLayerInterface;
+        std::unique_ptr<ObjectLayerPairFilterImpl> m_objectLayerPairFilter;
+        std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> m_objectVsBroadPhaseLayerFilter;
 
     };
 }

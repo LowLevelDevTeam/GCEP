@@ -14,7 +14,7 @@ namespace gcep
         ~PhysicsSystem();
         PhysicsSystem(const PhysicsSystem&) = delete;
 
-        void createBody(const PhysicsBodyDesc& desc);
+        void createBody(const PhysicsBodyDesc& desc) const;
 
     private:
         std::unique_ptr<PhysicsWorld> m_world;

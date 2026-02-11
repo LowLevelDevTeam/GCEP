@@ -4,5 +4,7 @@
 
 #include "PhysicsBody.h"
 
-namespace gcep {
+namespace gcep
+{
+
 } // gcep
