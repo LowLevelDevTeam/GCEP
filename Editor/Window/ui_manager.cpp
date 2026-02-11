@@ -16,6 +16,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // setup ImGui style
     ImGui::StyleColorsDark();

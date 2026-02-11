@@ -10,6 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <sstream>
 
@@ -18,6 +19,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include <ktx.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -88,6 +90,7 @@ void RHI_Vulkan::initRHI()
     createDescriptorSetLayout();
     createGraphicsPipeline();
     createCommandPool();
+    //createTextureImage();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -168,8 +171,12 @@ void RHI_Vulkan::setWindow(GLFWwindow* window)
 void RHI_Vulkan::cleanup()
 {
     m_device.waitIdle();
-
     cleanupSwapChain();
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    vkDestroyDescriptorPool(*m_device, m_descriptorPoolImGui, nullptr);
 }
 
 std::vector<const char*> getRequiredExtensions()
@@ -695,39 +702,70 @@ void RHI_Vulkan::createCommandBuffer()
     m_commandBuffers = vk::raii::CommandBuffers(m_device, allocInfo);
 }
 
-
-void RHI_Vulkan::transitionImageLayout(uint32_t imageIndex,
-                                       vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
-                                       vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
-                                       vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask)
+void RHI_Vulkan::transitionImageLayoutOld(uint32_t imageIndex,
+        vk::ImageLayout old_layout, vk::ImageLayout new_layout,
+        vk::AccessFlags2 src_access_mask, vk::AccessFlags2 dst_access_mask,
+        vk::PipelineStageFlags2 src_stage_mask, vk::PipelineStageFlags2 dst_stage_mask)
 {
-    vk::ImageSubresourceRange subresourceRange;
-    subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
-    subresourceRange.baseMipLevel   = 0;
-    subresourceRange.levelCount     = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount     = 1;
+    vk::ImageMemoryBarrier2 barrier{};
+    barrier.srcStageMask        = src_stage_mask,
+    barrier.srcAccessMask       = src_access_mask,
+    barrier.dstStageMask        = dst_stage_mask,
+    barrier.dstAccessMask       = dst_access_mask,
+    barrier.oldLayout           = old_layout,
+    barrier.newLayout           = new_layout,
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    barrier.image               = m_swapChainImages[imageIndex],
+    barrier.subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.baseMipLevel   = 0;
+    barrier.subresourceRange.levelCount     = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount     = 1;
 
-    vk::ImageMemoryBarrier2 barrier {};
-    barrier.srcStageMask        = srcStageMask;
-    barrier.srcAccessMask       = srcAccessMask;
-    barrier.dstStageMask        = dstStageMask;
-    barrier.dstAccessMask       = dstAccessMask;
+    vk::DependencyInfo dependency_info{};
+    dependency_info.dependencyFlags = {};
+    dependency_info.imageMemoryBarrierCount = 1;
+    dependency_info.pImageMemoryBarriers    = &barrier;
+
+    m_commandBuffers[m_frameIndex].pipelineBarrier2(dependency_info);
+}
+
+void RHI_Vulkan::transitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+    auto commandBuffer = beginSingleTimeCommands();
+
+    vk::ImageMemoryBarrier barrier{};
     barrier.oldLayout           = oldLayout;
     barrier.newLayout           = newLayout;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image               = m_swapChainImages[imageIndex];
-    barrier.subresourceRange    = subresourceRange;
+    barrier.image            = image;
+    barrier.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
 
-    vk::DependencyFlags dependencyFlags = {};
+    vk::PipelineStageFlags sourceStage;
+    vk::PipelineStageFlags destinationStage;
 
-    vk::DependencyInfo dependencyInfo {};
-    dependencyInfo.dependencyFlags         = dependencyFlags;
-    dependencyInfo.imageMemoryBarrierCount = 1;
-    dependencyInfo.pImageMemoryBarriers    = &barrier;
+    if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)
+    {
+        barrier.srcAccessMask = {};
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
-    m_commandBuffers[m_frameIndex].pipelineBarrier2(dependencyInfo);
+        sourceStage      = vk::PipelineStageFlagBits::eTopOfPipe;
+        destinationStage = vk::PipelineStageFlagBits::eTransfer;
+    }
+    else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    {
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        sourceStage      = vk::PipelineStageFlagBits::eTransfer;
+        destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else
+    {
+        throw std::invalid_argument("Unsupported layout transition!");
+    }
+    commandBuffer->pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, barrier);
+    endSingleTimeCommands(*commandBuffer);
 }
 
 void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
@@ -735,13 +773,13 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     auto& m_commandBuffer = m_commandBuffers[m_frameIndex];
 
     m_commandBuffer.begin({});
-    transitionImageLayout(imageIndex,
+    transitionImageLayoutOld(imageIndex,
                           vk::ImageLayout::eUndefined,
                           vk::ImageLayout::eColorAttachmentOptimal,
-                          vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-                          vk::PipelineStageFlagBits2::eColorAttachmentOutput,
                           vk::AccessFlagBits2::eNone,
-                          vk::AccessFlagBits2::eColorAttachmentWrite
+                          vk::AccessFlagBits2::eColorAttachmentWrite,
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput
     );
 
     // TODO: Replace with ImGui ImVec4
@@ -766,6 +804,8 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
 
     m_commandBuffer.beginRendering(renderingInfo);
 
+    ImGui::Render();
+
     m_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline);
     m_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_swapChainExtent.width), static_cast<float>(m_swapChainExtent.height), 0.0f, 1.0f));
     m_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), m_swapChainExtent));
@@ -775,15 +815,23 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     m_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, *m_descriptorSets[m_frameIndex], nullptr);
     m_commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),*m_commandBuffer);
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+
     m_commandBuffer.endRendering();
 
-    transitionImageLayout(imageIndex,
+    transitionImageLayoutOld(imageIndex,
         vk::ImageLayout::eColorAttachmentOptimal,
         vk::ImageLayout::ePresentSrcKHR,
-        vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-        vk::PipelineStageFlagBits2::eBottomOfPipe,
         vk::AccessFlagBits2::eColorAttachmentWrite,
-        vk::AccessFlagBits2::eNone
+        vk::AccessFlagBits2::eNone,
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        vk::PipelineStageFlagBits2::eBottomOfPipe
     );
 
     m_commandBuffer.end();
@@ -976,6 +1024,152 @@ void RHI_Vulkan::createDescriptorSetLayout()
     m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device, layoutInfo);
 }
 
+void RHI_Vulkan::createTextureImage()
+{
+    // Load KTX2 texture instead of using stb_image
+    ktxTexture* kTexture;
+    KTX_error_code result = ktxTexture_CreateFromNamedFile(
+        "texture.png",
+        KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+        &kTexture);
+
+    if (result != KTX_SUCCESS) {
+        throw std::runtime_error("Failed to load ktx texture image!");
+    }
+
+    // Get texture dimensions and data
+    uint32_t texWidth = kTexture->baseWidth;
+    uint32_t texHeight = kTexture->baseHeight;
+    ktx_size_t imageSize = ktxTexture_GetImageSize(kTexture, 0);
+    ktx_uint8_t* ktxTextureData = ktxTexture_GetData(kTexture);
+
+    // Create staging buffer
+    vk::raii::Buffer stagingBuffer({});
+    vk::raii::DeviceMemory stagingBufferMemory({});
+    createBuffer(imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+
+    // Copy texture data to staging buffer
+    void* data = stagingBufferMemory.mapMemory(0, imageSize);
+    memcpy(data, ktxTextureData, imageSize);
+    stagingBufferMemory.unmapMemory();
+
+    // Determine the Vulkan format from KTX format
+    vk::Format textureFormat = vk::Format::eR8G8B8A8Srgb; // Default format, should be determined from KTX metadata
+
+    // Create the texture image
+    createImage(texWidth, texHeight, textureFormat, vk::ImageTiling::eOptimal,
+               vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+               vk::MemoryPropertyFlagBits::eDeviceLocal, m_textureImage, m_textureImageMemory);
+
+    // Copy data from staging buffer to texture image
+    transitionImageLayout(m_textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    copyBufferToImage(stagingBuffer, m_textureImage, texWidth, texHeight);
+    transitionImageLayout(m_textureImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
+    // Cleanup KTX resources
+    ktxTexture_Destroy(kTexture);
+}
+
+void RHI_Vulkan::createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory)
+{
+    vk::ImageCreateInfo imageInfo{};
+    imageInfo.imageType     = vk::ImageType::e2D;
+    imageInfo.format        = format;
+    imageInfo.extent.width  = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth  = 1;
+    imageInfo.mipLevels     = 1;
+    imageInfo.arrayLayers   = 1;
+    imageInfo.samples       = vk::SampleCountFlagBits::e1;
+    imageInfo.tiling        = tiling;
+    imageInfo.usage         = usage;
+    imageInfo.sharingMode   = vk::SharingMode::eExclusive;
+
+    image = vk::raii::Image(m_device, imageInfo);
+
+    vk::MemoryRequirements memRequirements = image.getMemoryRequirements();
+
+    vk::MemoryAllocateInfo allocInfo{};
+    allocInfo.allocationSize  = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    imageMemory = vk::raii::DeviceMemory(m_device, allocInfo);
+    image.bindMemory(imageMemory, 0);
+}
+
+void RHI_Vulkan::copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width, uint32_t height)
+{
+    std::unique_ptr<vk::raii::CommandBuffer> commandBuffer = beginSingleTimeCommands();
+
+    vk::BufferImageCopy region{};
+    region.bufferOffset        = 0;
+    region.bufferRowLength     = 0;
+    region.bufferImageHeight   = 0;
+    region.imageSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+    region.imageOffset.x       = 0;
+    region.imageOffset.y       = 0;
+    region.imageOffset.z       = 0;
+    region.imageExtent.width   = width;
+    region.imageExtent.height  = height;
+    region.imageExtent.depth   = 1;
+
+    commandBuffer->copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, {region});
+    endSingleTimeCommands(*commandBuffer);
+}
+
+std::unique_ptr<vk::raii::CommandBuffer> RHI_Vulkan::beginSingleTimeCommands() {
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.commandPool        = m_commandPool;
+    allocInfo.level              = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = 1;
+    std::unique_ptr<vk::raii::CommandBuffer> commandBuffer = std::make_unique<vk::raii::CommandBuffer>(std::move(vk::raii::CommandBuffers(m_device, allocInfo).front()));
+
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+    commandBuffer->begin(beginInfo);
+
+    return commandBuffer;
+}
+
+void RHI_Vulkan::endSingleTimeCommands(vk::raii::CommandBuffer& commandBuffer)
+{
+    commandBuffer.end();
+
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &*commandBuffer;
+
+    m_graphicsQueue.submit(submitInfo, nullptr);
+    m_graphicsQueue.waitIdle();
+}
+
+void RHI_Vulkan::createImGuiImage()
+{
+    VkImageCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    info.imageType = VK_IMAGE_TYPE_2D;
+    info.format = VK_FORMAT_R8G8B8A8_UNORM;
+    info.extent.width = m_swapChainExtent.width;
+    info.extent.height = m_swapChainExtent.height;
+    info.extent.depth = 1;
+    info.mipLevels = 1;
+    info.arrayLayers = 1;
+    info.samples = VK_SAMPLE_COUNT_1_BIT;
+    info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    info.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    vkCreateImage(*m_device, &info, nullptr, (VkImage*)&*m_image[m_frameIndex]);
+    VkMemoryRequirements req;
+    vkGetImageMemoryRequirements(*m_device, static_cast<vk::Image>(m_image[m_frameIndex]), &req);
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.allocationSize = req.size;
+    alloc_info.memoryTypeIndex = findMemoryType(req.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    vkAllocateMemory(*m_device, &alloc_info, nullptr, (VkDeviceMemory*)&*m_imageMemory[m_frameIndex]);
+    vkBindImageMemory(*m_device, *m_image[m_frameIndex], *m_imageMemory[m_frameIndex], 0);
+}
+
 vk::raii::Context* RHI_Vulkan::getContext()
 {
     return &m_context;
@@ -993,21 +1187,54 @@ vk::raii::PhysicalDevice* RHI_Vulkan::getPhysicalDevice()
 
 ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
 {
+    VkDescriptorPoolSize pool_sizes[] =
+    {
+        { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+    };
+
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    pool_info.maxSets = 1000;
+    pool_info.poolSizeCount = std::size(pool_sizes);
+    pool_info.pPoolSizes = pool_sizes;
+
+
+    auto result = vkCreateDescriptorPool(*m_device, &pool_info, nullptr, &m_descriptorPoolImGui);
+
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("failed to create descriptor pool! (ImGui failure)");
+
+
+
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance          = *m_instance;
     init_info.PhysicalDevice    = *m_physicalDevice;
     init_info.Device            = *m_device;
     init_info.QueueFamily       = m_graphicsIndex;
     init_info.Queue             = *m_graphicsQueue;
+    init_info.DescriptorPool    = m_descriptorPoolImGui;
     init_info.PipelineCache     = VK_NULL_HANDLE;
-    // TODO Set DescriptorPool init_info.DescriptorPool    = VK_NULL_HANDLE;
     init_info.MinImageCount     = 3;
     init_info.ImageCount        = 3;
     init_info.Allocator         = nullptr;
+    init_info.UseDynamicRendering = true;
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = (VkFormat*) &m_swapChainSurfaceFormat.format;
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     //init_info.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
     //init_info.PipelineInfoMain.Subpass = 0;
     init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    // TODO init_info.CheckVkResultFn = check_vk_result;
 
     return init_info;
 };

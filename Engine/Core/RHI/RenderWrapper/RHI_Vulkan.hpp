@@ -23,133 +23,153 @@ const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"
 class RHI_Vulkan final : public RHI
 {
 public:
-    // @brief Vulkan RHI constructor.
+    /// @brief Vulkan RHI constructor.
     RHI_Vulkan() = default;
 
-    // @brief Initializes the Vulkan renderer.
+    /// @brief Initializes the Vulkan renderer.
     void initRHI() override;
 
-    // @brief Draws the hello triangle.
+    /// @brief Draws the hello triangle.
     void drawFrame() override;
 
-    // @brief Sets the native window handle for Vulkan.
+    /// @brief Sets the native window handle for Vulkan.
     void setWindow(GLFWwindow* window) override;
 
-    // @brief Cleans up the Vulkan renderer.
+    /// @brief Cleans up the Vulkan renderer.
     void cleanup() override;
 
 public:
-    // @brief Get the current Vulkan RHI context.
+    /// @brief Get the current Vulkan RHI context.
     [[nodiscard("Context value ignored")]]
     vk::raii::Context* getContext();
 
-    // @brief Get the current Vulkan RHI instance.
+    /// @brief Get the current Vulkan RHI instance.
     [[nodiscard("Instance value ignored")]]
     vk::raii::Instance* getInstance();
 
     [[nodiscard("Physical device value ignored")]]
     vk::raii::PhysicalDevice* getPhysicalDevice();
 
-    // @brief Getter allowing the initialization in ImGui Window
+    /// @brief Getter allowing the initialization in ImGui Window
     ImGui_ImplVulkan_InitInfo getInitInfo();
 
-    // @brief m_framebufferResized setter.
+    /// @brief m_framebufferResized setter.
     void setFramebufferResized(bool resized);
 
 private:
-    // @brief Create a Vulkan instance and check for validation layer support.
+    /// @brief Create a Vulkan instance and check for validation layer support.
     void createInstance();
 
-    // @brief Sets up the debug messenger when the Engine is built in Debug mode.
+    /// @brief Sets up the debug messenger when the Engine is built in Debug mode.
     void setupDebugMessenger();
 
-    // @brief Callback function for the debug messenger.
+    /// @brief Callback function for the debug messenger.
     static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(
         vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type,
         const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void*);
 
-    // @brief Binds the physical device.
+    /// @brief Binds the physical device.
     void pickPhysicalDevice();
 
-    // @brief Check if the GPU supports all required features.
+    /// @brief Check if the GPU supports all required features.
     bool isSuitable(vk::raii::PhysicalDevice device);
 
-    // @brief Enumerates the queue families on a given physical device.
+    /// @brief Enumerates the queue families on a given physical device.
     uint32_t findQueueFamilies(vk::raii::PhysicalDevice device);
 
-    // @brief Creates the logical device.
+    /// @brief Creates the logical device.
     void createLogicalDevice();
 
-    // @brief Create the window surface.
+    /// @brief Create the window surface.
     void createWindowSurface();
 
-    // @brief Creates the swap chain.
+    /// @brief Creates the swap chain.
     void createSwapChain();
     vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
     vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
     vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
 
-    // @brief Creates the swap chain's image views.
+    /// @brief Creates the swap chain's image views.
     void createImageViews();
 
-    // @brief Create Graphics Pipeline
+    /// @brief Create Graphics Pipeline
     void createGraphicsPipeline();
     static std::vector<char> readShader(const std::string& fileName);
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
 
-    // @brief Creates the command pool for the command buffers
+    /// @brief Creates the command pool for the command buffers
     void createCommandPool();
 
-    // @brief Create vertex buffer
+    /// @brief Create vertex buffer
     void createVertexBuffer();
 
-    // @brief Create index buffer
+    /// @brief Create index buffer
     void createIndexBuffer();
 
-    // @brief Creates the command buffer for recording draw commands.
+    /// @brief Creates the command buffer for recording draw commands.
     void createCommandBuffer();
 
-    // @brief Records the command buffer at a given image index
+    /// @brief Records the command buffer at a given image index
     void recordCommandBuffer(uint32_t imageIndex);
 
-    // @brief Helper function to transition an image layout using given source and destination masks.
-    void transitionImageLayout(uint32_t imageIndex,
-        vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
-        vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
-        vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask);
+    /// @brief Helper function to transition an image layout using given source and destination masks.
+    void transitionImageLayoutOld(uint32_t imageIndex,
+    vk::ImageLayout old_layout, vk::ImageLayout new_layout,
+    vk::AccessFlags2 src_access_mask, vk::AccessFlags2 dst_access_mask,
+    vk::PipelineStageFlags2 src_stage_mask, vk::PipelineStageFlags2 dst_stage_mask);
+    void transitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
-    // @brief Creates the synchronization objects for the draw frame function.
+    /// @brief Creates the synchronization objects for the draw frame function.
     void createSyncObjects();
 
-    // @brief Cleans up the swap chain on recreation event.
+    /// @brief Cleans up the swap chain on recreation event.
     void cleanupSwapChain();
 
-    // @brief Recreates the swapchain and its image views on resize events.
+    /// @brief Recreates the swapchain and its image views on resize events.
     void recreateSwapChain();
 
-    // @brief Finds the memory type of the device using a filter.
+    /// @brief Finds the memory type of the device using a filter.
     uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
-    // @brief Creates a Vulkan buffer with all the provided arguments.
+    /// @brief Creates a Vulkan buffer with all the provided arguments.
     void createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Buffer& buffer, vk::raii::DeviceMemory& bufferMemory);
 
-    // @brief Copies a Vulkan buffer to another destination buffer
+    /// @brief Copies a Vulkan buffer to another destination buffer
     void copyBuffer(vk::raii::Buffer & srcBuffer, vk::raii::Buffer & dstBuffer, vk::DeviceSize size);
 
-    // @brief Creates Vulkan uniform buffers
+    /// @brief Creates Vulkan uniform buffers
     void createUniformBuffers();
 
-    // @brief Updates uniform buffers every frame
+    /// @brief Updates uniform buffers every frame
     void updateUniformBuffer(uint32_t currentImage);
 
-    // @brief Creates the Vulkan renderer descriptor pool
+    /// @brief Creates the Vulkan renderer descriptor pool
     void createDescriptorPool();
 
-    // @brief Creates the Vulkan renderer descriptor sets
+    /// @brief Creates the Vulkan renderer descriptor sets
     void createDescriptorSets();
 
-    // @brief Creates the Vulkan renderer descriptor layout(s) (later on)
+    /// @brief Creates the Vulkan renderer descriptor layout(s) (later on)
     void createDescriptorSetLayout();
+
+    /// @brief Creates an image from a texture (PNG / JPEG)
+    void createTextureImage();
+
+    /// @brief Creates an image buffer.
+    void createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
+
+    /// @brief Copies buffer data to image buffer data.
+    void copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width, uint32_t height);
+
+    /// @brief Begins a single time command
+    /// @returns A command buffer to execute the single time command.
+    std::unique_ptr<vk::raii::CommandBuffer> beginSingleTimeCommands();
+
+    /// @brief Ends a single time command for a given command buffer.
+    void endSingleTimeCommands(vk::raii::CommandBuffer& commandBuffer);
+
+    /// @brief Create images for ImGui
+    void createImGuiImage();
 
 private:
     vk::raii::Context                m_context;
@@ -164,13 +184,15 @@ private:
     vk::raii::SwapchainKHR           m_swapChain           = nullptr;
     vk::SurfaceFormatKHR             m_swapChainSurfaceFormat;
     vk::Extent2D                     m_swapChainExtent;
-    std::vector<vk::Image>           m_swapChainImages;
+    std::vector<vk::Image>     m_swapChainImages;
     std::vector<vk::raii::ImageView> m_swapChainImageViews;
     vk::raii::DescriptorSetLayout    m_descriptorSetLayout = nullptr;
     vk::raii::PipelineLayout         m_pipelineLayout      = nullptr;
     vk::raii::Pipeline               m_graphicsPipeline    = nullptr;
     vk::raii::CommandPool            m_commandPool         = nullptr;
     vk::raii::DescriptorPool         m_descriptorPool      = nullptr;
+    vk::raii::Image m_textureImage                         = nullptr;
+    vk::raii::DeviceMemory m_textureImageMemory            = nullptr;
 
     // TODO: Move later
     vk::raii::Buffer m_vertexBuffer                        = nullptr;
@@ -178,6 +200,16 @@ private:
     vk::raii::Buffer m_indexBuffer                         = nullptr;
     vk::raii::DeviceMemory m_indexBufferMemory             = nullptr;
     // End of TODO
+
+    // ImGui members
+    VkDescriptorPool m_descriptorPoolImGui                 = nullptr;
+    std::vector<vk::raii::DescriptorSet> m_dS;
+    std::vector<vk::raii::ImageView> m_imageView;
+    std::vector<vk::raii::Image> m_image;
+    std::vector<vk::raii::DeviceMemory> m_imageMemory;
+    std::vector<vk::raii::Sampler> m_sampler;
+    std::vector<vk::raii::Buffer> m_uploadBuffer;
+    std::vector<vk::raii::DeviceMemory> m_uploadBufferMemory;
 
     std::vector<vk::raii::Buffer> m_uniformBuffers;
     std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;

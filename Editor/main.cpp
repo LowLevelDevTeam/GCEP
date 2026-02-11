@@ -18,12 +18,12 @@ int main()
     {
         std::cout << e.what() << std::endl;
     }
-    //gcep::UiManager uiManager(window.getGlfwWindow(), rhi.getInitInfo());
+    gcep::UiManager uiManager(window.getGlfwWindow(), rhi.getInitInfo());
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
+        uiManager.uiUpdate();
         rhi.drawFrame();
-        //uiManager.uiUpdate();
     }
     rhi.cleanup();
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
