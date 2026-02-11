@@ -276,7 +276,7 @@ macro(common_libktx_settings target enable_write library_type)
     # C/C++ Standard
     # Need c11 for Unicode string literals. Need c++17 because some basisu
     # include files have c++17 features.
-    #target_compile_features(${target} PUBLIC c_std_11 cxx_std_17)
+    # target_compile_features(${target} PUBLIC c_std_11 cxx_std_17)
 
     # Compiler Warning Flags
     if(EMSCRIPTEN)
