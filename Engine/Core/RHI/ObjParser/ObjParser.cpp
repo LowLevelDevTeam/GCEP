@@ -1,6 +1,7 @@
 #include "ObjParser.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -62,11 +63,7 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
 
         std::string_view trimmed = std::string_view(line).substr(first);
 
-        if(trimmed.starts_with("o "))
-        {
-            sscanf(line.c_str() + 2, "%s", name);
-        }
-        else if (trimmed.starts_with("v "))
+        if (trimmed.starts_with("v "))
         {
             float x, y, z;
             sscanf(line.c_str() + 2, "%f %f %f", &x, &y, &z);

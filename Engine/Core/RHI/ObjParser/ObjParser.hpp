@@ -1,8 +1,5 @@
 #pragma once
 
-// Externals
-#include <glm/glm.hpp>
-
 // STL
 #include <array>
 #include <filesystem>
@@ -38,7 +35,6 @@ public:
     static std::pair<attrib_t, std::vector<index_t>> loadObj(std::filesystem::path& filepath);
 
 private:
-    static char* name;
     static std::string trim(const std::string& s);
 };
 
