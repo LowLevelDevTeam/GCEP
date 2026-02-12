@@ -798,7 +798,7 @@ void RHI_Vulkan::recordCommandBuffer(uint32_t imageIndex)
     m_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0,0), m_swapChainExtent));
 
     m_commandBuffer.bindVertexBuffers(0, *m_vertexBuffer, {0});
-    m_commandBuffer.bindIndexBuffer(*m_indexBuffer, 0, vk::IndexType::eUint16);
+    m_commandBuffer.bindIndexBuffer(*m_indexBuffer, 0, vk::IndexType::eUint32);
     m_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, *m_descriptorSets[m_frameIndex], nullptr);
     m_commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
@@ -949,9 +949,9 @@ void RHI_Vulkan::updateUniformBuffer(uint32_t currentImage)
     float time = std::chrono::duration<float>(currentTime - startTime).count();
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj  = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height), 0.1f, 10.0f);
+    ubo.model = glm::rotate(glm::mat4(0.5f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.view  = glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.proj  = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height), 0.1f, 100.0f);
     ubo.proj[1][1] *= -1;
 
     memcpy(m_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
@@ -1036,7 +1036,7 @@ void RHI_Vulkan::createDescriptorSetLayout()
 void RHI_Vulkan::createTextureImage()
 {
     int            texWidth, texHeight, texChannels;
-    stbi_uc       *pixels    = stbi_load("TestTextures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc       *pixels    = stbi_load("TestTextures/black.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     vk::DeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels)
@@ -1221,32 +1221,49 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
     return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }
 
-void RHI_Vulkan::loadModel() {
-    objParser::ObjLoader loader = objParser::ObjLoader::getInstance();
-    std::cout << "Viking room - 468KB" << std::endl;
-    std::filesystem::path filepath = "TestTextures/cube.obj";
+void RHI_Vulkan::loadModel()
+{
+    std::filesystem::path filepath = "TestTextures/bugatti.obj";
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-    auto [attrib, indexes] = loader.loadObj(filepath);
-    for (auto& index : indexes)
+    auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
+
+    for (const auto& index : modelIndices)
     {
         Vertex vertex{};
 
-        vertex.pos = {
+        vertex.pos =
+        {
             attrib.vertices[3 * index.vertex_index + 0],
             attrib.vertices[3 * index.vertex_index + 1],
             attrib.vertices[3 * index.vertex_index + 2]
         };
 
-        vertex.texCoord = {
-            attrib.texcoords[2 * index.texcoord_index + 0],
-            1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-        };
+        if (index.texcoord_index != UINT32_MAX)
+        {
+            vertex.texCoord =
+            {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+            };
+        }
+        else
+        {
+            vertex.texCoord = {0.0f, 0.0f};
+        }
 
-        vertex.color = {
-            attrib.normals[3 * index.normal_index + 0],
-            attrib.normals[3 * index.normal_index + 1],
-            attrib.normals[3 * index.normal_index + 2]
-        };
+        if (index.normal_index != UINT32_MAX)
+        {
+            vertex.color =
+            {
+                attrib.normals[3 * index.normal_index + 0],
+                attrib.normals[3 * index.normal_index + 1],
+                attrib.normals[3 * index.normal_index + 2]
+            };
+        }
+        else
+        {
+            vertex.color = {1.0f, 1.0f, 1.0f};
+        }
 
         if (!uniqueVertices.contains(vertex))
         {
