@@ -1,13 +1,13 @@
-//
-// Created by momop on 10/02/2026.
-//
-
 #include "PhysicsSystem.hpp"
+
+#include <memory>
+
 #include "PhysicalWorld.hpp"
 
 namespace gcep
 {
     PhysicsSystem::PhysicsSystem()
+        : m_world(std::make_unique<PhysicsWorld>())
     {
         m_world->initWorld();
     }

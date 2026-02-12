@@ -11,7 +11,7 @@
 #include <Jolt/Physics/Body/BodyID.h>
 
 //Core
-#include "PhysicsBodyDesc.hpp"
+#include "PhysicsSystem.hpp"
 #include "Layers/BPLayerInterfaceImpl.hpp"
 #include "Layers/ObjectLayerPairFilterImpl.hpp"
 #include "Layers/ObjectVsBroadPhaseLayerFilterImpl.hpp"
@@ -19,23 +19,6 @@
 
 namespace gcep
 {
-    enum class EShapeType
-    {
-        CUBE,
-        SPHERE,
-        CYLINDER
-    };
-
-    struct PhysicsBodyDesc
-    {
-        JPH::RVec3Arg position{0.f,0.f,0.f};
-        JPH::QuatArg rotation{0.f,0.f,0.f,1.f};
-
-        EShapeType shape = EShapeType::CUBE;
-
-        float mass = 1.f;
-    };
-
     class PhysicsBody;
 
     class PhysicsWorld
@@ -50,8 +33,9 @@ namespace gcep
         void step(float deltaTime);
         void shutdownWorld();
 
-        void createBody(const PhysicsBodyDesc& desc) const;
+        void createBody(const EShapeType shapeType) const;
         void destroyBody(const JPH::BodyID &body_id) const;
+
     private:
         std::unique_ptr<JPH::PhysicsSystem> m_physicsSystem;
         std::unique_ptr<JPH::TempAllocator> m_tempAllocator;

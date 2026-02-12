@@ -2,7 +2,7 @@
 // Created by momop on 10/02/2026.
 //
 
-#include "PhysicsBody.h"
+#include "PhysicsBody.hpp"
 
 namespace gcep
 {

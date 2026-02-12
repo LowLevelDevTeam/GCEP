@@ -2,6 +2,9 @@
 
 #include <Editor/Window/Window.hpp>
 #include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
+#include <Engine/Core/PhysicsWrapper/PhysicalWorld.hpp>
+
+#include "Engine/Core/PhysicsWrapper/PhysicsSystem.hpp"
 
 int main()
 {
@@ -17,6 +20,8 @@ int main()
     {
         std::cout << e.what() << std::endl;
     }
+    gcep::PhysicsSystem physicsSystem;
+    physicsSystem->
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();

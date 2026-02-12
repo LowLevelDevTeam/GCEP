@@ -1,5 +1,7 @@
 #include "BPLayerInterfaceImpl.hpp"
 
+#include <string>
+
 namespace gcep
 {
     BPLayerInterfaceImpl::BPLayerInterfaceImpl()
@@ -16,5 +18,14 @@ namespace gcep
     JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer layer) const
     {
         return m_ObjectToBroadPhase[layer];
+    }
+
+    const char* BPLayerInterfaceImpl::GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const {
+        switch ((JPH::BroadPhaseLayer::Type)inLayer)
+        {
+            case (JPH::BroadPhaseLayer::Type)0: return "NON_MOVING";
+            case (JPH::BroadPhaseLayer::Type)1: return "MOVING";
+            default: return "UNKNOWN";
+        }
     }
 } // gcep

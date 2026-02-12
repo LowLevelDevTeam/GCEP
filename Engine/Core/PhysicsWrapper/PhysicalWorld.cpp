@@ -1,6 +1,7 @@
 #include "PhysicalWorld.hpp"
 
 #include <memory>
+#include <iostream>
 
 //LIB
 
@@ -67,7 +68,6 @@ namespace gcep {
 			*m_objectVsBroadPhaseLayerFilter,
 			*m_objectLayerPairFilter
 			);
-
     }
 
     void PhysicsWorld::step(float deltaTime)
@@ -87,11 +87,11 @@ namespace gcep {
 
     }
 
-    void PhysicsWorld::createBody(const PhysicsBodyDesc& desc) const
+    void PhysicsWorld::createBody(const EShapeType shapeType) const
     {
     	JPH::ShapeRefC shape;
 
-    	switch (desc.shape) {
+    	switch (shapeType) {
     			case EShapeType::CUBE : {
     				JPH::BoxShapeSettings cubeShapeSettings(JPH::Vec3(100.0f, 100.0f, 100.0f));
     				shape = cubeShapeSettings.Create().Get();
@@ -107,11 +107,12 @@ namespace gcep {
     				shape = sphereShapeSettings.Create().Get();
     		    }
     	}
+    	JPH::RVec3 position = JPH::RVec3::sZero();
+    	JPH::Quat rotation = JPH::Quat::sIdentity();
+    	JPH::BodyCreationSettings bodySettings(shape, position, rotation, JPH::EMotionType::Static, Layers::NON_MOVING);
 
-    	JPH::BodyCreationSettings sphereSettings(shape, desc.position, desc.rotation, JPH::EMotionType::Static, Layers::NON_MOVING);
-
-    	JPH::Body *sphere = m_physicsSystem->GetBodyInterface().CreateBody(sphereSettings);
-    	m_physicsSystem->GetBodyInterface().AddBody(sphere->GetID(), JPH::EActivation::Activate);
+    	JPH::Body *body = m_physicsSystem->GetBodyInterface().CreateBody(bodySettings);
+    	m_physicsSystem->GetBodyInterface().AddBody(body->GetID(), JPH::EActivation::Activate);
     }
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const

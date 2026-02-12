@@ -4,6 +4,13 @@
 
 namespace gcep
 {
+    enum class EShapeType
+    {
+        CUBE,
+        SPHERE,
+        CYLINDER
+    };
+
     class PhysicsBodyDesc;
     class PhysicsWorld;
 
