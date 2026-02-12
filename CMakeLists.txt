@@ -14,7 +14,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "." FORCE)
 endif()
 
-file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp)
+file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.inl)
 
 # Adding the executable
 add_executable(GCEngine)
