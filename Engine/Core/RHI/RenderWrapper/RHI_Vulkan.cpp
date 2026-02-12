@@ -19,7 +19,10 @@
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <ktx.h>
+//#include <ktx.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -33,6 +36,7 @@ struct Vertex
 {
     glm::vec2 pos;
     glm::vec3 color;
+    glm::vec2 texCoord;
 
     static vk::VertexInputBindingDescription getBindingDescription()
     {
@@ -41,22 +45,23 @@ struct Vertex
             0, sizeof(Vertex), vk::VertexInputRate::eVertex
         };
     }
-    static std::array<vk::VertexInputAttributeDescription, 2> getAttributeDescriptions()
+    static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions()
     {
         return
         {
             vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos)),
-            vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color))
+            vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
+            vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord))
         };
     }
 };
 
 const std::vector<Vertex> vertices =
 {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f,   0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f,   0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 };
 
 const std::vector<uint16_t> indices =
@@ -90,7 +95,9 @@ void RHI_Vulkan::initRHI()
     createDescriptorSetLayout();
     createGraphicsPipeline();
     createCommandPool();
-    //createTextureImage();
+    createTextureImage();
+    createTextureImageView();
+    createTextureSampler();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -378,12 +385,13 @@ void RHI_Vulkan::createLogicalDevice()
     deviceExtendedDynamicStateFeatures.pNext = &device11Features;
 
     vk::PhysicalDeviceVulkan13Features device13Features{};
+    device13Features.pNext            = &deviceExtendedDynamicStateFeatures;
     device13Features.dynamicRendering = vk::True;
     device13Features.synchronization2 = vk::True;
-    device13Features.pNext            = &deviceExtendedDynamicStateFeatures;
 
     vk::PhysicalDeviceFeatures2 deviceFeatures2{};
-    deviceFeatures2.pNext = &device13Features;
+    deviceFeatures2.features.samplerAnisotropy = vk::True;
+    deviceFeatures2.pNext                      = &device13Features;
 
     float queuePriority = 0.5f;
     vk::DeviceQueueCreateInfo deviceQueueCreateInfo{};
@@ -505,7 +513,6 @@ void RHI_Vulkan::createImageViews()
         m_swapChainImageViews.emplace_back(m_device, imageViewCreateInfo);
     }
 }
-
 
 void RHI_Vulkan::createGraphicsPipeline()
 {
@@ -972,26 +979,30 @@ void RHI_Vulkan::updateUniformBuffer(uint32_t currentImage)
 
 void RHI_Vulkan::createDescriptorPool()
 {
-    vk::DescriptorPoolSize poolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT);
-
+    std::array poolSize
+    {
+        vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT),
+        vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, MAX_FRAMES_IN_FLIGHT)
+    };
     vk::DescriptorPoolCreateInfo poolInfo{};
     poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     poolInfo.maxSets       = MAX_FRAMES_IN_FLIGHT;
-    poolInfo.poolSizeCount = 1;
-    poolInfo.pPoolSizes    = &poolSize;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSize.size());
+    poolInfo.pPoolSizes    = poolSize.data();
 
     m_descriptorPool = vk::raii::DescriptorPool(m_device, poolInfo);
 }
 
 void RHI_Vulkan::createDescriptorSets()
 {
-    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_descriptorSetLayout);
+    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
 
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool     = m_descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
     allocInfo.pSetLayouts        = layouts.data();
 
+    m_descriptorSets.clear();
     m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -1001,73 +1012,73 @@ void RHI_Vulkan::createDescriptorSets()
         bufferInfo.offset = 0;
         bufferInfo.range  = sizeof(UniformBufferObject);
 
-        vk::WriteDescriptorSet descriptorWrite{};
-        descriptorWrite.dstSet          = m_descriptorSets[i];
-        descriptorWrite.dstBinding      = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.descriptorType  = vk::DescriptorType::eUniformBuffer;
-        descriptorWrite.pBufferInfo     = &bufferInfo;
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.sampler     = m_textureSampler;
+        imageInfo.imageView   = m_textureImageView;
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
-        m_device.updateDescriptorSets(descriptorWrite, {});
+        vk::WriteDescriptorSet uboSet{};
+        uboSet.dstSet          = m_descriptorSets[i],
+        uboSet.dstBinding      = 0;
+        uboSet.dstArrayElement = 0;
+        uboSet.descriptorCount = 1;
+        uboSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+        uboSet.pBufferInfo     = &bufferInfo;
+        vk::WriteDescriptorSet textureSet{};
+        textureSet.dstSet          = m_descriptorSets[i];
+        textureSet.dstBinding      = 1;
+        textureSet.dstArrayElement = 0;
+        textureSet.descriptorCount = 1;
+        textureSet.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+        textureSet.pImageInfo      = &imageInfo;
+
+        std::array descriptorWrites
+        {
+            uboSet,
+            textureSet
+        };
+
+        m_device.updateDescriptorSets(descriptorWrites, {});
     }
 }
 
 void RHI_Vulkan::createDescriptorSetLayout()
 {
-    vk::DescriptorSetLayoutBinding uboLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr);
-
-    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings    = &uboLayoutBinding;
+    std::array bindings = {
+        vk::DescriptorSetLayoutBinding( 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr),
+        vk::DescriptorSetLayoutBinding( 1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr)
+    };
+    vk::DescriptorSetLayoutCreateInfo layoutInfo({}, bindings.size(), bindings.data());
 
     m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device, layoutInfo);
 }
 
 void RHI_Vulkan::createTextureImage()
 {
-    // Load KTX2 texture instead of using stb_image
-    ktxTexture* kTexture;
-    KTX_error_code result = ktxTexture_CreateFromNamedFile(
-        "texture.png",
-        KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
-        &kTexture);
+    int            texWidth, texHeight, texChannels;
+    stbi_uc       *pixels    = stbi_load("TestTextures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    vk::DeviceSize imageSize = texWidth * texHeight * 4;
 
-    if (result != KTX_SUCCESS) {
-        throw std::runtime_error("Failed to load ktx texture image!");
+    if (!pixels)
+    {
+        throw std::runtime_error("Failed to load texture image!");
     }
 
-    // Get texture dimensions and data
-    uint32_t texWidth = kTexture->baseWidth;
-    uint32_t texHeight = kTexture->baseHeight;
-    ktx_size_t imageSize = ktxTexture_GetImageSize(kTexture, 0);
-    ktx_uint8_t* ktxTextureData = ktxTexture_GetData(kTexture);
-
-    // Create staging buffer
-    vk::raii::Buffer stagingBuffer({});
+    vk::raii::Buffer       stagingBuffer({});
     vk::raii::DeviceMemory stagingBufferMemory({});
     createBuffer(imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
 
-    // Copy texture data to staging buffer
-    void* data = stagingBufferMemory.mapMemory(0, imageSize);
-    memcpy(data, ktxTextureData, imageSize);
+    void *data = stagingBufferMemory.mapMemory(0, imageSize);
+    memcpy(data, pixels, imageSize);
     stagingBufferMemory.unmapMemory();
 
-    // Determine the Vulkan format from KTX format
-    vk::Format textureFormat = vk::Format::eR8G8B8A8Srgb; // Default format, should be determined from KTX metadata
+    stbi_image_free(pixels);
 
-    // Create the texture image
-    createImage(texWidth, texHeight, textureFormat, vk::ImageTiling::eOptimal,
-               vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-               vk::MemoryPropertyFlagBits::eDeviceLocal, m_textureImage, m_textureImageMemory);
+    createImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, m_textureImage, m_textureImageMemory);
 
-    // Copy data from staging buffer to texture image
     transitionImageLayout(m_textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-    copyBufferToImage(stagingBuffer, m_textureImage, texWidth, texHeight);
+    copyBufferToImage(stagingBuffer, m_textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
     transitionImageLayout(m_textureImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-    // Cleanup KTX resources
-    ktxTexture_Destroy(kTexture);
 }
 
 void RHI_Vulkan::createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory)
@@ -1097,6 +1108,42 @@ void RHI_Vulkan::createImage(uint32_t width, uint32_t height, vk::Format format,
     image.bindMemory(imageMemory, 0);
 }
 
+void RHI_Vulkan::createTextureImageView()
+{
+    m_textureImageView = createImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+}
+
+void RHI_Vulkan::createTextureSampler()
+{
+    vk::PhysicalDeviceProperties properties = m_physicalDevice.getProperties();
+
+    vk::SamplerCreateInfo samplerInfo{};
+    samplerInfo.magFilter        = vk::Filter::eLinear;
+    samplerInfo.minFilter        = vk::Filter::eLinear;
+    samplerInfo.mipmapMode       = vk::SamplerMipmapMode::eLinear;
+    samplerInfo.addressModeU     = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeV     = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeW     = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.mipLodBias       = 0.0f;
+    samplerInfo.anisotropyEnable = vk::True;
+    samplerInfo.maxAnisotropy    = properties.limits.maxSamplerAnisotropy;
+    samplerInfo.compareEnable    = vk::False;
+    samplerInfo.compareOp        = vk::CompareOp::eAlways;
+
+    m_textureSampler = vk::raii::Sampler(m_device, samplerInfo);
+}
+
+vk::raii::ImageView RHI_Vulkan::createImageView(vk::raii::Image& image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+{
+    vk::ImageViewCreateInfo viewInfo{};
+    viewInfo.image            = *image;
+    viewInfo.viewType         = vk::ImageViewType::e2D;
+    viewInfo.format           = format;
+    viewInfo.subresourceRange = {aspectFlags, 0, 1, 0, 1};
+
+    return vk::raii::ImageView(m_device, viewInfo);
+}
+
 void RHI_Vulkan::copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width, uint32_t height)
 {
     std::unique_ptr<vk::raii::CommandBuffer> commandBuffer = beginSingleTimeCommands();
@@ -1105,7 +1152,7 @@ void RHI_Vulkan::copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Ima
     region.bufferOffset        = 0;
     region.bufferRowLength     = 0;
     region.bufferImageHeight   = 0;
-    region.imageSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+    region.imageSubresource    = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
     region.imageOffset.x       = 0;
     region.imageOffset.y       = 0;
     region.imageOffset.z       = 0;
@@ -1145,29 +1192,14 @@ void RHI_Vulkan::endSingleTimeCommands(vk::raii::CommandBuffer& commandBuffer)
 
 void RHI_Vulkan::createImGuiImage()
 {
-    VkImageCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    info.imageType = VK_IMAGE_TYPE_2D;
-    info.format = VK_FORMAT_R8G8B8A8_UNORM;
-    info.extent.width = m_swapChainExtent.width;
-    info.extent.height = m_swapChainExtent.height;
-    info.extent.depth = 1;
-    info.mipLevels = 1;
-    info.arrayLayers = 1;
-    info.samples = VK_SAMPLE_COUNT_1_BIT;
-    info.tiling = VK_IMAGE_TILING_OPTIMAL;
-    info.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    vkCreateImage(*m_device, &info, nullptr, (VkImage*)&*m_image[m_frameIndex]);
-    VkMemoryRequirements req;
-    vkGetImageMemoryRequirements(*m_device, static_cast<vk::Image>(m_image[m_frameIndex]), &req);
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize = req.size;
-    alloc_info.memoryTypeIndex = findMemoryType(req.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    vkAllocateMemory(*m_device, &alloc_info, nullptr, (VkDeviceMemory*)&*m_imageMemory[m_frameIndex]);
-    vkBindImageMemory(*m_device, *m_image[m_frameIndex], *m_imageMemory[m_frameIndex], 0);
+    createImage(
+        m_swapChainExtent.width, m_swapChainExtent.height,
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_image[m_frameIndex], m_imageMemory[m_frameIndex]
+    );
 }
 
 vk::raii::Context* RHI_Vulkan::getContext()
@@ -1209,13 +1241,10 @@ ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
     pool_info.poolSizeCount = std::size(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
 
-
     auto result = vkCreateDescriptorPool(*m_device, &pool_info, nullptr, &m_descriptorPoolImGui);
 
     if (result != VK_SUCCESS)
         throw std::runtime_error("failed to create descriptor pool! (ImGui failure)");
-
-
 
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance          = *m_instance;
@@ -1229,9 +1258,9 @@ ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
     init_info.ImageCount        = 3;
     init_info.Allocator         = nullptr;
     init_info.UseDynamicRendering = true;
-    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = (VkFormat*) &m_swapChainSurfaceFormat.format;
     init_info.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = reinterpret_cast<VkFormat*>(&m_swapChainSurfaceFormat.format);
     //init_info.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
     //init_info.PipelineInfoMain.Subpass = 0;
     init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;

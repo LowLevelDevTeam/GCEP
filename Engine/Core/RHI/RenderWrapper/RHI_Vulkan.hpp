@@ -158,6 +158,12 @@ private:
     /// @brief Creates an image buffer.
     void createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
 
+    void createTextureImageView();
+
+    void createTextureSampler();
+
+    vk::raii::ImageView createImageView(vk::raii::Image &image, vk::Format format, vk::ImageAspectFlags aspectFlags);
+
     /// @brief Copies buffer data to image buffer data.
     void copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width, uint32_t height);
 
@@ -184,15 +190,17 @@ private:
     vk::raii::SwapchainKHR           m_swapChain           = nullptr;
     vk::SurfaceFormatKHR             m_swapChainSurfaceFormat;
     vk::Extent2D                     m_swapChainExtent;
-    std::vector<vk::Image>     m_swapChainImages;
+    std::vector<vk::Image>           m_swapChainImages;
     std::vector<vk::raii::ImageView> m_swapChainImageViews;
     vk::raii::DescriptorSetLayout    m_descriptorSetLayout = nullptr;
     vk::raii::PipelineLayout         m_pipelineLayout      = nullptr;
     vk::raii::Pipeline               m_graphicsPipeline    = nullptr;
     vk::raii::CommandPool            m_commandPool         = nullptr;
     vk::raii::DescriptorPool         m_descriptorPool      = nullptr;
-    vk::raii::Image m_textureImage                         = nullptr;
-    vk::raii::DeviceMemory m_textureImageMemory            = nullptr;
+    vk::raii::Image                  m_textureImage        = nullptr;
+    vk::raii::DeviceMemory           m_textureImageMemory  = nullptr;
+    vk::raii::ImageView              m_textureImageView    = nullptr;
+    vk::raii::Sampler                m_textureSampler      = nullptr;
 
     // TODO: Move later
     vk::raii::Buffer m_vertexBuffer                        = nullptr;
