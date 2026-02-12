@@ -6,26 +6,26 @@
 
 int main()
 {
-    gcep::RHI_Vulkan rhi;
+    std::unique_ptr<gcep::RHI_Vulkan> rhi = std::make_unique<gcep::RHI_Vulkan>();
     gcep::Window& window = gcep::Window::getInstance();
     window.initWindow();
     try
     {
-        rhi.setWindow(window.getGlfwWindow());
-        rhi.initRHI();
+        rhi->setWindow(window.getGlfwWindow());
+        rhi->initRHI();
     }
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
     }
-    gcep::UiManager uiManager(window.getGlfwWindow(), rhi.getInitInfo());
+    gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
         uiManager.uiUpdate();
-        rhi.drawFrame();
+        rhi->drawFrame();
     }
-    rhi.cleanup();
+    rhi->cleanup();
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
     glfwTerminate();
 

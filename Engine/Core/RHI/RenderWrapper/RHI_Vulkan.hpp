@@ -113,10 +113,13 @@ private:
     void recordCommandBuffer(uint32_t imageIndex);
 
     /// @brief Helper function to transition an image layout using given source and destination masks.
-    void transitionImageLayoutOld(uint32_t imageIndex,
-    vk::ImageLayout old_layout, vk::ImageLayout new_layout,
-    vk::AccessFlags2 src_access_mask, vk::AccessFlags2 dst_access_mask,
-    vk::PipelineStageFlags2 src_stage_mask, vk::PipelineStageFlags2 dst_stage_mask);
+    void transitionImageLayoutOld(
+        vk::Image image,
+        vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+        vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
+        vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
+        vk::ImageAspectFlags imageAspectFlags
+    );
     void transitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
     /// @brief Creates the synchronization objects for the draw frame function.
@@ -174,6 +177,18 @@ private:
     /// @brief Ends a single time command for a given command buffer.
     void endSingleTimeCommands(vk::raii::CommandBuffer& commandBuffer);
 
+    /// @brief Creates test textures depth ressources
+    void createDepthResources();
+
+    /// @brief Finds a supported image format given proper parameters
+    vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+
+    /// @brief Finds the device supported depth format
+    vk::Format findDepthFormat();
+
+    /// @brief Determines if a certain format has a stencil component.
+    bool hasStencilComponent(vk::Format format);
+
     /// @brief Create images for ImGui
     void createImGuiImage();
 
@@ -201,6 +216,9 @@ private:
     vk::raii::DeviceMemory           m_textureImageMemory  = nullptr;
     vk::raii::ImageView              m_textureImageView    = nullptr;
     vk::raii::Sampler                m_textureSampler      = nullptr;
+    vk::raii::Image                  m_depthImage          = nullptr;
+    vk::raii::DeviceMemory           m_depthImageMemory    = nullptr;
+    vk::raii::ImageView              m_depthImageView      = nullptr;
 
     // TODO: Move later
     vk::raii::Buffer m_vertexBuffer                        = nullptr;
