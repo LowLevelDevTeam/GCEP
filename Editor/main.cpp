@@ -19,12 +19,34 @@ int main()
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
+        return 1;
     }
+
+    // Initialize ImGui BEFORE creating offscreen resources (ImGui_ImplVulkan_AddTexture requires ImGui)
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
+
+    // Now create offscreen resources for viewport rendering
+    rhi->createOffscreenResources(800, 600);
+
+
+    ImVec4 test = uiManager.getClearColor();
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
-        uiManager.uiUpdate();
+
+        // Process any pending resize BEFORE updating UI
+        // This ensures the descriptor passed to ImGui is valid
+        rhi->processPendingOffscreenResize();
+
+        rhi->updateEditorInfo(uiManager.getClearColor());
+        // Update UI with viewport texture and resize callback
+        uiManager.uiUpdate(
+            rhi->getImGuiTextureDescriptor(),
+            [&rhi](uint32_t width, uint32_t height) {
+                rhi->requestOffscreenResize(width, height);
+            }
+        );
+
         rhi->drawFrame();
     }
     rhi->cleanup();
