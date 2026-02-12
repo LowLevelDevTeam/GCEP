@@ -47,7 +47,6 @@ int main()
         rhi->processPendingOffscreenResize();
 
         rhi->updateEditorInfo(uiManager.getClearColor());
-        std::cout << "color :" << test.x << " " << test.y << " " << test.z << std::endl;
         // Update UI with viewport texture and resize callback
         uiManager.uiUpdate(
             rhi->getImGuiTextureDescriptor(),
