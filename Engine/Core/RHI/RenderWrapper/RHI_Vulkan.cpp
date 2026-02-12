@@ -1198,7 +1198,8 @@ void RHI_Vulkan::copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Ima
     endSingleTimeCommands(*commandBuffer);
 }
 
-std::unique_ptr<vk::raii::CommandBuffer> RHI_Vulkan::beginSingleTimeCommands() {
+std::unique_ptr<vk::raii::CommandBuffer> RHI_Vulkan::beginSingleTimeCommands()
+{
     vk::CommandBufferAllocateInfo allocInfo{};
     allocInfo.commandPool        = m_commandPool;
     allocInfo.level              = vk::CommandBufferLevel::ePrimary;
