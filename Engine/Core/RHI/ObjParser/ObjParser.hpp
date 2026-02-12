@@ -16,29 +16,38 @@
  * f = face definition (v/vt/vn v/vt/vn v/vt/vn)
  */
 
-namespace gcep
+namespace gcep::objParser
 {
 
-namespace objParser
-{
-
-class ObjFile {
+class ObjLoader {
 public:
-    explicit ObjFile(std::filesystem::path& filepath);
+    typedef struct
+    {
+        int vertex_index;
+        int texcoord_index;
+        int normal_index;
+    } index_t;
+    typedef struct
+    {
+        std::vector<float> vertices;
+        std::vector<float> texcoords;
+        std::vector<float> normals;
+    } attrib_t;
+    static ObjLoader& getInstance()
+    {
+        static ObjLoader instance;
+        return instance;
+    }
+    std::pair<attrib_t, std::vector<index_t>> loadObj(std::filesystem::path& filepath);
 
 private:
-    using face = std::array<glm::vec3, 3>;
-    std::vector<glm::vec3> pos;
-    std::vector<glm::vec2> uv;
-    std::vector<glm::vec3> normal;
-    std::vector<face> faces;
-
+    ObjLoader();
+    std::vector<index_t> indices;
+    attrib_t attribs;
     std::string name;
 
     static size_t getLinesCount(std::fstream& file);
     static std::string trim(const std::string& s);
 };
 
-}
-
-} // Namespace gcep
+} // Namespace gcep::objParser

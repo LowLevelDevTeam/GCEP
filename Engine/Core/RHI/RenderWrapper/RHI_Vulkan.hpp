@@ -5,12 +5,53 @@
 // Externals
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
 
 // Forward declaration
 struct ImGui_ImplVulkan_InitInfo;
 
 namespace gcep
 {
+
+// Tutorial data
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 color;
+    glm::vec2 texCoord;
+
+    static vk::VertexInputBindingDescription getBindingDescription()
+    {
+        return {0, sizeof(Vertex), vk::VertexInputRate::eVertex};
+    }
+
+    static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions()
+    {
+        return
+        {
+            vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos)),
+            vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
+            vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord))
+        };
+    }
+
+    bool operator==(const Vertex &other) const
+    {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
+};
+
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
@@ -192,6 +233,9 @@ private:
     /// @brief Create images for ImGui
     void createImGuiImage();
 
+    /// @brief Loads the test obj model
+    void loadModel();
+
 private:
     vk::raii::Context                m_context;
     vk::raii::Instance               m_instance            = nullptr;
@@ -246,6 +290,9 @@ private:
     std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
     std::vector<vk::raii::Fence> m_inFlightFences;
 
+    std::vector<Vertex>    vertices;
+    std::vector<uint32_t>  indices;
+
     bool m_framebufferResized = false;
 
     uint32_t m_frameIndex = 0;
@@ -257,3 +304,12 @@ private:
 };
 
 } // Namespace gcep
+
+template <>
+struct std::hash<gcep::Vertex>
+{
+    size_t operator()(gcep::Vertex const &vertex) const noexcept
+    {
+        return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+    }
+};

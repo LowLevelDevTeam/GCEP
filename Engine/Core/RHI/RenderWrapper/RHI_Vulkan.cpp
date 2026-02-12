@@ -24,65 +24,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "Engine/Core/RHI/ObjParser/ObjParser.hpp"
 
 namespace gcep
 {
-
-// Tutorial data
-struct Vertex
-{
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
-
-    static vk::VertexInputBindingDescription getBindingDescription()
-    {
-        return
-        {
-            0, sizeof(Vertex), vk::VertexInputRate::eVertex
-        };
-    }
-    static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions()
-    {
-        return
-        {
-            vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos)),
-            vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
-            vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord))
-        };
-    }
-};
-
-const std::vector<Vertex> vertices =
-{
-    {{-0.5f, -0.5f,  0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f,  -0.5f,  0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f,   0.5f,  0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f,  0.5f,  0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f,  -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f,   0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> indices =
-{
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4
-};
-
-struct UniformBufferObject
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-};
-// End of tutorial data
 
 static void resizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -106,6 +51,7 @@ void RHI_Vulkan::initRHI()
     createTextureImage();
     createTextureImageView();
     createTextureSampler();
+    loadModel();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -1090,7 +1036,7 @@ void RHI_Vulkan::createDescriptorSetLayout()
 void RHI_Vulkan::createTextureImage()
 {
     int            texWidth, texHeight, texChannels;
-    stbi_uc       *pixels    = stbi_load("TestTextures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc       *pixels    = stbi_load("TestTextures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     vk::DeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels)
@@ -1275,6 +1221,43 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
     return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }
 
+void RHI_Vulkan::loadModel() {
+    objParser::ObjLoader loader = objParser::ObjLoader::getInstance();
+    std::cout << "Viking room - 468KB" << std::endl;
+    std::filesystem::path filepath = "TestTextures/viking_room.obj";
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    auto [attrib, indexes] = loader.loadObj(filepath);
+    for (auto& index : indexes)
+    {
+        Vertex vertex{};
+
+        vertex.pos = {
+            attrib.vertices[3 * index.vertex_index + 0],
+            attrib.vertices[3 * index.vertex_index + 1],
+            attrib.vertices[3 * index.vertex_index + 2]
+        };
+
+        vertex.texCoord = {
+            attrib.texcoords[2 * index.texcoord_index + 0],
+            1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+        };
+
+        vertex.color = {
+            attrib.normals[3 * index.normal_index + 0],
+            attrib.normals[3 * index.normal_index + 1],
+            attrib.normals[3 * index.normal_index + 2]
+        };
+
+        if (!uniqueVertices.contains(vertex))
+        {
+            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+            vertices.push_back(vertex);
+        }
+
+        indices.push_back(uniqueVertices[vertex]);
+    }
+}
+
 void RHI_Vulkan::createImGuiImage()
 {
     createImage(
@@ -1346,6 +1329,7 @@ ImGui_ImplVulkan_InitInfo RHI_Vulkan::getInitInfo()
     init_info.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     init_info.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
     init_info.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = reinterpret_cast<VkFormat*>(&m_swapChainSurfaceFormat.format);
+    init_info.PipelineInfoMain.PipelineRenderingCreateInfo.depthAttachmentFormat = static_cast<VkFormat>(findDepthFormat());
     //init_info.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
     //init_info.PipelineInfoMain.Subpass = 0;
     init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;

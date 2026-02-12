@@ -1,5 +1,6 @@
 #include "ObjParser.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -7,15 +8,16 @@
 namespace gcep::objParser
 {
 
-ObjFile::ObjFile(std::filesystem::path& filepath)
+ObjLoader::ObjLoader() = default;
+
+std::pair<ObjLoader::attrib_t, std::vector<ObjLoader::index_t>> ObjLoader::loadObj(std::filesystem::path& filepath)
 {
-    assert(filepath.string().length() > 0 && "Invalid file path!");
+    assert(!filepath.string().empty() && "Invalid file path!");
     std::fstream objFile(filepath.string());
 
     if (!objFile.is_open())
     {
-        std::cerr << "Couldn't load " << filepath.string() << '\n';
-        return;
+        throw std::runtime_error("Couldn't load 3D model!");
     }
     auto start_timer = std::chrono::high_resolution_clock::now();
 
@@ -39,10 +41,14 @@ ObjFile::ObjFile(std::filesystem::path& filepath)
     objFile.clear();
     objFile.seekg(0);
 
-    pos.reserve(vCount);
-    uv.reserve(vtCount);
-    normal.reserve(vnCount);
-    faces.reserve(fCount);
+    attribs.vertices.clear();
+    attribs.texcoords.clear();
+    attribs.normals.clear();
+    indices.clear();
+    attribs.vertices.reserve(vCount * 3);
+    attribs.texcoords.reserve(vtCount * 2);
+    attribs.normals.reserve(vnCount * 3);
+    indices.reserve(fCount * 3);
 
     while (std::getline(objFile, line)) {
         if (line.empty()) continue;
@@ -53,51 +59,60 @@ ObjFile::ObjFile(std::filesystem::path& filepath)
 
         if (elem == "o")
         {
-            name = line.substr(2, value.length() - 2);
+            ss >> name;
         }
 
         else if (elem == "v")
         {
             float posX, posY, posZ;
             ss >> posX >> posY >> posZ;
-            pos.emplace_back(glm::vec3(posX, posY, posZ));
+            attribs.vertices.emplace_back(posX);
+            attribs.vertices.emplace_back(posY);
+            attribs.vertices.emplace_back(posZ);
         }
 
         else if (elem == "vt")
         {
-            float uvX, uvY;
-            ss >> uvX >> uvY;
-            uv.emplace_back(glm::vec2(uvX, uvY));
+            float coordX, coordY;
+            ss >> coordX >> coordY;
+            attribs.texcoords.emplace_back(coordX);
+            attribs.texcoords.emplace_back(coordY);
         }
 
         else if (elem == "vn")
         {
             float normalX, normalY, normalZ;
             ss >> normalX >> normalY >> normalZ;
-            normal.emplace_back(glm::vec3(normalX, normalY, normalZ));
+            attribs.normals.emplace_back(normalX);
+            attribs.normals.emplace_back(normalY);
+            attribs.normals.emplace_back(normalZ);
         }
 
         else if (elem == "f")
         {
-            // fN = v/vt/vn -> index
-            int fPos[3]; int fUV[3]; int fNormal[3];
+            int fVertexIndex[3] = {0, 0, 0};
+            int fTexCoordIndex[3] = {0, 0, 0};
+            int fNormalIndex[3] = {0, 0, 0};
             std::string vertex;
             for (int i = 0; i < 3; ++i) {
                 ss >> vertex;
                 std::replace(vertex.begin(), vertex.end(), '/', ' ');
                 std::stringstream vss(vertex);
-                vss >> fPos[i] >> fUV[i] >> fNormal[i];
-                // .obj starts indexing at 1.
-                fPos[i]--; fUV[i]--; fNormal[i]--;
+                vss >> fVertexIndex[i];
+                if (vtCount) { vss >> fTexCoordIndex[i]; }
+                if (vnCount) { vss >> fNormalIndex[i]; }
+                fVertexIndex[i]--;
+                if (vtCount) fTexCoordIndex[i]--;
+                if (vnCount) fNormalIndex[i]--;
             }
-            // Reads : v/vt/vn (X) v/vt/vn (Y) v/vt/vn (Z)
-            faces.emplace_back(
-                std::array{
-                    glm::vec3(fPos[0], fUV[0], fNormal[0]),
-                    glm::vec3(fPos[1], fUV[1], fNormal[1]),
-                    glm::vec3(fPos[2], fUV[2], fNormal[2])
-                }
-            );
+
+            for (int i = 0; i < 3; ++i) {
+                index_t idx;
+                idx.vertex_index = fVertexIndex[i];
+                if (vtCount) idx.texcoord_index = fTexCoordIndex[i];
+                if (vnCount) idx.normal_index = fNormalIndex[i];
+                indices.emplace_back(idx);
+            }
         }
     }
 
@@ -107,9 +122,11 @@ ObjFile::ObjFile(std::filesystem::path& filepath)
     std::cout << "Loaded obj file in " << total_duration.count() << "ms." << '\n';
 
     objFile.close();
+
+    return std::make_pair(attribs, indices);
 }
 
-size_t ObjFile::getLinesCount(std::fstream& file) {
+size_t ObjLoader::getLinesCount(std::fstream& file) {
     size_t total_lines = 0;
 
     std::stringstream data;
@@ -126,11 +143,11 @@ size_t ObjFile::getLinesCount(std::fstream& file) {
     return total_lines;
 }
 
-inline std::string ObjFile::trim(const std::string& s)
+inline std::string ObjLoader::trim(const std::string& s)
 {
     size_t start = s.find_first_not_of(" \t\r\n");
     size_t end = s.find_last_not_of(" \t\r\n");
     return (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
 }
 
-} // Namespace gcep
+} // Namespace gcep::objParser

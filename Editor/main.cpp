@@ -7,14 +7,6 @@
 
 int main()
 {
-    // Obj parser
-    std::cout << "Viking room - 468KB" << std::endl;
-    std::filesystem::path filepath = "TestTextures/viking_room.obj";
-    gcep::objParser::ObjFile objFile(filepath);
-    std::cout << "Chinese Qilin statue - 46.2MB" << std::endl;
-    std::filesystem::path qilinPath = "TestTextures/qilin.obj";
-    gcep::objParser::ObjFile qilinObj(qilinPath);
-
     // Rendering - moved to the heap because the class is getting too big (precaution).
     std::unique_ptr<gcep::RHI_Vulkan> rhi = std::make_unique<gcep::RHI_Vulkan>();
     gcep::Window& window = gcep::Window::getInstance();
