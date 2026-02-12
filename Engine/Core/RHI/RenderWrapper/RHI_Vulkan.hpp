@@ -6,6 +6,8 @@
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
 
+#include "imgui.h"
+
 // Forward declaration
 struct ImGui_ImplVulkan_InitInfo;
 
@@ -39,6 +41,10 @@ public:
     void cleanup() override;
 
 public:
+
+    // @brief Fonction that init editor HUD variables
+    void updateEditorInfo(ImVec4& clearColor);
+
     /// @brief Get the current Vulkan RHI context.
     [[nodiscard("Context value ignored")]]
     vk::raii::Context* getContext();
@@ -55,6 +61,24 @@ public:
 
     /// @brief m_framebufferResized setter.
     void setFramebufferResized(bool resized);
+
+    /// @brief Creates offscreen rendering resources for ImGui viewport
+    void createOffscreenResources(uint32_t width, uint32_t height);
+
+    /// @brief Resizes offscreen resources when viewport size changes
+    void resizeOffscreenResources(uint32_t width, uint32_t height);
+
+    /// @brief Request a resize of offscreen resources (deferred until safe)
+    void requestOffscreenResize(uint32_t width, uint32_t height);
+
+    /// @brief Process pending offscreen resize if any (call at start of frame)
+    void processPendingOffscreenResize();
+
+    /// @brief Get the ImGui texture descriptor for the offscreen image
+    [[nodiscard]] VkDescriptorSet getImGuiTextureDescriptor() const { return m_imguiTextureDescriptor; }
+
+    /// @brief Get the offscreen extent
+    [[nodiscard]] vk::Extent2D getOffscreenExtent() const { return m_offscreenExtent; }
 
 private:
     /// @brief Create a Vulkan instance and check for validation layer support.
@@ -192,6 +216,12 @@ private:
     /// @brief Create images for ImGui
     void createImGuiImage();
 
+    /// @brief Records command buffer for offscreen scene rendering
+    void recordOffscreenCommandBuffer();
+
+    /// @brief Records command buffer for ImGui UI rendering to swapchain
+    void recordImGuiCommandBuffer(uint32_t imageIndex);
+
 private:
     vk::raii::Context                m_context;
     vk::raii::Instance               m_instance            = nullptr;
@@ -220,6 +250,22 @@ private:
     vk::raii::DeviceMemory           m_depthImageMemory    = nullptr;
     vk::raii::ImageView              m_depthImageView      = nullptr;
 
+    // Offscreen rendering for ImGui viewport
+    vk::raii::Image                  m_offscreenImage        = nullptr;
+    vk::raii::DeviceMemory           m_offscreenImageMemory  = nullptr;
+    vk::raii::ImageView              m_offscreenImageView    = nullptr;
+    vk::raii::Sampler                m_offscreenSampler      = nullptr;
+    vk::raii::Image                  m_offscreenDepthImage       = nullptr;
+    vk::raii::DeviceMemory           m_offscreenDepthImageMemory = nullptr;
+    vk::raii::ImageView              m_offscreenDepthImageView   = nullptr;
+    VkDescriptorSet                  m_imguiTextureDescriptor    = VK_NULL_HANDLE;
+    vk::Extent2D                     m_offscreenExtent           = {800, 600};
+    bool                             m_offscreenResizePending    = false;
+    uint32_t                         m_pendingOffscreenWidth     = 0;
+    uint32_t                         m_pendingOffscreenHeight    = 0;
+
+    ImVec4 m_clearColor;
+
     // TODO: Move later
     vk::raii::Buffer m_vertexBuffer                        = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory            = nullptr;
@@ -240,7 +286,7 @@ private:
     std::vector<vk::raii::Buffer> m_uniformBuffers;
     std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
     std::vector<void*> m_uniformBuffersMapped;
-    std::vector<vk::raii::DescriptorSet> m_descriptorSets;
+    std::unique_ptr<vk::raii::DescriptorSets> m_descriptorSets;
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
     std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
     std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
