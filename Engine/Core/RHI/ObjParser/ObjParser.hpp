@@ -23,9 +23,9 @@ class ObjLoader {
 public:
     typedef struct
     {
-        int vertex_index;
-        int texcoord_index;
-        int normal_index;
+        uint32_t vertex_index;
+        uint32_t texcoord_index;
+        uint32_t normal_index;
     } index_t;
     typedef struct
     {

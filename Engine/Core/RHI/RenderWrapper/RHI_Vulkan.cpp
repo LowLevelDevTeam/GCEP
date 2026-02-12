@@ -1224,7 +1224,7 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
 void RHI_Vulkan::loadModel() {
     objParser::ObjLoader loader = objParser::ObjLoader::getInstance();
     std::cout << "Viking room - 468KB" << std::endl;
-    std::filesystem::path filepath = "TestTextures/viking_room.obj";
+    std::filesystem::path filepath = "TestTextures/cube.obj";
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     auto [attrib, indexes] = loader.loadObj(filepath);
     for (auto& index : indexes)

@@ -90,27 +90,27 @@ std::pair<ObjLoader::attrib_t, std::vector<ObjLoader::index_t>> ObjLoader::loadO
 
         else if (elem == "f")
         {
-            int fVertexIndex[3] = {0, 0, 0};
-            int fTexCoordIndex[3] = {0, 0, 0};
-            int fNormalIndex[3] = {0, 0, 0};
+            uint32_t v[3] =  {0, 0, 0};
+            uint32_t vt[3] = {0, 0, 0};
+            uint32_t vn[3] = {0, 0, 0};
             std::string vertex;
             for (int i = 0; i < 3; ++i) {
                 ss >> vertex;
-                std::replace(vertex.begin(), vertex.end(), '/', ' ');
-                std::stringstream vss(vertex);
-                vss >> fVertexIndex[i];
-                if (vtCount) { vss >> fTexCoordIndex[i]; }
-                if (vnCount) { vss >> fNormalIndex[i]; }
-                fVertexIndex[i]--;
-                if (vtCount) fTexCoordIndex[i]--;
-                if (vnCount) fNormalIndex[i]--;
-            }
 
-            for (int i = 0; i < 3; ++i) {
+                std::ranges::replace(vertex, '/', ' ');
+                std::stringstream vss(vertex);
+
+                vss >> v[i];
+                if (vtCount) { vss >> vt[i]; }
+                if (vnCount) { vss >> vn[i]; }
+                v[i]--;
+                if (vtCount) vt[i]--;
+                if (vnCount) vn[i]--;
+
                 index_t idx;
-                idx.vertex_index = fVertexIndex[i];
-                if (vtCount) idx.texcoord_index = fTexCoordIndex[i];
-                if (vnCount) idx.normal_index = fNormalIndex[i];
+                idx.vertex_index = v[i];
+                if (vtCount) idx.texcoord_index = vt[i];
+                if (vnCount) idx.normal_index = vn[i];
                 indices.emplace_back(idx);
             }
         }
