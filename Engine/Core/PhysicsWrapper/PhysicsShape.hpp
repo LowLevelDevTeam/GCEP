@@ -2,34 +2,43 @@
 
 // Libs
 #include <memory>
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/Shape/Shape.h>
+
+#include "Jolt/Jolt.h"
+#include "Jolt/Core/Reference.h"
+
+namespace JPH
+{
+    class Shape;
+    class Vec3;
+}
 
 namespace gcep
 {
+    enum class EPhysicsShapeType
+    {
+        BOX,
+        SPHERE,
+        CAPSULE,
+        MESH
+    };
+
     class PhysicsShape
     {
     public:
-        virtual ~PhysicsShape() = default;
+        PhysicsShape(EPhysicsShapeType type, JPH::RefConst<JPH::Shape> shape);
 
-        JPH::Shape* getNativeShape() const;
+        static std::shared_ptr<PhysicsShape> createBox(const JPH::Vec3& halfExtents);
+        static std::shared_ptr<PhysicsShape> createSphere(float radius);
+        static std::shared_ptr<PhysicsShape> createCylinder(float halfHeight, float radius);
+        static std::shared_ptr<PhysicsShape> createCapsule(float halfHeight, float radius);
 
-    protected:
-        PhysicsShape();
+        EPhysicsShapeType getType() const;
+        JPH::RefConst<JPH::Shape> getJoltShape() const;
 
-        std::shared_ptr<JPH::Shape> m_shape;
-    };
+    private:
+        EPhysicsShapeType m_type;
+        JPH::RefConst<JPH::Shape> m_shape;
 
-    class BoxShape final : public PhysicsShape
-    {
-    public:
-        BoxShape(float width, float height, float depth);
-    };
-
-    class SphereShape final : public PhysicsShape
-    {
-    public:
-        explicit SphereShape(float radius);
     };
 } // gcep
 

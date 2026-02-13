@@ -16,19 +16,22 @@
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
+using Vec3 = std::array<float, 3>;
+using Quat = std::array<float, 4>;
+
 namespace gcep {
 
     PhysicsWorld::PhysicsWorld()
     {
-       initWorld();
+       init();
     }
 
     PhysicsWorld::~PhysicsWorld()
     {
-        shutdownWorld();
+        shutdown();
     }
 
-    void PhysicsWorld::initWorld()
+    void PhysicsWorld::init()
     {
     	// Register allocation hook.
     	JPH::RegisterDefaultAllocator();
@@ -38,6 +41,9 @@ namespace gcep {
 
 		// Register all physics types with the factory and install their collision handlers with the CollisionDispatch class.
 		JPH::RegisterTypes();
+
+    	constexpr size_t cTempAllocatorSize = 16 * 1024 * 1024; // 16 Mo
+    	m_tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(cTempAllocatorSize);
 
     	m_broadPhaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
     	m_objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
@@ -59,6 +65,17 @@ namespace gcep {
 		// number then these contacts will be ignored and bodies will start interpenetrating / fall through the world.
 		const glm::uint cMaxContactConstraints = 10240;
 
+    	constexpr glm::uint cMaxJobs = 65536;
+    	constexpr glm::uint cMaxBarriers = 65536;
+
+    	glm::uint numThreads = std::thread::hardware_concurrency() - 1;
+
+    	m_jobSystem = std::make_unique<JPH::JobSystemThreadPool>(
+			cMaxJobs,
+			cMaxBarriers,
+			numThreads
+		);
+
 		m_physicsSystem->Init(
 			cMaxBodies,
 			cNumBodyMutexes,
@@ -72,10 +89,10 @@ namespace gcep {
 
     void PhysicsWorld::step(float deltaTime)
     {
-
+    	m_physicsSystem->Update(deltaTime, 1, m_tempAllocator, m_jobSystem);
     }
 
-    void PhysicsWorld::shutdownWorld()
+    void PhysicsWorld::shutdown()
     {
     	JPH::BodyIDVector allBodies;
     	m_physicsSystem->GetBodies(allBodies);
@@ -87,29 +104,61 @@ namespace gcep {
 
     }
 
-    void PhysicsWorld::createBody(const EShapeType shapeType) const
+    void PhysicsWorld::createBody(std::shared_ptr<ObjectPhysicsData> data) const
     {
     	JPH::ShapeRefC shape;
+    	Vec3 defaultScale = {1.0f, 1.0f, 1.0f};
 
-    	switch (shapeType) {
-    			case EShapeType::CUBE : {
-    				JPH::BoxShapeSettings cubeShapeSettings(JPH::Vec3(100.0f, 100.0f, 100.0f));
-    				shape = cubeShapeSettings.Create().Get();
-    		    }
-
-    			case EShapeType::CYLINDER : {
-    				JPH::CylinderShapeSettings cylinderShapeSettings(100.0f, 50);
-    				shape = cylinderShapeSettings.Create().Get();
-    		    }
-
-    			case EShapeType::SPHERE : {
-    				JPH::SphereShapeSettings sphereShapeSettings(50.0f);
-    				shape = sphereShapeSettings.Create().Get();
-    		    }
+    	switch (data->getShapeType()) {
+    		case EShapeType::CUBE :
+    		{
+    			JPH::BoxShapeSettings cubeShapeSettings(JPH::Vec3(100.0f, 100.0f, 100.0f));
+    			shape = cubeShapeSettings.Create().Get();
+    			if (data->getScale() != defaultScale) {
+    				//scaleshaped
+    			}
+    		}
+    			break;
+    		case EShapeType::CYLINDER :
+    		{
+    			JPH::CylinderShapeSettings cylinderShapeSettings(100.0f, 50);
+    			shape = cylinderShapeSettings.Create().Get();
+    			if (data->getScale() != defaultScale) {
+    				//scaleshaped
+    			}
+    		}
+    			break;
+    		case EShapeType::SPHERE :
+    		{
+    			JPH::SphereShapeSettings sphereShapeSettings(50.0f);
+    			shape = sphereShapeSettings.Create().Get();
+    			if (data->getScale() != defaultScale) {
+    				//scaleshaped
+    			}
+    		}
+    			break;
     	}
-    	JPH::RVec3 position = JPH::RVec3::sZero();
-    	JPH::Quat rotation = JPH::Quat::sIdentity();
-    	JPH::BodyCreationSettings bodySettings(shape, position, rotation, JPH::EMotionType::Static, Layers::NON_MOVING);
+
+    	JPH::EMotionType motionType;
+
+    	switch (data->getMotionType()) {
+    		case EMotionType::STATIC : {
+    			motionType = JPH::EMotionType::Static;
+    		}
+    			break;
+    		case EMotionType::KINEMATIC : {
+    			motionType = JPH::EMotionType::Kinematic;
+    		}
+    			break;
+    		case EMotionType::DYNAMIC : {
+    			motionType = JPH::EMotionType::Dynamic;
+    		}
+    			break;
+    	}
+
+    	JPH::RVec3 position = JPH::Vec3(data->getPosition()[1], data->getPosition()[2], data->getPosition()[3]);
+    	JPH::Quat rotation = JPH::Quat(data->getRotation()[1], data->getRotation()[2], data->getRotation()[3], data->getRotation()[4]);
+    	JPH::BodyCreationSettings bodySettings(shape, position, rotation, motionType, static_cast<int>(data->getLayers()));
 
     	JPH::Body *body = m_physicsSystem->GetBodyInterface().CreateBody(bodySettings);
     	m_physicsSystem->GetBodyInterface().AddBody(body->GetID(), JPH::EActivation::Activate);

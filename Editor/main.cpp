@@ -4,7 +4,7 @@
 #include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
 #include <Engine/Core/PhysicsWrapper/PhysicalWorld.hpp>
 
-#include "Engine/Core/PhysicsWrapper/PhysicsSystem.hpp"
+#include "Engine/Core/PhysicsWrapper/PhysicsManager.hpp"
 
 int main()
 {
