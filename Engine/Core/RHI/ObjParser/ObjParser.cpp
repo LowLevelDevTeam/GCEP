@@ -16,34 +16,32 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
     assert(!filepath.string().empty() && "Invalid file path!");
     assert(filepath.extension() == ".obj" && "File must be .obj!");
 
-    std::fstream objFile(filepath.string());
+    FILE* objFile = std::fopen(filepath.string().c_str(), "r");
 
-    if (!objFile.is_open())
+    if (!objFile)
     {
         throw std::runtime_error("Couldn't load 3D model!");
     }
     auto start_timer = std::chrono::high_resolution_clock::now();
 
-    std::string line;
+    char line[4096];
 
     // First pass: count elements
-    unsigned int vCount = 0, vtCount = 0, vnCount = 0, fCount = 0;
-    while (std::getline(objFile, line))
+    unsigned int vCount = 0, vtCount = 0, vnCount = 0, fCount = 0, lCount = 0;
+    while (std::fgets(line, sizeof(line), objFile))
     {
-        if (line.empty()) continue;
+        char* ptr = line;
 
-        size_t first = line.find_first_not_of(" \t");
-        if (first == std::string::npos) continue;
+        while (*ptr == ' ' || *ptr == '\t') ++ptr;
+        if (*ptr == '\0' || *ptr == '\n' || *ptr == '#') continue;
 
-        std::string_view trimmed = std::string_view(line).substr(first);
-
-        if (trimmed.starts_with("v "))       ++vCount;
-        else if (trimmed.starts_with("vt ")) ++vtCount;
-        else if (trimmed.starts_with("vn ")) ++vnCount;
-        else if (trimmed.starts_with("f "))  ++fCount;
+        if (ptr[0] == 'v' && ptr[1] == ' ')       ++vCount;
+        else if (ptr[0] == 'v' && ptr[1] == 't')  ++vtCount;
+        else if (ptr[0] == 'v' && ptr[1] == 'n')  ++vnCount;
+        else if (ptr[0] == 'f' && ptr[1] == ' ')  ++fCount;
+        else if (ptr[0] == 'l' && ptr[1] == ' ')  ++lCount;
     }
-    objFile.clear();
-    objFile.seekg(0);
+    std::rewind(objFile);
 
     attrib_t attribs;
     std::vector<index_t> indices;
@@ -51,47 +49,49 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
     attribs.vertices.reserve(vCount * 3);
     attribs.texcoords.reserve(vtCount * 2);
     attribs.normals.reserve(vnCount * 3);
-    indices.reserve(fCount * 6);
+    indices.reserve(fCount * 6 + lCount * 8);
+
+    std::cout << "Model " << filepath.filename() << " :" << '\n'
+    << " - Vertex count: " << vCount << '\n'
+    << " - Texture count: " << vtCount << '\n'
+    << " - Normal count: " << vnCount << '\n'
+    << " - Face count: " << fCount << '\n';
 
     // Second pass: parse data
-    while (std::getline(objFile, line))
+    while (std::fgets(line, sizeof(line), objFile))
     {
-        if (line.empty()) continue;
+        char* ptr = line;
 
-        size_t first = line.find_first_not_of(" \t");
-        if (first == std::string::npos) continue;
+        while (*ptr == ' ' || *ptr == '\t') ++ptr;
+        if (*ptr == '\0' || *ptr == '\n' || *ptr == '#') continue;
 
-        std::string_view trimmed = std::string_view(line).substr(first);
-
-        if (trimmed.starts_with("v "))
+        if (ptr[0] == 'v' && ptr[1] == ' ')
         {
             float x, y, z;
-            sscanf(line.c_str() + 2, "%f %f %f", &x, &y, &z);
+            sscanf(ptr + 2, "%f %f %f", &x, &y, &z);
             attribs.vertices.push_back(x);
             attribs.vertices.push_back(y);
             attribs.vertices.push_back(z);
         }
-        else if (trimmed.starts_with("vt "))
+        else if (ptr[0] == 'v' && ptr[1] == 't')
         {
             float u, v;
-            sscanf(line.c_str() + 3, "%f %f", &u, &v);
+            sscanf(ptr + 3, "%f %f", &u, &v);
             attribs.texcoords.push_back(u);
             attribs.texcoords.push_back(v);
         }
-        else if (trimmed.starts_with("vn "))
+        else if (ptr[0] == 'v' && ptr[1] == 'n')
         {
             float nx, ny, nz;
-            sscanf(line.c_str() + 3, "%f %f %f", &nx, &ny, &nz);
+            sscanf(ptr + 3, "%f %f %f", &nx, &ny, &nz);
             attribs.normals.push_back(nx);
             attribs.normals.push_back(ny);
             attribs.normals.push_back(nz);
         }
-        else if (trimmed.starts_with("l "))
+        else if (ptr[0] == 'l' && ptr[1] == ' ')
         {
             // Line: l v1 v2 ... or l v1/vt1 v2/vt2 ...
-            const char* ptr = line.c_str() + 2;
-            std::vector<index_t> line_indices;
-            line_indices.reserve(8);
+            ptr += 2;
 
             while (*ptr != '\0' && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
             {
@@ -114,19 +114,13 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                 idx.texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX;
                 idx.normal_index = UINT32_MAX;
 
-                line_indices.push_back(idx);
-            }
-
-            for (size_t i = 0; i + 1 < line_indices.size(); ++i)
-            {
-                indices.push_back(line_indices[i]);
-                indices.push_back(line_indices[i + 1]);
+                indices.push_back(idx);
             }
         }
-        else if (trimmed.starts_with("f "))
+        else if (ptr[0] == 'f' && ptr[1] == ' ')
         {
             // Face: f v/vt/vn v/vt/vn ... (also supports v, v/vt, v//vn)
-            const char* ptr = line.c_str() + 2;
+            ptr += 2;
             std::vector<index_t> face_indices;
             face_indices.reserve(4);
 
@@ -178,6 +172,7 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                 indices.push_back(face_indices[1]);
                 indices.push_back(face_indices[2]);
             }
+            // Quads
             else if (face_indices.size() == 4)
             {
                 indices.push_back(face_indices[0]);
@@ -188,13 +183,14 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                 indices.push_back(face_indices[2]);
                 indices.push_back(face_indices[3]);
             }
+            // NGon (Triangle Strip)
             else if (face_indices.size() > 4)
             {
-                for (size_t i = 1; i + 1 < face_indices.size(); ++i)
+                for (size_t i = 0; i + 2 < face_indices.size(); ++i)
                 {
-                    indices.push_back(face_indices[0]);
                     indices.push_back(face_indices[i]);
                     indices.push_back(face_indices[i + 1]);
+                    indices.push_back(face_indices[i + 2]);
                 }
             }
         }
@@ -205,7 +201,7 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
 
     std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms." << '\n';
 
-    objFile.close();
+    std::fclose(objFile);
 
     return {attribs, indices};
 }
