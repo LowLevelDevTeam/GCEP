@@ -631,6 +631,7 @@ void RHI_Vulkan::createVertexBuffer()
     void* data = stagingBufferMemory.mapMemory(0, bufferSize);
     memcpy(data, vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
+    vertices.clear();
 
     createBuffer(bufferSize,
         vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
@@ -654,6 +655,8 @@ void RHI_Vulkan::createIndexBuffer()
     void* data = stagingBufferMemory.mapMemory(0, bufferSize);
     memcpy(data, indices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
+    numIndices = indices.size();
+    indices.clear();
 
     createBuffer(bufferSize,
         vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
@@ -1172,54 +1175,43 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
 void RHI_Vulkan::loadModel()
 {
     std::filesystem::path filepath = "TestTextures/bugatti.obj";
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
 
-    for (const auto& index : modelIndices)
-    {
-        Vertex vertex{};
+    vertices.resize(modelIndices.size());
+    indices.resize(modelIndices.size());
 
-        vertex.pos =
-        {
-            attrib.vertices[3 * index.vertex_index + 0],
-            attrib.vertices[3 * index.vertex_index + 1],
-            attrib.vertices[3 * index.vertex_index + 2]
-        };
+    const float* verts = attrib.vertices.data();
+    const float* texcoords = attrib.texcoords.data();
+    const float* normals = attrib.normals.data();
+
+    for (size_t i = 0; i < modelIndices.size(); ++i)
+    {
+        const auto& index = modelIndices[i];
+
+        const float* v = verts + 3 * index.vertex_index;
+        vertices[i].pos = {v[0], v[1], v[2]};
 
         if (index.texcoord_index != UINT32_MAX)
         {
-            vertex.texCoord =
-            {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-            };
+            const float* tc = texcoords + 2 * index.texcoord_index;
+            vertices[i].texCoord = {tc[0], 1.0f - tc[1]};
         }
         else
         {
-            vertex.texCoord = {0.0f, 0.0f};
+            vertices[i].texCoord = {0.0f, 0.0f};
         }
 
         if (index.normal_index != UINT32_MAX)
         {
-            vertex.color =
-            {
-                attrib.normals[3 * index.normal_index + 0],
-                attrib.normals[3 * index.normal_index + 1],
-                attrib.normals[3 * index.normal_index + 2]
-            };
+            const float* n = normals + 3 * index.normal_index;
+            vertices[i].color = {n[0], n[1], n[2]};
         }
         else
         {
-            vertex.color = {1.0f, 1.0f, 1.0f};
+            vertices[i].color = {1.0f, 1.0f, 1.0f};
         }
 
-        if (!uniqueVertices.contains(vertex))
-        {
-            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-            vertices.push_back(vertex);
-        }
-
-        indices.push_back(uniqueVertices[vertex]);
+        indices[i] = static_cast<uint32_t>(i);
     }
 }
 
@@ -1523,7 +1515,7 @@ void RHI_Vulkan::recordOffscreenCommandBuffer()
     const vk::raii::DescriptorSet& dsToUse = m_descriptorSets[m_frameIndex];
 
     m_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, *dsToUse, nullptr);
-    m_commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
+    m_commandBuffer.drawIndexed(numIndices, 1, 0, 0, 0);
 
     m_commandBuffer.endRendering();
 
