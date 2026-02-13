@@ -4,6 +4,8 @@
 #include <Editor/Window/Window.hpp>
 #include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
 #include <Engine/Core/RHI/ObjParser/ObjParser.hpp>
+#include <Editor/Inputs/Inputs.hpp>
+#include <Editor/Camera/camera.hpp>
 
 int main()
 {
@@ -11,6 +13,8 @@ int main()
     std::unique_ptr<gcep::RHI_Vulkan> rhi = std::make_unique<gcep::RHI_Vulkan>();
     gcep::Window& window = gcep::Window::getInstance();
     window.initWindow();
+    gcep::Inputs inputs;
+    gcep::Camera camera(&inputs);
     try
     {
         rhi->setWindow(window.getGlfwWindow());
@@ -33,6 +37,7 @@ int main()
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
+        inputs.update(window.getGlfwWindow());
 
         // Process any pending resize BEFORE updating UI
         // This ensures the descriptor passed to ImGui is valid
