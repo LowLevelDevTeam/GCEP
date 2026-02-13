@@ -1174,7 +1174,7 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
 
 void RHI_Vulkan::loadModel()
 {
-    std::filesystem::path filepath = "TestTextures/city.obj";
+    std::filesystem::path filepath = "TestTextures/bugatti.obj";
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
 
     vertices.resize(modelIndices.size());
