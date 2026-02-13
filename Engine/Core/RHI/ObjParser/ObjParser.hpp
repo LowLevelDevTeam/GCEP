@@ -1,8 +1,9 @@
 #pragma once
 
 // STL
-#include <array>
+#include <cstdint>
 #include <filesystem>
+#include <utility>
 #include <vector>
 
 /*
@@ -33,9 +34,6 @@ typedef struct
 class ObjLoader {
 public:
     static std::pair<attrib_t, std::vector<index_t>> loadObj(std::filesystem::path& filepath);
-
-private:
-    static std::string trim(const std::string& s);
 };
 
 } // Namespace gcep::objParser

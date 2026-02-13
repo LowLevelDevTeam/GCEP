@@ -1,10 +1,8 @@
 #include "ObjParser.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <chrono>
-#include <cstdio>
-#include <cstring>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 
@@ -16,201 +14,281 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
     assert(!filepath.string().empty() && "Invalid file path!");
     assert(filepath.extension() == ".obj" && "File must be .obj!");
 
-    FILE* objFile = std::fopen(filepath.string().c_str(), "r");
+    auto start_timer = std::chrono::high_resolution_clock::now();
 
-    if (!objFile)
+    std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+    if (!file || !file.is_open())
     {
         throw std::runtime_error("Couldn't load 3D model!");
     }
-    auto start_timer = std::chrono::high_resolution_clock::now();
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-    char line[4096];
-
-    // First pass: count elements
-    unsigned int vCount = 0, vtCount = 0, vnCount = 0, fCount = 0, lCount = 0;
-    while (std::fgets(line, sizeof(line), objFile))
+    std::vector<char> buffer(size + 1);
+    if (!file.read(buffer.data(), size))
     {
-        char* ptr = line;
-
-        while (*ptr == ' ' || *ptr == '\t') ++ptr;
-        if (*ptr == '\0' || *ptr == '\n' || *ptr == '#') continue;
-
-        if (ptr[0] == 'v' && ptr[1] == ' ')       ++vCount;
-        else if (ptr[0] == 'v' && ptr[1] == 't')  ++vtCount;
-        else if (ptr[0] == 'v' && ptr[1] == 'n')  ++vnCount;
-        else if (ptr[0] == 'f' && ptr[1] == ' ')  ++fCount;
-        else if (ptr[0] == 'l' && ptr[1] == ' ')  ++lCount;
+        throw std::runtime_error("Failed to read file!");
     }
-    std::rewind(objFile);
+    buffer[size] = '\0';
 
     attrib_t attribs;
     std::vector<index_t> indices;
 
-    attribs.vertices.reserve(vCount * 3);
-    attribs.texcoords.reserve(vtCount * 2);
-    attribs.normals.reserve(vnCount * 3);
-    indices.reserve(fCount * 6 + lCount * 8);
+    // Reserve with reasonable estimates
+    attribs.vertices.reserve(100000);
+    attribs.texcoords.reserve(100000);
+    attribs.normals.reserve(100000);
+    indices.reserve(300000);
 
-    std::cout << "Model " << filepath.filename() << " :" << '\n'
-    << " - Vertex count: " << vCount << '\n'
-    << " - Texture count: " << vtCount << '\n'
-    << " - Normal count: " << vnCount << '\n'
-    << " - Face count: " << fCount << '\n';
+    char* ptr = buffer.data();
+    char* end = ptr + size;
 
-    // Second pass: parse data
-    while (std::fgets(line, sizeof(line), objFile))
+    auto parseFloat = [](char*& p) -> float
     {
-        char* ptr = line;
+        float result = 0.0f;
+        float sign = 1.0f;
 
-        while (*ptr == ' ' || *ptr == '\t') ++ptr;
-        if (*ptr == '\0' || *ptr == '\n' || *ptr == '#') continue;
+        if (*p == '-')
+        {
+            sign = -1.0f; ++p;
+        }
+        else if (*p == '+') ++p;
 
-        if (ptr[0] == 'v' && ptr[1] == ' ')
+        while (*p >= '0' && *p <= '9')
         {
-            float x, y, z;
-            sscanf(ptr + 2, "%f %f %f", &x, &y, &z);
-            attribs.vertices.push_back(x);
-            attribs.vertices.push_back(y);
-            attribs.vertices.push_back(z);
+            result = result * 10.0f + (*p - '0');
+            ++p;
         }
-        else if (ptr[0] == 'v' && ptr[1] == 't')
+
+        if (*p == '.')
         {
-            float u, v;
-            sscanf(ptr + 3, "%f %f", &u, &v);
-            attribs.texcoords.push_back(u);
-            attribs.texcoords.push_back(v);
+            ++p;
+            float frac = 0.1f;
+            while (*p >= '0' && *p <= '9')
+            {
+                result += (*p - '0') * frac;
+                frac *= 0.1f;
+                ++p;
+            }
         }
-        else if (ptr[0] == 'v' && ptr[1] == 'n')
+
+        // Handle scientific notation (e.g., 1.5e-3)
+        if (*p == 'e' || *p == 'E') {
+            ++p;
+            int exp_sign = 1;
+            if (*p == '-')
+            {
+                exp_sign = -1; ++p;
+            }
+            else if (*p == '+') ++p;
+
+            int exponent = 0;
+            while (*p >= '0' && *p <= '9')
+            {
+                exponent = exponent * 10 + (*p - '0');
+                ++p;
+            }
+
+            result *= std::pow(10.0f, exp_sign * exponent);
+        }
+
+        return result * sign;
+    };
+
+    auto parseInt = [](char*& p) -> int
+    {
+        int result = 0;
+        bool negative = false;
+
+        if (*p == '-')
         {
-            float nx, ny, nz;
-            sscanf(ptr + 3, "%f %f %f", &nx, &ny, &nz);
-            attribs.normals.push_back(nx);
-            attribs.normals.push_back(ny);
-            attribs.normals.push_back(nz);
+            negative = true; ++p;
+        }
+
+        while (*p >= '0' && *p <= '9')
+        {
+            result = result * 10 + (*p - '0');
+            ++p;
+        }
+
+        return negative ? -result : result;
+    };
+
+    auto skipWhitespace = [](char*& p)
+    {
+        while (*p == ' ' || *p == '\t')
+        {
+            ++p;
+        }
+    };
+
+    auto skipLine = [](char*& p, char* end)
+    {
+        while (p < end && *p != '\n')
+        {
+            ++p;
+        }
+        if (p < end)
+        {
+            ++p;
+        }
+    };
+
+    unsigned int vCount = 0, vtCount = 0, vnCount = 0, fCount = 0;
+
+    while (ptr < end)
+    {
+        skipWhitespace(ptr);
+
+        if (*ptr == '\0' || *ptr == '\n' || *ptr == '#')
+        {
+            skipLine(ptr, end);
+            continue;
+        }
+
+        if (ptr[0] == 'v')
+        {
+            if (ptr[1] == ' ')
+            {
+                // Vertex: v x y z
+                ptr += 2;
+                skipWhitespace(ptr);
+                float x = parseFloat(ptr);
+                skipWhitespace(ptr);
+                float y = parseFloat(ptr);
+                skipWhitespace(ptr);
+                float z = parseFloat(ptr);
+
+                attribs.vertices.push_back(x);
+                attribs.vertices.push_back(y);
+                attribs.vertices.push_back(z);
+                ++vCount;
+            }
+            else if (ptr[1] == 't')
+            {
+                // UV: vt x y
+                ptr += 2;
+                skipWhitespace(ptr);
+                float u = parseFloat(ptr);
+                skipWhitespace(ptr);
+                float v = parseFloat(ptr);
+
+                attribs.texcoords.push_back(u);
+                attribs.texcoords.push_back(v);
+                ++vtCount;
+            }
+            else if (ptr[1] == 'n')
+            {
+                // Normal: vn x y z
+                ptr += 3;
+                skipWhitespace(ptr);
+                float nx = parseFloat(ptr);
+                skipWhitespace(ptr);
+                float ny = parseFloat(ptr);
+                skipWhitespace(ptr);
+                float nz = parseFloat(ptr);
+
+                attribs.normals.push_back(nx);
+                attribs.normals.push_back(ny);
+                attribs.normals.push_back(nz);
+                ++vnCount;
+            }
         }
         else if (ptr[0] == 'l' && ptr[1] == ' ')
         {
             // Line: l v1 v2 ... or l v1/vt1 v2/vt2 ...
             ptr += 2;
-
-            while (*ptr != '\0' && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
+            while (ptr < end && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
             {
-                int v = -1, vt = -1;
-                while (*ptr == ' ' || *ptr == '\t') ++ptr;
-                if (*ptr == '\0' || *ptr == '\n' || *ptr == '\r' || *ptr == '#') break;
+                skipWhitespace(ptr);
+                if (*ptr == '\n' || *ptr == '\r' || *ptr == '#') break;
 
-                v = std::atoi(ptr);
-                ptr += std::strcspn(ptr, "/ \t\r\n");
+                int v = parseInt(ptr);
+                int vt = -1;
 
                 if (*ptr == '/')
                 {
-                    ptr++;
-                    vt = std::atoi(ptr);
-                    ptr += std::strcspn(ptr, " \t\r\n");
+                    ++ptr;
+                    vt = parseInt(ptr);
                 }
 
-                index_t idx;
-                idx.vertex_index = (v > 0) ? (v - 1) : UINT32_MAX;
-                idx.texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX;
-                idx.normal_index = UINT32_MAX;
-
-                indices.push_back(idx);
+                indices.push_back({
+                    .vertex_index   = (v > 0)  ? (v - 1)  : UINT32_MAX,
+                    .texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX,
+                    .normal_index   = UINT32_MAX
+                });
             }
         }
         else if (ptr[0] == 'f' && ptr[1] == ' ')
         {
-            // Face: f v/vt/vn v/vt/vn ... (also supports v, v/vt, v//vn)
+            // Face: f v/vt/vn ... (also supports v, v/vt, v//vn)
             ptr += 2;
             std::vector<index_t> face_indices;
             face_indices.reserve(4);
 
-            while (*ptr != '\0' && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
+            while (ptr < end && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
             {
-                int v = -1, vt = -1, vn = -1;
-                while (*ptr == ' ' || *ptr == '\t') ++ptr;
-                if (*ptr == '\0' || *ptr == '\n' || *ptr == '\r' || *ptr == '#') break;
+                skipWhitespace(ptr);
+                if (*ptr == '\n' || *ptr == '\r' || *ptr == '#') break;
 
-                v = std::atoi(ptr);
-                ptr += std::strcspn(ptr, "/ \t\r\n");
+                int v = parseInt(ptr);
+                int vt = -1, vn = -1;
 
                 if (*ptr == '/')
                 {
-                    ptr++;
-
+                    ++ptr;
                     if (*ptr == '/')
                     {
-                        ptr++;
-                        vn = std::atoi(ptr);
-                        ptr += std::strcspn(ptr, " \t\r\n");
-                    }
-                    else
+                        ++ptr;
+                        vn = parseInt(ptr);
+                    } else
                     {
-                        vt = std::atoi(ptr);
-                        ptr += std::strcspn(ptr, "/ \t\r\n");
-
+                        vt = parseInt(ptr);
                         if (*ptr == '/')
                         {
-                            ptr++;
-                            vn = std::atoi(ptr);
-                            ptr += std::strcspn(ptr, " \t\r\n");
+                            ++ptr;
+                            vn = parseInt(ptr);
                         }
                     }
                 }
 
-                index_t idx;
-                idx.vertex_index = (v > 0) ? (v - 1) : UINT32_MAX;
-                idx.texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX;
-                idx.normal_index = (vn > 0) ? (vn - 1) : UINT32_MAX;
-
-                face_indices.push_back(idx);
+                face_indices.push_back({
+                   .vertex_index   = (v > 0)  ? (v - 1)  : UINT32_MAX,
+                   .texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX,
+                   .normal_index   = (vn > 0) ? (vn - 1) : UINT32_MAX
+                });
             }
 
             // Triangulate
-            if (face_indices.size() == 3)
+            size_t face_count = face_indices.size();
+            if (face_count >= 3)
             {
-                indices.push_back(face_indices[0]);
-                indices.push_back(face_indices[1]);
-                indices.push_back(face_indices[2]);
-            }
-            // Quads
-            else if (face_indices.size() == 4)
-            {
-                indices.push_back(face_indices[0]);
-                indices.push_back(face_indices[1]);
-                indices.push_back(face_indices[2]);
-
-                indices.push_back(face_indices[0]);
-                indices.push_back(face_indices[2]);
-                indices.push_back(face_indices[3]);
-            }
-            // NGon (Triangle Strip)
-            else if (face_indices.size() > 4)
-            {
-                for (size_t i = 0; i + 2 < face_indices.size(); ++i)
+                for (size_t i = 1; i + 1 < face_count; ++i)
                 {
+                    indices.push_back(face_indices[0]);
                     indices.push_back(face_indices[i]);
                     indices.push_back(face_indices[i + 1]);
-                    indices.push_back(face_indices[i + 2]);
                 }
+                ++fCount;
             }
         }
+
+        skipLine(ptr, end);
     }
 
     auto end_timer = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
 
+    std::cout << "Model " << filepath.filename() << " :" << '\n'
+              << " - Size: " << (buffer.size() * sizeof(char)) << " bytes" << '\n'
+              << " - Vertices: " << vCount  << '\n'
+              << " - UVs: "      << vtCount << '\n'
+              << " - Normals: "  << vnCount << '\n'
+              << " - Faces: "    << fCount  << '\n';
+
     std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms." << '\n';
 
-    std::fclose(objFile);
-
     return {attribs, indices};
-}
-
-inline std::string ObjLoader::trim(const std::string& s)
-{
-    size_t start = s.find_first_not_of(" \t\r\n");
-    size_t end = s.find_last_not_of(" \t\r\n");
-    return (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
 }
 
 } // Namespace gcep::objParser
