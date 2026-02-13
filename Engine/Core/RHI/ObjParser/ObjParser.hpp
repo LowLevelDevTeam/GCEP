@@ -31,6 +31,9 @@ typedef struct
     std::vector<float> normals;
 } attrib_t;
 
-static std::pair<attrib_t, std::vector<index_t>> loadObj(std::filesystem::path& filepath);
+class ObjLoader {
+public:
+    static std::pair<attrib_t, std::vector<index_t>> loadObj(std::filesystem::path& filepath);
+};
 
 } // Namespace gcep::objParser
