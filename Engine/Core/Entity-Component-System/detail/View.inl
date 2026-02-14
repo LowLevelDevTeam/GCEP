@@ -10,7 +10,7 @@ namespace gcep {
     View<Args...>::Iterator::Iterator(const EntityID* current, const EntityID* last,  View& v)
     : m_currentEntity(current), m_lastEntity(last), view(v)
     {
-        if (m_currentEntity != m_lastEntity && !view.match(*m_currentEntity))
+        if (m_currentEntity && m_currentEntity != m_lastEntity && !view.match(*m_currentEntity))
         {
             operator++();
         }
@@ -53,6 +53,11 @@ namespace gcep {
 
         size_t minSize = std::numeric_limits<size_t>::max();
         auto findSmallest = [&](IPool* pool) {
+            if (!pool)
+            {
+                m_smallestPool = nullptr;
+                return;
+            }
             if (pool->getSize() < minSize) {
                 minSize = pool->getSize();
                 m_smallestPool = pool;
@@ -65,7 +70,7 @@ namespace gcep {
     template<typename ... Args>
     bool View<Args...>::match(EntityID entity) const
     {
-        const Signature& entitySig = m_registry.getSignature(entity);
+        const Signature entitySig = m_registry.getSignature(entity);
 
         if (m_isExact)
         {
@@ -81,6 +86,9 @@ namespace gcep {
     template<typename ... Args>
     typename View<Args...>::Iterator View<Args...>::begin()
     {
+        if (!m_smallestPool) {
+            return Iterator{nullptr, nullptr, *this};
+        }
         const auto& entities = m_smallestPool->getEntities();
         return Iterator{entities.data(), entities.data() + entities.size(), *this};
     }
@@ -90,6 +98,9 @@ namespace gcep {
     template<typename ... Args>
     typename View<Args...>::Iterator View<Args...>::end()
     {
+        if (!m_smallestPool) {
+            return Iterator{nullptr, nullptr, *this};
+        }
 
         const auto& entities = m_smallestPool->getEntities();
 

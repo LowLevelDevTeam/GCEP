@@ -1,6 +1,7 @@
 #pragma once
 #include "EntityComponent.hpp"
 #include "ComponentPool.hpp"
+#include "PagedAllocator.hpp"
 #include <intrin.h>
 #include <memory>
 
@@ -15,9 +16,9 @@ template<typename... Args> class View;
         std::vector<EntityID> freeIDs;
         std::vector<EntityID> entitiesToDestroy;
         EntityID nextId = 0;
-        std::vector<Signature> entitySignatures;
+        PagedAllocator<Signature> entitySignatures;
 
-
+        Registry() : entitySignatures(Signature{}) {}
 
         EntityID createEntity();
 
@@ -45,7 +46,7 @@ template<typename... Args> class View;
         template<class T>
         bool hasComponent(EntityID entity) const;
 
-        const Signature& getSignature(EntityID entity) const;
+        const Signature getSignature(EntityID entity) const;
 
         template<typename... Args>
         View<Args... > partialView();

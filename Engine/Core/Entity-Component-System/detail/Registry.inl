@@ -10,18 +10,13 @@ namespace gcep
         {
             EntityID freeID = freeIDs.back();
             freeIDs.pop_back();
-            entitySignatures[freeID].reset();
+            entitySignatures.get(freeID).reset();
             return freeID;
         }
         EntityID newID  = nextId++;
 
-        if (newID >= entitySignatures.capacity())
-        {
-            size_t newCapacity = (entitySignatures.capacity() == 0)? 100 : entitySignatures.capacity() * 2;
-            entitySignatures.reserve(newCapacity);
-        }
 
-        entitySignatures.emplace_back();
+        entitySignatures.get(newID);
         return newID;
     }
 
@@ -38,20 +33,24 @@ namespace gcep
 
     inline void Registry::removeEntity(EntityID toRemove)
     {
-        const Signature& sig = entitySignatures[toRemove];
+        // 1. Utilisation de get() (version const)
+        Signature& sig = entitySignatures.get(toRemove);
         if (sig.none()) return;
+
+
         unsigned long long mask = sig.to_ullong();
 
         while (mask > 0) {
-            unsigned long index;
-            _BitScanForward64(&index,mask);
-            if (pools[index]) {
-                pools[index]->removeComponent(toRemove);
+            unsigned long poolIndex;
+            if (_BitScanForward64(&poolIndex, mask)) {
+                if (pools[poolIndex]) {
+                    pools[poolIndex]->removeComponent(toRemove);
+                }
+                mask &= ~(1ULL << poolIndex);
             }
-
-            mask &= ~(1ULL << index);
         }
-        entitySignatures[toRemove].reset();
+
+        sig.reset();
         freeIDs.push_back(toRemove);
     }
 
@@ -74,14 +73,14 @@ namespace gcep
     void Registry::addComponent(EntityID entityID)
     {
         getPool<T>().addComponent(entityID);
-        entitySignatures[entityID].set(ComponentIDGenerator::get<T>());
+        entitySignatures.get(entityID).set(ComponentIDGenerator::get<T>());
     }
 
     template<typename T>
     void Registry::removeComponent(EntityID entityID)
     {
         getPool<T>().removeComponent(entityID);
-        entitySignatures[entityID].reset(ComponentIDGenerator::get<T>());
+        entitySignatures.get(entityID).reset(ComponentIDGenerator::get<T>());
     }
 
     template<typename T>
@@ -92,12 +91,12 @@ namespace gcep
 
     template<typename T>
     bool Registry::hasComponent(EntityID entity) const {
-        return entitySignatures[entity].test(ComponentIDGenerator::get<T>());
+        return entitySignatures.get(entity).test(ComponentIDGenerator::get<T>());
     }
 
-    inline const Signature& Registry::getSignature(EntityID entity) const
+    inline const Signature Registry::getSignature(EntityID entity) const
     {
-        return entitySignatures[entity];
+        return entitySignatures.get(entity);
     }
 
     template<typename... Args>
