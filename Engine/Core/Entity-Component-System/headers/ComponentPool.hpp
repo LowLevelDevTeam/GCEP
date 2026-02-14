@@ -1,14 +1,18 @@
 #pragma once
 #include "EntityComponent.hpp"
 #include <vector>
+#include "PagedAllocator.hpp"
 
 
 namespace gcep {
     struct IPool {
         virtual ~IPool() {}
-        virtual void addComponent(Entity entity) =0;
-        virtual void removeComponent(Entity entity) = 0;
-        virtual bool hasComponent(Entity entity) const =0;
+        virtual void addComponent(EntityID entity) =0;
+        virtual void removeComponent(EntityID entity) = 0;
+        virtual bool hasComponent(EntityID entity) const =0;
+        virtual const std::vector<EntityID>& getEntities() const = 0;
+        virtual const size_t getSize() const = 0;
+        virtual void reserve(size_t n) = 0;
     };
 
 
@@ -16,18 +20,26 @@ namespace gcep {
     struct ComponentPool : public IPool
     {
     private:
-        std::vector<Entity> m_dense;
-        std::vector<Index> m_sparse;
+        PagedAllocator<Index> m_sparse{ std::numeric_limits<Index>::max() };
+        std::vector<EntityID> m_dense;
         std::vector<T> m_components;
 
+
     public:
-        void addComponent(Entity entity) override;
+        void addComponent(EntityID entity) override;
 
-        void removeComponent(Entity entity) override;
-²
-        bool hasComponent(Entity entity) const override;
+        void removeComponent(EntityID entity) override;
 
-        T& get(Entity entity);
+        bool hasComponent(EntityID entity) const override;
+
+        T& get(EntityID entity);
+
+        void reserve(size_t n) override;
+
+        const std::vector<EntityID>& getEntities() const override { return m_dense; }
+
+        const size_t getSize() const override { return m_dense.size(); }
+
     };
 
 }
