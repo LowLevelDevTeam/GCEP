@@ -84,17 +84,6 @@ public:
     // @brief Fonction that init editor HUD variables
     void updateEditorInfo(ImVec4& clearColor);
 
-    /// @brief Get the current Vulkan RHI context.
-    [[nodiscard("Context value ignored")]]
-    vk::raii::Context* getContext();
-
-    /// @brief Get the current Vulkan RHI instance.
-    [[nodiscard("Instance value ignored")]]
-    vk::raii::Instance* getInstance();
-
-    [[nodiscard("Physical device value ignored")]]
-    vk::raii::PhysicalDevice* getPhysicalDevice();
-
     /// @brief Getter allowing the initialization in ImGui Window
     ImGui_ImplVulkan_InitInfo getInitInfo();
 
@@ -181,9 +170,10 @@ private:
         vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
         vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
         vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
-        vk::ImageAspectFlags imageAspectFlags
+        vk::ImageAspectFlags imageAspectFlags,
+        uint32_t mipLevels
     );
-    void transitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+    void transitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels);
 
     /// @brief Creates the synchronization objects for the draw frame function.
     void createSyncObjects();
@@ -222,13 +212,13 @@ private:
     void createTextureImage();
 
     /// @brief Creates an image buffer.
-    void createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
+    void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
 
     void createTextureImageView();
 
     void createTextureSampler();
 
-    vk::raii::ImageView createImageView(vk::raii::Image &image, vk::Format format, vk::ImageAspectFlags aspectFlags);
+    vk::raii::ImageView createImageView(vk::raii::Image &image, vk::Format format, vk::ImageAspectFlags aspectFlags, uint32_t mipLevels);
 
     /// @brief Copies buffer data to image buffer data.
     void copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width, uint32_t height);
@@ -249,12 +239,6 @@ private:
     /// @brief Finds the device supported depth format
     vk::Format findDepthFormat();
 
-    /// @brief Determines if a certain format has a stencil component.
-    bool hasStencilComponent(vk::Format format);
-
-    /// @brief Create images for ImGui
-    void createImGuiImage();
-
     /// @brief Records command buffer for offscreen scene rendering
     void recordOffscreenCommandBuffer();
 
@@ -263,6 +247,9 @@ private:
 
     /// @brief Loads the test obj model
     void loadModel();
+
+    /// @brief Generates textures mipmaps
+    void generateMipmaps(vk::raii::Image& image, vk::Format imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
 private:
     vk::raii::Context                m_context;
@@ -291,6 +278,7 @@ private:
     vk::raii::Image                  m_depthImage          = nullptr;
     vk::raii::DeviceMemory           m_depthImageMemory    = nullptr;
     vk::raii::ImageView              m_depthImageView      = nullptr;
+    uint32_t                         m_mipLevels           = 0;
 
     // Offscreen rendering for ImGui viewport
     vk::raii::Image                  m_offscreenImage        = nullptr;
