@@ -10,8 +10,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <imgui.h>
-
+#include <glm/gtx/hash.hpp>
 #include <imgui.h>
 
 // Forward declaration
@@ -40,6 +39,10 @@ struct Vertex
             vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
             vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord))
         };
+    }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
     }
 };
 
@@ -346,3 +349,13 @@ private:
 };
 
 } // Namespace gcep
+
+namespace std {
+    template<> struct hash<gcep::Vertex> {
+        size_t operator()(gcep::Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                    (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+                    (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}

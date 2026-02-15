@@ -631,7 +631,7 @@ void RHI_Vulkan::createVertexBuffer()
     void* data = stagingBufferMemory.mapMemory(0, bufferSize);
     memcpy(data, vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
-    vertices.clear();
+    std::vector<Vertex>().swap(vertices);
 
     createBuffer(bufferSize,
         vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
@@ -656,7 +656,7 @@ void RHI_Vulkan::createIndexBuffer()
     memcpy(data, indices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
     numIndices = indices.size();
-    indices.clear();
+    std::vector<uint32_t>().swap(indices);
 
     createBuffer(bufferSize,
         vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
@@ -900,9 +900,9 @@ void RHI_Vulkan::updateUniformBuffer(uint32_t currentImage)
                         : 1.0f;
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(0.5f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.view  = glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.proj  = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view  = glm::lookAt(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj  = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
     memcpy(m_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
@@ -1172,46 +1172,82 @@ bool RHI_Vulkan::hasStencilComponent(vk::Format format)
     return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }
 
+// In loadModel - fix deduplication:
 void RHI_Vulkan::loadModel()
 {
-    std::filesystem::path filepath = "TestTextures/bugatti.obj";
+    static constexpr bool deduplication = true;
+    std::filesystem::path filepath = "TestTextures/cube.obj";
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
+    std::filesystem::path filepath2 = "TestTextures/viking_room.obj";
+    auto [attrib2, modelIndices2] = objParser::ObjLoader::loadObj(filepath2);
+    std::filesystem::path filepath3 = "TestTextures/qilin.obj";
+    auto [attrib3, modelIndices3] = objParser::ObjLoader::loadObj(filepath3);
+    std::filesystem::path filepath4 = "TestTextures/bugatti.obj";
+    auto [attrib4, modelIndices4] = objParser::ObjLoader::loadObj(filepath4);
+    std::filesystem::path filepath5 = "TestTextures/city.obj";
+    auto [attrib5, modelIndices5] = objParser::ObjLoader::loadObj(filepath5);
 
-    vertices.resize(modelIndices.size());
-    indices.resize(modelIndices.size());
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    auto start_timer = std::chrono::high_resolution_clock::now();
 
-    const float* verts = attrib.vertices.data();
+    vertices.reserve(modelIndices.size());
+    indices.reserve(modelIndices.size());
+
+    const float* verts     = attrib.vertices.data();
     const float* texcoords = attrib.texcoords.data();
-    const float* normals = attrib.normals.data();
+    const float* normals   = attrib.normals.data();
 
-    for (size_t i = 0; i < modelIndices.size(); ++i)
+    for (const auto& index : modelIndices)
     {
-        const auto& index = modelIndices[i];
+        Vertex vertex{};
 
         const float* v = verts + 3 * index.vertex_index;
-        vertices[i].pos = {v[0], v[1], v[2]};
+        vertex.pos = {v[0], v[1], v[2]};
 
         if (index.texcoord_index != UINT32_MAX)
         {
             const float* tc = texcoords + 2 * index.texcoord_index;
-            vertices[i].texCoord = {tc[0], 1.0f - tc[1]};
+            vertex.texCoord = {tc[0], 1.0f - tc[1]};
         }
         else
         {
-            vertices[i].texCoord = {0.0f, 0.0f};
+            vertex.texCoord = {0.0f, 0.0f};
         }
 
         if (index.normal_index != UINT32_MAX)
         {
             const float* n = normals + 3 * index.normal_index;
-            vertices[i].color = {n[0], n[1], n[2]};
+            vertex.color = {n[0], n[1], n[2]};
         }
         else
         {
-            vertices[i].color = {1.0f, 1.0f, 1.0f};
+            vertex.color = {1.0f, 1.0f, 1.0f};
         }
 
-        indices[i] = static_cast<uint32_t>(i);
+        if constexpr (deduplication)
+        {
+            auto [it, inserted] = uniqueVertices.try_emplace(vertex, static_cast<uint32_t>(vertices.size()));
+
+            if (inserted) {
+                vertices.push_back(vertex);
+            }
+
+            indices.push_back(it->second);
+        }
+        else
+        {
+            vertices.push_back(vertex);
+            indices.push_back(indices.size());
+        }
+    }
+
+    if constexpr (deduplication)
+    {
+        auto end_timer = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
+        std::cout << "Deduplicated: " << modelIndices.size() << " original vertices -> " << vertices.size()
+                  << " unique vertices (" << (100.0f * vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
+        std::cout << "Deduplication took " << duration.count() << "ms." << '\n';
     }
 }
 
