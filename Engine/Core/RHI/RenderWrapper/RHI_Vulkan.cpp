@@ -1064,7 +1064,7 @@ void RHI_Vulkan::createTextureSampler()
     samplerInfo.maxAnisotropy    = properties.limits.maxSamplerAnisotropy;
     samplerInfo.compareEnable    = vk::False;
     samplerInfo.compareOp        = vk::CompareOp::eAlways;
-    samplerInfo.minLod           = static_cast<float>(m_mipLevels);
+    samplerInfo.minLod           = 0.0f; // static_cast<float>(m_mipLevels); // to tweak between 0 and m_mipLevels
     samplerInfo.maxLod           = vk::LodClampNone;
 
     m_textureSampler = vk::raii::Sampler(m_device, samplerInfo);
