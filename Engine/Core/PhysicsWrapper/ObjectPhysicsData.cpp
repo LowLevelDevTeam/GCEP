@@ -28,6 +28,14 @@ namespace gcep {
         m_scale = scale;
     }
 
+    void ObjectPhysicsData::setLinearVelocity(Vec3 velocity) {
+        m_linearVelocity = velocity;
+    }
+
+    void ObjectPhysicsData::setAngularVelocity(Vec3 velocity) {
+        m_angularVelocity = velocity;
+    }
+
     void ObjectPhysicsData::setMotionType(EMotionType motionType) {
         m_motionType = motionType;
     }
@@ -54,6 +62,14 @@ namespace gcep {
 
     Vec3 ObjectPhysicsData::getScale() const {
         return m_scale;
+    }
+
+    Vec3 ObjectPhysicsData::getLinearVelocity() const {
+        return m_linearVelocity;
+    }
+
+    Vec3 ObjectPhysicsData::getAngularVelocity() const {
+        return m_angularVelocity;
     }
 
     EShapeType ObjectPhysicsData::getShapeType() const {

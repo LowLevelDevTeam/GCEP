@@ -102,6 +102,12 @@ namespace gcep {
     	bodyInterface.RemoveBodies(allBodies.data(), allBodies.size());
     	bodyInterface.DestroyBodies(allBodies.data(), allBodies.size());
 
+    	JPH::UnregisterTypes();
+
+    	// Destroy the factory
+    	delete JPH::Factory::sInstance;
+    	JPH::Factory::sInstance = nullptr;
+
     }
 
     void PhysicsWorld::createBody(std::shared_ptr<ObjectPhysicsData> data) const
@@ -161,6 +167,10 @@ namespace gcep {
     	JPH::BodyCreationSettings bodySettings(shape, position, rotation, motionType, static_cast<int>(data->getLayers()));
 
     	JPH::Body *body = m_physicsSystem->GetBodyInterface().CreateBody(bodySettings);
+
+    	body->SetLinearVelocity(JPH::Vec3(data->getLinearVelocity()[1], data->getLinearVelocity()[2], data->getLinearVelocity()[3]));
+    	body->SetAngularVelocity(JPH::Vec3(data->getAngularVelocity()[1], data->getAngularVelocity()[2], data->getAngularVelocity()[3]));
+
     	m_physicsSystem->GetBodyInterface().AddBody(body->GetID(), JPH::EActivation::Activate);
     }
 

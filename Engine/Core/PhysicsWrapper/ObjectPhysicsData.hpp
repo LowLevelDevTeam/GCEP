@@ -39,6 +39,9 @@ namespace gcep
         void setRotation(const Quat& rotation);
         void setScale(const Vec3& scale);
 
+        void setLinearVelocity(Vec3 velocity);
+        void setAngularVelocity(Vec3 velocity);
+
         void setShapeType(EShapeType type);
         void setMotionType(EMotionType type);
         void setLayers(ELayers layers);
@@ -51,6 +54,9 @@ namespace gcep
         Quat getRotation() const;
         Vec3 getScale() const;
 
+        Vec3 getLinearVelocity() const;
+        Vec3 getAngularVelocity() const;
+
         EShapeType getShapeType() const;
         EMotionType getMotionType() const;
         ELayers getLayers() const;
@@ -61,6 +67,9 @@ namespace gcep
         Vec3 m_position;
         Quat m_rotation;
         Vec3 m_scale;
+
+        Vec3 m_angularVelocity;
+        Vec3 m_linearVelocity;
 
         EShapeType m_shapeType;
         EMotionType m_motionType;
