@@ -2,15 +2,24 @@
 
 #include <Editor/Window/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
-#include <Engine/Core/RHI/RenderWrapper/RHI_Vulkan.hpp>
-#include <Engine/Core/RHI/ObjParser/ObjParser.hpp>
+#include <RHI/Vulkan/VulkanRHI.hpp>
 
 int main()
 {
-    // Rendering - moved to the heap because the class is getting too big (precaution).
-    std::unique_ptr<gcep::RHI_Vulkan> rhi = std::make_unique<gcep::RHI_Vulkan>();
     gcep::Window& window = gcep::Window::getInstance();
     window.initWindow();
+
+    int fbWidth = 0, fbHeight = 0;
+    glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);
+
+    gcep::rhi::SwapchainDesc swapDesc{};
+    swapDesc.nativeWindowHandle = window.getGlfwWindow();
+    swapDesc.width              = static_cast<uint32_t>(fbWidth);
+    swapDesc.height             = static_cast<uint32_t>(fbHeight);
+    swapDesc.vsync              = true;
+
+    std::unique_ptr<gcep::rhi::vulkan::VulkanRHI> rhi = std::make_unique<gcep::rhi::vulkan::VulkanRHI>(swapDesc);
+
     try
     {
         rhi->setWindow(window.getGlfwWindow());
@@ -25,11 +34,6 @@ int main()
     // Initialize ImGui BEFORE creating offscreen resources (ImGui_ImplVulkan_AddTexture requires ImGui)
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
 
-    // Now create offscreen resources for viewport rendering
-    rhi->createOffscreenResources(800, 600);
-
-
-    ImVec4 test = uiManager.getClearColor();
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
