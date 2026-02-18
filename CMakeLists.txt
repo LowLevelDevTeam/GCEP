@@ -44,9 +44,12 @@ add_subdirectory(Externals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# e.g. <RHI/RHI.hpp>
+target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core)
 
 # Compile the shaders
-add_slang_shader_target(Shaders SOURCES Engine/Core/RHI/RenderWrapper/Shaders/Base_Shader.slang)
+file(GLOB_RECURSE SHADER_SOURCES Engine/*.slang)
+add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 
 # Copy the test textures
 copy_textures(Textures)
