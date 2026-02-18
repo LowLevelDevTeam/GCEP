@@ -8,8 +8,7 @@
 
 namespace gcep::objParser
 {
-
-std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::path& filepath)
+std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesystem::path& filepath)
 {
     assert(!filepath.string().empty() && "Invalid file path!");
     assert(filepath.extension() == ".obj" && "File must be .obj!");
@@ -34,23 +33,26 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
     attrib_t attribs;
     std::vector<index_t> indices;
 
-    // Reserve with reasonable estimates
-    attribs.vertices.reserve(100000);
-    attribs.texcoords.reserve(100000);
-    attribs.normals.reserve(100000);
-    indices.reserve(300000);
+    size_t estimation = size / 25;
+    attribs.vertices.reserve(estimation);
+    attribs.texcoords.reserve(estimation);
+    attribs.normals.reserve(estimation);
+    indices.reserve((size * 2) / 5);
 
     char* ptr = buffer.data();
     char* end = ptr + size;
 
     auto parseFloat = [](char*& p) -> float
     {
+        while (*p == ' ' || *p == '\t') ++p;
+
         float result = 0.0f;
         float sign = 1.0f;
 
         if (*p == '-')
         {
-            sign = -1.0f; ++p;
+            sign = -1.0f;
+            ++p;
         }
         else if (*p == '+') ++p;
 
@@ -75,10 +77,11 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
         // Handle scientific notation (e.g., 1.5e-3)
         if (*p == 'e' || *p == 'E') {
             ++p;
-            int exp_sign = 1;
+            int expSign = 1;
             if (*p == '-')
             {
-                exp_sign = -1; ++p;
+                expSign = -1;
+                ++p;
             }
             else if (*p == '+') ++p;
 
@@ -89,7 +92,12 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                 ++p;
             }
 
-            result *= std::pow(10.0f, exp_sign * exponent);
+            float exponentFactor = 1.0f;
+            for (int i = 0; i < exponent; ++i)
+            {
+                exponentFactor *= 10.0f;
+            }
+            result *= (expSign == -1) ? (1.0f / exponentFactor) : exponentFactor;
         }
 
         return result * sign;
@@ -97,12 +105,15 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
 
     auto parseInt = [](char*& p) -> int
     {
+        while (*p == ' ' || *p == '\t') ++p;
+
         int result = 0;
         bool negative = false;
 
         if (*p == '-')
         {
-            negative = true; ++p;
+            negative = true;
+            ++p;
         }
 
         while (*p >= '0' && *p <= '9')
@@ -152,45 +163,42 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
             {
                 // Vertex: v x y z
                 ptr += 2;
-                skipWhitespace(ptr);
                 float x = parseFloat(ptr);
-                skipWhitespace(ptr);
                 float y = parseFloat(ptr);
-                skipWhitespace(ptr);
                 float z = parseFloat(ptr);
 
-                attribs.vertices.push_back(x);
-                attribs.vertices.push_back(y);
-                attribs.vertices.push_back(z);
+                size_t base = attribs.vertices.size();
+                attribs.vertices.resize(base + 3);
+                attribs.vertices[base + 0] = x;
+                attribs.vertices[base + 1] = y;
+                attribs.vertices[base + 2] = z;
                 ++vCount;
             }
             else if (ptr[1] == 't')
             {
                 // UV: vt x y
                 ptr += 2;
-                skipWhitespace(ptr);
                 float u = parseFloat(ptr);
-                skipWhitespace(ptr);
                 float v = parseFloat(ptr);
-
-                attribs.texcoords.push_back(u);
-                attribs.texcoords.push_back(v);
+                size_t base = attribs.texcoords.size();
+                attribs.texcoords.resize(base + 2);
+                attribs.texcoords[base + 0] = u;
+                attribs.texcoords[base + 1] = v;
                 ++vtCount;
             }
             else if (ptr[1] == 'n')
             {
                 // Normal: vn x y z
                 ptr += 3;
-                skipWhitespace(ptr);
                 float nx = parseFloat(ptr);
-                skipWhitespace(ptr);
                 float ny = parseFloat(ptr);
-                skipWhitespace(ptr);
                 float nz = parseFloat(ptr);
 
-                attribs.normals.push_back(nx);
-                attribs.normals.push_back(ny);
-                attribs.normals.push_back(nz);
+                size_t base = attribs.normals.size();
+                attribs.normals.resize(base + 3);
+                attribs.normals[base + 0] = nx;
+                attribs.normals[base + 1] = ny;
+                attribs.normals[base + 2] = nz;
                 ++vnCount;
             }
         }
@@ -212,19 +220,19 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                     vt = parseInt(ptr);
                 }
 
-                indices.push_back({
-                    .vertex_index   = (v > 0)  ? (v - 1)  : UINT32_MAX,
-                    .texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX,
-                    .normal_index   = UINT32_MAX
-                });
+                indices.emplace_back(
+                    (v > 0)  ? (v - 1)  : UINT32_MAX,
+                    (vt > 0) ? (vt - 1) : UINT32_MAX,
+                    UINT32_MAX
+                );
             }
         }
         else if (ptr[0] == 'f' && ptr[1] == ' ')
         {
             // Face: f v/vt/vn ... (also supports v, v/vt, v//vn)
             ptr += 2;
-            std::vector<index_t> face_indices;
-            face_indices.reserve(4);
+            index_t face_buffer[16];
+            size_t face_count = 0;
 
             while (ptr < end && *ptr != '\n' && *ptr != '\r' && *ptr != '#')
             {
@@ -241,7 +249,8 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                     {
                         ++ptr;
                         vn = parseInt(ptr);
-                    } else
+                    }
+                    else
                     {
                         vt = parseInt(ptr);
                         if (*ptr == '/')
@@ -252,22 +261,24 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
                     }
                 }
 
-                face_indices.push_back({
-                   .vertex_index   = (v > 0)  ? (v - 1)  : UINT32_MAX,
-                   .texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX,
-                   .normal_index   = (vn > 0) ? (vn - 1) : UINT32_MAX
-                });
+                if (face_count < 16)
+                {
+                    face_buffer[face_count++] = {
+                        .vertex_index   = (v > 0)  ? (v - 1)  : UINT32_MAX,
+                        .texcoord_index = (vt > 0) ? (vt - 1) : UINT32_MAX,
+                        .normal_index   = (vn > 0) ? (vn - 1) : UINT32_MAX
+                    };
+                }
             }
 
-            // Triangulate
-            size_t face_count = face_indices.size();
+            // Triangulate (fan triangulation)
             if (face_count >= 3)
             {
                 for (size_t i = 1; i + 1 < face_count; ++i)
                 {
-                    indices.push_back(face_indices[0]);
-                    indices.push_back(face_indices[i]);
-                    indices.push_back(face_indices[i + 1]);
+                    indices.emplace_back(std::move(face_buffer[0]));
+                    indices.emplace_back(std::move(face_buffer[i]));
+                    indices.emplace_back(std::move(face_buffer[i + 1]));
                 }
                 ++fCount;
             }
@@ -281,12 +292,12 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(std::filesystem::pa
 
     std::cout << "Model " << filepath.filename() << " :" << '\n'
               << " - Size: " << (buffer.size() * sizeof(char)) << " bytes" << '\n'
-              << " - Vertices: " << vCount  << '\n'
-              << " - UVs: "      << vtCount << '\n'
-              << " - Normals: "  << vnCount << '\n'
-              << " - Faces: "    << fCount  << '\n';
+              << " - Vertex: "              << vCount  << '\n'
+              << " - Vertex UVs: "          << vtCount << '\n'
+              << " - Vertex normals: "      << vnCount << '\n'
+              << " - Triangles: "           << fCount  << '\n';
 
-    std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms." << '\n';
+    std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms.\n" << '\n';
 
     return {attribs, indices};
 }
