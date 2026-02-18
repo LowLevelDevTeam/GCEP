@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Window/Window.hpp"
-#include "../Engine/Core/Audio/AudioSystem.h"
+#include "Engine/Core/Audio/AudioSystem.h"
 
 int main() {
     std::cout << "Hello, World!" << std::endl;

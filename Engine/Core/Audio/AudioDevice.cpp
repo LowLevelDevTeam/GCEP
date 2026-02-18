@@ -37,7 +37,10 @@ namespace gcep
 
     void AudioDevice::shutdown()
     {
-		ma_device_uninit(&m_device);
+    	if (m_device.state.value != ma_device_state_uninitialized)
+    	{
+    		ma_device_uninit(&m_device);
+    	}
     }
 
     void AudioDevice::setMixer(AudioMixer* mixer)
