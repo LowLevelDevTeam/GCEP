@@ -6,7 +6,7 @@ namespace gcep
 {
     class PhysicsWorld;
 
-    class PhysicsSystem //=> TODO: Make this a Singleton
+    class PhysicsSystem
     {
         friend class PhysicsWorld;
 
@@ -30,7 +30,10 @@ namespace gcep
     private:
 
         std::unique_ptr<PhysicsWorld> m_world;
+
+        // include jph?
         JPH::BodyID m_tempBodyID;
 
+        static PhysicsSystem* s_instance;
     };
 } // gcep

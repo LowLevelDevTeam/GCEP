@@ -28,31 +28,35 @@ namespace gcep
     }
 
 
-    void PhysicsSystem::init() {
+    void PhysicsSystem::init()
+    {
         m_world = std::make_unique<PhysicsWorld>();
     }
 
-    void PhysicsSystem::shutdown() {
+    void PhysicsSystem::shutdown()
+    {
         m_world.reset();
     }
 
-    void PhysicsSystem::startSimulation() {
+    void PhysicsSystem::startSimulation()
+    {
         //Récupère tous les PhysicsComponent
         //auto PC : allPhysicsComponent :
         //m_world.createBody(PC.ObjectPhysicsData);
         //PC.BodyID = m_tempBodyID;
     }
 
-    void PhysicsSystem::update(float dt) {
+    void PhysicsSystem::update(float dt)
+    {
         m_world->step(dt);
     }
 
-    void PhysicsSystem::stopSimulation() {
+    void PhysicsSystem::stopSimulation()
+    {
         //Récupère tous les PhysicsComponent
         //auto PC : allPhysicsComponent :
         //m_world.destroyBody(PC.BodyID);
     }
 
     PhysicsSystem* PhysicsSystem::s_instance = nullptr;
-
 } // gcep

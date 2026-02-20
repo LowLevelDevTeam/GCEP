@@ -1,9 +1,8 @@
 #pragma once
 
-#include <array>
-
-using Vec3 = std::array<float, 3>;
-using Quat = std::array<float, 4>;
+// Core
+#include "Engine/Core/Maths/Vector3.hpp"
+#include "Engine/Core/Maths/Quaternion.hpp"
 
 namespace gcep
 {
@@ -35,12 +34,12 @@ namespace gcep
 
 #pragma region Setters
 
-        void setPosition(const Vec3& position);
-        void setRotation(const Quat& rotation);
-        void setScale(const Vec3& scale);
+        void setPosition(const Vector3<float>& position);
+        void setRotation(const Quaternion& rotation);
+        void setScale(const Vector3<float>& scale);
 
-        void setLinearVelocity(Vec3 velocity);
-        void setAngularVelocity(Vec3 velocity);
+        void setLinearVelocity(Vector3<float> velocity);
+        void setAngularVelocity(Vector3<float> velocity);
 
         void setShapeType(EShapeType type);
         void setMotionType(EMotionType type);
@@ -50,12 +49,12 @@ namespace gcep
 
 #pragma region Getters
 
-        Vec3 getPosition() const;
-        Quat getRotation() const;
-        Vec3 getScale() const;
+        Vector3<float> getPosition() const;
+        Quaternion getRotation() const;
+        Vector3<float> getScale() const;
 
-        Vec3 getLinearVelocity() const;
-        Vec3 getAngularVelocity() const;
+        Vector3<float> getLinearVelocity() const;
+        Vector3<float> getAngularVelocity() const;
 
         EShapeType getShapeType() const;
         EMotionType getMotionType() const;
@@ -64,12 +63,12 @@ namespace gcep
 #pragma endregion
 
     private:
-        Vec3 m_position;
-        Quat m_rotation;
-        Vec3 m_scale;
+        Vector3<float> m_position;
+        Quaternion m_rotation;
+        Vector3<float> m_scale;
 
-        Vec3 m_angularVelocity;
-        Vec3 m_linearVelocity;
+        Vector3<float> m_angularVelocity;
+        Vector3<float> m_linearVelocity;
 
         EShapeType m_shapeType;
         EMotionType m_motionType;

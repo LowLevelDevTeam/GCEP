@@ -3,13 +3,16 @@
 // Libs
 #include <memory>
 
-#include "Jolt/Jolt.h"
+// Libs (I don't know if we should keep this here)
+#include <Jolt/Jolt.h>
 #include "Jolt/Core/Reference.h"
+
+// Core
+#include "Engine/Core/Maths/Vector3.hpp"
 
 namespace JPH
 {
     class Shape;
-    class Vec3;
 }
 
 namespace gcep
@@ -27,12 +30,12 @@ namespace gcep
     public:
         PhysicsShape(EPhysicsShapeType type, JPH::RefConst<JPH::Shape> shape);
 
-        static std::shared_ptr<PhysicsShape> createBox(const JPH::Vec3& halfExtents);
+        static std::shared_ptr<PhysicsShape> createBox(const Vector3<float>& halfExtents);
         static std::shared_ptr<PhysicsShape> createSphere(float radius);
         static std::shared_ptr<PhysicsShape> createCylinder(float halfHeight, float radius);
         static std::shared_ptr<PhysicsShape> createCapsule(float halfHeight, float radius);
 
-        static std::shared_ptr<PhysicsShape> createScaled(const std::shared_ptr<PhysicsShape>& baseShape, const JPH::Vec3& scale);
+        static std::shared_ptr<PhysicsShape> createScaled(const std::shared_ptr<PhysicsShape>& baseShape, const Vector3<float>& scale);
 
         EPhysicsShapeType getType() const;
         JPH::RefConst<JPH::Shape> getJoltShape() const;
@@ -40,7 +43,6 @@ namespace gcep
     private:
         EPhysicsShapeType m_type;
         JPH::RefConst<JPH::Shape> m_shape;
-
     };
 } // gcep
 

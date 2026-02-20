@@ -4,12 +4,10 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Geometry/AABox.h>
-#include <Jolt/Math/MathTypes.h>
 
 // Core
-
-using Vec3 = std::array<float, 3>;
-using Quat = std::array<float, 4>;
+#include "Engine/Core/Maths/Vector3.hpp"
+#include "Engine/Core/Maths/Quaternion.hpp"
 
 namespace gcep
 {
@@ -27,10 +25,10 @@ namespace gcep
         PhysicsBody(PhysicsBody&& other) noexcept;
         PhysicsBody& operator=(PhysicsBody&& other) noexcept;
 
-        void setPosition(const Vec3& position);
-        void setRotation(const Quat& rotation);
+        void setPosition(const Vector3<float>& position);
+        void setRotation(const Quaternion& rotation);
 
-        [[nodiscard]] JPH::RVec3 GetCenterOfMassPosition() const;
+        [[nodiscard]] Vector3<float> GetCenterOfMassPosition() const;
         [[nodiscard]] JPH::AABox GetWorldSpaceBounds() const;
 
         // g

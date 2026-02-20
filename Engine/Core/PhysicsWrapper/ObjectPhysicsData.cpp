@@ -1,6 +1,7 @@
 #include "ObjectPhysicsData.hpp"
 
-namespace gcep {
+namespace gcep
+{
     ObjectPhysicsData::ObjectPhysicsData(const EShapeType type) : m_shapeType(type)
     {
         m_position = {0.0f, 0.0f, 0.0f};
@@ -10,41 +11,48 @@ namespace gcep {
         m_layers = ELayers::NON_MOVING;
     }
 
-    ObjectPhysicsData::~ObjectPhysicsData() {
-
-    }
+    ObjectPhysicsData::~ObjectPhysicsData()
+    {}
 
 #pragma region Setters
 
-    void ObjectPhysicsData::setPosition(const Vec3 &position) {
+    void ObjectPhysicsData::setPosition(const Vector3<float>& position)
+    {
         m_position = position;
     }
 
-    void ObjectPhysicsData::setRotation(const Quat &rotation) {
+    void ObjectPhysicsData::setRotation(const Quaternion& rotation)
+    {
         m_rotation = rotation;
     }
 
-    void ObjectPhysicsData::setScale(const Vec3 &scale) {
+    void ObjectPhysicsData::setScale(const Vector3<float>& scale)
+    {
         m_scale = scale;
     }
 
-    void ObjectPhysicsData::setLinearVelocity(Vec3 velocity) {
+    void ObjectPhysicsData::setLinearVelocity(Vector3<float> velocity)
+    {
         m_linearVelocity = velocity;
     }
 
-    void ObjectPhysicsData::setAngularVelocity(Vec3 velocity) {
+    void ObjectPhysicsData::setAngularVelocity(Vector3<float> velocity)
+    {
         m_angularVelocity = velocity;
     }
 
-    void ObjectPhysicsData::setMotionType(EMotionType motionType) {
+    void ObjectPhysicsData::setMotionType(EMotionType motionType)
+    {
         m_motionType = motionType;
     }
 
-    void ObjectPhysicsData::setLayers(ELayers layers) {
+    void ObjectPhysicsData::setLayers(ELayers layers)
+    {
         m_layers = layers;
     }
 
-    void ObjectPhysicsData::setShapeType(EShapeType type) {
+    void ObjectPhysicsData::setShapeType(EShapeType type)
+    {
         m_shapeType = type;
     }
 
@@ -52,38 +60,46 @@ namespace gcep {
 
 #pragma region Getters
 
-    Vec3 ObjectPhysicsData::getPosition() const {
+    Vector3<float> ObjectPhysicsData::getPosition() const
+    {
         return m_position;
     }
 
-    Quat ObjectPhysicsData::getRotation() const {
+    Quaternion ObjectPhysicsData::getRotation() const
+    {
         return m_rotation;
     }
 
-    Vec3 ObjectPhysicsData::getScale() const {
+    Vector3<float> ObjectPhysicsData::getScale() const
+    {
         return m_scale;
     }
 
-    Vec3 ObjectPhysicsData::getLinearVelocity() const {
+    Vector3<float> ObjectPhysicsData::getLinearVelocity() const
+    {
         return m_linearVelocity;
     }
 
-    Vec3 ObjectPhysicsData::getAngularVelocity() const {
+    Vector3<float> ObjectPhysicsData::getAngularVelocity() const
+    {
         return m_angularVelocity;
     }
 
-    EShapeType ObjectPhysicsData::getShapeType() const {
+    EShapeType ObjectPhysicsData::getShapeType() const
+    {
         return m_shapeType;
     }
 
-    EMotionType ObjectPhysicsData::getMotionType() const {
+    EMotionType ObjectPhysicsData::getMotionType() const
+    {
         return m_motionType;
     }
 
-    ELayers ObjectPhysicsData::getLayers() const {
+    ELayers ObjectPhysicsData::getLayers() const
+    {
         return m_layers;
     }
 
 #pragma endregion
 
-}
+} // gcep

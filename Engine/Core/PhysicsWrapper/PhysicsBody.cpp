@@ -1,8 +1,8 @@
-//
-// Created by momop on 10/02/2026.
-//
-
 #include "PhysicsBody.hpp"
+
+// Core
+#include "Engine/Core/Maths/Utils/Vector3Converter.hpp"
+#include "Engine/Core/Maths/Utils/QuaternionConverter.hpp"
 
 namespace gcep
 {
