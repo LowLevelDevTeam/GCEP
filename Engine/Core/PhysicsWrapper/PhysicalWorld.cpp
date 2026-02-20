@@ -8,6 +8,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
@@ -28,17 +29,7 @@ namespace gcep
 
     PhysicsWorld::PhysicsWorld()
     {
-       init();
-    }
-
-    PhysicsWorld::~PhysicsWorld()
-    {
-        shutdown();
-    }
-
-    void PhysicsWorld::init()
-    {
-    	// Register allocation hook.
+       // Register allocation hook.
     	JPH::RegisterDefaultAllocator();
 
 		// Create a factory, this class is responsible for creating instances of classes based on their name or hash and is mainly used for deserialization of saved data.
@@ -57,18 +48,18 @@ namespace gcep
     	m_physicsSystem = std::make_unique<JPH::PhysicsSystem>();
 
 		// This is the max amount of rigid bodies that you can add to the physics system.
-		const glm::uint cMaxBodies = 65536;
+		constexpr glm::uint cMaxBodies = 65536;
 
 		// This determines how many mutexes to allocate to protect rigid bodies from concurrent access.
-		const glm::uint cNumBodyMutexes = 0;
+		constexpr glm::uint cNumBodyMutexes = 0;
 
 		// This is the max amount of body pairs that can be queued at any time (the broad phase will detect overlapping
 		// body pairs based on their bounding boxes and will insert them into a queue for the narrowphase).
-		const glm::uint cMaxBodyPairs = 65536;
+		constexpr glm::uint cMaxBodyPairs = 65536;
 
 		// This is the maximum size of the contact constraint buffer. If more contacts (collisions between bodies) are detected than this
 		// number then these contacts will be ignored and bodies will start interpenetrating / fall through the world.
-		const glm::uint cMaxContactConstraints = 10240;
+		constexpr glm::uint cMaxContactConstraints = 10240;
 
     	constexpr glm::uint cMaxJobs = 65536;
     	constexpr glm::uint cMaxBarriers = 65536;
@@ -92,12 +83,7 @@ namespace gcep
 			);
     }
 
-    void PhysicsWorld::step(float deltaTime)
-    {
-    	m_physicsSystem->Update(deltaTime, 1, m_tempAllocator.get(), m_jobSystem.get());
-    }
-
-    void PhysicsWorld::shutdown()
+	PhysicsWorld::~PhysicsWorld()
     {
     	JPH::BodyIDVector allBodies;
     	m_physicsSystem->GetBodies(allBodies);
@@ -107,9 +93,20 @@ namespace gcep
     	bodyInterface.RemoveBodies(allBodies.data(), allBodies.size());
     	bodyInterface.DestroyBodies(allBodies.data(), allBodies.size());
 
+    	JPH::UnregisterTypes();
+
+    	// Destroy the factory
+    	delete JPH::Factory::sInstance;
+    	JPH::Factory::sInstance = nullptr;
     }
 
-    void PhysicsWorld::createBody(std::shared_ptr<ObjectPhysicsData> data) const
+    void PhysicsWorld::step(float deltaTime) const
+    {
+    	m_physicsSystem->Update(deltaTime, 1, m_tempAllocator.get(), m_jobSystem.get());
+    }
+
+
+    void PhysicsWorld::createBody(PhysicsSystem& physicsSystem, std::shared_ptr<ObjectPhysicsData> data) const
     {
     	JPH::ShapeRefC baseShape;
 
@@ -196,6 +193,8 @@ namespace gcep
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
     	JPH::Body* body = bodyInterface.CreateBody(bodySettings);
     	bodyInterface.AddBody(body->GetID(), JPH::EActivation::Activate);
+
+    	physicsSystem.m_tempBodyID = body->GetID();
     }
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const

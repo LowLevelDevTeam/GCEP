@@ -4,7 +4,6 @@
 #include <memory>
 
 // Libs
-//Mendatory to be called for any Jolt Header
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyID.h>
@@ -30,8 +29,8 @@ namespace gcep
 
         PhysicsWorld(const PhysicsWorld&) = delete;
 
-        void step(float dt);
-        void createBody(PhysicsSystem& ps ,std::shared_ptr<ObjectPhysicsData> data) const;
+        void step(float dt) const;
+        void createBody(PhysicsSystem& physicsSystem, std::shared_ptr<ObjectPhysicsData> data) const;
         void destroyBody(const JPH::BodyID &body_id) const;
 
     private:
