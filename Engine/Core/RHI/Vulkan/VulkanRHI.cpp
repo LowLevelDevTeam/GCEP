@@ -4,10 +4,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 // STL
@@ -19,7 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Engine/Core/RHI/ObjParser/ObjParser.hpp"
+#include <RHI/ObjParser/ObjParser.hpp>
 
 namespace gcep::rhi::vulkan
 {
@@ -58,9 +54,7 @@ void VulkanRHI::initSceneResources()
 {
     createDescriptorSetLayout();
     createGraphicsPipeline();
-    createTextureImage();
-    createTextureImageView();
-    createTextureSampler();
+    texture.loadTexture(this, "TestTextures/viking_room.png");
     loadModel();
     createVertexBuffer();
     createIndexBuffer();
@@ -108,7 +102,7 @@ ImGui_ImplVulkan_InitInfo VulkanRHI::getInitInfo()
 
     if (vkCreateDescriptorPool(*m_device.rawDevice(), &poolCI, nullptr, &m_descriptorPoolImGui) != VK_SUCCESS)
     {
-        throw std::runtime_error("[Vulkan_RHI] Failed to create ImGui descriptor pool");
+        throw std::runtime_error("[VulkanRHI] Failed to create ImGui descriptor pool");
     }
 
     ImGui_ImplVulkan_InitInfo initInfo{};
@@ -189,7 +183,7 @@ void VulkanRHI::updateEditorInfo(ImVec4& clearColor)
 
 void VulkanRHI::requestOffscreenResize(uint32_t width, uint32_t height)
 {
-    if (width == 0 || height == 0) return;
+    if (width <= 0 || height <= 0) return;
     if (width == m_offscreenExtent.width && height == m_offscreenExtent.height) return;
 
     m_offscreenResizePending  = true;
@@ -279,7 +273,7 @@ void VulkanRHI::createOffscreenResources(uint32_t width, uint32_t height)
 
 void VulkanRHI::resizeOffscreenResources(uint32_t width, uint32_t height)
 {
-    if (width == 0 || height == 0) return;
+    if (width <= 0 || height <= 0) return;
     if (width == m_offscreenExtent.width && height == m_offscreenExtent.height) return;
 
     m_device.waitIdle();
@@ -301,72 +295,6 @@ void VulkanRHI::resizeOffscreenResources(uint32_t width, uint32_t height)
 
     // Recreate with new size
     createOffscreenResources(width, height);
-}
-
-void VulkanRHI::createTextureImage()
-{
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("TestTextures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-
-    if (!pixels)
-    {
-        throw std::runtime_error("[Vulkan_RHI] Failed to load texture: TestTextures/viking_room.png");
-    }
-
-    vk::DeviceSize imageSize = texWidth * texHeight * 4;
-    m_mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
-
-    vk::raii::Buffer       stagingBuffer({});
-    vk::raii::DeviceMemory stagingBufferMemory({});
-    createBuffer(imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-
-    void* data = stagingBufferMemory.mapMemory(0, imageSize);
-    std::memcpy(data, pixels, static_cast<size_t>(imageSize));
-    stagingBufferMemory.unmapMemory();
-
-    stbi_image_free(pixels);
-
-    createImage(
-        static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
-        m_mipLevels,
-        vk::Format::eR8G8B8A8Srgb,
-        vk::ImageTiling::eOptimal,
-        vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_textureImage, m_textureImageMemory
-    );
-
-    transitionImageLayout(m_textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, m_mipLevels);
-    copyBufferToImage(stagingBuffer, m_textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-
-    generateMipmaps(m_textureImage, vk::Format::eR8G8B8A8Srgb, texWidth, texHeight, m_mipLevels);
-}
-
-void VulkanRHI::createTextureImageView()
-{
-    m_textureImageView = createImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, m_mipLevels);
-}
-
-void VulkanRHI::createTextureSampler()
-{
-    const auto properties = m_device.rawPhysDevice().getProperties();
-
-    vk::SamplerCreateInfo samplerInfo{};
-    samplerInfo.magFilter        = vk::Filter::eLinear;
-    samplerInfo.minFilter        = vk::Filter::eLinear;
-    samplerInfo.mipmapMode       = vk::SamplerMipmapMode::eLinear;
-    samplerInfo.addressModeU     = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.addressModeV     = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.addressModeW     = vk::SamplerAddressMode::eRepeat;
-    samplerInfo.mipLodBias       = 0.0f;
-    samplerInfo.anisotropyEnable = vk::True;
-    samplerInfo.maxAnisotropy    = properties.limits.maxSamplerAnisotropy;
-    samplerInfo.compareEnable    = vk::False;
-    samplerInfo.compareOp        = vk::CompareOp::eAlways;
-    samplerInfo.minLod           = 0.0f; // static_cast<float>(m_mipLevels); // to tweak between 0 and m_mipLevels
-    samplerInfo.maxLod           = vk::LodClampNone;
-
-    m_textureSampler = vk::raii::Sampler(m_device.rawDevice(), samplerInfo);
 }
 
 void VulkanRHI::loadModel()
@@ -424,8 +352,8 @@ void VulkanRHI::loadModel()
         }
         else
         {
-            vertices.push_back(vertex);
-            indices.push_back(indices.size());
+            vertices.emplace_back(vertex);
+            indices.emplace_back(indices.size());
         }
     }
 
@@ -439,6 +367,14 @@ void VulkanRHI::loadModel()
                   << " unique vertices (" << (100.0f * vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
         std::cout << "Deduplication took " << duration.count() << "ms." << '\n';
     }
+
+    attrib.vertices.clear();  attrib.vertices.shrink_to_fit();
+    attrib.texcoords.clear(); attrib.texcoords.shrink_to_fit();
+    attrib.normals.clear();   attrib.normals.shrink_to_fit();
+
+    modelIndices.clear(); modelIndices.shrink_to_fit();
+
+    uniqueVertices.clear();
 }
 
 void VulkanRHI::createVertexBuffer()
@@ -558,6 +494,11 @@ void VulkanRHI::createDescriptorSets()
     m_descriptorSets.clear();
     m_descriptorSets = m_device.rawDevice().allocateDescriptorSets(allocInfo);
 
+    updateDescriptorSets();
+}
+
+void VulkanRHI::updateDescriptorSets()
+{
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         vk::DescriptorBufferInfo bufferInfo{};
@@ -566,8 +507,8 @@ void VulkanRHI::createDescriptorSets()
         bufferInfo.range  = sizeof(UniformBufferObject);
 
         vk::DescriptorImageInfo imageInfo{};
-        imageInfo.sampler     = m_textureSampler;
-        imageInfo.imageView   = m_textureImageView;
+        imageInfo.sampler     = texture.getSampler();
+        imageInfo.imageView   = texture.getImageView();
         imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         vk::WriteDescriptorSet uboWrite{};
@@ -598,10 +539,12 @@ void VulkanRHI::updateUniformBuffer()
         : 1.0f;
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
+
+    texture.setLodLevel(std::abs(std::fmod(time * 5.0f, 2.0f * texture.getMipLevels()) - static_cast<float>(texture.getMipLevels())));
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         std::memcpy(m_uniformBuffersMapped[i], &ubo, sizeof(ubo));
@@ -927,21 +870,6 @@ void VulkanRHI::copyBuffer(vk::raii::Buffer& src, vk::raii::Buffer& dst, vk::Dev
     endSingleTimeCommands(*cmd);
 }
 
-void VulkanRHI::copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image,
-                                  uint32_t width, uint32_t height)
-{
-    auto cmd = beginSingleTimeCommands();
-
-    vk::BufferImageCopy region{};
-    region.imageSubresource  = { vk::ImageAspectFlagBits::eColor, 0, 0, 1 };
-    region.imageExtent.width  = width;
-    region.imageExtent.height = height;
-    region.imageExtent.depth  = 1;
-    cmd->copyBufferToImage(*buffer, *image, vk::ImageLayout::eTransferDstOptimal, { region });
-
-    endSingleTimeCommands(*cmd);
-}
-
 void VulkanRHI::transitionImageLayout(const vk::raii::Image& image,
                                       vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels)
 {
@@ -1001,73 +929,6 @@ void VulkanRHI::transitionImageInFrame(vk::Image image,
     m_device.currentCommandBuffer().pipelineBarrier2(dependencyInfo);
 }
 
-void VulkanRHI::generateMipmaps(vk::raii::Image& image, vk::Format format,
-                                int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
-{
-    // Check linear filtering support
-    const auto props = m_device.rawPhysDevice().getFormatProperties(format);
-    if (!(props.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
-        throw std::runtime_error("[Vulkan_RHI] generateMipmaps: format does not support linear blitting");
-
-    auto cmd = beginSingleTimeCommands();
-
-    vk::ImageMemoryBarrier barrier{};
-    barrier.srcQueueFamilyIndex         = vk::QueueFamilyIgnored;
-    barrier.dstQueueFamilyIndex         = vk::QueueFamilyIgnored;
-    barrier.image                       = *image;
-    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    barrier.subresourceRange.layerCount = 1;
-    barrier.subresourceRange.levelCount = 1;
-
-    int32_t mipW = texWidth, mipH = texHeight;
-    for (uint32_t i = 1; i < mipLevels; ++i)
-    {
-        barrier.subresourceRange.baseMipLevel = i - 1;
-        barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
-        barrier.newLayout     = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
-        cmd->pipelineBarrier(
-            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer,
-            {}, {}, {}, barrier
-        );
-
-        vk::ImageBlit blit{};
-        blit.srcSubresource = { vk::ImageAspectFlagBits::eColor, i - 1, 0, 1 };
-        blit.srcOffsets[0]  = vk::Offset3D(0, 0, 0);
-        blit.srcOffsets[1]  = vk::Offset3D(mipW, mipH, 1);
-        blit.dstSubresource = { vk::ImageAspectFlagBits::eColor, i, 0, 1 };
-        blit.dstOffsets[0]  = vk::Offset3D(0, 0, 0);
-        blit.dstOffsets[1]  = vk::Offset3D(mipW > 1 ? mipW / 2 : 1, mipH > 1 ? mipH / 2 : 1, 1);
-        cmd->blitImage(*image, vk::ImageLayout::eTransferSrcOptimal,
-                       *image, vk::ImageLayout::eTransferDstOptimal, { blit }, vk::Filter::eLinear);
-
-        barrier.oldLayout     = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
-        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-        cmd->pipelineBarrier(
-            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-            {}, {}, {}, barrier
-        );
-
-        if (mipW > 1) mipW /= 2;
-        if (mipH > 1) mipH /= 2;
-    }
-
-    barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-    barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
-    barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
-    barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    cmd->pipelineBarrier(
-        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-        {}, {}, {}, barrier
-    );
-
-    endSingleTimeCommands(*cmd);
-}
-
 std::unique_ptr<vk::raii::CommandBuffer> VulkanRHI::beginSingleTimeCommands()
 {
     vk::CommandBufferAllocateInfo allocInfo{};
@@ -1105,7 +966,7 @@ uint32_t VulkanRHI::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags 
             return i;
         }
     }
-    throw std::runtime_error("[Vulkan_RHI] findMemoryType: no suitable type found");
+    throw std::runtime_error("[VulkanRHI] findMemoryType: no suitable type found");
 }
 
 vk::Format VulkanRHI::findDepthFormat() const
@@ -1127,7 +988,7 @@ vk::Format VulkanRHI::findSupportedFormat(const std::vector<vk::Format>& candida
         if (tiling == vk::ImageTiling::eOptimal && (fmtProps.optimalTilingFeatures & features) == features) return fmt;
     }
 
-    throw std::runtime_error("[Vulkan_RHI] findSupportedFormat: no suitable format found");
+    throw std::runtime_error("[VulkanRHI] findSupportedFormat: no suitable format found");
 }
 
 std::vector<char> VulkanRHI::readShader(const std::string& fileName)
@@ -1136,7 +997,7 @@ std::vector<char> VulkanRHI::readShader(const std::string& fileName)
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open())
     {
-        throw std::runtime_error("[Vulkan_RHI] Cannot open shader: " + path.string());
+        throw std::runtime_error("[VulkanRHI] Cannot open shader: " + path.string());
     }
 
     std::vector<char> buffer(file.tellg());

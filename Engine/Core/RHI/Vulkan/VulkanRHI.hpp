@@ -11,6 +11,8 @@
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
 
+#include "VulkanTexture.hpp"
+
 // STL
 #include <array>
 #include <chrono>
@@ -38,7 +40,6 @@ namespace gcep::rhi::vulkan
 ///   // handle deferred swapchain resize from GLFW callback
 ///   beginFrame()                      // fence wait + acquire
 ///   updateUniformBuffer()             // CPU-side UBO write
-///   ImGui_ImplVulkan_NewFrame() / NewFrame()
 ///   recordOffscreenCommandBuffer()    // scene -> offscreen image
 ///   ImGui::Render()
 ///   recordImGuiCommandBuffer()        // ImGui draw data -> swapchain image
@@ -49,6 +50,7 @@ namespace gcep::rhi::vulkan
 ///   All public methods must be called from the main/render thread.
 class VulkanRHI final : public gcep::RHI
 {
+    friend class VulkanTexture;
 public:
     /// @brief Constructs the RHI object and stores the swapchain creation parameters.
     ///
@@ -232,23 +234,6 @@ private:
     /// (handles minimization), then delegates to @c VulkanDevice::recreateSwapchain().
     void recreateSwapchain();
 
-    // Texture
-
-    /// @brief Loads @c TestTextures/viking_room.png via stb_image, uploads it to a
-    ///        device-local image through a staging buffer, and generates full mipmaps.
-    ///
-    /// @throws std::runtime_error if the file cannot be opened.
-    void createTextureImage();
-
-    /// @brief Creates a @c VkImageView for @c m_textureImage in @c eR8G8B8A8Srgb format.
-    void createTextureImageView();
-
-    /// @brief Creates an anisotropic linear sampler that spans all mip levels.
-    ///
-    /// Uses @c maxSamplerAnisotropy from device limits. @c maxLod is set to
-    /// @c vk::LodClampNone so all mip levels are accessible.
-    void createTextureSampler();
-
     // Mesh
 
     /// @brief Loads @c TestTextures/viking_room.obj and deduplicates vertices.
@@ -287,6 +272,18 @@ private:
     /// @brief Allocates @c MAX_FRAMES_IN_FLIGHT descriptor sets and writes the UBO
     ///        and texture bindings into each one.
     void createDescriptorSets();
+
+    /// @brief Rewrites the descriptor set bindings for all in-flight frames.
+    ///
+    /// Updates binding 0 (uniform buffer) and binding 1 (combined image sampler)
+    /// for each entry in @c m_descriptorSets to reflect the current state of
+    /// @c m_uniformBuffers and @c texture. Must be called after any resource that
+    /// is referenced by the descriptor sets is replaced at runtime (e.g. after
+    /// swapping the active texture or recreating uniform buffers).
+    ///
+    /// @note Descriptor sets must already have been allocated via
+    ///       @c createDescriptorSets() before calling this function.
+    void updateDescriptorSets();
 
     // Pipeline
 
@@ -398,34 +395,6 @@ private:
     /// @param size  Number of bytes to copy.
     void copyBuffer(vk::raii::Buffer& src, vk::raii::Buffer& dst, vk::DeviceSize size);
 
-    /// @brief Copies pixel data from a staging buffer into a @c VkImage.
-    ///
-    /// Assumes the image is already in @c eTransferDstOptimal layout. Records and
-    /// immediately submits a single-time command buffer.
-    ///
-    /// @param buffer  Staging buffer containing packed row-major pixel data.
-    /// @param image   Destination image (must be in @c eTransferDstOptimal).
-    /// @param width   Image width in pixels.
-    /// @param height  Image height in pixels.
-    void copyBufferToImage(const vk::raii::Buffer& buffer, vk::raii::Image& image,
-                           uint32_t width, uint32_t height);
-
-    /// @brief Generates a full mip chain for @p image using repeated @c blitImage calls.
-    ///
-    /// Each mip level is transitioned @c eTransferDstOptimal -> @c eTransferSrcOptimal
-    /// before being used as the blit source, then transitioned to
-    /// @c eShaderReadOnlyOptimal. The final level is transitioned at the end.
-    ///
-    /// @param image      The image to mip-generate. Must already contain level 0 data
-    ///                   in @c eTransferDstOptimal layout.
-    /// @param format     Must support @c eSampledImageFilterLinear in optimal tiling.
-    /// @param texWidth   Level-0 width in pixels.
-    /// @param texHeight  Level-0 height in pixels.
-    /// @param mipLevels  Total number of mip levels (including level 0).
-    /// @throws std::runtime_error if @p format does not support linear blitting.
-    void generateMipmaps(vk::raii::Image& image, vk::Format format,
-                         int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
-
     /// @brief Transitions a @c VkImage layout using a single-time command buffer.
     ///
     /// Supports two transitions only:
@@ -533,11 +502,7 @@ private:
     /// Persistent command pool for @c beginSingleTimeCommands() / @c endSingleTimeCommands().
     vk::raii::CommandPool    m_uploadCommandPool   = nullptr;
 
-    uint32_t                 m_mipLevels           = 1;
-    vk::raii::Image          m_textureImage        = nullptr;
-    vk::raii::DeviceMemory   m_textureImageMemory  = nullptr;
-    vk::raii::ImageView      m_textureImageView    = nullptr;
-    vk::raii::Sampler        m_textureSampler      = nullptr;
+    VulkanTexture            texture;
 
     /// Swapchain format cached at init for pipeline creation.
     vk::Format               m_swapchainFormat     = vk::Format::eUndefined;
