@@ -1,14 +1,14 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+// Forward declaration
+struct GLFWwindow;
 
 namespace gcep
 {
 
 class RHI
 {
-    public:
+public:
     virtual ~RHI() = default;
 
     protected:

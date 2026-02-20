@@ -112,12 +112,6 @@ option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute i
 # Enable installation
 option(ENABLE_INSTALL "Generate installation target"  ON)
 
-include(CMakeDependentOption)
-
-# Ability to toggle between the static and DLL versions of the MSVC runtime library
-# Windows Store only supports the DLL version
-cmake_dependent_option(USE_STATIC_MSVC_RUNTIME_LIBRARY "Use the static MSVC runtime library" ON "MSVC;NOT WINDOWS_STORE" OFF)
-
 # Enable Vulkan instead of DirectX
 cmake_dependent_option(JPH_ENABLE_VULKAN "Enable Vulkan" ON "LINUX" OFF)
 

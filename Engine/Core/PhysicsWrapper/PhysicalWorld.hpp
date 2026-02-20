@@ -7,11 +7,10 @@
 //Mendatory to be called for any Jolt Header
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
 //Core
-#include "PhysicsManager.hpp"
+#include "PhysicsSystem.hpp"
 #include "Layers/BPLayerInterfaceImpl.hpp"
 #include "Layers/ObjectLayerPairFilterImpl.hpp"
 #include "Layers/ObjectVsBroadPhaseLayerFilterImpl.hpp"
@@ -24,17 +23,15 @@ namespace gcep
 
     class PhysicsWorld
     {
+
     public:
         PhysicsWorld();
         ~PhysicsWorld();
 
         PhysicsWorld(const PhysicsWorld&) = delete;
 
-        void init();
-        void step(float deltaTime);
-        void shutdown();
-
-        void createBody(std::shared_ptr<ObjectPhysicsData> data) const;
+        void step(float dt);
+        void createBody(PhysicsSystem& ps ,std::shared_ptr<ObjectPhysicsData> data) const;
         void destroyBody(const JPH::BodyID &body_id) const;
 
     private:
