@@ -1,4 +1,4 @@
-#include "PhysicalWorld.hpp"
+#include "PhysicsWorld.hpp"
 
 #include <memory>
 #include <iostream>
@@ -20,9 +20,6 @@
 // Core
 #include "PhysicsShape.hpp"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
-
-using Vec3 = std::array<float, 3>;
-using Quat = std::array<float, 4>;
 
 namespace gcep
 {
@@ -138,13 +135,13 @@ namespace gcep
     	// Scaling
     	JPH::ShapeRefC finalShape = baseShape;
     	const auto scale = data->getScale();
-    	const bool hasScale = scale[0] != 1.0f || scale[1] != 1.0f || scale[2] != 1.0f;
+    	const bool hasScale = scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f;
 
     	if (hasScale)
     	{
     		JPH::ScaledShapeSettings scaledShapeSettings(
     			baseShape,
-    			JPH::Vec3(scale[0], scale[1], scale[2])
+    			JPH::Vec3(scale.x, scale.y, scale.z)
     			);
 
     		auto result = scaledShapeSettings.Create();
@@ -175,11 +172,11 @@ namespace gcep
     	}
 
     	// Transform
-    	const Vec3& pos = data->getPosition();
-    	const Quat& rot = data->getRotation();
+    	const Vector3<float>& pos = data->getPosition();
+    	const Quaternion& rot = data->getRotation();
 
-    	JPH::RVec3 position(pos[0], pos[1], pos[2]);
-    	JPH::Quat rotation(rot[0], rot[1], rot[2], rot[3]);
+    	JPH::RVec3 position(pos.x, pos.y, pos.z);
+    	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
     	// Body creation
     	JPH::BodyCreationSettings bodySettings(

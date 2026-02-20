@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "PhysicalWorld.hpp"
+#include "PhysicsWorld.hpp"
 
 namespace gcep
 {

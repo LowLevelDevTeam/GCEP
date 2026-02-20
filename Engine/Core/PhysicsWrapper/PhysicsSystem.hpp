@@ -2,6 +2,9 @@
 
 #include <memory>
 
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyID.h>
+
 namespace gcep
 {
     class PhysicsWorld;
@@ -9,6 +12,7 @@ namespace gcep
     class PhysicsSystem
     {
         friend class PhysicsWorld;
+        friend class PhysicsComponent;
 
     public:
         PhysicsSystem();
@@ -28,10 +32,8 @@ namespace gcep
         //OverlapQuerry
 
     private:
-
         std::unique_ptr<PhysicsWorld> m_world;
 
-        // include jph?
         JPH::BodyID m_tempBodyID;
 
         static PhysicsSystem* s_instance;
