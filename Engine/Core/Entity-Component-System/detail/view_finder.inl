@@ -1,16 +1,14 @@
 #pragma once
-#include <Engine/Core/Entity-Component-System/headers/View.hpp>
-
-#include "Engine/Core/Entity-Component-System/headers/Registry.hpp"
+#include <Engine/Core/Entity-Component-System/headers/view_finder.hpp>
 
 namespace gcep {
 
 #pragma region Iterator Function
     template<typename... Args>
     View<Args...>::Iterator::Iterator(const EntityID* current, const EntityID* last,  View& v)
-    : m_currentEntity(current), m_lastEntity(last), view(v)
+    : m_currentEntity(current), m_lastEntity(last), m_view(v)
     {
-        if (m_currentEntity && m_currentEntity != m_lastEntity && !view.match(*m_currentEntity))
+        if (m_currentEntity && m_currentEntity != m_lastEntity && !m_view.match(*m_currentEntity))
         {
             operator++();
         }
@@ -23,7 +21,7 @@ namespace gcep {
         do {
         m_currentEntity++;
         }
-        while (m_currentEntity != m_lastEntity && !view.match(*m_currentEntity));
+        while (m_currentEntity != m_lastEntity && !m_view.match(*m_currentEntity));
 
         return *this;
     }
@@ -58,8 +56,8 @@ namespace gcep {
                 m_smallestPool = nullptr;
                 return;
             }
-            if (pool->getSize() < minSize) {
-                minSize = pool->getSize();
+            if (pool->getEntities().size() < minSize) {
+                minSize = pool->getEntities().size();
                 m_smallestPool = pool;
             }
         };
