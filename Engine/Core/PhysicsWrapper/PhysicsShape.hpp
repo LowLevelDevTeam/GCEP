@@ -32,6 +32,8 @@ namespace gcep
         static std::shared_ptr<PhysicsShape> createCylinder(float halfHeight, float radius);
         static std::shared_ptr<PhysicsShape> createCapsule(float halfHeight, float radius);
 
+        static std::shared_ptr<PhysicsShape> createScaled(const std::shared_ptr<PhysicsShape>& baseShape, const JPH::Vec3& scale);
+
         EPhysicsShapeType getType() const;
         JPH::RefConst<JPH::Shape> getJoltShape() const;
 

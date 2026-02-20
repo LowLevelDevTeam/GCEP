@@ -9,6 +9,7 @@
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
+#include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 
 namespace gcep
 {
@@ -21,12 +22,10 @@ namespace gcep
         JPH::BoxShapeSettings settings(halfExtents);
 
         JPH::ShapeSettings::ShapeResult result = settings.Create();
-        if (result.HasError())
-        {
-            return nullptr;
-        }
+        if (result.HasError()) return nullptr;
 
         auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::BOX, result.Get());
+        return newShape;
     }
 
     std::shared_ptr<PhysicsShape> PhysicsShape::createSphere(float radius)
@@ -34,12 +33,10 @@ namespace gcep
         JPH::SphereShapeSettings settings(radius);
 
         JPH::ShapeSettings::ShapeResult result = settings.Create();
-        if (result.HasError())
-        {
-            return nullptr;
-        }
+        if (result.HasError()) return nullptr;
 
         auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::SPHERE, result.Get());
+        return newShape;
     }
 
     std::shared_ptr<PhysicsShape> PhysicsShape::createCylinder(float halfHeight, float radius)
@@ -47,12 +44,10 @@ namespace gcep
         JPH::CylinderShapeSettings settings(halfHeight, radius);
 
         JPH::ShapeSettings::ShapeResult result = settings.Create();
-        if (result.HasError())
-        {
-            return nullptr;
-        }
+        if (result.HasError()) return nullptr;
 
         auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::CAPSULE, result.Get());
+        return newShape;
     }
 
     std::shared_ptr<PhysicsShape> PhysicsShape::createCapsule(float halfHeight, float radius)
@@ -66,6 +61,21 @@ namespace gcep
         }
 
         auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::CAPSULE, result.Get());
+        return newShape;
+    }
+
+    std::shared_ptr<PhysicsShape> PhysicsShape::createScaled(const std::shared_ptr<PhysicsShape> &baseShape, const JPH::Vec3 &scale)
+    {
+        JPH::ScaledShapeSettings settings(
+            baseShape->getJoltShape(),
+            scale
+        );
+
+        auto result = settings.Create();
+        if (result.HasError()) return nullptr;
+
+        auto scaledShape = std::make_shared<PhysicsShape>(baseShape->getType(), result.Get());
+        return scaledShape;
     }
 
     EPhysicsShapeType PhysicsShape::getType() const
