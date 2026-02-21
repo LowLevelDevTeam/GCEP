@@ -54,6 +54,8 @@ int main()
         rhi->drawFrame();
     }
     rhi->cleanup();
+    rhi.reset();
+
     glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
     glfwTerminate();
 
