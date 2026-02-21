@@ -25,6 +25,8 @@ void VulkanTexture::setLodLevel(float lodLevel)
 {
     if(!m_hasMipmaps || !m_hasTexture) return;
 
+    pRhi->m_device.waitIdle();
+
     createTextureSampler(lodLevel);
     pRhi->updateDescriptorSets();
 }
@@ -101,7 +103,7 @@ void VulkanTexture::createTextureView()
 
 void VulkanTexture::createTextureSampler(float minLod)
 {
-    std::clamp(minLod, 0.0f, static_cast<float>(m_mipLevels));
+    minLod = std::clamp(minLod, 0.0f, static_cast<float>(m_mipLevels));
     auto properties = pRhi->m_device.rawPhysDevice().getProperties();
 
     vk::SamplerCreateInfo samplerInfo{};

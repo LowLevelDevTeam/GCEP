@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.30)
 project(GCEngine VERSION 0.1 LANGUAGES CXX)
 
 include(CMake/compile_shaders.cmake)
-include(cmake/copy_textures.cmake)
+include(CMake/copy_textures.cmake)
 
 # Set properties
 set(CMAKE_CXX_STANDARD 20)
