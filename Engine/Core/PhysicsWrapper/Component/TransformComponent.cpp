@@ -1,4 +1,4 @@
-#include "TransformComponent.h"
+#include "TransformComponent.hpp"
 
 namespace gcep
 {

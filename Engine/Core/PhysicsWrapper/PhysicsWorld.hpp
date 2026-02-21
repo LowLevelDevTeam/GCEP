@@ -9,12 +9,11 @@
 #include <Jolt/Physics/Body/BodyID.h>
 
 //Core
-#include "PhysicsSystem.hpp"
 #include "Layers/BPLayerInterfaceImpl.hpp"
 #include "Layers/ObjectLayerPairFilterImpl.hpp"
 #include "Layers/ObjectVsBroadPhaseLayerFilterImpl.hpp"
 
-#include "ObjectPhysicsData.hpp"
+#include "Component/PhysicsComponent.hpp"
 
 namespace gcep
 {
@@ -30,11 +29,11 @@ namespace gcep
         PhysicsWorld(const PhysicsWorld&) = delete;
 
         void step(float dt) const;
-        void createBody(PhysicsSystem& physicsSystem, std::shared_ptr<ObjectPhysicsData> data) const;
+        void createBody(PhysicsComponent& data) const;
         void destroyBody(const JPH::BodyID &body_id) const;
 
     private:
-        std::unique_ptr<JPH::PhysicsSystem> m_physicsSystem;
+        std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem;
         std::unique_ptr<JPH::TempAllocator> m_tempAllocator;
         std::unique_ptr<JPH::JobSystem> m_jobSystem;
         std::unique_ptr<BPLayerInterfaceImpl> m_broadPhaseLayerInterface;

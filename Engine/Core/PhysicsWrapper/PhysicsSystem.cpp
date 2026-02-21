@@ -42,8 +42,8 @@ namespace gcep
     {
         //Récupère tous les PhysicsComponent
         //auto PC : allPhysicsComponent :
-        //m_world.createBody(PC.ObjectPhysicsData);
-        //PC.BodyID = m_tempBodyID;
+        //m_world.createBody(PC, PC.bodyID);
+        //PC.m_physicsSystem = m_world.m_physicsSystem
     }
 
     void PhysicsSystem::update(float dt)

@@ -9,7 +9,7 @@ namespace gcep
     {
     public:
         Vector3<float> position{0.f, 0.f, 0.f};
-        Quaternion rotation{0.f, 0.f, 0.f, 1.f};
+        Quaternion rotation{1.f, 0.f, 0.f, 0.f};
         Vector3<float> scale{0.f, 0.f, 0.f};
 
     private:

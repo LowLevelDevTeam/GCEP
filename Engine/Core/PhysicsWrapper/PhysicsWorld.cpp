@@ -42,7 +42,7 @@ namespace gcep
     	m_objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
     	m_objectVsBroadPhaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
 
-    	m_physicsSystem = std::make_unique<JPH::PhysicsSystem>();
+    	m_physicsSystem = std::make_shared<JPH::PhysicsSystem>();
 
 		// This is the max amount of rigid bodies that you can add to the physics system.
 		constexpr glm::uint cMaxBodies = 65536;
@@ -103,12 +103,12 @@ namespace gcep
     }
 
 
-    void PhysicsWorld::createBody(PhysicsSystem& physicsSystem, std::shared_ptr<ObjectPhysicsData> data) const
+    void PhysicsWorld::createBody(PhysicsComponent& data) const
     {
     	JPH::ShapeRefC baseShape;
 
     	// Creating unscaled base shape
-    	switch (data->getShapeType())
+    	switch (data.getShapeType())
     	{
     		case EShapeType::CUBE :
     		{
@@ -134,7 +134,7 @@ namespace gcep
 
     	// Scaling
     	JPH::ShapeRefC finalShape = baseShape;
-    	const auto scale = data->getScale();
+    	const auto scale = data.getScale();
     	const bool hasScale = scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f;
 
     	if (hasScale)
@@ -152,7 +152,7 @@ namespace gcep
 
     	// Motion type
     	JPH::EMotionType motionType = JPH::EMotionType::Static;
-    	switch (data->getMotionType())
+    	switch (data.getMotionType())
     	{
     		case EMotionType::STATIC :
     		{
@@ -172,8 +172,8 @@ namespace gcep
     	}
 
     	// Transform
-    	const Vector3<float>& pos = data->getPosition();
-    	const Quaternion& rot = data->getRotation();
+    	const Vector3<float>& pos = data.getPosition();
+    	const Quaternion& rot = data.getRotation();
 
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -184,14 +184,12 @@ namespace gcep
 			position,
 			rotation,
 			motionType,
-			static_cast<int>(data->getLayers())
+			static_cast<int>(data.getLayers())
     		);
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
     	JPH::Body* body = bodyInterface.CreateBody(bodySettings);
     	bodyInterface.AddBody(body->GetID(), JPH::EActivation::Activate);
-
-    	physicsSystem.m_tempBodyID = body->GetID();
     }
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const

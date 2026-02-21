@@ -5,6 +5,8 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
+#include "PhysicsWorld.hpp"
+
 namespace gcep
 {
     class PhysicsWorld;
@@ -33,8 +35,6 @@ namespace gcep
 
     private:
         std::unique_ptr<PhysicsWorld> m_world;
-
-        JPH::BodyID m_tempBodyID;
 
         static PhysicsSystem* s_instance;
     };
