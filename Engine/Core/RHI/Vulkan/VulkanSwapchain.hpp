@@ -6,18 +6,19 @@
 // STL
 #include <vector>
 
-namespace gcep::rhi {
+namespace gcep::rhi
+{
 
 /// @brief Creation parameters for the swapchain and surface.
 struct SwapchainDesc
 {
-    void*    nativeWindowHandle = nullptr; ///< Platform window handle (e.g. @c GLFWwindow*).
-    uint32_t width              = 0;       ///< Desired framebuffer width in pixels.
-    uint32_t height             = 0;       ///< Desired framebuffer height in pixels.
-    bool     vsync              = true;    ///< @c true -> FIFO (vsync); @c false -> Mailbox or Immediate.
+    void*       nativeWindowHandle = nullptr; ///< Platform window handle (e.g. @c GLFWwindow*).
+    uint32_t    width              = 0;       ///< Desired framebuffer width in pixels.
+    uint32_t    height             = 0;       ///< Desired framebuffer height in pixels.
+    bool        vsync              = true;    ///< @c true -> FIFO (vsync); @c false -> Mailbox or Immediate.
 };
 
-} // namespace gcep::rhi
+} // Namespace gcep::rhi
 
 namespace gcep::rhi::vulkan
 {
@@ -54,7 +55,7 @@ public:
     VulkanSwapchain(const vk::raii::Device&         device,
                     const vk::raii::PhysicalDevice& physicalDevice,
                     const vk::raii::SurfaceKHR&     surface,
-                    const SwapchainDesc&             desc);
+                    const SwapchainDesc&        desc);
 
     ~VulkanSwapchain() = default;
 
@@ -77,8 +78,6 @@ public:
     ///   - @c eErrorOutOfDateKHR - swapchain is stale; caller must recreate before presenting.
     [[nodiscard]] vk::ResultValue<uint32_t>
     acquireNextImage(const vk::raii::Semaphore& signalSemaphore) const;
-
-    // ── Accessors ──────────────────────────────────────────────────────────
 
     /// @brief Returns a reference to the underlying @c vk::raii::SwapchainKHR.
     [[nodiscard]] const vk::raii::SwapchainKHR&           raw()        const noexcept { return m_swapchain;  }
@@ -107,7 +106,7 @@ private:
     void createSwapchain(const vk::raii::Device&         device,
                          const vk::raii::PhysicalDevice& physicalDevice,
                          const vk::raii::SurfaceKHR&     surface,
-                         const SwapchainDesc&            desc);
+                         const SwapchainDesc&        desc);
 
     /// @brief Creates one @c VkImageView per swapchain image and stores them in @c m_imageViews.
     /// @param device  Logical device used to create the image views.

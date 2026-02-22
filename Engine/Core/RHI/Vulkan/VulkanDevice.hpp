@@ -10,7 +10,8 @@
 #include <memory>
 #include <vector>
 
-namespace gcep::rhi::vulkan {
+namespace gcep::rhi::vulkan
+{
 
 #ifdef NDEBUG
     inline constexpr bool enableValidationLayers = false;

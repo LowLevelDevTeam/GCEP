@@ -2,6 +2,8 @@
 
 #include <RHI/RHI.hpp>
 #include <RHI/Vulkan/VulkanDevice.hpp>
+#include <RHI/Vulkan/VulkanMesh.hpp>
+#include <RHI/Vulkan/VulkanTexture.hpp>
 
 // Externals
 #include <vulkan/vulkan_raii.hpp>
@@ -10,8 +12,6 @@
 #include <glm/gtx/hash.hpp>
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
-
-#include "VulkanTexture.hpp"
 
 // STL
 #include <array>
@@ -23,6 +23,50 @@
 
 namespace gcep::rhi::vulkan
 {
+
+// Vertex / UBO types
+
+/// @brief Interleaved vertex layout: position (vec3), vertex color or normal (vec3),
+///        texture coordinate (vec2). Matches the SPIR-V input layout of @c Base_Shader.spv.
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 color;
+    glm::vec2 texCoord;
+
+    /// @brief Returns the binding description for a single interleaved vertex buffer
+    ///        bound at binding point 0 with per-vertex input rate.
+    static vk::VertexInputBindingDescription getBindingDescription()
+    {
+        return { 0, sizeof(Vertex), vk::VertexInputRate::eVertex };
+    }
+
+    /// @brief Returns the attribute descriptions for @c pos (location 0),
+    ///        @c color (location 1), and @c texCoord (location 2).
+    static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions()
+    {
+        return
+        {{
+            { 0, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(Vertex, pos))      },
+            { 1, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(Vertex, color))    },
+            { 2, 0, vk::Format::eR32G32Sfloat,    static_cast<uint32_t>(offsetof(Vertex, texCoord)) },
+        }};
+    }
+
+    /// @brief Equality comparison used by the deduplication hash map in @c loadModel().
+    bool operator==(const Vertex& other) const noexcept
+    {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
+};
+
+/// @brief Uniform buffer data uploaded once per frame to each UBO slot.
+struct UniformBufferObject
+{
+    glm::mat4 model; ///< Model-to-world transform (rotates over time).
+    glm::mat4 view;  ///< World-to-camera (fixed look-at from (2,2,2)).
+    glm::mat4 proj;  ///< Perspective projection (45° FOV, Y-flipped for Vulkan NDC).
+};
 
 /// @brief Top-level Vulkan renderer implementing the @c gcep::RHI interface.
 ///
@@ -51,6 +95,7 @@ namespace gcep::rhi::vulkan
 class VulkanRHI final : public gcep::RHI
 {
     friend class VulkanTexture;
+    friend class VulkanMesh;
 public:
     /// @brief Constructs the RHI object and stores the swapchain creation parameters.
     ///
@@ -152,50 +197,6 @@ public:
     /// @brief Returns a const reference to the underlying @c VulkanDevice.
     [[nodiscard]] const VulkanDevice& device() const noexcept { return m_device; }
 
-    // Vertex / UBO types
-
-    /// @brief Interleaved vertex layout: position (vec3), vertex color or normal (vec3),
-    ///        texture coordinate (vec2). Matches the SPIR-V input layout of @c Base_Shader.spv.
-    struct Vertex
-    {
-        glm::vec3 pos;
-        glm::vec3 color;
-        glm::vec2 texCoord;
-
-        /// @brief Returns the binding description for a single interleaved vertex buffer
-        ///        bound at binding point 0 with per-vertex input rate.
-        static vk::VertexInputBindingDescription getBindingDescription()
-        {
-            return { 0, sizeof(Vertex), vk::VertexInputRate::eVertex };
-        }
-
-        /// @brief Returns the attribute descriptions for @c pos (location 0),
-        ///        @c color (location 1), and @c texCoord (location 2).
-        static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions()
-        {
-            return 
-            {{
-                { 0, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(Vertex, pos))      },
-                { 1, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(Vertex, color))    },
-                { 2, 0, vk::Format::eR32G32Sfloat,    static_cast<uint32_t>(offsetof(Vertex, texCoord)) },
-            }};
-        }
-
-        /// @brief Equality comparison used by the deduplication hash map in @c loadModel().
-        bool operator==(const Vertex& other) const noexcept
-        {
-            return pos == other.pos && color == other.color && texCoord == other.texCoord;
-        }
-    };
-
-    /// @brief Uniform buffer data uploaded once per frame to each UBO slot.
-    struct UniformBufferObject
-    {
-        glm::mat4 model; ///< Model-to-world transform (rotates over time).
-        glm::mat4 view;  ///< World-to-camera (fixed look-at from (2,2,2)).
-        glm::mat4 proj;  ///< Perspective projection (45° FOV, Y-flipped for Vulkan NDC).
-    };
-
 public:
     /// @brief Builds and returns the @c ImGui_ImplVulkan_InitInfo for this device.
     ///
@@ -233,24 +234,6 @@ private:
     /// Spins on @c glfwGetFramebufferSize until the window is non-zero
     /// (handles minimization), then delegates to @c VulkanDevice::recreateSwapchain().
     void recreateSwapchain();
-
-    // Mesh
-
-    /// @brief Loads @c TestTextures/viking_room.obj and deduplicates vertices.
-    ///
-    /// Populates @c vertices and @c indices using an @c unordered_map keyed on
-    /// @c Vertex. Prints deduplication statistics to @c std::cout.
-    void loadModel();
-
-    /// @brief Uploads the vertex data to a device-local @c VkBuffer via a staging buffer.
-    ///
-    /// Clears and shrinks @c vertices after the upload to free CPU memory.
-    void createVertexBuffer();
-
-    /// @brief Uploads the index data to a device-local @c VkBuffer via a staging buffer.
-    ///
-    /// Clears and shrinks @c indices after the upload to free CPU memory.
-    void createIndexBuffer();
 
     // UBO + Descriptors
 
@@ -395,21 +378,6 @@ private:
     /// @param size  Number of bytes to copy.
     void copyBuffer(vk::raii::Buffer& src, vk::raii::Buffer& dst, vk::DeviceSize size);
 
-    /// @brief Transitions a @c VkImage layout using a single-time command buffer.
-    ///
-    /// Supports two transitions only:
-    ///   - @c eUndefined -> @c eTransferDstOptimal
-    ///   - @c eTransferDstOptimal -> @c eShaderReadOnlyOptimal
-    ///
-    /// @param image      The image to transition.
-    /// @param oldLayout  Current layout.
-    /// @param newLayout  Target layout.
-    /// @param mipLevels  Number of mip levels covered by the transition.
-    /// @throws std::invalid_argument for unsupported layout pairs.
-    void transitionImageLayout(const vk::raii::Image& image,
-                               vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
-                               uint32_t mipLevels);
-
     /// @brief Emits a @c pipelineBarrier2 into the currently-open frame command buffer.
     ///
     /// Used to transition swapchain and offscreen images during recording, where a
@@ -503,18 +471,10 @@ private:
     vk::raii::CommandPool    m_uploadCommandPool   = nullptr;
 
     VulkanTexture            texture;
+    VulkanMesh               mesh;
 
     /// Swapchain format cached at init for pipeline creation.
     vk::Format               m_swapchainFormat     = vk::Format::eUndefined;
-
-    std::vector<Vertex>      vertices;
-    std::vector<uint32_t>    indices;
-    uint32_t                 numIndices = 0;
-
-    vk::raii::Buffer         m_vertexBuffer        = nullptr;
-    vk::raii::DeviceMemory   m_vertexBufferMemory  = nullptr;
-    vk::raii::Buffer         m_indexBuffer         = nullptr;
-    vk::raii::DeviceMemory   m_indexBufferMemory   = nullptr;
 
     std::vector<vk::raii::Buffer>       m_uniformBuffers;
     std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
@@ -562,8 +522,8 @@ namespace std {
 /// Combines the GLM hashes of @c pos, @c color, and @c texCoord using the standard
 /// hash-combine XOR/shift pattern. Requires @c GLM_ENABLE_EXPERIMENTAL and
 /// @c <glm/gtx/hash.hpp>.
-template<> struct hash<gcep::rhi::vulkan::VulkanRHI::Vertex> {
-    size_t operator()(gcep::rhi::vulkan::VulkanRHI::Vertex const& vertex) const {
+template<> struct hash<gcep::rhi::vulkan::Vertex> {
+    size_t operator()(gcep::rhi::vulkan::Vertex const& vertex) const {
         return ((hash<glm::vec3>()(vertex.pos) ^
                 (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
                 (hash<glm::vec2>()(vertex.texCoord) << 1);

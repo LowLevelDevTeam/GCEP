@@ -1,5 +1,6 @@
 #include "VulkanSwapchain.hpp"
 
+// STL
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
@@ -16,12 +17,10 @@ VulkanSwapchain::VulkanSwapchain(const vk::raii::Device&         device,
     createImageViews(device);
 }
 
-// ── Private helpers ────────────────────────────────────────────────────────
-
-void VulkanSwapchain::createSwapchain(const vk::raii::Device&         device,
+void VulkanSwapchain::createSwapchain(const vk::raii::Device&          device,
                                        const vk::raii::PhysicalDevice& physicalDevice,
                                        const vk::raii::SurfaceKHR&     surface,
-                                       const SwapchainDesc&             desc)
+                                       const SwapchainDesc&            desc)
 {
     const auto caps    = physicalDevice.getSurfaceCapabilitiesKHR(*surface);
     const auto formats = physicalDevice.getSurfaceFormatsKHR(*surface);

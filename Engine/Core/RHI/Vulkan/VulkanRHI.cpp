@@ -9,7 +9,6 @@
 // STL
 #include <algorithm>
 #include <cmath>
-#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -55,9 +54,7 @@ void VulkanRHI::initSceneResources()
     createDescriptorSetLayout();
     createGraphicsPipeline();
     texture.loadTexture(this, "TestTextures/viking_room.png");
-    loadModel();
-    createVertexBuffer();
-    createIndexBuffer();
+    mesh.loadMesh(this, "TestTextures/viking_room.obj");
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
@@ -297,139 +294,6 @@ void VulkanRHI::resizeOffscreenResources(uint32_t width, uint32_t height)
     createOffscreenResources(width, height);
 }
 
-void VulkanRHI::loadModel()
-{
-    static constexpr bool deduplication = true;
-    const std::filesystem::path filepath = "TestTextures/viking_room.obj";
-    auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices;
-    auto start_timer = std::chrono::high_resolution_clock::now();
-
-    vertices.reserve(modelIndices.size());
-    indices.reserve(modelIndices.size());
-
-    const float* verts     = attrib.vertices.data();
-    const float* texcoords = attrib.texcoords.data();
-    const float* normals   = attrib.normals.data();
-
-    for (const auto& idx : modelIndices)
-    {
-        Vertex vertex{};
-        const float* v = verts + 3 * idx.vertex_index;
-        vertex.pos = { v[0], v[1], v[2] };
-
-        if (idx.texcoord_index != UINT32_MAX)
-        {
-            const float* tc = texcoords + 2 * idx.texcoord_index;
-            vertex.texCoord = { tc[0], 1.0f - tc[1] };
-        }
-        else
-        {
-            vertex.texCoord = { 0.0f, 0.0f };
-        }
-
-        if (idx.normal_index != UINT32_MAX)
-        {
-            const float* n = normals + 3 * idx.normal_index;
-            vertex.color = { n[0], n[1], n[2] };
-        }
-        else
-        {
-            vertex.color = { 1.0f, 1.0f, 1.0f };
-        }
-
-        if constexpr (deduplication)
-        {
-            auto [it, inserted] = uniqueVertices.try_emplace(vertex, static_cast<uint32_t>(vertices.size()));
-
-            if (inserted)
-            {
-                vertices.push_back(vertex);
-            }
-
-            indices.push_back(it->second);
-        }
-        else
-        {
-            vertices.emplace_back(vertex);
-            indices.emplace_back(indices.size());
-        }
-    }
-
-    numIndices = static_cast<uint32_t>(indices.size());
-
-    if constexpr (deduplication)
-    {
-        auto end_timer = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
-        std::cout << "Deduplicated: " << modelIndices.size() << " original vertices -> " << vertices.size()
-                  << " unique vertices (" << (100.0f * vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
-        std::cout << "Deduplication took " << duration.count() << "ms." << '\n';
-    }
-
-    attrib.vertices.clear();  attrib.vertices.shrink_to_fit();
-    attrib.texcoords.clear(); attrib.texcoords.shrink_to_fit();
-    attrib.normals.clear();   attrib.normals.shrink_to_fit();
-
-    modelIndices.clear(); modelIndices.shrink_to_fit();
-
-    uniqueVertices.clear();
-}
-
-void VulkanRHI::createVertexBuffer()
-{
-    const vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-    vk::raii::Buffer       stagingBuffer       = nullptr;
-    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
-
-    createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingBuffer, stagingBufferMemory
-    );
-
-    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
-    std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    stagingBufferMemory.unmapMemory();
-    vertices.clear(); vertices.shrink_to_fit();
-
-    createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_vertexBuffer, m_vertexBufferMemory
-    );
-
-    copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
-}
-
-void VulkanRHI::createIndexBuffer()
-{
-    const vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-    vk::raii::Buffer       stagingBuffer       = nullptr;
-    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
-    createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingBuffer, stagingBufferMemory
-    );
-
-    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
-    std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    stagingBufferMemory.unmapMemory();
-    indices.clear(); indices.shrink_to_fit();
-
-    createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_indexBuffer, m_indexBufferMemory
-    );
-
-    copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
-}
-
 void VulkanRHI::createUniformBuffers()
 {
     m_uniformBuffers.clear();
@@ -539,7 +403,7 @@ void VulkanRHI::updateUniformBuffer()
         : 1.0f;
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
@@ -728,12 +592,12 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     );
     cmd.setScissor(0, vk::Rect2D({ 0, 0 }, m_offscreenExtent));
 
-    cmd.bindVertexBuffers(0, *m_vertexBuffer, {0});
-    cmd.bindIndexBuffer(*m_indexBuffer, 0, vk::IndexType::eUint32);
+    cmd.bindVertexBuffers(0, mesh.getVertexBuffer(), {0});
+    cmd.bindIndexBuffer(mesh.getIndexBuffer(), 0, vk::IndexType::eUint32);
 
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_descriptorSets[0], nullptr);
 
-    cmd.drawIndexed(numIndices, 1, 0, 0, 0);
+    cmd.drawIndexed(mesh.getNumIndices(), 1, 0, 0, 0);
     cmd.endRendering();
 
     vk::ImageMemoryBarrier2 toShaderRead{};
@@ -867,40 +731,6 @@ void VulkanRHI::copyBuffer(vk::raii::Buffer& src, vk::raii::Buffer& dst, vk::Dev
 {
     auto cmd = beginSingleTimeCommands();
     cmd->copyBuffer(*src, *dst, vk::BufferCopy(0, 0, size));
-    endSingleTimeCommands(*cmd);
-}
-
-void VulkanRHI::transitionImageLayout(const vk::raii::Image& image,
-                                      vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels)
-{
-    auto cmd = beginSingleTimeCommands();
-
-    vk::ImageMemoryBarrier barrier{};
-    barrier.oldLayout    = oldLayout;
-    barrier.newLayout    = newLayout;
-    barrier.image        = *image;
-    barrier.subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 1 };
-
-    vk::PipelineStageFlags srcStage, dstStage;
-    if (oldLayout == vk::ImageLayout::eUndefined &&
-        newLayout == vk::ImageLayout::eTransferDstOptimal)
-    {
-        barrier.srcAccessMask = {};
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-        srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
-        dstStage = vk::PipelineStageFlagBits::eTransfer;
-    }
-    else if (oldLayout == vk::ImageLayout::eTransferDstOptimal &&
-             newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
-    {
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-        srcStage = vk::PipelineStageFlagBits::eTransfer;
-        dstStage = vk::PipelineStageFlagBits::eFragmentShader;
-    }
-    else { throw std::invalid_argument("Vulkan_RHI::transitionImageLayout: unsupported transition"); }
-
-    cmd->pipelineBarrier(srcStage, dstStage, {}, {}, {}, barrier);
     endSingleTimeCommands(*cmd);
 }
 
