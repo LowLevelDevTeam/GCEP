@@ -168,7 +168,7 @@ public:
     /// @c recordImGuiCommandBuffer() via @c m_clearColor.
     ///
     /// @param clearColor  RGBA clear color in linear [0, 1] float space.
-    void updateEditorInfo(ImVec4& clearColor);
+    void updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo);
 
     /// @brief Defers an offscreen render target resize to the next frame boundary.
     ///
@@ -511,6 +511,7 @@ private:
     uint32_t                 m_pendingOffscreenHeight  = 0;
 
     ImVec4                   m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
+    UniformBufferObject     m_uniformBufferObject;
 
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
