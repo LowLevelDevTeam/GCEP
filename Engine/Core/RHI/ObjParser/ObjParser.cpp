@@ -299,6 +299,11 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesyst
 
     std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms.\n" << '\n';
 
+    attribs.vertices.shrink_to_fit();
+    attribs.texcoords.shrink_to_fit();
+    attribs.normals.shrink_to_fit();
+    indices.shrink_to_fit();
+
     return {attribs, indices};
 }
 

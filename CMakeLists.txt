@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.30)
 project(GCEngine VERSION 0.1 LANGUAGES CXX)
 
 include(CMake/compile_shaders.cmake)
-include(cmake/copy_textures.cmake)
+include(CMake/copy_textures.cmake)
 
 # Set properties
 set(CMAKE_CXX_STANDARD 20)
@@ -44,9 +44,12 @@ add_subdirectory(Externals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# e.g. <RHI/RHI.hpp>
+target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core)
 
 # Compile the shaders
-add_slang_shader_target(Shaders SOURCES Engine/Core/RHI/RenderWrapper/Shaders/Base_Shader.slang)
+file(GLOB_RECURSE SHADER_SOURCES Engine/*.slang)
+add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 
 # Copy the test textures
 copy_textures(Textures)
