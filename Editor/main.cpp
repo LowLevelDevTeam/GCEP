@@ -38,7 +38,6 @@ int main()
 
     // Initialize ImGui BEFORE creating offscreen resources (ImGui_ImplVulkan_AddTexture requires ImGui)
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
-
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
@@ -48,7 +47,7 @@ int main()
         // This ensures the descriptor passed to ImGui is valid
         rhi->processPendingOffscreenResize();
 
-        rhi->updateEditorInfo(uiManager.getClearColor());
+        rhi->updateEditorInfo(uiManager.getClearColor(), camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.f));
         // Update UI with viewport texture and resize callback
         uiManager.uiUpdate(
             rhi->getImGuiTextureDescriptor(),

@@ -173,8 +173,9 @@ void VulkanRHI::drawFrame()
     m_device.endFrame();
 }
 
-void VulkanRHI::updateEditorInfo(ImVec4& clearColor)
+void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo)
 {
+    m_uniformBufferObject = ubo;
     m_clearColor = clearColor;
 }
 
@@ -402,16 +403,12 @@ void VulkanRHI::updateUniformBuffer()
         ? static_cast<float>(m_offscreenExtent.width) / static_cast<float>(m_offscreenExtent.height)
         : 1.0f;
 
-    UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
-    ubo.proj[1][1] *= -1;
+
 
     texture.setLodLevel(std::abs(std::fmod(time * 5.0f, 2.0f * texture.getMipLevels()) - static_cast<float>(texture.getMipLevels())));
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-        std::memcpy(m_uniformBuffersMapped[i], &ubo, sizeof(ubo));
+        std::memcpy(m_uniformBuffersMapped[i], &m_uniformBufferObject, sizeof(m_uniformBufferObject));
 }
 
 void VulkanRHI::createGraphicsPipeline()
