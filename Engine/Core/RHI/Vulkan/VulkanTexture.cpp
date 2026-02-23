@@ -18,6 +18,7 @@ void VulkanTexture::loadTexture(VulkanRHI* instance, const std::filesystem::path
     createTexture(filepath);
     createTextureView();
     createTextureSampler();
+    createDescriptorSet();
     m_hasTexture = true;
 }
 
@@ -28,7 +29,7 @@ void VulkanTexture::setLodLevel(float lodLevel)
     pRhi->m_device.waitIdle();
 
     createTextureSampler(lodLevel);
-    pRhi->updateDescriptorSets();
+    createDescriptorSet();
 }
 
 void VulkanTexture::createTexture(const std::filesystem::path& filepath)
@@ -258,6 +259,34 @@ void VulkanTexture::transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLa
 
     cmd->pipelineBarrier(srcStage, dstStage, {}, {}, {}, barrier);
     pRhi->endSingleTimeCommands(*cmd);
+}
+
+void VulkanTexture::createDescriptorSet()
+{
+    if (m_first) {
+        std::vector<vk::DescriptorSetLayout> layouts(1, *pRhi->m_TextureDescriptorSetLayout);
+
+        vk::DescriptorSetAllocateInfo allocInfo{};
+        allocInfo.descriptorPool     = *pRhi->m_descriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts        = layouts.data();
+
+        m_descriptorSet = std::move(pRhi->m_device.rawDevice().allocateDescriptorSets(allocInfo)[0]);
+        m_first = false;
+    }
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.sampler     = getSampler();
+    imageInfo.imageView   = getImageView();
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    vk::WriteDescriptorSet texWrite{};
+    texWrite.dstSet          = m_descriptorSet;
+    texWrite.dstBinding      = 0;
+    texWrite.descriptorCount = 1;
+    texWrite.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+    texWrite.pImageInfo      = &imageInfo;
+
+    pRhi->m_device.rawDevice().updateDescriptorSets({ texWrite }, {});
 }
 
 void VulkanTexture::copyBufferToImage(const vk::raii::Buffer& buffer)

@@ -246,7 +246,7 @@ private:
     /// @brief Creates the descriptor set layout with two bindings:
     ///        binding 0 - uniform buffer (vertex stage),
     ///        binding 1 - combined image sampler (fragment stage).
-    void createDescriptorSetLayout();
+    void createUBODescriptorSetLayout();
 
     /// @brief Creates the scene @c VkDescriptorPool sized for @c MAX_FRAMES_IN_FLIGHT sets,
     ///        each containing one uniform buffer and one combined image sampler.
@@ -254,7 +254,7 @@ private:
 
     /// @brief Allocates @c MAX_FRAMES_IN_FLIGHT descriptor sets and writes the UBO
     ///        and texture bindings into each one.
-    void createDescriptorSets();
+    void createUBODescriptorSets();
 
     /// @brief Rewrites the descriptor set bindings for all in-flight frames.
     ///
@@ -266,7 +266,7 @@ private:
     ///
     /// @note Descriptor sets must already have been allocated via
     ///       @c createDescriptorSets() before calling this function.
-    void updateDescriptorSets();
+    void updateUBODescriptorSets();
 
     // Pipeline
 
@@ -457,6 +457,8 @@ private:
     /// @returns A @c vk::raii::ShaderModule valid until destroyed.
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
 
+    void createTextureDescriptorSetLayout();
+
 private:
     // Members
     
@@ -470,9 +472,6 @@ private:
     /// Persistent command pool for @c beginSingleTimeCommands() / @c endSingleTimeCommands().
     vk::raii::CommandPool    m_uploadCommandPool   = nullptr;
 
-    VulkanTexture            texture;
-    VulkanMesh               mesh;
-
     /// Swapchain format cached at init for pipeline creation.
     vk::Format               m_swapchainFormat     = vk::Format::eUndefined;
 
@@ -482,9 +481,15 @@ private:
     /// Persistently-mapped pointers into @c m_uniformBuffersMemory; written each frame.
     std::vector<void*>                  m_uniformBuffersMapped;
 
-    vk::raii::DescriptorSetLayout        m_descriptorSetLayout = nullptr;
+    vk::raii::DescriptorSetLayout        m_UBOdescriptorSetLayout = nullptr;
+    vk::raii::DescriptorSetLayout        m_TextureDescriptorSetLayout = nullptr;
     vk::raii::DescriptorPool             m_descriptorPool      = nullptr;
     std::vector<vk::raii::DescriptorSet> m_descriptorSets;
+
+    VulkanTexture            texture;
+    VulkanMesh               mesh;
+    VulkanTexture            texture2;
+    VulkanMesh               mesh2;
 
     vk::raii::PipelineLayout m_pipelineLayout   = nullptr;
     vk::raii::Pipeline       m_graphicsPipeline = nullptr;

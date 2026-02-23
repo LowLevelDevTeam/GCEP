@@ -51,13 +51,16 @@ void VulkanRHI::initRHI()
 
 void VulkanRHI::initSceneResources()
 {
-    createDescriptorSetLayout();
-    createGraphicsPipeline();
+    createDescriptorPool();
+    createUBODescriptorSetLayout();
+    createTextureDescriptorSetLayout();
+    createUniformBuffers();
+    createUBODescriptorSets();
     texture.loadTexture(this, "TestTextures/viking_room.png");
     mesh.loadMesh(this, "TestTextures/viking_room.obj");
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
+    texture2.loadTexture(this, "TestTextures/qilin.jpg");
+    mesh2.loadMesh(this, "TestTextures/bugatti.obj");
+    createGraphicsPipeline();
 }
 
 void VulkanRHI::recreateSwapchain()
@@ -318,37 +321,47 @@ void VulkanRHI::createUniformBuffers()
     }
 }
 
-void VulkanRHI::createDescriptorSetLayout()
+void VulkanRHI::createUBODescriptorSetLayout()
 {
     std::array bindings =
     {
         vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr),
-        vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr),
     };
     vk::DescriptorSetLayoutCreateInfo layoutInfo({}, bindings.size(), bindings.data());
 
-    m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
+    m_UBOdescriptorSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
+}
+
+void VulkanRHI::createTextureDescriptorSetLayout()
+{
+    std::array bindings =
+    {
+        vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr),
+    };
+    vk::DescriptorSetLayoutCreateInfo layoutInfo({}, bindings.size(), bindings.data());
+
+    m_TextureDescriptorSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
 }
 
 void VulkanRHI::createDescriptorPool()
 {
     std::array poolSizes =
     {
-        vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT),
-        vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, MAX_FRAMES_IN_FLIGHT),
+        vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT * 256),
+        vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, MAX_FRAMES_IN_FLIGHT * 256),
     };
     vk::DescriptorPoolCreateInfo poolInfo{};
     poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    poolInfo.maxSets       = MAX_FRAMES_IN_FLIGHT;
+    poolInfo.maxSets       = MAX_FRAMES_IN_FLIGHT * 256;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes    = poolSizes.data();
 
     m_descriptorPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
 }
 
-void VulkanRHI::createDescriptorSets()
+void VulkanRHI::createUBODescriptorSets()
 {
-    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_descriptorSetLayout);
+    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_UBOdescriptorSetLayout);
 
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool     = *m_descriptorPool;
@@ -358,10 +371,10 @@ void VulkanRHI::createDescriptorSets()
     m_descriptorSets.clear();
     m_descriptorSets = m_device.rawDevice().allocateDescriptorSets(allocInfo);
 
-    updateDescriptorSets();
+    updateUBODescriptorSets();
 }
 
-void VulkanRHI::updateDescriptorSets()
+void VulkanRHI::updateUBODescriptorSets()
 {
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
@@ -370,11 +383,6 @@ void VulkanRHI::updateDescriptorSets()
         bufferInfo.offset = 0;
         bufferInfo.range  = sizeof(UniformBufferObject);
 
-        vk::DescriptorImageInfo imageInfo{};
-        imageInfo.sampler     = texture.getSampler();
-        imageInfo.imageView   = texture.getImageView();
-        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
         vk::WriteDescriptorSet uboWrite{};
         uboWrite.dstSet          = m_descriptorSets[i];
         uboWrite.dstBinding      = 0;
@@ -382,14 +390,7 @@ void VulkanRHI::updateDescriptorSets()
         uboWrite.descriptorType  = vk::DescriptorType::eUniformBuffer;
         uboWrite.pBufferInfo     = &bufferInfo;
 
-        vk::WriteDescriptorSet texWrite{};
-        texWrite.dstSet          = m_descriptorSets[i];
-        texWrite.dstBinding      = 1;
-        texWrite.descriptorCount = 1;
-        texWrite.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-        texWrite.pImageInfo      = &imageInfo;
-
-        m_device.rawDevice().updateDescriptorSets({ uboWrite, texWrite }, {});
+        m_device.rawDevice().updateDescriptorSets({ uboWrite }, {});
     }
 }
 
@@ -404,11 +405,11 @@ void VulkanRHI::updateUniformBuffer()
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
+    ubo.view  = glm::lookAt(glm::vec3(2.0, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
 
-    texture.setLodLevel(std::abs(std::fmod(time * 5.0f, 2.0f * texture.getMipLevels()) - static_cast<float>(texture.getMipLevels())));
+    //texture.setLodLevel(std::abs(std::fmod(time * 50.0f, 2.0f * texture.getMipLevels()) - static_cast<float>(texture.getMipLevels())));
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         std::memcpy(m_uniformBuffersMapped[i], &ubo, sizeof(ubo));
@@ -487,9 +488,10 @@ void VulkanRHI::createGraphicsPipeline()
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
+    std::array<vk::DescriptorSetLayout, 2> layouts{*m_UBOdescriptorSetLayout, *m_TextureDescriptorSetLayout};
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.setLayoutCount         = 1;
-    pipelineLayoutInfo.pSetLayouts            = &*m_descriptorSetLayout;
+    pipelineLayoutInfo.setLayoutCount         = layouts.size();
+    pipelineLayoutInfo.pSetLayouts            = layouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     m_pipelineLayout = vk::raii::PipelineLayout(m_device.rawDevice(), pipelineLayoutInfo);
@@ -592,12 +594,20 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     );
     cmd.setScissor(0, vk::Rect2D({ 0, 0 }, m_offscreenExtent));
 
+    // Tex 1
     cmd.bindVertexBuffers(0, mesh.getVertexBuffer(), {0});
     cmd.bindIndexBuffer(mesh.getIndexBuffer(), 0, vk::IndexType::eUint32);
-
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_descriptorSets[0], nullptr);
-
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 1, texture.getDescriptorSet(), nullptr);
     cmd.drawIndexed(mesh.getNumIndices(), 1, 0, 0, 0);
+
+    // Tex 2
+    cmd.bindVertexBuffers(0, mesh2.getVertexBuffer(), {0});
+    cmd.bindIndexBuffer(mesh2.getIndexBuffer(), 0, vk::IndexType::eUint32);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_descriptorSets[0], nullptr);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 1, texture2.getDescriptorSet(), nullptr);
+    cmd.drawIndexed(mesh2.getNumIndices(), 1, 0, 0, 0);
+
     cmd.endRendering();
 
     vk::ImageMemoryBarrier2 toShaderRead{};

@@ -62,22 +62,25 @@ public:
     // Accessors
 
     /// @brief Returns the underlying @c VkImage handle.
-    [[nodiscard]] vk::Image     getImage()     noexcept { return m_image;     }
+    [[nodiscard]] vk::Image         getImage()         noexcept { return m_image;         }
 
     /// @brief Returns the @c VkImageView covering all mip levels and the single array layer.
-    [[nodiscard]] vk::ImageView getImageView() noexcept { return m_imageView; }
+    [[nodiscard]] vk::ImageView     getImageView()     noexcept { return m_imageView;     }
 
     /// @brief Returns the @c VkSampler configured for this texture.
-    [[nodiscard]] vk::Sampler   getSampler()   noexcept { return m_sampler;   }
+    [[nodiscard]] vk::Sampler       getSampler()       noexcept { return m_sampler;       }
+
+    /// @brief Returns the @c VkSampler configured for this texture.
+    [[nodiscard]] vk::DescriptorSet getDescriptorSet() noexcept { return m_descriptorSet; }
 
     /// @brief Returns the number of mip levels present in the image.
-    [[nodiscard]] uint32_t      getMipLevels() noexcept { return m_mipLevels; }
+    [[nodiscard]] uint32_t          getMipLevels()     noexcept { return m_mipLevels;        }
 
     /// @brief Returns the width of mip level 0 in texels.
-    [[nodiscard]] uint32_t      getWidth()     noexcept { return m_width;     }
+    [[nodiscard]] uint32_t          getWidth()         noexcept { return m_width;            }
 
     /// @brief Returns the height of mip level 0 in texels.
-    [[nodiscard]] uint32_t      getHeight()    noexcept { return m_height;    }
+    [[nodiscard]] uint32_t          getHeight()        noexcept { return m_height;           }
 
 private:
     // Private functions
@@ -159,19 +162,24 @@ private:
     /// @throws std::invalid_argument for unsupported layout pairs.
     void transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
+    void createDescriptorSet();
+
 private:
     VulkanRHI* pRhi; ///< Non-owning pointer to the parent RHI context.
 
     // Members
-    vk::raii::Image        m_image       = nullptr; ///< Device-local texture image.
-    vk::raii::DeviceMemory m_imageMemory = nullptr; ///< Memory backing @c m_image.
-    vk::raii::ImageView    m_imageView   = nullptr; ///< View covering all mip levels.
-    vk::raii::Sampler      m_sampler     = nullptr; ///< Sampler for shader access.
-    vk::Format             m_format      = vk::Format::eR8G8B8A8Srgb; ///< Texel format.
+    vk::raii::Image         m_image         = nullptr; ///< Device-local texture image.
+    vk::raii::DeviceMemory  m_imageMemory   = nullptr; ///< Memory backing @c m_image.
+    vk::raii::ImageView     m_imageView     = nullptr; ///< View covering all mip levels.
+    vk::raii::Sampler       m_sampler       = nullptr; ///< Sampler for shader access.
+    vk::raii::DescriptorSet m_descriptorSet = nullptr; ///<
+    vk::Format              m_format        = vk::Format::eR8G8B8A8Srgb; ///< Texel format.
 
     uint32_t m_width;               ///< Texel width of mip level 0.
     uint32_t m_height;              ///< Texel height of mip level 0.
     uint32_t m_mipLevels = 1;       ///< Total number of mip levels.
+
+    bool m_first = true;
 
     bool m_hasMipmaps = true;  ///< Whether a full mip chain was requested on load.
     bool m_hasTexture = false; ///< Whether @c loadTexture() has completed successfully.
