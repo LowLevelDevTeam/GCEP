@@ -53,7 +53,7 @@ public:
 	virtual					~ObjectLayerPairFilter() = default;
 
 	/// Returns true if two layers can collide
-	virtual bool			ShouldCollide([[maybe_unused]] ObjectLayer inLayer1, [[maybe_unused]] ObjectLayer inLayer2) const
+	virtual bool			shouldCollide([[maybe_unused]] ObjectLayer inLayer1, [[maybe_unused]] ObjectLayer inLayer2) const
 	{
 		return true;
 	}
@@ -80,7 +80,7 @@ public:
 	// See ObjectLayerFilter::ShouldCollide
 	virtual bool			ShouldCollide(ObjectLayer inLayer) const override
 	{
-		return mObjectLayerPairFilter.ShouldCollide(mLayer, inLayer);
+		return mObjectLayerPairFilter.shouldCollide(mLayer, inLayer);
 	}
 
 private:

@@ -1,4 +1,4 @@
-#include "PhysicsShape.hpp"
+#include "physics_shape.hpp"
 
 // STL
 #include <memory>
@@ -14,7 +14,7 @@
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 
 // Core
-#include "Engine/Core/Maths/Utils/Vector3Converter.hpp"
+#include "Engine/Core/Maths/Utils/vector3_convertor.hpp"
 
 namespace gcep
 {
@@ -24,7 +24,7 @@ namespace gcep
 
     std::shared_ptr<PhysicsShape> PhysicsShape::createBox(const Vector3<float>& halfExtents)
     {
-        JPH::BoxShapeSettings settings(Vector3Converter::ToJolt(halfExtents));
+        JPH::BoxShapeSettings settings(Vector3Convertor::ToJolt(halfExtents));
 
         JPH::ShapeSettings::ShapeResult result = settings.Create();
         if (result.HasError()) return nullptr;
@@ -73,7 +73,7 @@ namespace gcep
     {
         JPH::ScaledShapeSettings settings(
             baseShape->getJoltShape(),
-            Vector3Converter::ToJolt(scale)
+            Vector3Convertor::ToJolt(scale)
         );
 
         auto result = settings.Create();

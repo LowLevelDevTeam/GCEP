@@ -1,4 +1,4 @@
-#include "Quaternion.hpp"
+#include "quaternion.hpp"
 
 namespace gcep
 {
@@ -14,7 +14,7 @@ namespace gcep
 
     Quaternion Quaternion::Identity()
     {
-        return Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+        return {1.0f, 0.0f, 0.0f, 0.0f};
     }
 
     Quaternion Quaternion::FromAxisAngle(const Vector3<float>& axis, float angleRadians)
@@ -26,7 +26,7 @@ namespace gcep
         float s = std::sin(halfAngle);
         float c = std::cos(halfAngle);
 
-        return Quaternion(c, normAxis.x * s, normAxis.y * s, normAxis.z * s);
+        return {c, normAxis.x * s, normAxis.y * s, normAxis.z * s};
     }
 
     Quaternion Quaternion::FromEuler(const Vector3<float>& euler)
@@ -75,7 +75,7 @@ namespace gcep
         float sqrt = std::sqrt((1 + dot) * 2);
         float invSqrt = 1.0f / sqrt;
 
-        return Quaternion(sqrt * 0.5f, cross.x * invSqrt, cross.y * invSqrt, cross.z * invSqrt);
+        return {sqrt * 0.5f, cross.x * invSqrt, cross.y * invSqrt, cross.z * invSqrt};
     }
 
     Quaternion Quaternion::LookRotation(const Vector3<float>& forward, const Vector3<float>& up)

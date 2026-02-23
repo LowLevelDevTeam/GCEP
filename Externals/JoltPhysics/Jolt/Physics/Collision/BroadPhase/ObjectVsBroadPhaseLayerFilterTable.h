@@ -39,11 +39,11 @@ public:
 			for (ObjectLayer o2 = 0; o2 < inNumObjectLayers; ++o2)
 			{
 				// Get the broad phase layer for the second object layer
-				BroadPhaseLayer b2 = inBroadPhaseLayerInterface.GetBroadPhaseLayer(o2);
+				BroadPhaseLayer b2 = inBroadPhaseLayerInterface.getBroadPhaseLayer(o2);
 				JPH_ASSERT((BroadPhaseLayer::Type)b2 < inNumBroadPhaseLayers);
 
 				// If the object layers collide then so should the object and broadphase layer
-				if (inObjectLayerPairFilter.ShouldCollide(o1, o2))
+				if (inObjectLayerPairFilter.shouldCollide(o1, o2))
 				{
 					uint bit = GetBit(o1, b2);
 					mTable[bit >> 3] |= 1 << (bit & 0b111);
@@ -52,7 +52,7 @@ public:
 	}
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool			ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
+	virtual bool			shouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 	{
 		uint bit = GetBit(inLayer1, inLayer2);
 		return (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;

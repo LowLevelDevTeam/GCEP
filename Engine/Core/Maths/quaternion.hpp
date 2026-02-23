@@ -5,7 +5,7 @@
 #include <algorithm>
 
 // Core
-#include "Vector3.hpp"
+#include "vector3.hpp"
 
 namespace gcep
 {
@@ -143,7 +143,7 @@ namespace gcep
          * @brief Returns a normalized copy of this quaternion.
          * @return A unit quaternion representing the same rotation.
          */
-        Quaternion Normalized() const;
+        [[nodiscard]] Quaternion Normalized() const;
 
         /**
          * @brief Normalizes this quaternion in place.
@@ -168,7 +168,7 @@ namespace gcep
          * // Output: (0.707, -0.0, -0.707, -0.0)
          * @endcode
          */
-        Quaternion Conjugate() const;
+        [[nodiscard]] Quaternion Conjugate() const;
 
         /**
          * @brief Returns the inverse of this quaternion.
@@ -181,7 +181,7 @@ namespace gcep
          * // Output: Quaternion representing the opposite rotation
          * @endcode
          */
-        Quaternion Inverse() const;
+        [[nodiscard]] Quaternion Inverse() const;
 
         /**
          * @brief Computes the dot product between two quaternions.
@@ -203,13 +203,13 @@ namespace gcep
          * @brief Returns the magnitude (length) of this quaternion.
          * @return The magnitude value.
          */
-        float Magnitude() const;
+        [[nodiscard]] float Magnitude() const;
 
         /**
          * @brief Returns the squared magnitude of this quaternion.
          * @return The squared magnitude value.
          */
-        float GetMagnitudeSquared() const;
+        [[nodiscard]] float GetMagnitudeSquared() const;
 
         /**
          * @brief Computes the angle (in radians) between two quaternions.
@@ -290,7 +290,7 @@ namespace gcep
          * // Output: Vector diagonally between -Z and -X
          * @endcode
          */
-        Vector3<float> RotateVector(const Vector3<float>& v) const;
+        [[nodiscard]] Vector3<float> RotateVector(const Vector3<float>& v) const;
 
         /**
          * @brief Performs spherical linear interpolation between two quaternions.
@@ -396,6 +396,6 @@ namespace gcep
          * // Output: (~=0, ~=0.785, ~=0)
          * @endcode
          */
-        Vector3<float> ToEuler() const;
+        [[nodiscard]] Vector3<float> ToEuler() const;
     };
 } // gcep

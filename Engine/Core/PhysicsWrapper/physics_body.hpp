@@ -6,8 +6,8 @@
 #include <Jolt/Geometry/AABox.h>
 
 // Core
-#include "Engine/Core/Maths/Vector3.hpp"
-#include "Engine/Core/Maths/Quaternion.hpp"
+#include "Engine/Core/Maths/vector3.hpp"
+#include "Engine/Core/Maths/quaternion.hpp"
 
 namespace gcep
 {

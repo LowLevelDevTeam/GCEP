@@ -5,7 +5,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
-#include "PhysicsWorld.hpp"
+#include "physics_world.hpp"
 
 namespace gcep
 {

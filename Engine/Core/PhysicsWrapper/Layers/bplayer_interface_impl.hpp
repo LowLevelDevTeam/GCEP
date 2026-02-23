@@ -1,12 +1,14 @@
 #pragma once
 
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
-#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
-
+// Libs
 #include "glm/fwd.hpp"
 
-namespace gcep {
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+
+namespace gcep
+{
 
     namespace Layers
     {
@@ -22,17 +24,18 @@ namespace gcep {
         static constexpr glm::uint NUM_LAYERS = 2;
     };
 
-    class BPLayerInterfaceImpl final : public JPH::BroadPhaseLayerInterface {
+    class BPlayerInterfaceImpl final : public JPH::BroadPhaseLayerInterface
+    {
     public:
-        BPLayerInterfaceImpl();
+        BPlayerInterfaceImpl();
 
-        [[nodiscard]] glm::uint GetNumBroadPhaseLayers() const override;
+        [[nodiscard]] glm::uint getNumBroadPhaseLayers() const override;
 
-        [[nodiscard]] JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer layer) const override;
+        [[nodiscard]] JPH::BroadPhaseLayer getBroadPhaseLayer(JPH::ObjectLayer layer) const override;
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
         /// Get the user readable name of a broadphase layer (debugging purposes)
-        [[nodiscard]] const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override;
+        [[nodiscard]] const char* getBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override;
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
     private:

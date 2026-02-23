@@ -22,7 +22,7 @@ public:
 	}
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool	ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
+	virtual bool	shouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 	{
 		// Just defer to BroadPhaseLayerInterface
 		return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2);

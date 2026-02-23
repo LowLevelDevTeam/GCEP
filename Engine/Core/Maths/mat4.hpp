@@ -18,8 +18,6 @@ namespace gcep
      * translation, rotation, scaling, projection, and matrix inversion.
      *
      * @tparam T Numeric type (float, double, etc.)
-     *
-     * @example Mat4_Class_Examples.cpp
      */
     template <typename T>
     class Mat4
@@ -27,16 +25,12 @@ namespace gcep
     public:
         /**
          * @brief Constructs an identity matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_DefaultConstructor
          */
         Mat4();
 
         /**
          * @brief Constructs a matrix with explicit values.
          * @param m00..m33 Matrix elements in row-major order.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_ParameterizedConstructor
          */
         Mat4(T m00, T m01, T m02, T m03,
             T m10, T m11, T m12, T m13,
@@ -66,8 +60,6 @@ namespace gcep
          * @param rotation Rotation quaternion.
          * @param scale Scaling vector.
          * @return The composed transformation matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_TRS
          */
         static Mat4<T> TRS(const Vector3<T>& position, const Quaternion& rotation, const Vector3<T>& scale);
 
@@ -78,8 +70,6 @@ namespace gcep
          * @param nearZ Near clipping plane.
          * @param farZ Far clipping plane.
          * @return The perspective projection matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_Perspective
          */
         static Mat4<T> Perspective(T fovYRadians, T aspect, T nearZ, T farZ);
 
@@ -92,8 +82,6 @@ namespace gcep
          * @param nearZ Near clipping plane.
          * @param farZ Far clipping plane.
          * @return The orthographic projection matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_Ortho
          */
         static Mat4<T> Ortho(T left, T right, T bottom, T top, T nearZ, T farZ);
 
@@ -103,8 +91,6 @@ namespace gcep
          * @param target Target position.
          * @param up Up vector.
          * @return The view matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_LookAt
          */
         static Mat4<T> LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up);
 
@@ -131,8 +117,6 @@ namespace gcep
          * @brief Multiplies this matrix with another.
          * @param other The matrix to multiply with.
          * @return The resulting matrix.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_MultiplyMatrix
          */
         Mat4<T> operator*(const Mat4<T>& other) const;
 
@@ -140,8 +124,6 @@ namespace gcep
          * @brief Multiplies this matrix by a 3D point (assuming w=1).
          * @param v The input 3D point.
          * @return The transformed point.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_MultiplyPoint
          */
         Vector3<T> MultiplyPoint(const Vector3<T>& v) const;
 
@@ -149,8 +131,6 @@ namespace gcep
          * @brief Multiplies this matrix by a direction vector (ignores translation).
          * @param v The input 3D vector.
          * @return The transformed direction.
-         *
-         * @snippet Mat4_Class_Examples.cpp Mat4_MultiplyVector
          */
         Vector3<T> MultiplyVector(const Vector3<T>& v) const;
 
@@ -249,4 +229,4 @@ namespace gcep
     };
 } // gcep
 
-#include "Mat4.inl"
+#include "mat4.inl"

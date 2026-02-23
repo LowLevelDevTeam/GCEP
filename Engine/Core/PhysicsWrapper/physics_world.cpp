@@ -1,4 +1,4 @@
-#include "PhysicsWorld.hpp"
+#include "physics_world.hpp"
 
 #include <memory>
 #include <iostream>
@@ -18,7 +18,7 @@
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
 // Core
-#include "PhysicsShape.hpp"
+#include "physics_shape.hpp"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 
 namespace gcep
@@ -38,7 +38,7 @@ namespace gcep
     	constexpr size_t cTempAllocatorSize = 16 * 1024 * 1024; // 16 Mo
     	m_tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(cTempAllocatorSize);
 
-    	m_broadPhaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
+    	m_broadPhaseLayerInterface = std::make_unique<BPlayerInterfaceImpl>();
     	m_objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
     	m_objectVsBroadPhaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
 
@@ -108,7 +108,7 @@ namespace gcep
     	JPH::ShapeRefC baseShape;
 
     	// Creating unscaled base shape
-    	switch (data.getShapeType())
+    	switch (data.shapeType)
     	{
     		case EShapeType::CUBE :
     		{
@@ -134,7 +134,7 @@ namespace gcep
 
     	// Scaling
     	JPH::ShapeRefC finalShape = baseShape;
-    	const auto scale = data.getScale();
+    	const auto scale = data.scale;
     	const bool hasScale = scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f;
 
     	if (hasScale)
@@ -152,7 +152,7 @@ namespace gcep
 
     	// Motion type
     	JPH::EMotionType motionType = JPH::EMotionType::Static;
-    	switch (data.getMotionType())
+    	switch (data.motionType)
     	{
     		case EMotionType::STATIC :
     		{
@@ -172,8 +172,8 @@ namespace gcep
     	}
 
     	// Transform
-    	const Vector3<float>& pos = data.getPosition();
-    	const Quaternion& rot = data.getRotation();
+    	const Vector3<float>& pos = data.position;
+    	const Quaternion& rot = data.rotation;
 
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -184,7 +184,7 @@ namespace gcep
 			position,
 			rotation,
 			motionType,
-			static_cast<int>(data.getLayers())
+			static_cast<int>(data.layers)
     		);
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();

@@ -9,7 +9,7 @@ namespace gcep
 
     // Constructors
     template <typename T>
-    Mat4<T>::Mat4()
+    Mat4<T>::mat4()
     {
         for (int i = 0; i < 4; ++i)
             for (int j = 0; j < 4; ++j)
@@ -17,7 +17,7 @@ namespace gcep
     }
 
     template <typename T>
-    Mat4<T>::Mat4(T m00, T m01, T m02, T m03,
+    Mat4<T>::mat4(T m00, T m01, T m02, T m03,
         T m10, T m11, T m12, T m13,
         T m20, T m21, T m22, T m23,
         T m30, T m31, T m32, T m33)
@@ -29,7 +29,7 @@ namespace gcep
     }
 
     template <typename T>
-    Mat4<T>::~Mat4() = default;
+    Mat4<T>::~mat4() = default;
 
     // Static Methods
     template <typename T>

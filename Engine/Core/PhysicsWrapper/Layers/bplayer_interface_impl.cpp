@@ -1,26 +1,28 @@
-#include "BPLayerInterfaceImpl.hpp"
+#include "bplayer_interface_impl.hpp"
 
+// STL
 #include <string>
 
 namespace gcep
 {
-    BPLayerInterfaceImpl::BPLayerInterfaceImpl()
+    BPlayerInterfaceImpl::BPlayerInterfaceImpl()
     {
         m_ObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
         m_ObjectToBroadPhase[Layers::MOVING]     = BroadPhaseLayers::MOVING;
     }
 
-    glm::uint BPLayerInterfaceImpl::GetNumBroadPhaseLayers() const
+    glm::uint BPlayerInterfaceImpl::getNumBroadPhaseLayers() const
     {
         return BroadPhaseLayers::NUM_LAYERS;
     }
 
-    JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer layer) const
+    JPH::BroadPhaseLayer BPlayerInterfaceImpl::getBroadPhaseLayer(JPH::ObjectLayer layer) const
     {
         return m_ObjectToBroadPhase[layer];
     }
 
-    const char* BPLayerInterfaceImpl::GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const {
+    const char* BPlayerInterfaceImpl::getBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const
+    {
         switch ((JPH::BroadPhaseLayer::Type)inLayer)
         {
             case (JPH::BroadPhaseLayer::Type)0: return "NON_MOVING";

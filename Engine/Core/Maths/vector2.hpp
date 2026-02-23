@@ -147,4 +147,4 @@ namespace gcep
     };
 } // gcep
 
-#include "Vector2.inl"
+#include "vector2.inl"

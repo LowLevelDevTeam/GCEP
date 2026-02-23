@@ -4,8 +4,8 @@
 #include <cmath>
 
 // Core
-#include "Vector2.hpp"
-#include "Vector3.hpp"
+#include "vector2.hpp"
+#include "vector3.hpp"
 
 namespace gcep
 {
@@ -182,4 +182,4 @@ namespace gcep
     };
 } // gcep
 
-#include "Mat3.inl"
+#include "mat3.inl"

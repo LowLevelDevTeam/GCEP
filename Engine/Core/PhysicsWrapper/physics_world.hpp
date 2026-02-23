@@ -9,11 +9,11 @@
 #include <Jolt/Physics/Body/BodyID.h>
 
 //Core
-#include "Layers/BPLayerInterfaceImpl.hpp"
-#include "Layers/ObjectLayerPairFilterImpl.hpp"
-#include "Layers/ObjectVsBroadPhaseLayerFilterImpl.hpp"
+#include "Layers/bplayer_interface_impl.hpp"
+#include "Layers/object_layer_pair_filter_impl.hpp"
+#include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
 
-#include "Component/PhysicsComponent.hpp"
+#include "Component/physics_component.hpp"
 
 namespace gcep
 {
@@ -36,7 +36,7 @@ namespace gcep
         std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem;
         std::unique_ptr<JPH::TempAllocator> m_tempAllocator;
         std::unique_ptr<JPH::JobSystem> m_jobSystem;
-        std::unique_ptr<BPLayerInterfaceImpl> m_broadPhaseLayerInterface;
+        std::unique_ptr<BPlayerInterfaceImpl> m_broadPhaseLayerInterface;
         std::unique_ptr<ObjectLayerPairFilterImpl> m_objectLayerPairFilter;
         std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> m_objectVsBroadPhaseLayerFilter;
 

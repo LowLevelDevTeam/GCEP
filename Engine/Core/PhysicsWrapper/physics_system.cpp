@@ -1,8 +1,8 @@
-#include "PhysicsSystem.hpp"
+#include "physics_system.hpp"
 
 #include <memory>
 
-#include "PhysicsWorld.hpp"
+#include "physics_world.hpp"
 
 namespace gcep
 {

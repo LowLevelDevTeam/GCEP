@@ -64,14 +64,14 @@ public:
 	virtual							~BroadPhaseLayerInterface() = default;
 
 	/// Return the number of broadphase layers there are
-	virtual uint					GetNumBroadPhaseLayers() const = 0;
+	virtual uint					getNumBroadPhaseLayers() const = 0;
 
 	/// Convert an object layer to the corresponding broadphase layer
-	virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const = 0;
+	virtual BroadPhaseLayer			getBroadPhaseLayer(ObjectLayer inLayer) const = 0;
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 	/// Get the user readable name of a broadphase layer (debugging purposes)
-	virtual const char *			GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const = 0;
+	virtual const char *			getBroadPhaseLayerName(BroadPhaseLayer inLayer) const = 0;
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 };
 
@@ -83,7 +83,7 @@ public:
 	virtual							~ObjectVsBroadPhaseLayerFilter() = default;
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool					ShouldCollide([[maybe_unused]] ObjectLayer inLayer1, [[maybe_unused]] BroadPhaseLayer inLayer2) const
+	virtual bool					shouldCollide([[maybe_unused]] ObjectLayer inLayer1, [[maybe_unused]] BroadPhaseLayer inLayer2) const
 	{
 		return true;
 	}
@@ -117,7 +117,7 @@ public:
 	// See BroadPhaseLayerFilter::ShouldCollide
 	virtual bool					ShouldCollide(BroadPhaseLayer inLayer) const override
 	{
-		return mObjectVsBroadPhaseLayerFilter.ShouldCollide(mLayer, inLayer);
+		return mObjectVsBroadPhaseLayerFilter.shouldCollide(mLayer, inLayer);
 	}
 
 private:

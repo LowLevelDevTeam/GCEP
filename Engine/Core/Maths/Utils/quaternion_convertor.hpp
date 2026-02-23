@@ -5,7 +5,7 @@
 #include <Jolt/Math/Quat.h>
 
 // Engine
-#include "Engine/Core/Maths/Quaternion.hpp"
+#include "Engine/Core/Maths/quaternion.hpp"
 
 // STL
 #include <type_traits>
@@ -17,12 +17,16 @@ namespace gcep
     * This class is stateless and must not be instantiated.
     * Jolt dependency is strictly confined to this file.
     */
-    class QuaternionConverter
+    class QuaternionConvertor
     {
     public:
 
+        // Creating an instance of this class is prohibited
+        QuaternionConvertor() = delete;
 
+        //=================
         // Jolt Conversion
+        //=================
 
         static JPH::Quat ToJolt(const Quaternion& quaternion)
         {
@@ -50,9 +54,5 @@ namespace gcep
             );
         }
 
-    private:
-
-        // Creating an instance of this class is prohibited
-        QuaternionConverter() = delete;
     };
 }

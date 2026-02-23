@@ -1475,7 +1475,7 @@ void QuadTree::FindCollidingPairs(const BodyVector &inBodies, const BodyID *inAc
 				{
 					// Collision between dynamic pairs need to be picked up only once
 					const Body &body2 = *inBodies[b2_id.GetIndex()];
-					if (inObjectLayerPairFilter.ShouldCollide(body1.GetObjectLayer(), body2.GetObjectLayer())
+					if (inObjectLayerPairFilter.shouldCollide(body1.GetObjectLayer(), body2.GetObjectLayer())
 						&& Body::sFindCollidingPairsCanCollide(body1, body2)
 						&& bounds1.Overlaps(body2.GetWorldSpaceBounds())) // In the broadphase we widen the bounding box when a body moves, do a final check to see if the bounding boxes actually overlap
 					{

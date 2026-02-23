@@ -22,7 +22,7 @@ void BroadPhaseQuadTree::Init(BodyManager *inBodyManager, const BroadPhaseLayerI
 
 	// Store input parameters
 	mBroadPhaseLayerInterface = &inLayerInterface;
-	mNumLayers = inLayerInterface.GetNumBroadPhaseLayers();
+	mNumLayers = inLayerInterface.getNumBroadPhaseLayers();
 	JPH_ASSERT(mNumLayers < (BroadPhaseLayer::Type)cBroadPhaseLayerInvalid);
 
 #ifdef JPH_ENABLE_ASSERTS
@@ -50,7 +50,7 @@ void BroadPhaseQuadTree::Init(BodyManager *inBodyManager, const BroadPhaseLayerI
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 		// Set the name of the layer
-		mLayers[l].SetName(inLayerInterface.GetBroadPhaseLayerName(BroadPhaseLayer(BroadPhaseLayer::Type(l))));
+		mLayers[l].SetName(inLayerInterface.getBroadPhaseLayerName(BroadPhaseLayer(BroadPhaseLayer::Type(l))));
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 	}
 }
@@ -587,7 +587,7 @@ void BroadPhaseQuadTree::FindCollidingPairs(BodyID *ioActiveBodies, int inNumAct
 		for (BroadPhaseLayer::Type l = 0; l < mNumLayers; ++l)
 		{
 			const QuadTree &tree = mLayers[l];
-			if (tree.HasBodies() && inObjectVsBroadPhaseLayerFilter.ShouldCollide(object_layer, BroadPhaseLayer(l)))
+			if (tree.HasBodies() && inObjectVsBroadPhaseLayerFilter.shouldCollide(object_layer, BroadPhaseLayer(l)))
 			{
 				JPH_PROFILE(tree.GetName());
 				tree.FindCollidingPairs(bodies, b_start, int(b_mid - b_start), inSpeculativeContactDistance, ioPairCollector, inObjectLayerPairFilter);
