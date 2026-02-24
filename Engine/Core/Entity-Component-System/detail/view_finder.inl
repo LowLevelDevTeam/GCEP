@@ -68,16 +68,9 @@ namespace gcep {
     template<typename ... Args>
     bool View<Args...>::match(EntityID entity) const
     {
-        const Signature entitySig = m_registry.getSignature(entity);
-
-        if (m_isExact)
-        {
-            return entitySig == m_viewSignature;
-        }
-        else
-        {
-            return (entitySig & m_viewSignature) == m_viewSignature;
-        }
+        return std::apply([entity](auto&&... pools) {
+            return (pools->hasComponent(entity) && ...);
+        }, m_pools);
     }
 
 
