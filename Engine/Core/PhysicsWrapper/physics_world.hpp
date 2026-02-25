@@ -21,6 +21,7 @@ namespace gcep
 
     class PhysicsWorld
     {
+        friend class PhysicsSystem;
 
     public:
         PhysicsWorld();

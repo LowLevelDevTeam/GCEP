@@ -3,7 +3,8 @@
 #include <memory>
 
 #include "physics_world.hpp"
-#include "Engine/Core/Entity-Component-System/headers/registry.hpp"
+#include "Component/transform_component.hpp"
+
 
 namespace gcep
 {
@@ -37,8 +38,6 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        Registry reg;
-
         auto view = reg.partialView<PhysicsComponent>();
 
         for (EntityID id : view)
@@ -51,18 +50,76 @@ namespace gcep
     void PhysicsSystem::update(float dt)
     {
         m_world->step(dt);
-        // need sync transform & body
+        // Sync dynamic bodies → Transform
+        syncPhysicsToTransforms(reg);
+
+        // Sync kinematic bodies ← Transform
+        syncTransformsToPhysics(reg);
     }
 
     void PhysicsSystem::stopSimulation()
     {
-        Registry reg;
-
         auto view = reg.partialView<PhysicsComponent>();
 
         for (EntityID id : view) {
             auto& pc = view.get<PhysicsComponent>(id); // getter
             m_world->destroyBody(pc.m_bodyIDRef);
+        }
+    }
+
+    void PhysicsSystem::syncPhysicsToTransforms(Registry& reg)
+    {
+        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
+
+        auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
+
+        for (auto entity : view)
+        {
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& physics = view.get<PhysicsComponent>(entity);
+
+            if (physics.motionType != EMotionType::DYNAMIC)
+                continue;
+
+            if (physics.m_bodyIDRef.IsInvalid())
+                continue;
+
+            JPH::RVec3 pos = bodyInterface.GetPosition(physics.m_bodyIDRef);
+            JPH::Quat rot = bodyInterface.GetRotation(physics.m_bodyIDRef);
+
+            transform.position = { (float)pos.GetX(), (float)pos.GetY(), (float)pos.GetZ() };
+            transform.rotation = { rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ() };
+        }
+    }
+
+    void PhysicsSystem::syncTransformsToPhysics(Registry& reg)
+    {
+        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
+
+        auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
+
+        for (auto entity : view)
+        {
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& physics = view.get<PhysicsComponent>(entity);
+
+            if (physics.motionType != EMotionType::KINEMATIC)
+                continue;
+
+            if (physics.m_bodyIDRef.IsInvalid())
+                continue;
+
+            bodyInterface.SetPositionAndRotation(
+                physics.m_bodyIDRef,
+                JPH::RVec3(transform.position.x,
+                           transform.position.y,
+                           transform.position.z),
+                JPH::Quat(transform.rotation.x,
+                          transform.rotation.y,
+                          transform.rotation.z,
+                          transform.rotation.w),
+                JPH::EActivation::Activate
+            );
         }
     }
 

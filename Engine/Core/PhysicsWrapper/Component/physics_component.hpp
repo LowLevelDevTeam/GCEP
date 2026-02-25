@@ -1,12 +1,9 @@
 #pragma once
 #include <memory>
-
 #include "Jolt/Jolt.h"
-#include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
 #include "Engine/Core/Maths/vector3.hpp"
-#include "Engine/Core/Maths/quaternion.hpp"
 #include "Engine/Core/PhysicsWrapper/physics_shape.hpp"
 
 namespace gcep
@@ -35,9 +32,6 @@ namespace gcep
     {
         friend class PhysicsSystem;
 
-        Vector3<float> position = Vector3<float>(0.f,0.f,0.f);
-        Quaternion rotation = Quaternion(1.f,0.f,0.f,0.f);
-        Vector3<float> scale = Vector3<float>(1.f,1.f,1.f);
         Vector3<float> linearVelocity = Vector3<float>(0.f,0.f,0.f);
         Vector3<float> angularVelocity = Vector3<float>(0.f,0.f,0.f);
 
