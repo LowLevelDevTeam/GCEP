@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.30)
 
 project(GCEngine VERSION 0.1 LANGUAGES CXX)
 
+include(CMake/compile_shaders.cmake)
+include(CMake/copy_textures.cmake)
+
 # Set properties
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +14,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "." FORCE)
 endif()
 
-file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp)
+file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.inl)
 
 # Adding the executable
 add_executable(GCEngine)
@@ -26,9 +29,9 @@ endif()
 # Linker options (to disable console window on Windows in Release build)
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
     if(MSVC)
-        target_link_options(GCEngine PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+        # target_link_options(GCEngine PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
     else()
-        target_link_options(GCEngine PRIVATE -mwindows)
+        #target_link_options(GCEngine PRIVATE -mwindows)
     endif()
 endif()
 
@@ -41,3 +44,14 @@ add_subdirectory(Externals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# e.g. <RHI/RHI.hpp>
+target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core)
+
+# Compile the shaders
+file(GLOB_RECURSE SHADER_SOURCES Engine/*.slang)
+add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
+
+# Copy the test textures
+copy_textures(Textures)
+
+add_dependencies(GCEngine Shaders Textures)

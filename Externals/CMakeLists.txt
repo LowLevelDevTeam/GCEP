@@ -22,5 +22,14 @@ target_include_directories(GCEngine PRIVATE JoltPhysics)
 add_subdirectory(miniaudio)
 target_include_directories(GCEngine PRIVATE miniaudio)
 
+# KTX-Software
+# set(LIBKTX_VERSION_FULL ON)
+# add_subdirectory(KTX-Software/lib)
+# target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
+# add_lib_dependencies(GCEngine ktx)
+
+# stb image
+target_include_directories(GCEngine PRIVATE stb)
+
 # Final libraries linking
 target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio Jolt)

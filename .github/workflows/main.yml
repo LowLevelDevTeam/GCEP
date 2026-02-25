@@ -26,7 +26,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt update
-          sudo apt install -y build-essential clang-tidy clang-format git
+          sudo apt install -y build-essential clang-tidy clang-format git libwayland-dev wayland-protocols libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libx11-dev libegl1-mesa-dev libgl1-mesa-dev xorg-dev pkg-config
+
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
@@ -34,12 +35,11 @@ jobs:
           brew update
           brew install llvm
 
-      - name: Setup Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
-          vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          version: 1.4.309.0
+          cache: true
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
@@ -55,12 +55,10 @@ jobs:
             echo "/usr/bin" >> $GITHUB_PATH
           fi
 
-      - name: Run clang-format
-        shell: bash
+      - name: Add Vulkan dynamic libs to 'LD_LIBRARY_PATH' (Linux)
+        if: runner.os == 'Linux'
         run: |
-          for f in $(git ls-files '*.cpp' '*.h'); do
-            clang-format "$f"
-          done
+          echo "LD_LIBRARY_PATH=$VULKAN_SDK/lib:$VULKAN_SDK/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}

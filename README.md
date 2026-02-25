@@ -1,9 +1,9 @@
-# Technical Design Document (TDD) for C++ MoteurVulkan
+# Technical Design Document (TDD) for Gaming Engine Campus Paris
 
 ## Document Header
-- **Project Title:** C++ MoteurVulkan
-- **Version:** 1.3
-- **Date:** 2026-02-05
+- **Project Title:** Gaming Campus Engine Paris
+- **Version:** 1.4
+- **Date:** 2026-02-17
 ---
 ## Authors
 | Author           | Contact                 |
@@ -15,12 +15,13 @@
 | Leo Grognet      | lgrognet@gaming.tech    |
 
 ## Revision History
-| Date       | Version | Description                                                        | Author                                                                          |
-|------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| 2026-02-04 | 1.3     | Naming Convention, Schematic tweaks and dependencies justification | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
-| 2026-02-04 | 1.2     | Document bottom half document fill                                 | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
-| 2026-02-03 | 1.1     | Document General improvement                                       | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]                  |
-| 2026-02-03 | 1.0     | Initial document creation                                          | [Leo Grognet, Clément BOBEDA]                                                   |
+| Date       | Version | Description                                                         | Author                                                                          |
+|------------|---------|---------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| 2026-02-17 | 1.4     | Code conventions                                                    | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-04 | 1.3     | Naming Convention, Schematic tweaks and dependencies justification  | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-04 | 1.2     | Document bottom half document fill                                  | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost] |
+| 2026-02-03 | 1.1     | Document General improvement                                        | [Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]                  |
+| 2026-02-03 | 1.0     | Initial document creation                                           | [Leo Grognet, Clément BOBEDA]                                                   |
 
 ## Table of Contents
 1. [Introduction](#1-introduction)
@@ -420,21 +421,34 @@ TEST(RendererTest, InitializeSuccess) {
 
 ### 11.7 Build system
 
-- **CMake:** cross platform and highly customizable.
+- **CMake:** cross-platform and highly customizable.
 
 ### 11.8 Conventions
 
+| Element                        | Convention                          | Example                         |
+|--------------------------------|-------------------------------------|---------------------------------|
+| Namespace                      | Lowercase                           | `gcep::render`                  |
+| Namespace prefix               | `gcep` (Gaming Campus Engine Paris) | `gcep::`                        |
+| Class name                     | PascalCase                          | `RHI_Vulkan`                    |
+| Struct name                    | PascalCase                          | `RenderData`                    |
+| Enum name                      | PascalCase                          | `RenderBackend`                 |
+| Enum values                    | PascalCase                          | `RenderBackend::Vulkan`         |
+| Function name                  | camelCase, starts with a verb       | `createInstance()`              |
+| Getter name                    | camelCase, starts with `get`        | `getContext()`                  |
+| Variable name                  | camelCase                           | `frameIndex`                    |
+| Member variable                | `m_` + camelCase                    | `m_context`                     |
+| Constant                       | UPPER_CASE                          | `MAX_FRAMES_IN_FLIGHT`          |
+| Macro                          | UPPER_CASE                          | `DEBUG_MODE`                    |
+| File name                      | snake_case                          | `rhi_vulkan.cpp`                |
+| Header file                    | snake_case                          | `rhi_vulkan.hpp`                |
+| Indentation                    | 4 spaces                            | `    int value;`                |
+| Braces style                   | Opening brace on new line           | `function()\n{}`                |
+| Documentation                  | Doxygen                             | `@brief Create instance`        |
+| Attributes                     | `[[nodiscard]]` when applicable     | `[[nodiscard]] int getId();`    |
+| Includes ordering              | Internals / Externals / STL         | see include rules               |
+| Include sorting                | Alphabetical inside each group      | `<algorithm>` before `<vector>` |
+| Class access modifiers sorting | Public, Private, Protected          | Inside : methods before members |
 
-| Élément          | Convention           | Exemple                 |
-|------------------|----------------------|-------------------------|
-| Nom de classe    | PascalCase           | `PlayerManager`         |
-| Nom de Structure | PascalCase           | `DataStruct`            |
-| Nom de fonction  | camelCase            | `calculateDamage()`     |
-| Variable         | camelCase            | `playerHealth`          |
-| Constante        | UPPER_CASE           | `MAX_SPEED`             |
-| Namespace        | lowercase            | `std`                   |
-| Macro            | Préfixe en majuscules | `#define DEBUG_MODE`    |
-| Fichier          | snake_case           | `player_controller.cpp` |
 
 ---
 
