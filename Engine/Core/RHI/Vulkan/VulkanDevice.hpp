@@ -239,7 +239,7 @@ private:
     /// @returns @c true if the device is suitable; @c false otherwise.
     [[nodiscard]] bool isDeviceSuitable(const vk::raii::PhysicalDevice& device) const;
 
-    /// @brief Finds the index of a queue family that supports both graphics and presentation.
+    /// @brief Finds the index of a queue family that supports graphics, compute and presentation.
     ///
     /// @param device  The physical device to query.
     /// @returns The queue family index.

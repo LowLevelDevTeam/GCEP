@@ -53,8 +53,11 @@ int main()
             rhi->getImGuiTextureDescriptor(),
             [&rhi](uint32_t width, uint32_t height) {
                 rhi->requestOffscreenResize(width, height);
-            }
+            },
+            &camera,
+            rhi->getDrawCount()
         );
+        rhi->updateSceneUBO(uiManager.getLightDirection(), uiManager.getLightColor(), uiManager.getAmbientColor(), camera.position);
 
         rhi->drawFrame();
     }

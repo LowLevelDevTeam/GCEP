@@ -152,10 +152,11 @@ uint32_t VulkanDevice::findQueueFamily(const vk::raii::PhysicalDevice& device) c
     for (uint32_t i = 0; i < static_cast<uint32_t>(props.size()); ++i)
     {
         const bool graphics = static_cast<bool>(props[i].queueFlags & vk::QueueFlagBits::eGraphics);
+        const bool compute  = static_cast<bool>(props[i].queueFlags & vk::QueueFlagBits::eCompute);
         const bool present  = device.getSurfaceSupportKHR(i, *m_surface);
-        if (graphics && present) return i;
+        if (graphics && compute && present) return i;
     }
-    throw std::runtime_error("VulkanDevice: no graphics+present queue family found");
+    throw std::runtime_error("VulkanDevice: no graphics + compute + present queue family found");
 }
 
 void VulkanDevice::selectPhysicalDevice()
@@ -199,19 +200,29 @@ void VulkanDevice::initLogicalDevice()
     vk::PhysicalDeviceVulkan11Features features11{};
     features11.shaderDrawParameters = vk::True;
 
-    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicState{};
-    extendedDynamicState.extendedDynamicState = vk::True;
-    extendedDynamicState.pNext                = &features11;
+    vk::PhysicalDeviceVulkan12Features features12{};
+    features12.drawIndirectCount                            = vk::True;
+    features12.descriptorBindingPartiallyBound              = vk::True;
+    features12.descriptorBindingVariableDescriptorCount     = vk::True;
+    features12.runtimeDescriptorArray                       = vk::True;
+    features12.shaderSampledImageArrayNonUniformIndexing    = vk::True;
+    features12.descriptorBindingSampledImageUpdateAfterBind = vk::True;
+    features12.pNext                                        = &features11;
 
     vk::PhysicalDeviceVulkan13Features features13{};
     features13.dynamicRendering = vk::True;
     features13.synchronization2 = vk::True;
-    features13.pNext            = &extendedDynamicState;
+    features13.pNext            = &features12;
+
+    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicState{};
+    extendedDynamicState.extendedDynamicState = vk::True;
+    extendedDynamicState.pNext                = &features13;
 
     vk::PhysicalDeviceFeatures2 features2{};
     features2.features.samplerAnisotropy = vk::True;
     features2.features.geometryShader    = vk::True;
-    features2.pNext                      = &features13;
+    features2.features.multiDrawIndirect = vk::True;
+    features2.pNext                      = &extendedDynamicState;
 
     constexpr float priority = 1.0f;
     vk::DeviceQueueCreateInfo queueCreateInfo{};

@@ -23,10 +23,11 @@ namespace gcep
 
         glm::vec3 velocity;
         glm::vec3 position;
+        glm::vec3 front = glm::vec3(-1.0f, 0.0f, 0.0f);
         //vertical rotation
         float pitch {0.f};
         //horizontal rotation
-        float yaw {0.f};
+        float yaw {-180.f};
 
         private:
 
@@ -45,7 +46,6 @@ namespace gcep
         float m_camSpeed;
 
 
-        glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
         glm::vec3 worldUp = glm::vec3(0.0f, 0.0f, 1.0f);

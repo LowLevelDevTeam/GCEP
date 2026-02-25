@@ -1,4 +1,5 @@
 #include "VulkanTexture.hpp"
+
 #include <RHI/Vulkan/VulkanRHI.hpp>
 
 // Externals
@@ -18,7 +19,7 @@ void VulkanTexture::loadTexture(VulkanRHI* instance, const std::filesystem::path
     createTexture(filepath);
     createTextureView();
     createTextureSampler();
-    createDescriptorSet();
+    registerBindless(allocateTextureSlot());
     m_hasTexture = true;
 }
 
@@ -29,7 +30,7 @@ void VulkanTexture::setLodLevel(float lodLevel)
     pRhi->m_device.waitIdle();
 
     createTextureSampler(lodLevel);
-    createDescriptorSet();
+    registerBindless(m_bindlessIndex);
 }
 
 void VulkanTexture::createTexture(const std::filesystem::path& filepath)
@@ -261,32 +262,25 @@ void VulkanTexture::transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLa
     pRhi->endSingleTimeCommands(*cmd);
 }
 
-void VulkanTexture::createDescriptorSet()
+uint32_t VulkanTexture::registerBindless(uint32_t slot)
 {
-    if (m_first) {
-        std::vector<vk::DescriptorSetLayout> layouts(1, *pRhi->m_TextureDescriptorSetLayout);
+    m_bindlessIndex = slot;
 
-        vk::DescriptorSetAllocateInfo allocInfo{};
-        allocInfo.descriptorPool     = *pRhi->m_descriptorPool;
-        allocInfo.descriptorSetCount = 1;
-        allocInfo.pSetLayouts        = layouts.data();
-
-        m_descriptorSet = std::move(pRhi->m_device.rawDevice().allocateDescriptorSets(allocInfo)[0]);
-        m_first = false;
-    }
     vk::DescriptorImageInfo imageInfo{};
     imageInfo.sampler     = getSampler();
     imageInfo.imageView   = getImageView();
     imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
-    vk::WriteDescriptorSet texWrite{};
-    texWrite.dstSet          = m_descriptorSet;
-    texWrite.dstBinding      = 0;
-    texWrite.descriptorCount = 1;
-    texWrite.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-    texWrite.pImageInfo      = &imageInfo;
+    vk::WriteDescriptorSet write{};
+    write.dstSet          = pRhi->m_bindlessSet;
+    write.dstBinding      = 0;
+    write.dstArrayElement = slot;
+    write.descriptorCount = 1;
+    write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+    write.pImageInfo      = &imageInfo;
 
-    pRhi->m_device.rawDevice().updateDescriptorSets({ texWrite }, {});
+    pRhi->m_device.rawDevice().updateDescriptorSets({ write }, {});
+    return slot;
 }
 
 void VulkanTexture::copyBufferToImage(const vk::raii::Buffer& buffer)

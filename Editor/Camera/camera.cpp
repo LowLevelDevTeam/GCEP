@@ -10,54 +10,44 @@ namespace gcep
 
     void Camera::moveForward()
     {
-        std::cout<<"move forward"<<std::endl;
         position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
     void Camera::moveBackward()
     {
-        std::cout<<"move backward"<<std::endl;
         position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;;
     }
     void Camera::moveLeft()
     {
-        std::cout<<"move left"<<std::endl;
         position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
     void Camera::moveRight()
     {
-        std::cout<<"move right"<<std::endl;
         position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
     void Camera::moveUp()
     {
-        std::cout<<"move up"<<std::endl;
         position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
     void Camera::moveDown()
     {
-        std::cout<<"move down"<<std::endl;
         position -= up * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
 
     void Camera::rotateUp()
     {
-        std::cout<<"rotate up"<<std::endl;
         pitch += m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
 
     }
     void Camera::rotateDown()
     {
-        std::cout<<"rotate down"<<std::endl;
         pitch -= m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
     }
     void Camera::rotateLeft()
     {
-        std::cout<<"rotate left"<<std::endl;
         yaw += m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
     }
     void Camera::rotateRight()
     {
-        std::cout<<"rotate right"<<std::endl;
         yaw -= m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
     }
 
@@ -74,10 +64,8 @@ namespace gcep
         inputs->addTrackedKey(GLFW_KEY_LEFT , std::bind(&Camera::rotateLeft, this));
         inputs->addTrackedKey(GLFW_KEY_RIGHT, std::bind(&Camera::rotateRight, this));
 
-
-
-        ubo.model = glm::rotate(glm::mat4(1.0f), 0 * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        position = {10.0f, 1.0f, 1.0f};
+        ubo.view  = glm::lookAt(position, {0.0f, 0.0f, 0.0f}, glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj  = glm::perspective(glm::radians(45.0f), 1.f, 0.1f, 1000.0f);
         ubo.proj[1][1] *= -1;
     }
@@ -106,9 +94,8 @@ namespace gcep
         right = glm::normalize(glm::cross(front, worldUp));
         up    = glm::normalize(glm::cross(right, front));
 
-        ubo.model = glm::rotate(glm::mat4(1.0f), 0 * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj  = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
-        ubo.view = glm::lookAt(position, position + front, glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
+        ubo.view = glm::lookAt(position, position + front, up);
         ubo.proj[1][1] *= -1;
 
         return ubo;

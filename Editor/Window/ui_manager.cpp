@@ -1,5 +1,7 @@
 #include "ui_manager.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include <cmath>
+#include <Editor/Camera/camera.hpp>
 
 namespace gcep {
 UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
@@ -33,17 +35,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
     ImGui_ImplVulkan_Init(&m_initInfo);
 }
 
-UiManager::~UiManager()
-{
-
-}
-
-void UiManager::uiUpdate()
-{
-    uiUpdate(VK_NULL_HANDLE, nullptr);
-}
-
-void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(uint32_t, uint32_t)>& viewportResizeCallback)
+void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(uint32_t, uint32_t)>& viewportResizeCallback, Camera* camera, uint32_t drawCount)
 {
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
     {
@@ -97,25 +89,31 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
         ImGui::ShowDemoWindow(&showDemoWindow);
 
     {
-        static int counter = 0;
-
         ImGui::Begin("Hello, world!");
 
-        ImGui::Text("This is some useful text.");
         ImGui::Checkbox("Demo Window", &showDemoWindow);
+        ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
 
+        ImGui::SeparatorText("Scene infos");
+        ImGui::Text("Entities drawn : %d", drawCount);
+
+        ImGui::SeparatorText("Camera");
         ImGui::SliderFloat("Camera Speed", &f, 2.0f, 100.0f);
+        ImGui::DragFloat3("Camera position", glm::value_ptr(camera->position));
+        ImGui::DragFloat3("Camera front vector", glm::value_ptr(camera->front));
+        ImGui::DragFloat("Camera yaw", &camera->yaw);
+        ImGui::DragFloat("Camera pitch", &camera->pitch);
 
-
-        ImGui::ColorEdit4("ClearColor",(float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        if (ImGui::Button("Button"))
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
+        ImGui::SeparatorText("Lights & normals");
+        ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
 
         auto& io = ImGui::GetIO();
+        ImGui::SeparatorText("Application infos");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::Text("Viewport size: %.0f x %.0f", m_viewportSize.x, m_viewportSize.y);
+
         ImGui::End();
     }
 }
