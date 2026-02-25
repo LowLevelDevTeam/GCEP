@@ -24,7 +24,6 @@ namespace gcep
         [[nodiscard]] uint32_t getSampleRate() const;
 
     public:
-
         static constexpr uint32_t GCEP_SAMPLE_RATE = 44100;
         static constexpr uint32_t GCEP_CHANNELS = 2;
 

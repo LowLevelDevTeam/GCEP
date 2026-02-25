@@ -1,11 +1,11 @@
-#include "AudioDevice.h"
+#include "audio_device.hpp"
 
 // STL
 #include <cstring>
 
 // Core
-#include "AudioMixer.h"
-#include "AudioSource.h"
+#include "audio_mixer.hpp"
+#include "audio_source.hpp"
 
 namespace gcep
 {

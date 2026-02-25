@@ -2,13 +2,12 @@
 
 // STL
 #include <memory>
-#include <atomic>
 
 // Libs
 #include <glm/vec3.hpp>
 
 // Core
-#include "AudioBuffer.h"
+#include "audio_buffer.hpp"
 
 namespace gcep
 {
@@ -27,9 +26,6 @@ namespace gcep
         void stop();
         void reset();
 
-        void advancePlayHead(double frames);
-
-        void setPlayHeadPosition(double position);
         void setLooping(bool isLooping);
         void setPitch(float pitch);
         void setVolume(float volume);
@@ -45,7 +41,7 @@ namespace gcep
         [[nodiscard("Call setSpatialized(bool isSpatialized) if you want to change the spatialization of this source.")]] bool isSpatialized() const;
 
         [[nodiscard]] const std::shared_ptr<AudioBuffer>& getBuffer() const;
-        [[nodiscard]] double getPlayHeadPosition() const;
+        [[nodiscard]] double* getFrameCursor() const;
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getVolume() const;
         [[nodiscard]] const glm::vec3& getPosition() const;
@@ -55,7 +51,7 @@ namespace gcep
     private:
         std::shared_ptr<AudioBuffer> m_buffer;
 
-        std::atomic<bool> m_isPlaying{ false };
+        bool m_isPlaying = false;
         bool m_isLooping = false;
 
         double m_frameCursor = 0;

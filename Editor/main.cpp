@@ -4,16 +4,19 @@
 #include <glm/glm.hpp>
 
 #include "Window/Window.hpp"
-#include "Engine/Core/Audio/AudioSystem.h"
+#include "Engine/Core/Audio/audio_system.hpp"
 
-int main() {
+int main()
+{
     std::cout << "Hello, World!" << std::endl;
     Window& window = Window::getInstance();
     window.initWindow();
 
+    // Audio Exemple code
+
     gcep::AudioSystem* audioSystem = gcep::AudioSystem::getInstance();
 
-    std::shared_ptr<gcep::AudioSource> music = audioSystem->loadAudio("mdk.mp3");
+    std::shared_ptr<gcep::AudioSource> music = audioSystem->loadAudio("jazz.mp3");
     music->setLooping(true);
     music->setVolume(1.0f);
     music->setPitch(1.0f);
@@ -23,7 +26,8 @@ int main() {
     float angle = 0.0f;
     const float radius = 5.0f;
 
-    while (true) {
+    while (true)
+    {
         angle += 0.01f;
 
         glm::vec3 position;
@@ -33,6 +37,7 @@ int main() {
 
         music->setPosition(position);
 
+        audioSystem->update();
         std::this_thread::sleep_for(std::chrono::milliseconds(8));
     }
 
