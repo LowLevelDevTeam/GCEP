@@ -45,7 +45,7 @@ private:
     glm::vec3 lightColor = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 0.3f, 0.3f};
     std::vector<rhi::vulkan::VulkanMesh>* meshData;
-    uint32_t m_SelectedEntityID;
+    uint32_t m_SelectedEntityID = UINT32_MAX;
     float shininess = 64.0f;
 };
 
