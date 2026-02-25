@@ -11,7 +11,7 @@
  * @namespace gcep
  * @brief Namespace for the Gaming Campus Engine Paris
  */
-namespace gcep
+namespace gcep::ECS
 {
     /**
      * @class Registry
@@ -115,5 +115,5 @@ namespace gcep
 
 }
 
-#include <Engine/Core/Entity-Component-System/detail/registry.inl>
-#include <Engine/Core/Entity-Component-System/detail/view_finder.inl>
+#include <Engine/Core/ECS/detail/registry.inl>
+#include <Engine/Core/ECS/detail/view_finder.inl>

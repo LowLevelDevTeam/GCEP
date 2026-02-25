@@ -1,7 +1,7 @@
 #pragma once
-#include <Engine/Core/Entity-Component-System/headers/paged_allocator.hpp>
+#include <Engine/Core/ECS/headers/paged_allocator.hpp>
 
-namespace gcep
+namespace gcep::ECS
 {
     template<typename T>
     PagedAllocator<T>::~PagedAllocator()

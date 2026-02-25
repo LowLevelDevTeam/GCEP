@@ -1,6 +1,6 @@
 #pragma once
-#include <Engine/Core/Entity-Component-System/headers/component_pool.hpp>
-namespace gcep
+#include <Engine/Core/ECS/headers/component_pool.hpp>
+namespace gcep::ECS
 {
     template <typename T>
     void ComponentPool<T>::addDefault(EntityID entity)
