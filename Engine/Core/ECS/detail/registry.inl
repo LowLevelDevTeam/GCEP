@@ -1,7 +1,7 @@
 #pragma once
-#include <Engine/Core/Entity-Component-System/headers/registry.hpp>
+#include <Engine/Core/ECS/headers/registry.hpp>
 
-namespace gcep
+namespace gcep::ECS
 {
     inline EntityID Registry::createEntity()
     {

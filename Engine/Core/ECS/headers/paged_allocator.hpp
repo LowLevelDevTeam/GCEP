@@ -2,7 +2,7 @@
 #include <bit>
 #include <vector>
 
-namespace gcep
+namespace gcep::ECS
 {
     /**
      * @class PagedAllocator
@@ -76,4 +76,4 @@ namespace gcep
     };
 }
 
-#include <Engine/Core/Entity-Component-System/detail/paged_allocator.inl>
+#include <Engine/Core/ECS/detail/paged_allocator.inl>

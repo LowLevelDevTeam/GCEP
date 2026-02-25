@@ -1,8 +1,8 @@
 #pragma once
-#include <Engine/Core/Entity-Component-System/headers/view_finder.hpp>
+#include <Engine/Core/ECS/headers/view_finder.hpp>
 
-namespace gcep {
-
+namespace gcep::ECS
+{
 #pragma region Iterator Function
     template<typename... Args>
     View<Args...>::Iterator::Iterator(const EntityID* current, const EntityID* last,  View& v)
