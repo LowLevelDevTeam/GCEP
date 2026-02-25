@@ -21,7 +21,6 @@ namespace gcep
 
     void Camera::moveForward()
     {
-        position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
         if (isSpecificWindowFocused("Viewport"))
         {
             position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
@@ -29,15 +28,13 @@ namespace gcep
     }
     void Camera::moveBackward()
     {
-        position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;;
         if (isSpecificWindowFocused("Viewport"))
         {
-            position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;;
+            position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;
         }
     }
     void Camera::moveLeft()
     {
-        position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
         if (isSpecificWindowFocused("Viewport"))
         {
             position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
@@ -45,7 +42,6 @@ namespace gcep
     }
     void Camera::moveRight()
     {
-        position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
         if (isSpecificWindowFocused("Viewport"))
         {
             position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
@@ -53,7 +49,6 @@ namespace gcep
     }
     void Camera::moveUp()
     {
-        position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
         if (isSpecificWindowFocused("Viewport"))
         {
             position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
@@ -69,25 +64,22 @@ namespace gcep
 
     void Camera::rotate()
     {
-        pitch += m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-
         if (isSpecificWindowFocused("Viewport"))
         {
-            if (pitch - ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime > 89.0f)
+            if (pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime > 89.0f)
             {
                 pitch = 89.0f;
             }
-            else if (pitch - ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime < -89.0f)
+            else if (pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime < -89.0f)
             {
                 pitch = -89.0f;
             }
             else
             {
-                pitch -= ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+                pitch -= ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
             }
 
-            yaw -= ImGui::GetIO().MouseDelta.x / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-
+            yaw -= ImGui::GetIO().MouseDelta.x * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
         }
     }
 
