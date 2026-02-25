@@ -24,10 +24,8 @@ namespace gcep
          * @note Retrieves pool pointers and calculates the view signature upon construction
          * to maximize performance during iteration.
          * @param registry Reference to the parent Registry.
-         * @param exact If true, the entity must possess EXCLUSIVELY the components in Args.
-         * If false (default), it must possess AT LEAST the components in Args.
          */
-        View(Registry& registry, bool exact);
+        View(Registry& registry);
 
         /**
          * @brief Checks if an entity meets the View's criteria.
@@ -95,10 +93,10 @@ namespace gcep
 
     private:
         Registry& m_registry;                  ///< Reference to the central Registry.
-        Signature m_viewSignature;             ///< Binary signature pre-calculated for this view.
         IPool* m_smallestPool = nullptr;       ///< Pool used as the iteration base (optimization).
         std::tuple<ComponentPool<Args>*...> m_pools; ///< Cached pointers to component pools.
-        bool m_isExact;                        ///< Filtering mode (inclusive or exclusive).
+
+
     };
 }
 

@@ -24,13 +24,8 @@ namespace gcep
     class Registry {
     public:
         /**
-         * @brief Default constructor.
-         * Initializes the signature allocator with empty signatures.
+         * @begin Default destructor of the class.
          */
-        Registry() : m_entitySignatures(Signature{})
-        {
-        }
-
         ~Registry() = default;
 
         /**
@@ -89,14 +84,7 @@ namespace gcep
          * @return true if the component is present, false otherwise.
          */
         template<class T>
-        [[nodiscard]] bool hasComponent(EntityID entity) const;
-
-        /**
-         * @brief Accesses the binary signature of an entity.
-         * @param entity The target entity ID.
-         * @return const Signature The bitset representing active component types.
-         */
-        [[nodiscard]] const Signature getSignature(EntityID entity) const;
+        [[nodiscard]] bool hasComponent(EntityID entity) ;
 
         /**
          * @brief Creates an inclusion-filtered view.
@@ -105,16 +93,7 @@ namespace gcep
          * @return View<Args...> An iterable object containing matching entities.
          */
         template<typename... Args>
-        [[nodiscard]] View<Args...> partialView();
-
-        /**
-         * @brief Creates an exact-match filtered view.
-         * Returns entities possessing ONLY the specified component types.
-         * @tparam Args List of required component types.
-         * @return View<Args...> An iterable object containing matching entities.
-         */
-        template<typename... Args>
-        [[nodiscard]] View<Args...> exactView();
+        [[nodiscard]] View<Args...> view();
 
         /**
          * @brief Retrieves the storage pool associated with a component type.
@@ -125,7 +104,6 @@ namespace gcep
         [[nodiscard]] ComponentPool<T>& getPool();
 
     private:
-        PagedAllocator<Signature> m_entitySignatures; ///< Paged storage for entity signatures.
         std::vector<std::unique_ptr<IPool>> m_pools; ///< List of type-erased component m_pools.
         std::vector<EntityID> m_freeIDs;             ///< Stack of recyclable identifiers.
         std::vector<EntityID> m_entitiesToDestroy;   ///< Queue for deferred destruction.
@@ -134,6 +112,7 @@ namespace gcep
         /** @brief Internal logic for removing an entity and its associated data. */
         void removeEntity(EntityID toRemove);
     };
+
 }
 
 #include <Engine/Core/Entity-Component-System/detail/registry.inl>
