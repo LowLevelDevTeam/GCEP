@@ -7,6 +7,8 @@
 #include <functional>
 #include <glm/glm.hpp>
 
+#include "RHI/Vulkan/VulkanMesh.hpp"
+
 namespace gcep
 {
 class Camera;
@@ -20,8 +22,9 @@ public:
     /// @param sceneTexture The descriptor set for the offscreen rendered scene
     /// @param viewportResizeCallback Callback called when viewport size changes
     void uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(uint32_t, uint32_t)>& viewportResizeCallback, Camera* camera, uint32_t drawCount);
-
+    void setMeshList(std::vector<rhi::vulkan::VulkanMesh>& data);
     ImVec4& getClearColor();
+    float getShininess() { return shininess; }
 
     /// @brief Get the current viewport size
     [[nodiscard]] ImVec2 getViewportSize() const { return m_viewportSize; }
@@ -41,6 +44,9 @@ private:
     glm::vec3 ambientColor = {0.2f, 0.2f, 0.2f};
     glm::vec3 lightColor = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 0.3f, 0.3f};
+    std::vector<rhi::vulkan::VulkanMesh>* meshData;
+    uint32_t m_SelectedEntityID;
+    float shininess = 64.0f;
 };
 
 }

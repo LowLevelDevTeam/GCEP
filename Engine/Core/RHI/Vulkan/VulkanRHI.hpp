@@ -127,7 +127,7 @@ public:
     ///
     /// @param clearColor  RGBA clear color in linear [0, 1] float space.
     /// @param ubo         Camera view and projection matrices for the current frame.
-    void updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo);
+    void updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo, float shininess);
 
     /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
     ///
@@ -199,6 +199,8 @@ public:
     ///
     /// @returns Number of meshes that passed frustum culling in the previous frame.
     uint32_t getDrawCount();
+
+    std::vector<VulkanMesh>& getMeshData();
 
 private:
     // Init helpers
@@ -657,8 +659,9 @@ private:
     ImVec4              m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
     UniformBufferObject m_cameraUBO;
     SceneUBO            m_sceneUBO;
+    float               m_shininess;
 
-    gcep::Registry m_ECSRegistry;
+    Registry m_ECSRegistry;
 
     static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
     static constexpr uint32_t MAX_MESHES           = 4096;

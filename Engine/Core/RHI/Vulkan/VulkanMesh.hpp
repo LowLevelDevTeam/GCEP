@@ -14,8 +14,13 @@
 
 namespace gcep::rhi::vulkan
 {
+static uint32_t entityID = 0;
 class VulkanRHI;
-
+struct TransformComponent {
+    glm::vec3 position = {0.0f, 0.0f, 0.0f};
+    glm::vec3 rotation = {0.0f, 0.0f, 0.0f};
+    glm::vec3 scale = {1.0f, 1.0f, 1.0f};
+};
 /// @brief Manages the CPU-side geometry and transform data for a single 3D mesh.
 ///
 /// Handles the full pipeline from loading an OBJ file off disk to making geometry
@@ -62,6 +67,11 @@ public:
                   glm::mat4                    transform         = glm::mat4(1.0f));
 
 public:
+    TransformComponent transform;
+    std::string name = "Unknown";
+    uint32_t id = UINT32_MAX;
+
+public:
     // Accessors
 
     /// @brief Returns the total number of indices (cached before @c clearIndices()).
@@ -78,7 +88,7 @@ public:
     [[nodiscard]] const VulkanTexture* texture() const noexcept { return &m_texture; }
 
     /// @brief Returns the current model-to-world transform matrix.
-    [[nodiscard]] const glm::mat4 getTransform() const noexcept { return m_transform; }
+    [[nodiscard]] glm::mat4& getTransform();
 
     /// @brief Returns the byte size of the vertex data (for staging buffer allocation).
     [[nodiscard]] const vk::DeviceSize getVertexBufferSize() const noexcept { return m_numVertices * sizeof(Vertex);   }
@@ -141,7 +151,7 @@ public:
 
     /// @brief Sets the per-axis scale of the mesh.
     ///
-    /// Normalises the existing rotation columns of @c m_transform and
+    /// Normalizes the existing rotation columns of @c m_transform and
     /// rescales them by @p scale, leaving the translation column unchanged.
     ///
     /// @param scale  Per-axis scale factors.

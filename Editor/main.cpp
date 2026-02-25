@@ -21,7 +21,7 @@ int main()
     swapDesc.nativeWindowHandle = window.getGlfwWindow();
     swapDesc.width              = static_cast<uint32_t>(fbWidth);
     swapDesc.height             = static_cast<uint32_t>(fbHeight);
-    swapDesc.vsync              = true;
+    swapDesc.vsync              = false;
 
     std::unique_ptr<gcep::rhi::vulkan::VulkanRHI> rhi = std::make_unique<gcep::rhi::vulkan::VulkanRHI>(swapDesc);
 
@@ -38,6 +38,7 @@ int main()
 
     // Initialize ImGui BEFORE creating offscreen resources (ImGui_ImplVulkan_AddTexture requires ImGui)
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
+    uiManager.setMeshList(rhi->getMeshData());
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
@@ -47,7 +48,11 @@ int main()
         // This ensures the descriptor passed to ImGui is valid
         rhi->processPendingOffscreenResize();
 
-        rhi->updateEditorInfo(uiManager.getClearColor(), camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.f));
+        rhi->updateEditorInfo(
+            uiManager.getClearColor(),
+            camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.f),
+            uiManager.getShininess()
+        );
         // Update UI with viewport texture and resize callback
         uiManager.uiUpdate(
             rhi->getImGuiTextureDescriptor(),

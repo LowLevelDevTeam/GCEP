@@ -3,6 +3,8 @@
 #include <cmath>
 #include <Editor/Camera/camera.hpp>
 
+#include "imgui_internal.h"
+
 namespace gcep {
 UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
 {
@@ -33,6 +35,86 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
     ImGui_ImplGlfw_InitForVulkan(window, true);
     m_initInfo = initInfo;
     ImGui_ImplVulkan_Init(&m_initInfo);
+}
+
+void UiManager::setMeshList(std::vector<rhi::vulkan::VulkanMesh> &data)
+{
+    meshData  = &data;
+}
+
+static bool DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
+    bool value_changed = false;
+    ImGuiIO& io = ImGui::GetIO();
+    auto boldFont = io.Fonts->Fonts[0];
+
+    ImGui::PushID(label.c_str());
+
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, columnWidth);
+    ImGui::Text("%s", label.c_str());
+    ImGui::NextColumn();
+
+    ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+    float lineHeight = GImGui->Font->LegacySize + GImGui->Style.FramePadding.y * 2.0f;
+    ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+
+    // X
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushFont(boldFont);
+    if (ImGui::Button("X", buttonSize)) {
+        values.x = resetValue;
+        value_changed = true;
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    if(ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    // Y
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+    ImGui::PushFont(boldFont);
+    if (ImGui::Button("Y", buttonSize)) {
+        values.y = resetValue;
+        value_changed = true;
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    if(ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    // Z
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+    ImGui::PushFont(boldFont);
+    if (ImGui::Button("Z", buttonSize)) {
+        values.z = resetValue;
+        value_changed = true;
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    if(ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    ImGui::PopItemWidth();
+
+    ImGui::PopStyleVar();
+    ImGui::Columns(1);
+    ImGui::PopID();
+
+    return value_changed;
 }
 
 void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(uint32_t, uint32_t)>& viewportResizeCallback, Camera* camera, uint32_t drawCount)
@@ -96,6 +178,7 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
 
         ImGui::SeparatorText("Scene infos");
         ImGui::Text("Entities drawn : %d", drawCount);
+        ImGui::DragFloat("Shininess", &shininess, 1.0f, 0.0f, 1000.0f, "%.2f");
 
         ImGui::SeparatorText("Camera");
         ImGui::SliderFloat("Camera Speed", &f, 2.0f, 100.0f);
@@ -114,6 +197,40 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::Text("Viewport size: %.0f x %.0f", m_viewportSize.x, m_viewportSize.y);
 
+        ImGui::End();
+    }
+
+    {
+        ImGui::Begin("Scene Hierarchy");
+
+        if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (auto& entity : *meshData) {
+                bool is_selected = (m_SelectedEntityID == entity.id);
+                if (ImGui::Selectable(entity.name.c_str(), is_selected)) {
+                    m_SelectedEntityID = entity.id;
+                }
+            }
+            ImGui::TreePop();
+        }
+
+        // Deselect if clicking in empty space
+        if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+        {
+            m_SelectedEntityID = std::numeric_limits<uint32_t>::max();
+        }
+
+        ImGui::End();
+
+        ImGui::Begin("Scene infos");
+
+        if (m_SelectedEntityID != std::numeric_limits<uint32_t>::max())
+        {
+            auto& data = *meshData;
+            auto& entity = data[m_SelectedEntityID];
+            DrawVec3Control("Translation", entity.transform.position);
+            DrawVec3Control("Rotation", entity.transform.rotation);
+            DrawVec3Control("Scale", entity.transform.scale);
+        }
         ImGui::End();
     }
 }

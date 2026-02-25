@@ -64,6 +64,8 @@ void VulkanRHI::initSceneResources()
     meshes[0].loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
     meshes[1].loadMesh(this, "TestTextures/cube.obj", "TestTextures/white.png");
     meshes[1].setPosition({1.0f, 3.0f, 0.0f});
+    meshes[0].name = "Viking Room";
+    meshes[1].name = "Cube";
     setMeshData();
     createMeshDataDescriptors();
     createGraphicsPipeline();
@@ -684,8 +686,9 @@ void VulkanRHI::drawFrame()
     m_device.endFrame();
 }
 
-void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo)
+void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo, float shininess)
 {
+    m_shininess = shininess;
     m_cameraUBO  = ubo;
     m_clearColor = clearColor;
 }
@@ -693,6 +696,11 @@ void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo)
 uint32_t VulkanRHI::getDrawCount()
 {
     return m_drawCount;
+}
+
+std::vector<VulkanMesh>& VulkanRHI::getMeshData()
+{
+    return meshes;
 }
 
 void VulkanRHI::requestOffscreenResize(uint32_t width, uint32_t height)
@@ -875,9 +883,9 @@ void VulkanRHI::perFrameUpdate()
     const float time = std::chrono::duration<float>(currentTime - m_startTime).count();
 
     // Left right oscillation of the viking room
-    meshes[0].setPosition({ 5.0f, std::sin(time), 0.0f });
+    //meshes[0].setPosition({ 5.0f, std::sin(time), 0.0f });
     // XZ rotation of the cube
-    meshes[1].setRotation({time * (180.0f / glm::pi<float>()), 0.0f, time * (180.0f / glm::pi<float>())});
+    //meshes[1].setRotation({time * (180.0f / glm::pi<float>()), 0.0f, time * (180.0f / glm::pi<float>())});
 
     refreshMeshData();
 }
@@ -958,8 +966,8 @@ void VulkanRHI::createGraphicsPipeline()
     // Push constant, camera UBO (viewProj)
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.offset = 0;
-    pushConstantRange.size = static_cast<uint32_t>(sizeof(glm::mat4));
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstantRange.size = static_cast<uint32_t>(sizeof(glm::mat4) + sizeof(float) * 4);
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
 
     std::array<vk::DescriptorSetLayout, 3> layouts
     {
@@ -998,7 +1006,11 @@ void VulkanRHI::createGraphicsPipeline()
 
     m_graphicsPipeline = vk::raii::Pipeline(m_device.rawDevice(), nullptr, pipelineInfo);
 }
-
+static struct PushConstant {
+    glm::mat4 transform;
+    float shininess;
+    float _pad[3];
+} pc;
 void VulkanRHI::recordOffscreenCommandBuffer()
 {
     const vk::CommandBuffer cmd = m_device.currentCommandBuffer();
@@ -1077,7 +1089,9 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     cmd.bindVertexBuffers(0, { *m_globalVertexBuffer }, { 0 });
     cmd.bindIndexBuffer(*m_globalIndexBuffer, 0, vk::IndexType::eUint32);
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, { *m_meshDataDescriptorSet, *m_bindlessSet, *m_UBOSets[0] }, {});
-    cmd.pushConstants<glm::mat4>(*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraUBO.proj * m_cameraUBO.view);
+    pc.transform = m_cameraUBO.proj * m_cameraUBO.view;
+    pc.shininess = m_shininess;
+    cmd.pushConstants<PushConstant>(*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pc);
 
     // Entire scene - one call
     cmd.drawIndexedIndirectCount(

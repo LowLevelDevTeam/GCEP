@@ -47,6 +47,8 @@ struct VSOutput
 struct PushConstants
 {
     float4x4 viewProj;
+    float shininess;
+    float _pad[3];
 };
 
 [[vk::push_constant]]
@@ -92,7 +94,7 @@ float4 fragMain(VSOutput input) : SV_Target
     // Specular - Blinn-Phong
     float3 V       = normalize(scene.cameraPos - input.worldPos);
     float3 H       = normalize(L + V);
-    float  spec    = pow(max(dot(N, H), 0.0f), 64.0f);
+    float  spec    = pow(max(dot(N, H), 0.0f), pc.shininess);
     float3 specular = spec * scene.lightColor;
 
     float3 lighting = scene.ambientColor + diffuse + specular;
