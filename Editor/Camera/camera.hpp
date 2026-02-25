@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <imgui.h>
 #include "RHI/Vulkan/VulkanRHI.hpp"
+#include "Editor/Window/Window.hpp"
 
 namespace gcep
 {
@@ -12,7 +13,7 @@ namespace gcep
 
         public:
 
-        Camera(Inputs* inputs);
+        Camera(Inputs* inputs, Window* window);
 
         glm::mat4 getViewMatrix();
         glm::mat4 getRotationMatrix();
@@ -37,14 +38,12 @@ namespace gcep
         void moveRight();
         void moveUp();
         void moveDown();
-        void rotateUp();
-        void rotateDown();
-        void rotateLeft();
-        void rotateRight();
+        void rotate();
         private:
         rhi::vulkan::UniformBufferObject ubo{};
-        float m_camSpeed;
+        float m_camSpeed = 2.0f;
 
+        Window* window;
 
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);

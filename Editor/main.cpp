@@ -12,7 +12,7 @@ int main()
     gcep::Window& window = gcep::Window::getInstance();
     window.initWindow();
     gcep::Inputs inputs;
-    gcep::Camera camera(&inputs);
+    gcep::Camera camera(&inputs, &window);
 
     int fbWidth = 0, fbHeight = 0;
     glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);

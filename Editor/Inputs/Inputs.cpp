@@ -16,7 +16,12 @@ namespace gcep
         for (auto& [key, function] : m_trackedKeys)
         {
             int state = glfwGetKey(window, key);
+            int mouseState = glfwGetMouseButton(window, key);
             if (state == GLFW_PRESS)
+            {
+                function();
+            }
+            else if (mouseState == GLFW_PRESS)
             {
                 function();
             }

@@ -3,55 +3,96 @@
 #include <iostream>
 #include <ostream>
 
+#include "imgui_internal.h"
+
 
 namespace gcep
 {
 
 
+    bool isSpecificWindowFocused(const char* name)
+    {
+        ImGuiWindow* window = ImGui::FindWindowByName(name);
+        if (!window) return false;
+
+        ImGuiContext& g = *GImGui;
+        return (g.NavWindow == window || g.NavWindow == window->RootWindow) && window->Active;
+    }
+
     void Camera::moveForward()
     {
         position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
+        }
     }
     void Camera::moveBackward()
     {
         position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;;
+        }
     }
     void Camera::moveLeft()
     {
         position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
+        }
     }
     void Camera::moveRight()
     {
         position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
+        }
     }
     void Camera::moveUp()
     {
         position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
+        }
     }
     void Camera::moveDown()
     {
-        position -= up * m_camSpeed * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            position -= up * m_camSpeed * ImGui::GetIO().DeltaTime;
+        }
     }
 
-    void Camera::rotateUp()
+    void Camera::rotate()
     {
         pitch += m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
 
-    }
-    void Camera::rotateDown()
-    {
-        pitch -= m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-    }
-    void Camera::rotateLeft()
-    {
-        yaw += m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-    }
-    void Camera::rotateRight()
-    {
-        yaw -= m_camSpeed * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+        if (isSpecificWindowFocused("Viewport"))
+        {
+            if (pitch - ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime > 89.0f)
+            {
+                pitch = 89.0f;
+            }
+            else if (pitch - ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime < -89.0f)
+            {
+                pitch = -89.0f;
+            }
+            else
+            {
+                pitch -= ImGui::GetIO().MouseDelta.y / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+            }
+
+            yaw -= ImGui::GetIO().MouseDelta.x / 5 * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+
+        }
     }
 
-    Camera::Camera(Inputs* inputs)
+
+    Camera::Camera(Inputs* inputs, Window* window) : window(window)
     {
         inputs->addTrackedKey(GLFW_KEY_W, std::bind(&Camera::moveForward, this));
         inputs->addTrackedKey(GLFW_KEY_S, std::bind(&Camera::moveBackward, this));
@@ -59,10 +100,7 @@ namespace gcep
         inputs->addTrackedKey(GLFW_KEY_D, std::bind(&Camera::moveRight, this));
         inputs->addTrackedKey(GLFW_KEY_SPACE, std::bind(&Camera::moveUp, this));
         inputs->addTrackedKey(GLFW_KEY_LEFT_SHIFT, std::bind(&Camera::moveDown, this));
-        inputs->addTrackedKey(GLFW_KEY_UP, std::bind(&Camera::rotateUp, this));
-        inputs->addTrackedKey(GLFW_KEY_DOWN, std::bind(&Camera::rotateDown, this));
-        inputs->addTrackedKey(GLFW_KEY_LEFT , std::bind(&Camera::rotateLeft, this));
-        inputs->addTrackedKey(GLFW_KEY_RIGHT, std::bind(&Camera::rotateRight, this));
+        inputs->addTrackedKey(GLFW_MOUSE_BUTTON_LEFT, std::bind(&Camera::rotate, this));
 
         position = {10.0f, 1.0f, 1.0f};
         ubo.view  = glm::lookAt(position, {0.0f, 0.0f, 0.0f}, glm::vec3(0.0f, 0.0f, 1.0f));
