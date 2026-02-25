@@ -1,5 +1,4 @@
 #pragma once
-#include <bitset>
 #include <cstdint>
 #include <numeric>
 
@@ -14,14 +13,6 @@ namespace gcep
 
 	/** @brief Constant representing an invalid or non-existent entity. */
 	constexpr EntityID INVALID_VALUE = std::numeric_limits<uint32_t>::max();
-
-	/** @brief Maximum number of component types supported by the engine. */
-	constexpr std::size_t MAX_COMPONENTS = 256;
-
-	/** @brief Binary signature of an entity.
-	 * Each bit corresponds to the presence (1) or absence (0) of a specific component type.
-	 */
-	using Signature = std::bitset<MAX_COMPONENTS>;
 
 	/** @brief Type used for internal indexing within component pools. */
 	using Index = std::uint32_t;

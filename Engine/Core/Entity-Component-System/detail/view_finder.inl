@@ -42,12 +42,10 @@ namespace gcep {
 
 #pragma region View
     template<typename... Args>
-    View<Args...>::View(Registry& registry, bool exact) : m_registry(registry), m_smallestPool(nullptr), m_isExact(exact)
+    View<Args...>::View(Registry& registry) : m_registry(registry), m_smallestPool(nullptr)
     {
 
         m_pools = std::make_tuple(&m_registry.getPool<Args>()...);
-
-        (m_viewSignature.set(ComponentIDGenerator::get<Args>()),...);
 
         size_t minSize = std::numeric_limits<size_t>::max();
         auto findSmallest = [&](IPool* pool) {
@@ -68,8 +66,8 @@ namespace gcep {
     template<typename ... Args>
     bool View<Args...>::match(EntityID entity) const
     {
-        return std::apply([entity](auto&&... pools) {
-            return (pools->hasComponent(entity) && ...);
+        return std::apply([&](auto&&... pools) {
+            return ((pools == m_smallestPool ? true :pools->hasComponent(entity)) && ...);
         }, m_pools);
     }
 

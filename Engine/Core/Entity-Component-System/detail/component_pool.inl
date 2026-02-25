@@ -46,8 +46,7 @@ namespace gcep
     template <typename T>
     bool ComponentPool<T>::hasComponent(EntityID entity) const
     {
-        Index index = m_sparse.get(entity);
-        return index < m_dense.size() && m_dense[index] == entity;
+        return m_sparse.get(entity) != INVALID_VALUE &&  m_sparse.get(entity) < m_dense.size() && m_dense[m_sparse.get(entity)] == entity;
     }
 
     template<typename T>

@@ -51,15 +51,9 @@ namespace gcep
 
 
     template<typename... Args>
-    View<Args...> Registry::partialView()
+    View<Args...> Registry::view()
     {
-        return View<Args...>(*this, false);
-    }
-
-    template<typename ... Args>
-    View<Args...> Registry::exactView()
-    {
-        return View<Args...>(*this, true);
+        return View<Args...>(*this);
     }
 
     template<typename T>

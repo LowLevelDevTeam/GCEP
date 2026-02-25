@@ -24,13 +24,8 @@ namespace gcep
     class Registry {
     public:
         /**
-         * @brief Default constructor.
-         * Initializes the signature allocator with empty signatures.
+         * @begin Default destructor of the class.
          */
-        Registry()
-        {
-        }
-
         ~Registry() = default;
 
         /**
@@ -98,17 +93,7 @@ namespace gcep
          * @return View<Args...> An iterable object containing matching entities.
          */
         template<typename... Args>
-        [[nodiscard]] View<Args...> partialView();
-
-        /**
-         * @brief Creates an exact-match filtered view.
-         * Returns entities possessing ONLY the specified component types.
-         * @tparam Args List of required component types.
-         * @return View<Args...> An iterable object containing matching entities.
-         */
-        template<typename... Args>
-        [[nodiscard]] View<Args...> exactView();
-
+        [[nodiscard]] View<Args...> view();
 
         /**
          * @brief Retrieves the storage pool associated with a component type.

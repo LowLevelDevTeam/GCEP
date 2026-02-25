@@ -19,18 +19,20 @@ reg.destroyEntity(player);
 
 // Synchronize state (cleanup destroyed entities, recycle IDs)
 reg.update();
-``` 
+
+```
+
+> **Warning**: To properly recycle IDs and free memory, ensure `reg.update()` is called at the end of your main game loop.
 
 ---
-### Warning: If you want to destroy entities, make sure Registry Update is called at the end of the game loop.
 
 ## 2. Managing Components
 
-Components are simple structs. Use `addComponent` to attach data.
+Components are simple structs (PODs).
 
-### Adding Components (In-place Construction)
+### Adding Components
 
-You can pass arguments directly to initialize the component without copies.
+Use `addComponent` to attach data. You can pass arguments directly to initialize the component in-place, avoiding unnecessary copies.
 
 ```cpp
 struct Position { float x, y; };
@@ -56,109 +58,74 @@ if (reg.hasComponent<Position>(player)) {
 reg.removeComponent<Velocity>(player);
 
 ```
+
 ---
 
-## 3. Querying Entities (Views)
+## 3. Querying Entities (The View)
 
-Views are the primary way to iterate over entities. They use **Smallest Pool Optimization**: the engine identifies the rarest component in your query to minimize the number of checks.
+The `view<Args...>` is the primary tool for iterating over entities. It is designed to be as fast as possible by following the **Smallest Pool Optimization**.
 
-### `partialView<Args...>()`
+### How it works:
 
-- Returns entities that have **at least** the specified components. They may have others. This is your "bread and butter" for systems (Physics, Rendering).
--  Example: partialView<Pos, Vel> matches entities with {Position, Velocity} but also {Position, Velocity, Health, Name}.
+1. **Pivot Selection**: The View identifies which of your requested components is the "rarest" (the smallest pool).
+2. **Iteration**: It iterates only over that smallest pool, skipping entities that couldn't possibly match your criteria.
+3. **Filtering**: For each entity in the pivot pool, it checks for the presence of the other requested components.
+
 ```cpp
-// Logic: (Has Position AND Has Velocity)
-auto view = reg.partialView<Position, Velocity>();
+// Matches any entity that has BOTH Position AND Velocity.
+// It doesn't matter if the entity has other components (like Health).
+auto view = reg.view<Position, Velocity>();
 
 for (EntityID e : view) {
-    auto& pos = view.get<Position>(e); // Fast access via cached pool
+    // High-speed access: Uses pointers cached during View construction
+    auto& pos = view.get<Position>(e); 
     auto& vel = view.get<Velocity>(e);
+    
     pos.x += vel.vx;
+    pos.y += vel.vy;
 }
 
 ```
 
-### `exactView<Args...>()`
-
-Returns entities that have **exactly and only** the specified components. If an entity has an extra component not listed in the template, it is ignored. Useful for very specific logic or strict state machines.
-Example: exactView<Position, Health> matches entities with {Position, Health} but ignores entities with {Position, Health, Velocity}.
-
-```cpp
-// Logic: (Has Position ) AND (Has Health) And (Has No other Components)
-auto view = reg.exactView<Position, Health>(); 
-
-for (EntityID e : view) {
-    // This entity is purely a "Position" and "Health" object
-}
-
-```
-
----
-
-### Which one to use?
-
-### `partialView<Args...>` (Behavioral Logic)
-- **Use `partialView`**: Use this 95% of the time. It allows your systems to work even if entities are "decorated" with extra data (like a Name, Tag, or AIPriority).
-
-
-- Example: A PhysicsSystem only cares about Position and Velocity. It shouldn't stop working just because you added a Mesh or a SoundEmitter to the entity.
-
-### `exactView<Args...>` (Archetype Identification)
-- **Use this to find specific objects.** It filters out any entity that has been "polluted" by extra components.
-
-- Example: If a `Player` is strictly defined as `Health + Pos + Vel`, using exactView ensures you don't accidentally grab an `NPC` that has `Health + Pos + Vel` plus an AIControl component.
 ---
 
 ## 4. Performance Tips
 
-* **Batch Operations**: Call `reg.update()` once per frame. This clears the destruction queue and recycles IDs.
-* **View Getters**: Inside a loop, **always** use `view.get<T>(entity)`.
-* `reg.getComponent<T>` performs a hash/map lookup every time.
-* `view.get<T>` uses a pointer directly cached during the view's construction.
+* **Order Matters (Cache Hits)**: While the View finds the smallest pool to start with, the order of `Args...` in `view<Args...>` determines the order of the remaining checks. To optimize for the CPU's short-circuit logic, place rarer components earlier in your template list.
+* **View.get vs Registry.get**:
+* `reg.getComponent<T>(e)`: Performs a lookup in the Registry's internal map/storage.
+* `view.get<T>(e)`: Uses a **direct pointer** to the component pool cached when the view was created. **Always use the view's getter inside loops.**
 
 
-* **Perfect Forwarding**: Use the multi-argument `addComponent` to build components directly in the pool, avoiding temporary objects.
+* **No Branching**: The `for (EntityID e : view)` loop is a tight, predictable loop. Since the data is stored in contiguous "Dense Arrays," your CPU can prefetch component data into the L1/L2 cache effectively.
 
-### Example Workflow: A Simple Spawner & System
+---
+
+## 5. Example Workflow: Physics System
 
 ```cpp
-// 1. Spawning with data "on the fly"
-void SpawnPlayer(Registry& reg, float x, float y) {
-    EntityID player = reg.createEntity();
-    
-    // In-place construction: no temporary Pos/Vel objects created
-    reg.addComponent<Position>(player, x, y); 
-    reg.addComponent<Velocity>(player, 0.0f, 0.0f);
-    reg.addComponent<Health>(player, 100);
-}
-
-// 2. Systematic Update (The "Bulk" way)
-void PhysicsSystem(Registry& reg) {
-    // We use partialView because we don't care if the entity has 
-    // extra components like 'Name' or 'Mesh'.
-    auto view = reg.partialView<Position, Velocity, Gravity>();
+void PhysicsSystem(gcep::Registry& reg, float deltaTime) {
+    // We request Position, Velocity, and Gravity. 
+    // The View will automatically pick the smallest of these three pools to iterate.
+    auto view = reg.view<Position, Velocity, Gravity>();
     
     for (EntityID e : view) {
-        // High-speed access via cached pointers
         auto& p = view.get<Position>(e);
         auto& v = view.get<Velocity>(e);
         auto& g = view.get<Gravity>(e);
         
-        v.vy -= g.force * 0.016f;
-        p.x += v.vx;
-        p.y += v.vy;
+        v.vy -= g.force * deltaTime;
+        p.x += v.vx * deltaTime;
+        p.y += v.vy * deltaTime;
     }
 }
 
 ```
 
----
-
 ### Why this is fast:
 
-1. **Contiguous Memory**: `view.get<T>` accesses the `m_components` vector linearly. Your CPU's prefetcher will load the next components into the L1 cache before you even ask for them.
-2. **No Branching**: The `for (auto e : view)` loop is a tight, predictable loop that the compiler can easily optimize (or even SIMD-vectorize).
-3. **Zero Allocation**: Aside from the initial `createEntity`, no memory allocation happens during the physics update.
-
+1. **Zero Allocation**: No memory is allocated or freed during the loop.
+2. **Minimal Indirection**: The sparse set allows $O(1)$ access to components while keeping the actual data packed tightly in memory.
+3. **Short-Circuiting**: As soon as one component check fails, the View moves to the next entity immediately.
 
 
