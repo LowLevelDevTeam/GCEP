@@ -6,7 +6,7 @@
  * @namespace gcep
  * @brief Namespace for the Gaming Campus Engine Paris.
  */
-namespace gcep
+namespace gcep::ECS
 {
 	/** @brief Type used to uniquely identify an entity. */
 	using EntityID = std::uint32_t;

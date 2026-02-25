@@ -8,7 +8,7 @@
  * @namespace gcep
  * @brief Namespace for the Gaming Campus Engine Paris
  */
-namespace gcep
+namespace gcep::ECS
 {
     /**
      * @struct IPool
@@ -174,4 +174,4 @@ namespace gcep
     };
 }
 
-#include <Engine/Core/Entity-Component-System/detail/component_pool.inl>
+#include <Engine/Core/ECS/detail/component_pool.inl>

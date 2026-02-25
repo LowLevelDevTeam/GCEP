@@ -4,7 +4,7 @@
 #include <tuple>
 #include <vector>
 
-namespace gcep
+namespace gcep::ECS
 {
     class Registry;
 
