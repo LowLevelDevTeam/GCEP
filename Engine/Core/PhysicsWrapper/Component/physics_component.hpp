@@ -8,7 +8,6 @@
 #include "Engine/Core/Maths/vector3.hpp"
 #include "Engine/Core/Maths/quaternion.hpp"
 #include "Engine/Core/PhysicsWrapper/physics_shape.hpp"
-#include "Engine/Core/PhysicsWrapper/Component/transform_component.hpp"
 
 namespace gcep
 {
@@ -34,7 +33,7 @@ namespace gcep
 
     struct PhysicsComponent
     {
-        friend class PhysicsComponentManager;
+        friend class PhysicsSystem;
 
         Vector3<float> position = Vector3<float>(0.f,0.f,0.f);
         Quaternion rotation = Quaternion(1.f,0.f,0.f,0.f);
@@ -50,13 +49,5 @@ namespace gcep
 
     private :
         JPH::BodyID	m_bodyIDRef;
-        std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem = nullptr;
-
-    };
-
-    class PhysicsComponentManager
-    {
-    public:
-        void updateAllComponents();
     };
 } // gcep

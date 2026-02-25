@@ -29,7 +29,7 @@ namespace gcep
         PhysicsWorld(const PhysicsWorld&) = delete;
 
         void step(float dt) const;
-        void createBody(PhysicsComponent& data) const;
+        void createBody(PhysicsComponent& data, JPH::BodyID& dataId);
         void destroyBody(const JPH::BodyID &body_id) const;
 
     private:

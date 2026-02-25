@@ -61,7 +61,7 @@ namespace gcep
     	constexpr glm::uint cMaxJobs = 65536;
     	constexpr glm::uint cMaxBarriers = 65536;
 
-    	glm::uint numThreads = std::thread::hardware_concurrency() - 1;
+    	glm::uint numThreads = std::max(1u, std::thread::hardware_concurrency() - 1);
 
     	m_jobSystem = std::make_unique<JPH::JobSystemThreadPool>(
 			cMaxJobs,
@@ -103,7 +103,7 @@ namespace gcep
     }
 
 
-    void PhysicsWorld::createBody(PhysicsComponent& data) const
+    void PhysicsWorld::createBody(PhysicsComponent& data, JPH::BodyID& dataId)
     {
     	JPH::ShapeRefC baseShape;
 
@@ -190,6 +190,7 @@ namespace gcep
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
     	JPH::Body* body = bodyInterface.CreateBody(bodySettings);
     	bodyInterface.AddBody(body->GetID(), JPH::EActivation::Activate);
+    	dataId = body->GetID();
     }
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const

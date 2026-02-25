@@ -14,7 +14,6 @@ namespace gcep
     class PhysicsSystem
     {
         friend class PhysicsWorld;
-        friend class PhysicsComponent;
 
     public:
         PhysicsSystem();
@@ -22,7 +21,7 @@ namespace gcep
 
         PhysicsSystem(const PhysicsSystem&) = delete;
 
-        static PhysicsSystem* getInstance();
+        static PhysicsSystem& getInstance();
 
         void init();
         void shutdown();
@@ -35,7 +34,5 @@ namespace gcep
 
     private:
         std::unique_ptr<PhysicsWorld> m_world;
-
-        static PhysicsSystem* s_instance;
     };
 } // gcep

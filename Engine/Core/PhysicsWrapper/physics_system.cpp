@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "physics_world.hpp"
+#include "Engine/Core/Entity-Component-System/headers/registry.hpp"
 
 namespace gcep
 {
@@ -16,14 +17,10 @@ namespace gcep
         shutdown();
     }
 
-    PhysicsSystem* PhysicsSystem::getInstance()
+    PhysicsSystem& PhysicsSystem::getInstance()
     {
 
-        if (!s_instance)
-        {
-            s_instance = new PhysicsSystem();
-        }
-
+        static PhysicsSystem s_instance;
         return s_instance;
     }
 
@@ -40,23 +37,33 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        //Récupère tous les PhysicsComponent
-        //auto PC : allPhysicsComponent :
-        //m_world.createBody(PC, PC.bodyID);
-        //PC.m_physicsSystem = m_world.m_physicsSystem
+        Registry reg;
+
+        auto view = reg.partialView<PhysicsComponent>();
+
+        for (EntityID id : view)
+        {
+            auto& pc = view.get<PhysicsComponent>(id); // getter
+            m_world->createBody(pc, pc.m_bodyIDRef);
+        }
     }
 
     void PhysicsSystem::update(float dt)
     {
         m_world->step(dt);
+        // need sync transform & body
     }
 
     void PhysicsSystem::stopSimulation()
     {
-        //Récupère tous les PhysicsComponent
-        //auto PC : allPhysicsComponent :
-        //m_world.destroyBody(PC.BodyID);
+        Registry reg;
+
+        auto view = reg.partialView<PhysicsComponent>();
+
+        for (EntityID id : view) {
+            auto& pc = view.get<PhysicsComponent>(id); // getter
+            m_world->destroyBody(pc.m_bodyIDRef);
+        }
     }
 
-    PhysicsSystem* PhysicsSystem::s_instance = nullptr;
 } // gcep
