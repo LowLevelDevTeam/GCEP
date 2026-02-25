@@ -5,7 +5,7 @@
 #include <RHI/Vulkan/VulkanMesh.hpp>
 #include <RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <RHI/Vulkan/VulkanTexture.hpp>
-#include <Entity-Component-System/headers/registry.hpp>
+#include <ECS/headers/registry.hpp>
 
 // Externals
 #include <vulkan/vulkan_raii.hpp>
@@ -661,7 +661,7 @@ private:
     SceneUBO            m_sceneUBO;
     float               m_shininess;
 
-    Registry m_ECSRegistry;
+    ECS::Registry m_ECSRegistry;
 
     static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
     static constexpr uint32_t MAX_MESHES           = 4096;
