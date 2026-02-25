@@ -27,6 +27,8 @@ public:
     /// @brief Get the current viewport size
     [[nodiscard]] ImVec2 getViewportSize() const { return m_viewportSize; }
 
+    float f = 2.0f; // Camera speed, exposed to UI for real-time tweaking
+
 private:
 
     GLFWwindow* m_window;

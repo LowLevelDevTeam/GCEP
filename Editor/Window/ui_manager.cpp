@@ -97,7 +97,6 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
         ImGui::ShowDemoWindow(&showDemoWindow);
 
     {
-        static float f = 0.0f;
         static int counter = 0;
 
         ImGui::Begin("Hello, world!");
@@ -105,7 +104,7 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
         ImGui::Text("This is some useful text.");
         ImGui::Checkbox("Demo Window", &showDemoWindow);
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+        ImGui::SliderFloat("Camera Speed", &f, 2.0f, 100.0f);
 
 
         ImGui::ColorEdit4("ClearColor",(float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
