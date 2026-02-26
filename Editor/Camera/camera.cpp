@@ -3,6 +3,8 @@
 // Externals
 #include <imgui_internal.h>
 
+
+
 namespace gcep
 {
 
@@ -60,7 +62,7 @@ void Camera::moveDown()
 
 void Camera::rotate()
 {
-    if (isSpecificWindowFocused("Viewport"))
+    if (isSpecificWindowFocused("Viewport") && !ImGuizmo::IsUsing())
     {
         float newPitch = pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
         if (newPitch > 89.0f)
