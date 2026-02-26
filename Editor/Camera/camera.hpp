@@ -3,7 +3,8 @@
 // Externals
 #include <glm/glm.hpp>
 #include <imgui.h>
-#include "ImGuizmo.h"
+#include <ImGuizmo.h>
+
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/Window.hpp>
 #include <RHI/Vulkan/VulkanRHI.hpp>
@@ -15,7 +16,7 @@ class Camera
 {
 public:
 
-    Camera(Inputs* inputs, Window* window);
+    Camera(InputSystem* inputs, Window* window);
 
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
@@ -41,7 +42,9 @@ private:
     void moveUp();
     void moveDown();
     void rotate();
-    private:
+
+private:
+
     rhi::vulkan::UniformBufferObject ubo{};
     float m_camSpeed = 2.0f;
 

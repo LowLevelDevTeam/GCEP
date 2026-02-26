@@ -122,7 +122,7 @@ public:
     ///
     /// @param width   New framebuffer width in pixels.
     /// @param height  New framebuffer height in pixels.
-    void recreateSwapchain(uint32_t width, uint32_t height);
+    void recreateSwapchain(uint32_t width, uint32_t height, SwapchainDesc& desc);
 
     // Per-frame accessors
 

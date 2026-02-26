@@ -129,7 +129,8 @@ public:
     /// @param ubo         Camera view and projection matrices for the current frame.
     void updateCameraUBO(UniformBufferObject ubo);
 
-    void spawnCube();
+    void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnAsset(char* filepath, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
 
     /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
     ///
@@ -163,13 +164,17 @@ public:
     ///
     /// @returns A @c VkDescriptorSet registered with @c ImGui_ImplVulkan_AddTexture,
     ///          or @c VK_NULL_HANDLE if offscreen resources have not been created yet.
-    [[nodiscard]] VkDescriptorSet getImGuiTextureDescriptor() const noexcept { return m_imguiTextureDescriptor; }
+    [[nodiscard]] VkDescriptorSet* getImGuiTextureDescriptor() { return &m_imguiTextureDescriptor; }
 
     /// @brief Returns a mutable reference to the underlying @c VulkanDevice.
     [[nodiscard]] VulkanDevice& device() noexcept { return m_device; }
 
     /// @brief Returns a const reference to the underlying @c VulkanDevice.
     [[nodiscard]] const VulkanDevice& device() const noexcept { return m_device; }
+
+    void setVSync(bool vsync);
+    bool isVSync();
+
 public:
 
     /// @brief Builds and returns the @c ImGui_ImplVulkan_InitInfo for this device.
@@ -182,7 +187,7 @@ public:
     /// @returns A fully populated @c ImGui_ImplVulkan_InitInfo ready to pass to
     ///          @c ImGui_ImplVulkan_Init().
     /// @throws std::runtime_error if @c vkCreateDescriptorPool fails.
-    ImGui_ImplVulkan_InitInfo getInitInfo();
+    ImGui_ImplVulkan_InitInfo getUIInitInfo();
 
     /// @brief Applies a pending offscreen resize if one was requested via
     ///        @c requestOffscreenResize().
@@ -206,13 +211,17 @@ public:
 
     ECS::Registry* getRegistry();
 
+    InitInfos* getInitInfos();
+
+    void addTexture(ECS::EntityID id, char *path);
+
 private:
     // Init helpers
 
     /// @brief Calls all scene-resource init functions in dependency order.
     ///
     /// Order: UBO layout/pool/buffers/sets -> bindless layout/pool/set ->
-    /// mesh loading -> @c setMeshData() -> @c createMeshDataDescriptors() ->
+    /// mesh loading -> @c initMeshBuffers() -> @c createMeshDataDescriptors() ->
     /// @c createCullPipeline() -> @c createGraphicsPipeline().
     void initSceneResources();
 
@@ -363,7 +372,7 @@ private:
     /// @c m_indirectCommands (one entry per mesh, @c firstInstance = mesh index).
     /// Finally calls @c uploadMeshDataSSBO() (initial upload) and
     /// @c uploadIndirectBuffer().
-    void setMeshData();
+    void initMeshBuffers();
 
     /// @brief Copies the current @c m_meshData vector into the mapped SSBO.
     ///
@@ -378,7 +387,7 @@ private:
     /// The indirect buffer is device-local with @c eIndirectBuffer |
     /// @c eStorageBuffer | @c eTransferDst usage. @c eStorageBuffer is required
     /// because the cull compute shader writes into it each frame.
-    /// Called once during @c setMeshData().
+    /// Called once during @c initMeshBuffers().
     void uploadIndirectBuffer();
 
     /// @brief Creates the descriptor set layout, pool, set, and writes the SSBO
@@ -562,6 +571,9 @@ private:
     /// @returns A @c vk::raii::ShaderModule valid until destroyed.
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
 
+    void uploadSingleMesh(uint32_t meshIndex);
+    void updateMeshMetadata(uint32_t meshIndex);
+
 private:
     // Members
 
@@ -618,6 +630,19 @@ private:
     // Indirect draw buffer - written by the cull compute shader, consumed by drawIndexedIndirectCount
     vk::raii::Buffer       m_indirectBuffer       = nullptr;
     vk::raii::DeviceMemory m_indirectBufferMemory = nullptr;
+    // Pre-allocated capacities
+    static constexpr vk::DeviceSize MAX_VERTEX_BUFFER_BYTES = 64 * 1024 * 1024; // 64 MB
+    static constexpr vk::DeviceSize MAX_INDEX_BUFFER_BYTES  = 32 * 1024 * 1024; // 32 MB
+
+    // Runtime fill tracking
+    vk::DeviceSize m_vertexBytesFilled = 0;
+    vk::DeviceSize m_indexBytesFilled  = 0;
+    uint32_t       m_totalVertexCount  = 0;
+    uint32_t       m_totalIndexCount   = 0;
+
+    // Persistent mapped SSBO for indirect commands
+    void*          m_indirectBufferMapped   = nullptr;
+    vk::DeviceSize m_indirectBufferCapacity = 0;
 
     // CPU-side mirrors of GPU buffers, rebuilt each frame by refreshMeshData()
     std::vector<GPUMeshData>                    m_meshData;
@@ -669,6 +694,7 @@ private:
 
     static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
     static constexpr uint32_t MAX_MESHES           = 4096;
+    InitInfos m_initInfos;
 
     /// Epoch used for procedural animations in @c perFrameUpdate().
     std::chrono::high_resolution_clock::time_point m_startTime =

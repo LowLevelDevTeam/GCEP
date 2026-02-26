@@ -1,30 +1,33 @@
-﻿//
-// Created by cleme on 13/02/2026.
-//
+﻿#include "Inputs.hpp"
 
-#include "Inputs.hpp"
-#include <iostream>
 namespace gcep
 {
-    void Inputs::addTrackedKey(int key, std::function<void()> callback)
-    {
-        m_trackedKeys.emplace(key, callback);
-    }
 
-    void Inputs::update(GLFWwindow* window)
+InputSystem::InputSystem(GLFWwindow *window)
+{
+    windowRef = window;
+}
+
+void InputSystem::addTrackedKey(int key, std::function<void()> callback)
+{
+    m_trackedKeys.emplace(key, callback);
+}
+
+void InputSystem::update()
+{
+    for (auto& [key, function] : m_trackedKeys)
     {
-        for (auto& [key, function] : m_trackedKeys)
+        int state = glfwGetKey(windowRef, key);
+        int mouseState = glfwGetMouseButton(windowRef, key);
+        if (state == GLFW_PRESS)
         {
-            int state = glfwGetKey(window, key);
-            int mouseState = glfwGetMouseButton(window, key);
-            if (state == GLFW_PRESS)
-            {
-                function();
-            }
-            else if (mouseState == GLFW_PRESS)
-            {
-                function();
-            }
+            function();
+        }
+        else if (mouseState == GLFW_PRESS)
+        {
+            function();
         }
     }
 }
+
+} // Namespace gcep

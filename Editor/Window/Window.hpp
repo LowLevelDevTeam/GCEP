@@ -1,5 +1,6 @@
 #pragma once
 
+// Externals
 #include <GLFW/glfw3.h>
 
 namespace gcep
@@ -21,10 +22,13 @@ public:
 
 public:
     GLFWwindow* getGlfwWindow();
+    bool shouldClose();
 
 private:
     Window() = default;
-    ~Window() = default;
+    ~Window();
+
+    void centerWindow();
 
 private:
     GLFWwindow* m_window;

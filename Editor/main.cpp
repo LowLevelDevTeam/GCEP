@@ -4,26 +4,28 @@
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
-#include <RHI/ObjParser/ObjParser.hpp>
 #include <RHI/Vulkan/VulkanRHI.hpp>
 
 int main()
 {
-    gcep::Window& window = gcep::Window::getInstance();
+    using namespace gcep;
+    using VulkanRHI = gcep::rhi::vulkan::VulkanRHI;
+
+    Window& window = Window::getInstance();
     window.initWindow();
-    gcep::Inputs inputs;
-    gcep::Camera camera(&inputs, &window);
+    InputSystem inputSystem(window.getGlfwWindow());
+    Camera camera(&inputSystem, &window);
 
     int fbWidth = 0, fbHeight = 0;
     glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);
 
-    gcep::rhi::SwapchainDesc swapDesc{};
+    rhi::SwapchainDesc swapDesc{};
     swapDesc.nativeWindowHandle = window.getGlfwWindow();
     swapDesc.width              = static_cast<uint32_t>(fbWidth);
     swapDesc.height             = static_cast<uint32_t>(fbHeight);
-    swapDesc.vsync              = false;
+    swapDesc.vsync              = true;
 
-    std::unique_ptr<gcep::rhi::vulkan::VulkanRHI> rhi = std::make_unique<gcep::rhi::vulkan::VulkanRHI>(swapDesc);
+    std::unique_ptr<VulkanRHI> rhi = std::make_unique<VulkanRHI>(swapDesc);
 
     try
     {
@@ -32,43 +34,23 @@ int main()
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return 1;
     }
 
-    gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
-    uiManager.setVieportResizeCallback(
-        [&rhi](uint32_t width, uint32_t height)
-        {
-            rhi->requestOffscreenResize(width, height);
-        }
-    );
-    uiManager.setECSRegistry(rhi->getRegistry());
-    while (!glfwWindowShouldClose(window.getGlfwWindow()))
+    UiManager uiManager(window.getGlfwWindow(), rhi->getUIInitInfo());
+    uiManager.setCamera(&camera);
+    uiManager.setInfos(rhi->getInitInfos());
+
+    while (!window.shouldClose())
     {
         glfwPollEvents();
-        inputs.update(window.getGlfwWindow());
-
-        uiManager.setMeshList(rhi->getMeshData());
-        rhi->processPendingOffscreenResize();
-        uiManager.uiUpdate(
-            rhi->getImGuiTextureDescriptor(),
-            &camera,
-            rhi->getDrawCount()
-        );
-        if (uiManager.wantsCube()) {
-            rhi->spawnCube();
-        }
-        rhi->updateCameraUBO(camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.camSpeed));
-        rhi->updateSceneUBO(uiManager.getSceneInfos(), camera.position);
-
+        inputSystem.update();
+        uiManager.uiUpdate();
         rhi->drawFrame();
     }
     rhi->cleanup();
     rhi.reset();
-
-    glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
-    glfwTerminate();
 
     return 0;
 }

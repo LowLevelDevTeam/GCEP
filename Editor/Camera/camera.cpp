@@ -75,7 +75,7 @@ void Camera::rotate()
 }
 
 
-Camera::Camera(Inputs* inputs, Window* window) : window(window)
+Camera::Camera(InputSystem* inputs, Window* window) : window(window)
 {
     inputs->addTrackedKey(GLFW_KEY_W, std::bind(&Camera::moveForward, this));
     inputs->addTrackedKey(GLFW_KEY_S, std::bind(&Camera::moveBackward, this));

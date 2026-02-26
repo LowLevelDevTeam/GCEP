@@ -13,8 +13,6 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesyst
     assert(!filepath.string().empty() && "Invalid file path!");
     assert(filepath.extension() == ".obj" && "File must be .obj!");
 
-    auto start_timer = std::chrono::high_resolution_clock::now();
-
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
     if (!file || !file.is_open())
     {
@@ -286,18 +284,6 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesyst
 
         skipLine(ptr, end);
     }
-
-    auto end_timer = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
-
-    std::cout << "Model " << filepath.filename() << " :" << '\n'
-              << " - Size: " << (buffer.size() * sizeof(char)) << " bytes" << '\n'
-              << " - Vertex: "              << vCount  << '\n'
-              << " - Vertex UVs: "          << vtCount << '\n'
-              << " - Vertex normals: "      << vnCount << '\n'
-              << " - Triangles: "           << fCount  << '\n';
-
-    std::cout << "Loaded 3D model " << filepath.filename() << " in " << duration.count() << "ms.\n" << '\n';
 
     attribs.vertices.shrink_to_fit();
     attribs.texcoords.shrink_to_fit();
