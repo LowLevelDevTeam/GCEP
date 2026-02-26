@@ -42,6 +42,11 @@ void UiManager::setMeshList(std::vector<rhi::vulkan::VulkanMesh> &data)
     meshData  = &data;
 }
 
+void UiManager::setVieportResizeCallback(const std::function<void(uint32_t, uint32_t)>& callback)
+{
+    m_viewportResizeCallback = callback;
+}
+
 static bool DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
     bool value_changed = false;
     ImGuiIO& io = ImGui::GetIO();
@@ -117,7 +122,7 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
     return value_changed;
 }
 
-void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(uint32_t, uint32_t)>& viewportResizeCallback, Camera* camera, uint32_t drawCount)
+void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount)
 {
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
     {
@@ -143,9 +148,9 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
         if (sizeChanged && availSize.x > 0 && availSize.y > 0)
         {
             m_viewportSize = availSize;
-            if (viewportResizeCallback)
+            if (m_viewportResizeCallback)
             {
-                viewportResizeCallback(
+                m_viewportResizeCallback(
                     static_cast<uint32_t>(availSize.x),
                     static_cast<uint32_t>(availSize.y)
                 );
@@ -178,19 +183,20 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
 
         ImGui::SeparatorText("Scene infos");
         ImGui::Text("Entities drawn : %d", drawCount);
-        ImGui::DragFloat("Shininess", &shininess, 1.0f, 0.0f, 1000.0f, "%.2f");
+        ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
 
         ImGui::SeparatorText("Camera");
-        ImGui::SliderFloat("Camera Speed", &f, 2.0f, 100.0f);
+        ImGui::SliderFloat("Camera Speed", &camSpeed, 2.0f, 5.0f);
         ImGui::DragFloat3("Camera position", glm::value_ptr(camera->position));
-        ImGui::DragFloat3("Camera front vector", glm::value_ptr(camera->front));
+        ImGui::DragFloat3("Camera front vector", glm::value_ptr(camera->front), 0.1f, -1.0f, 1.0f);
         ImGui::DragFloat("Camera yaw", &camera->yaw);
         ImGui::DragFloat("Camera pitch", &camera->pitch);
 
         ImGui::SeparatorText("Lights & normals");
         ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
+        DrawVec3Control("Light direction", lightDirection);
+        //ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection), 1.0f, -50.0f, 50.0f);
 
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
@@ -221,23 +227,32 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
 
         ImGui::End();
 
-        ImGui::Begin("Scene infos");
+        ImGui::Begin("Entity properties");
 
         if (m_SelectedEntityID != std::numeric_limits<uint32_t>::max())
         {
+            static float lodLevel = 0.0f;
             auto& data = *meshData;
             auto& entity = data[m_SelectedEntityID];
             DrawVec3Control("Translation", entity.transform.position);
             DrawVec3Control("Rotation", entity.transform.rotation);
             DrawVec3Control("Scale", entity.transform.scale);
+            if(ImGui::DragFloat("LOD level", &lodLevel, 0.1f, 0.0f, static_cast<float>(entity.texture()->getMipLevels())))
+            {
+                entity.texture()->setLodLevel(lodLevel);
+            }
+        }
+        else
+        {
+            ImGui::Text("Select an entity to see its properties.");
         }
         ImGui::End();
     }
+    perFrame.clearColor = m_clearColor;
+    perFrame.ambientColor = ambientColor;
+    perFrame.lightColor = lightColor;
+    perFrame.lightDirection = lightDirection;
+    perFrame.shininess = shininess;
 }
 
-
-ImVec4& UiManager::getClearColor()
-{
-    return m_clearColor;
-}
 }

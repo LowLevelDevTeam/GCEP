@@ -60,12 +60,8 @@ void VulkanRHI::initSceneResources()
     // Textures loading TODO: Move to manager class + use ECS
     meshes.reserve(MAX_MESHES);
     meshes.emplace_back();
-    meshes.emplace_back();
     meshes[0].loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
-    meshes[1].loadMesh(this, "TestTextures/cube.obj", "TestTextures/white.png");
-    meshes[1].setPosition({1.0f, 3.0f, 0.0f});
     meshes[0].name = "Viking Room";
-    meshes[1].name = "Cube";
     setMeshData();
     createMeshDataDescriptors();
     createGraphicsPipeline();
@@ -562,12 +558,14 @@ void VulkanRHI::updateSceneUBOSets()
     }
 }
 
-void VulkanRHI::updateSceneUBO(glm::vec3 lightDir, glm::vec3 lightCol, glm::vec3 ambientCol, glm::vec3 cameraPos)
+void VulkanRHI::updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraPos)
 {
-    m_sceneUBO.lightDir = lightDir;
-    m_sceneUBO.lightColor = lightCol;
-    m_sceneUBO.ambientColor = ambientCol;
-    m_sceneUBO.cameraPos = cameraPos;
+    m_clearColor            = upstr->clearColor;
+    m_shininess             = upstr->shininess;
+    m_sceneUBO.lightDir     = upstr->lightDirection;
+    m_sceneUBO.lightColor   = upstr->lightColor;
+    m_sceneUBO.ambientColor = upstr->ambientColor;
+    m_sceneUBO.cameraPos    = cameraPos;
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         std::memcpy(m_uniformBuffersMapped[i], &m_sceneUBO, sizeof(m_sceneUBO));
@@ -686,11 +684,9 @@ void VulkanRHI::drawFrame()
     m_device.endFrame();
 }
 
-void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo, float shininess)
+void VulkanRHI::updateCameraUBO(UniformBufferObject ubo)
 {
-    m_shininess = shininess;
-    m_cameraUBO  = ubo;
-    m_clearColor = clearColor;
+    m_cameraUBO = ubo;
 }
 
 uint32_t VulkanRHI::getDrawCount()
@@ -879,14 +875,6 @@ void VulkanRHI::createBindlessSet()
 
 void VulkanRHI::perFrameUpdate()
 {
-    const auto currentTime = std::chrono::high_resolution_clock::now();
-    const float time = std::chrono::duration<float>(currentTime - m_startTime).count();
-
-    // Left right oscillation of the viking room
-    //meshes[0].setPosition({ 5.0f, std::sin(time), 0.0f });
-    // XZ rotation of the cube
-    //meshes[1].setRotation({time * (180.0f / glm::pi<float>()), 0.0f, time * (180.0f / glm::pi<float>())});
-
     refreshMeshData();
 }
 
@@ -936,7 +924,7 @@ void VulkanRHI::createGraphicsPipeline()
     rasterizer.depthClampEnable        = vk::False;
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode             = vk::PolygonMode::eFill;
-    rasterizer.cullMode                = vk::CullModeFlagBits::eBack;
+    rasterizer.cullMode                = vk::CullModeFlagBits::eNone;
     rasterizer.frontFace               = vk::FrontFace::eCounterClockwise;
     rasterizer.depthBiasEnable         = vk::False;
     rasterizer.depthBiasSlopeFactor    = 1.0f;

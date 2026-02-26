@@ -127,7 +127,7 @@ public:
     ///
     /// @param clearColor  RGBA clear color in linear [0, 1] float space.
     /// @param ubo         Camera view and projection matrices for the current frame.
-    void updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo, float shininess);
+    void updateCameraUBO(UniformBufferObject ubo);
 
     /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
     ///
@@ -140,7 +140,7 @@ public:
     /// @param lightCol    Linear RGB color and intensity of the directional light (e.g. @c {1,1,1} for white).
     /// @param ambientCol  Linear RGB ambient term applied uniformly to all fragments (e.g. @c {0.05,0.05,0.05}).
     /// @param cameraPos   World-space camera position, used to compute the half-vector for specular highlights.
-    void updateSceneUBO(glm::vec3 lightDir, glm::vec3 lightCol, glm::vec3 ambientCol, glm::vec3 cameraPos);
+    void updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraPos);
 
     /// @brief Defers an offscreen render target resize to the next frame boundary.
     ///
@@ -656,7 +656,7 @@ private:
     /// Cached draw count read from @c m_drawCountBuffer after each frame for the editor overlay.
     uint32_t m_drawCount = 0;
 
-    ImVec4              m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
+    glm::vec4           m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
     UniformBufferObject m_cameraUBO;
     SceneUBO            m_sceneUBO;
     float               m_shininess;

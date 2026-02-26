@@ -87,7 +87,7 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
         std::cout << "Deduplicated: " << modelIndices.size() << " original vertices -> " << m_vertices.size()
                   << " unique vertices (" << (100.0f * m_vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
-        std::cout << "Deduplication took " << duration.count() << "ms." << '\n';
+        std::cout << "Deduplication took " << duration.count() << "ms." << "\n\n";
     }
 
     attrib.vertices.clear();  attrib.vertices.shrink_to_fit();

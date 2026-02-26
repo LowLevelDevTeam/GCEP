@@ -47,7 +47,7 @@ struct Vertex
 /// @brief Per-frame camera matrices, @c proj * @c view uploaded as a push constant.
 ///
 /// @c view and @c proj are provided by the editor each frame via
-/// @c VulkanRHI::updateEditorInfo(). @c proj should already have its Y axis
+/// @c VulkanRHI::updateCameraUBO(). @c proj should already have its Y axis
 /// flipped for Vulkan NDC before being stored here.
 struct UniformBufferObject
 {
@@ -116,6 +116,15 @@ struct FrustumPlanes
     glm::vec4 planes[6];   ///< Left, right, bottom, top, near, far - all inward-facing.
     uint32_t  objectCount; ///< Total number of objects to test; used as the dispatch bound.
     float     _pad[3];     ///< Padding to 16-byte alignment.
+};
+
+struct SceneInfos
+{
+    glm::vec4 clearColor     = {0.1f, 0.1f, 0.1f, 1.0f};
+    glm::vec3 ambientColor   = {0.2f, 0.2f, 0.2f};
+    glm::vec3 lightColor     = {0.5f, 0.5f, 0.5f};
+    glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
+    float     shininess      = 64.0f;
 };
 
 } // Namespace gcep::rhi::vulkan

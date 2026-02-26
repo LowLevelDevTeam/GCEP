@@ -87,7 +87,7 @@ public:
     [[nodiscard]] vk::DescriptorSet getDescriptorSet() noexcept { return m_descriptorSet; }
 
     /// @brief Returns the number of mip levels present in the image.
-    [[nodiscard]] uint32_t getMipLevels() noexcept { return m_mipLevels; }
+    [[nodiscard]] uint32_t  getMipLevels() noexcept { return m_mipLevels; }
 
     /// @brief Returns the width of mip level 0 in texels.
     [[nodiscard]] uint32_t getWidth()     noexcept { return m_width;     }

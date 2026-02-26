@@ -1,133 +1,128 @@
-﻿
-#include "camera.hpp"
-#include <iostream>
-#include <ostream>
+﻿#include "camera.hpp"
 
-#include "imgui_internal.h"
-
+// Externals
+#include <imgui_internal.h>
 
 namespace gcep
 {
 
+bool isSpecificWindowFocused(const char* name)
+{
+    ImGuiWindow* window = ImGui::FindWindowByName(name);
+    if (!window) return false;
 
-    bool isSpecificWindowFocused(const char* name)
+    ImGuiContext& g = *GImGui;
+    return (g.NavWindow == window || g.NavWindow == window->RootWindow) && window->Active;
+}
+
+void Camera::moveForward()
+{
+    if (isSpecificWindowFocused("Viewport"))
     {
-        ImGuiWindow* window = ImGui::FindWindowByName(name);
-        if (!window) return false;
-
-        ImGuiContext& g = *GImGui;
-        return (g.NavWindow == window || g.NavWindow == window->RootWindow) && window->Active;
+        position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
     }
-
-    void Camera::moveForward()
+}
+void Camera::moveBackward()
+{
+    if (isSpecificWindowFocused("Viewport"))
     {
-        if (isSpecificWindowFocused("Viewport"))
+        position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;
+    }
+}
+void Camera::moveLeft()
+{
+    if (isSpecificWindowFocused("Viewport"))
+    {
+        position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
+    }
+}
+void Camera::moveRight()
+{
+    if (isSpecificWindowFocused("Viewport"))
+    {
+        position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
+    }
+}
+void Camera::moveUp()
+{
+    if (isSpecificWindowFocused("Viewport"))
+    {
+        position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
+    }
+}
+void Camera::moveDown()
+{
+    if (isSpecificWindowFocused("Viewport"))
+    {
+        position -= up * m_camSpeed * ImGui::GetIO().DeltaTime;
+    }
+}
+
+void Camera::rotate()
+{
+    if (isSpecificWindowFocused("Viewport"))
+    {
+        float newPitch = pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+        if (newPitch > 89.0f)
         {
-            position += front * m_camSpeed * ImGui::GetIO().DeltaTime;
+            pitch = 89.0f;
         }
-    }
-    void Camera::moveBackward()
-    {
-        if (isSpecificWindowFocused("Viewport"))
+        else if (newPitch < -89.0f)
         {
-            position -= front * m_camSpeed * ImGui::GetIO().DeltaTime;
+            pitch = -89.0f;
         }
-    }
-    void Camera::moveLeft()
-    {
-        if (isSpecificWindowFocused("Viewport"))
+        else
         {
-            position -= right * m_camSpeed * ImGui::GetIO().DeltaTime;
+            pitch = newPitch;
         }
+
+        yaw -= ImGui::GetIO().MouseDelta.x * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
     }
-    void Camera::moveRight()
-    {
-        if (isSpecificWindowFocused("Viewport"))
-        {
-            position += right * m_camSpeed * ImGui::GetIO().DeltaTime;
-        }
-    }
-    void Camera::moveUp()
-    {
-        if (isSpecificWindowFocused("Viewport"))
-        {
-            position += up * m_camSpeed * ImGui::GetIO().DeltaTime;
-        }
-    }
-    void Camera::moveDown()
-    {
-        if (isSpecificWindowFocused("Viewport"))
-        {
-            position -= up * m_camSpeed * ImGui::GetIO().DeltaTime;
-        }
-    }
-
-    void Camera::rotate()
-    {
-        if (isSpecificWindowFocused("Viewport"))
-        {
-            if (pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime > 89.0f)
-            {
-                pitch = 89.0f;
-            }
-            else if (pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime < -89.0f)
-            {
-                pitch = -89.0f;
-            }
-            else
-            {
-                pitch -= ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-            }
-
-            yaw -= ImGui::GetIO().MouseDelta.x * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
-        }
-    }
+}
 
 
-    Camera::Camera(Inputs* inputs, Window* window) : window(window)
-    {
-        inputs->addTrackedKey(GLFW_KEY_W, std::bind(&Camera::moveForward, this));
-        inputs->addTrackedKey(GLFW_KEY_S, std::bind(&Camera::moveBackward, this));
-        inputs->addTrackedKey(GLFW_KEY_A, std::bind(&Camera::moveLeft, this));
-        inputs->addTrackedKey(GLFW_KEY_D, std::bind(&Camera::moveRight, this));
-        inputs->addTrackedKey(GLFW_KEY_SPACE, std::bind(&Camera::moveUp, this));
-        inputs->addTrackedKey(GLFW_KEY_LEFT_SHIFT, std::bind(&Camera::moveDown, this));
-        inputs->addTrackedKey(GLFW_MOUSE_BUTTON_LEFT, std::bind(&Camera::rotate, this));
+Camera::Camera(Inputs* inputs, Window* window) : window(window)
+{
+    inputs->addTrackedKey(GLFW_KEY_W, std::bind(&Camera::moveForward, this));
+    inputs->addTrackedKey(GLFW_KEY_S, std::bind(&Camera::moveBackward, this));
+    inputs->addTrackedKey(GLFW_KEY_A, std::bind(&Camera::moveLeft, this));
+    inputs->addTrackedKey(GLFW_KEY_D, std::bind(&Camera::moveRight, this));
+    inputs->addTrackedKey(GLFW_KEY_SPACE, std::bind(&Camera::moveUp, this));
+    inputs->addTrackedKey(GLFW_KEY_LEFT_SHIFT, std::bind(&Camera::moveDown, this));
+    inputs->addTrackedKey(GLFW_MOUSE_BUTTON_LEFT, std::bind(&Camera::rotate, this));
 
-        position = {10.0f, 1.0f, 1.0f};
-        ubo.view  = glm::lookAt(position, {0.0f, 0.0f, 0.0f}, glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj  = glm::perspective(glm::radians(45.0f), 1.f, 0.1f, 1000.0f);
-        ubo.proj[1][1] *= -1;
-    }
+    position = {5.0f, 0.0f, 2.0f};
+    ubo.view  = glm::lookAt(position, {0.0f, 0.0f, 0.0f}, glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj  = glm::perspective(glm::radians(45.0f), 1.f, 0.1f, 1000.0f);
+    ubo.proj[1][1] *= -1;
+}
 
-    glm::mat4 Camera::getViewMatrix()
-    {
-        return ubo.view;
-    }
+glm::mat4 Camera::getViewMatrix()
+{
+    return ubo.view;
+}
 
+glm::mat4 Camera::getProjectionMatrix()
+{
+    return ubo.proj;
+}
+rhi::vulkan::UniformBufferObject Camera::update(float aspect, float camSpeed)
+{
+    m_camSpeed = camSpeed;
 
-    glm::mat4 Camera::getRotationMatrix()
-    {
-        return glm::mat4();
-    }
-    rhi::vulkan::UniformBufferObject Camera::update(float aspect, float camSpeed)
-    {
-        m_camSpeed = camSpeed;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.z = sin(glm::radians(pitch));
+    front = glm::normalize(front);
 
+    right = glm::normalize(glm::cross(front, worldUp));
+    up    = glm::normalize(glm::cross(right, front));
 
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.z = sin(glm::radians(pitch));
-        front = glm::normalize(front);
+    ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
+    ubo.view = glm::lookAt(position, position + front, up);
+    ubo.proj[1][1] *= -1;
 
+    return ubo;
+}
 
-        right = glm::normalize(glm::cross(front, worldUp));
-        up    = glm::normalize(glm::cross(right, front));
-
-        ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
-        ubo.view = glm::lookAt(position, position + front, up);
-        ubo.proj[1][1] *= -1;
-
-        return ubo;
-    }
-} // GCEP
+} // Namespace gcep

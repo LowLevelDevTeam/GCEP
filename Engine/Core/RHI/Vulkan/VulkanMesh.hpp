@@ -85,7 +85,7 @@ public:
     /// Valid for the lifetime of this mesh. The texture is registered in the
     /// bindless array during @c loadMesh(); use @c getBindlessIndex() on the
     /// returned texture to look up its shader slot.
-    [[nodiscard]] const VulkanTexture* texture() const noexcept { return &m_texture; }
+    [[nodiscard]] VulkanTexture* texture() { return &m_texture; }
 
     /// @brief Returns the current model-to-world transform matrix.
     [[nodiscard]] glm::mat4& getTransform();
