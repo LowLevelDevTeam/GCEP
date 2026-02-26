@@ -22,6 +22,10 @@ target_include_directories(GCEngine PRIVATE JoltPhysics)
 add_subdirectory(miniaudio)
 target_include_directories(GCEngine PRIVATE miniaudio)
 
+# ImGuiColorTextEdit
+target_include_directories(GCEngine PRIVATE ImGuiColorTextEdit)
+target_sources(GCEngine PRIVATE ImGuiColorTextEdit/TextEditor.cpp)
+
 # KTX-Software
 # set(LIBKTX_VERSION_FULL ON)
 # add_subdirectory(KTX-Software/lib)

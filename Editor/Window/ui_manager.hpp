@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include <RHI/Vulkan/VulkanMesh.hpp>
 #include <RHI/Vulkan/VulkanRHIDataTypes.hpp>
 
@@ -10,6 +11,8 @@
 #include <ImGuizmo.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include "TextEditor.h"
+
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
@@ -22,6 +25,7 @@ class Camera;
 class UiManager {
 public:
 
+    void initEditor();
     // @brief creation of the Editoreditor UI
     UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
 
@@ -52,6 +56,7 @@ public:
 
 private:
 
+    TextEditor editor;
     GLFWwindow* m_window;
     ImGui_ImplVulkan_InitInfo m_initInfo;
     bool showDemoWindow = false;
