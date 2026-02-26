@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <vector>
 
+#include <ECS/headers/entity_component.hpp>
+
 namespace gcep::rhi::vulkan
 {
 static uint32_t entityID = 0;
@@ -66,10 +68,13 @@ public:
                   const std::filesystem::path& textureFilepath   = L"",
                   glm::mat4                    transform         = glm::mat4(1.0f));
 
+    bool hasTexture() const noexcept { return m_texture.hasTexture(); }
+    bool hasMipmaps() const noexcept { return m_texture.hasMipmaps(); }
+
 public:
     TransformComponent transform;
     std::string name = "Unknown";
-    uint32_t id = UINT32_MAX;
+    ECS::EntityID id = std::numeric_limits<ECS::EntityID>::max();
 
 public:
     // Accessors

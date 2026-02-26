@@ -12,7 +12,11 @@ namespace gcep::rhi::vulkan
 
 void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
 {
-    id = entityID++;
+    if (name == "Unknown")
+    {
+        // Make sure every entity has a different name
+        name = std::string("Unknown ") + std::to_string(id);
+    }
     pRhi = instance;
     m_transform = transform;
 

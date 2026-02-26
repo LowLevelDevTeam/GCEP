@@ -59,9 +59,13 @@ void VulkanRHI::initSceneResources()
     createBindlessSet();
     // Textures loading TODO: Move to manager class + use ECS
     meshes.reserve(MAX_MESHES);
+    const auto id = m_ECSRegistry.createEntity();
     meshes.emplace_back();
-    meshes[0].loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
-    meshes[0].name = "Viking Room";
+    meshes.back().transform = m_ECSRegistry.addComponent<TransformComponent>(id, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+    meshes.back().id = id;
+    meshes.back().loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
+    m_ECSRegistry.getComponent<TransformComponent>(id).position = {1.0f, 1.0f, 1.0f};
+    meshes.back().transform = m_ECSRegistry.getComponent<TransformComponent>(id);
     setMeshData();
     createMeshDataDescriptors();
     createGraphicsPipeline();
@@ -699,6 +703,11 @@ std::vector<VulkanMesh>& VulkanRHI::getMeshData()
     return meshes;
 }
 
+ECS::Registry* VulkanRHI::getRegistry()
+{
+    return &m_ECSRegistry;
+}
+
 void VulkanRHI::requestOffscreenResize(uint32_t width, uint32_t height)
 {
     if (width <= 0 || height <= 0) return;
@@ -995,7 +1004,7 @@ void VulkanRHI::createGraphicsPipeline()
     m_graphicsPipeline = vk::raii::Pipeline(m_device.rawDevice(), nullptr, pipelineInfo);
 }
 static struct PushConstant {
-    glm::mat4 transform;
+    glm::mat4 camViewProj;
     float shininess;
     float _pad[3];
 } pc;
@@ -1077,7 +1086,7 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     cmd.bindVertexBuffers(0, { *m_globalVertexBuffer }, { 0 });
     cmd.bindIndexBuffer(*m_globalIndexBuffer, 0, vk::IndexType::eUint32);
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, { *m_meshDataDescriptorSet, *m_bindlessSet, *m_UBOSets[0] }, {});
-    pc.transform = m_cameraUBO.proj * m_cameraUBO.view;
+    pc.camViewProj = m_cameraUBO.proj * m_cameraUBO.view;
     pc.shininess = m_shininess;
     cmd.pushConstants<PushConstant>(*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pc);
 

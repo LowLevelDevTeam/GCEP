@@ -15,6 +15,8 @@
 #include <functional>
 #include <limits>
 
+#include "ECS/headers/registry.hpp"
+
 namespace gcep
 {
 class Camera;
@@ -25,6 +27,7 @@ public:
     UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
 
     void setMeshList(std::vector<rhi::vulkan::VulkanMesh>& data);
+    void setECSRegistry(ECS::Registry* registry);
     void setVieportResizeCallback(const std::function<void(uint32_t, uint32_t)>& callback);
 
     /// @brief Update UI with viewport texture
@@ -51,13 +54,14 @@ private:
     ImVec2 m_viewportSize = {800, 600};
     std::vector<rhi::vulkan::VulkanMesh>* meshData;
     std::function<void(uint32_t, uint32_t)> m_viewportResizeCallback;
-    uint32_t m_SelectedEntityID = std::numeric_limits<uint32_t>::max();
+    ECS::EntityID m_SelectedEntityID = std::numeric_limits<ECS::EntityID>::max();
     glm::vec4 m_clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
     glm::vec3 ambientColor = {0.2f, 0.2f, 0.2f};
     glm::vec3 lightColor = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
     float shininess = 64.0f;
     rhi::vulkan::SceneInfos perFrame;
+    ECS::Registry* m_registry;
 };
 
 }

@@ -105,7 +105,7 @@ struct SceneUBO
 ///
 /// Populated each frame by @c VulkanRHI::extractFrustum() using the Gribb-Hartmann
 /// method applied to the combined @c proj * @c view matrix. Each plane is stored as a
-/// normalised @c vec4 where @c xyz is the inward-facing normal and @c w is the
+/// normalized @c vec4 where @c xyz is the inward-facing normal and @c w is the
 /// signed distance from the origin, such that @c dot(n, p) + d >= 0 means
 /// the point @c p is inside (or on) the plane.
 ///

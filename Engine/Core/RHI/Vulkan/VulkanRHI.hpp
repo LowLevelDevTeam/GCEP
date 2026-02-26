@@ -202,6 +202,8 @@ public:
 
     std::vector<VulkanMesh>& getMeshData();
 
+    ECS::Registry* getRegistry();
+
 private:
     // Init helpers
 
@@ -591,9 +593,9 @@ private:
     std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
 
     /// Persistently-mapped pointers into @c m_uniformBuffersMemory; written each frame.
-    std::vector<void*>                  m_uniformBuffersMapped;
+    std::vector<void*>                   m_uniformBuffersMapped;
     vk::raii::DescriptorSetLayout        m_UBOLayout = nullptr;
-    vk::raii::DescriptorPool             m_UBOPool      = nullptr;
+    vk::raii::DescriptorPool             m_UBOPool   = nullptr;
     std::vector<vk::raii::DescriptorSet> m_UBOSets;
 
     vk::raii::DescriptorSet       m_bindlessSet    = nullptr;

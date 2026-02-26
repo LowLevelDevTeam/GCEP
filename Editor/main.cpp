@@ -21,7 +21,7 @@ int main()
     swapDesc.nativeWindowHandle = window.getGlfwWindow();
     swapDesc.width              = static_cast<uint32_t>(fbWidth);
     swapDesc.height             = static_cast<uint32_t>(fbHeight);
-    swapDesc.vsync              = true;
+    swapDesc.vsync              = false;
 
     std::unique_ptr<gcep::rhi::vulkan::VulkanRHI> rhi = std::make_unique<gcep::rhi::vulkan::VulkanRHI>(swapDesc);
 
@@ -37,18 +37,19 @@ int main()
     }
 
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
-    uiManager.setMeshList(rhi->getMeshData());
     uiManager.setVieportResizeCallback(
         [&rhi](uint32_t width, uint32_t height)
         {
             rhi->requestOffscreenResize(width, height);
         }
     );
+    uiManager.setECSRegistry(rhi->getRegistry());
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
         inputs.update(window.getGlfwWindow());
 
+        uiManager.setMeshList(rhi->getMeshData());
         rhi->processPendingOffscreenResize();
         uiManager.uiUpdate(
             rhi->getImGuiTextureDescriptor(),

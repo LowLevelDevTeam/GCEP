@@ -69,6 +69,9 @@ public:
     ///                  Clamped to the valid range internally.
     void setLodLevel(float lodLevel);
 
+    bool hasTexture() const noexcept { return m_hasTexture; }
+    bool hasMipmaps() const noexcept { return m_hasMipmaps; }
+
 public:
     // Accessors
 

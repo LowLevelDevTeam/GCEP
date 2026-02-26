@@ -118,7 +118,7 @@ rhi::vulkan::UniformBufferObject Camera::update(float aspect, float camSpeed)
     right = glm::normalize(glm::cross(front, worldUp));
     up    = glm::normalize(glm::cross(right, front));
 
-    ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
+    ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10000.0f);
     ubo.view = glm::lookAt(position, position + front, up);
     ubo.proj[1][1] *= -1;
 

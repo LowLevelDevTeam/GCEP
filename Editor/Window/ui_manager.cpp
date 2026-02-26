@@ -42,6 +42,11 @@ void UiManager::setMeshList(std::vector<rhi::vulkan::VulkanMesh> &data)
     meshData  = &data;
 }
 
+void UiManager::setECSRegistry(ECS::Registry *registry)
+{
+    m_registry = registry;
+}
+
 void UiManager::setVieportResizeCallback(const std::function<void(uint32_t, uint32_t)>& callback)
 {
     m_viewportResizeCallback = callback;
@@ -229,18 +234,23 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
 
         ImGui::Begin("Entity properties");
 
-        if (m_SelectedEntityID != std::numeric_limits<uint32_t>::max())
+        if (m_SelectedEntityID != std::numeric_limits<ECS::EntityID>::max())
         {
             static float lodLevel = 0.0f;
-            auto& data = *meshData;
-            auto& entity = data[m_SelectedEntityID];
-            DrawVec3Control("Translation", entity.transform.position);
-            DrawVec3Control("Rotation", entity.transform.rotation);
-            DrawVec3Control("Scale", entity.transform.scale);
-            if(ImGui::DragFloat("LOD level", &lodLevel, 0.1f, 0.0f, static_cast<float>(entity.texture()->getMipLevels())))
+            auto& entities = *meshData;
+            auto& entity = entities[m_SelectedEntityID];
+            auto&[position, rotation, scale] = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID);
+            DrawVec3Control("Translation", position);
+            DrawVec3Control("Rotation", rotation);
+            DrawVec3Control("Scale", scale);
+            if(entity.hasTexture() && entity.hasMipmaps())
             {
-                entity.texture()->setLodLevel(lodLevel);
+                if (ImGui::DragFloat("LOD level", &lodLevel, 0.1f, 0.0f, static_cast<float>(entity.texture()->getMipLevels())))
+                {
+                    entity.texture()->setLodLevel(lodLevel);
+                }
             }
+            entity.transform = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID);
         }
         else
         {
