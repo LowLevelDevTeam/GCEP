@@ -13,12 +13,18 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
+#include <Jolt/Physics/Body/BodyLock.h>
+
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
 // Core
 #include "physics_shape.hpp"
+#include "Component/transform_component.hpp"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 
 namespace gcep
@@ -78,6 +84,8 @@ namespace gcep
 			*m_objectVsBroadPhaseLayerFilter,
 			*m_objectLayerPairFilter
 			);
+
+    	m_physicsSystem->SetGravity(JPH::Vec3(0, -9.81f, 0));
     }
 
 	PhysicsWorld::~PhysicsWorld()
@@ -103,7 +111,7 @@ namespace gcep
     }
 
 
-    void PhysicsWorld::createBody(PhysicsComponent& data, JPH::BodyID& dataId)
+    void PhysicsWorld::createBody(TransformComponent& transform, PhysicsComponent& data, JPH::BodyID& dataId)
     {
     	JPH::ShapeRefC baseShape;
 
@@ -134,7 +142,7 @@ namespace gcep
 
     	// Scaling
     	JPH::ShapeRefC finalShape = baseShape;
-    	const auto scale = data.scale;
+    	const auto scale = transform.scale;
     	const bool hasScale = scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f;
 
     	if (hasScale)
@@ -172,8 +180,8 @@ namespace gcep
     	}
 
     	// Transform
-    	const Vector3<float>& pos = data.position;
-    	const Quaternion& rot = data.rotation;
+    	const Vector3<float>& pos = transform.position;
+    	const Quaternion& rot = transform.rotation;
 
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -197,6 +205,57 @@ namespace gcep
     {
     	m_physicsSystem->GetBodyInterface().RemoveBody(body_id);
     	m_physicsSystem->GetBodyInterface().DestroyBody(body_id);
+    }
+
+	RaycastHit PhysicsWorld::raycast(const Vector3<float>& origin,const Vector3<float>& direction,float maxDistance) const
+    {
+    	RaycastHit hitResult;
+
+    	JPH::RRayCast ray(
+			JPH::RVec3(origin.x, origin.y, origin.z),
+			JPH::Vec3(direction.x, direction.y, direction.z) * maxDistance
+		);
+
+    	JPH::RayCastResult result;
+
+    	if (m_physicsSystem->GetNarrowPhaseQuery().CastRay(ray, result))
+    	{
+    		hitResult.hasHit = true;
+
+    		const JPH::BodyLockRead lock(
+				m_physicsSystem->GetBodyLockInterface(),
+				result.mBodyID
+			);
+
+    		if (lock.Succeeded())
+    		{
+    			const JPH::Body& body = lock.GetBody();
+
+    			JPH::RVec3 worldPoint = ray.GetPointOnRay(result.mFraction);
+
+    			JPH::Vec3 normal = body.GetWorldSpaceSurfaceNormal(
+					result.mSubShapeID2,
+					worldPoint
+				);
+
+    			hitResult.point = {
+    				worldPoint.GetX(),
+					worldPoint.GetY(),
+					worldPoint.GetZ()
+				};
+
+    			hitResult.normal = {
+    				normal.GetX(),
+					normal.GetY(),
+					normal.GetZ()
+				};
+
+    			hitResult.distance = result.mFraction * maxDistance;
+    			hitResult.bodyID = result.mBodyID;
+    		}
+    	}
+
+    	return hitResult;
     }
 
 }

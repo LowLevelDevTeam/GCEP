@@ -41,7 +41,6 @@ namespace gcep
         EMotionType motionType = EMotionType::STATIC;
         ELayers layers = ELayers::NON_MOVING;
 
-    private :
-        JPH::BodyID	m_bodyIDRef;
+        JPH::BodyID	m_bodyIDRef; //private
     };
 } // gcep

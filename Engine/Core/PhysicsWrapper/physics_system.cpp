@@ -38,12 +38,13 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        auto view = reg.partialView<PhysicsComponent>();
+        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
 
-        for (EntityID id : view)
-        {
-            auto& pc = view.get<PhysicsComponent>(id); // getter
-            m_world->createBody(pc, pc.m_bodyIDRef);
+        for (auto entity : view) {
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& physics = view.get<PhysicsComponent>(entity);
+
+            m_world->createBody(transform, physics, physics.m_bodyIDRef);
         }
     }
 
@@ -121,6 +122,11 @@ namespace gcep
                 JPH::EActivation::Activate
             );
         }
+    }
+
+    RaycastHit PhysicsSystem::raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance)
+    {
+        return m_world->raycast(origin, direction, maxDistance);
     }
 
 } // gcep

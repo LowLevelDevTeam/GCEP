@@ -2,12 +2,11 @@
 
 #include <memory>
 
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/BodyID.h>
-
 #include "physics_world.hpp"
 
 #include "Engine/Core/Entity-Component-System/headers/registry.hpp"
+
+#include "raycast_hit.hpp"
 
 
 namespace gcep
@@ -33,13 +32,12 @@ namespace gcep
 
         void syncPhysicsToTransforms(Registry& reg);
         void syncTransformsToPhysics(Registry& reg);
-        //RaycastHit
-        //OverlapQuerry
+
+        RaycastHit raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance);
+
+        Registry reg; //private
 
     private:
         std::unique_ptr<PhysicsWorld> m_world;
-
-        Registry reg;
-
     };
 } // gcep

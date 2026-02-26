@@ -37,10 +37,10 @@ namespace gcep
             Quaternion normalized = quaternion.Normalized();
 
             return JPH::Quat(
-                normalized.w,
                 normalized.x,
                 normalized.y,
-                normalized.z
+                normalized.z,
+                normalized.w
             );
         }
 

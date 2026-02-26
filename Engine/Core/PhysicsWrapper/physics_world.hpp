@@ -14,6 +14,8 @@
 #include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
 
 #include "Component/physics_component.hpp"
+#include "Component/transform_component.hpp"
+#include "raycast_hit.hpp"
 
 namespace gcep
 {
@@ -30,11 +32,14 @@ namespace gcep
         PhysicsWorld(const PhysicsWorld&) = delete;
 
         void step(float dt) const;
-        void createBody(PhysicsComponent& data, JPH::BodyID& dataId);
+        void createBody(TransformComponent& transform, PhysicsComponent& data, JPH::BodyID& dataId);
         void destroyBody(const JPH::BodyID &body_id) const;
 
+        RaycastHit raycast(const Vector3<float>& origin,const Vector3<float>& direction,float maxDistance) const;
+
+        std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem; //private
     private:
-        std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem;
+
         std::unique_ptr<JPH::TempAllocator> m_tempAllocator;
         std::unique_ptr<JPH::JobSystem> m_jobSystem;
         std::unique_ptr<BPlayerInterfaceImpl> m_broadPhaseLayerInterface;

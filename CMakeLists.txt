@@ -15,6 +15,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 
 file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.inl)
+file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 
 # Adding the executable
 add_executable(GCEngine)
@@ -29,9 +30,9 @@ endif()
 # Linker options (to disable console window on Windows in Release build)
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
     if(MSVC)
-        # target_link_options(GCEngine PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+         # target_link_options(GCEngine PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
     else()
-        #target_link_options(GCEngine PRIVATE -mwindows)
+         # target_link_options(GCEngine PRIVATE -mwindows)
     endif()
 endif()
 
@@ -41,6 +42,12 @@ target_link_libraries(GCEngine PRIVATE Vulkan::Vulkan)
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
+add_subdirectory(UnitTests)
+
+# Compile the engine into a lib (to use GoogleTest)
+add_library(GCEngineLib STATIC ${ENGINE_SOURCE})
+target_include_directories(GCEngineLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Externals/JoltPhysics Externals/glfw Externals/miniaudio Externals/glm Externals/imgui Externals/ImGuizmo Externals/stb ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(GCEngineLib PRIVATE Vulkan::Vulkan Jolt miniaudio glfw glm ImGui ImGuizmo)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
