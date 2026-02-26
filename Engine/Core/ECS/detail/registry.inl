@@ -5,23 +5,24 @@ namespace gcep::ECS
 {
     inline EntityID Registry::createEntity()
     {
-        if (!m_freeIDs.empty())
-        {
-            EntityID freeID = m_freeIDs.back();
-            m_freeIDs.pop_back();
-            return freeID;
-        }
-        EntityID newID  = m_nextId++;
-        return newID;
+        return m_idGenerator.generateID();
     }
 
-    inline void Registry::destroyEntity(EntityID entity) {
-        m_entitiesToDestroy.push_back(entity);
+    inline void Registry::destroyEntity(EntityID entity)
+    {
+        if (m_idGenerator.isValid(entity))
+        {
+            m_entitiesToDestroy.push_back(entity);
+        }
     }
 
     inline void Registry::update() {
-        for (auto toRemove : m_entitiesToDestroy) {
-            removeEntity(toRemove);
+        for (auto toRemove : m_entitiesToDestroy)
+        {
+            if (m_idGenerator.isValid(toRemove))
+            {
+                removeEntity(toRemove);
+            }
         }
         m_entitiesToDestroy.clear();
     }
@@ -48,7 +49,6 @@ namespace gcep::ECS
     bool Registry::hasComponent(EntityID entity)  {
         return getPool<T>().hasComponent(entity);
     }
-
 
     template<typename... Args>
     View<Args...> Registry::view()
@@ -82,7 +82,7 @@ namespace gcep::ECS
                 pool->removeComponent(toRemove);
             }
         }
-        m_freeIDs.push_back(toRemove);
+        m_idGenerator.destroyEntity(toRemove);
     }
 
 }

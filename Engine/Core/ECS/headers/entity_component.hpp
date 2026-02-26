@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <numeric>
+#include <vector>
 
 /**
  * @namespace gcep
@@ -16,6 +17,26 @@ namespace gcep::ECS
 
 	/** @brief Type used for internal indexing within component pools. */
 	using Index = std::uint32_t;
+
+	struct entityElement
+	{
+		std::uint8_t version = 0;
+		std::uint32_t nextfreeID = 0;
+		bool active = false;
+	};
+	class EntityIDGenerator
+	{
+	public:
+		EntityID generateID();
+		void destroyEntity(EntityID id);
+		bool isValid(EntityID id);
+
+	private:
+		void grow(std::size_t newSize);
+
+		std::vector<entityElement> elements;
+		EntityID nextAvailable = INVALID_VALUE;
+	};
 
 	/**
 	 * @class ComponentIDGenerator
@@ -44,3 +65,6 @@ namespace gcep::ECS
 		static inline std::uint32_t m_nextID = 0;
 	};
 }
+
+
+#include <Engine/Core/ECS/detail/entity_component.inl>

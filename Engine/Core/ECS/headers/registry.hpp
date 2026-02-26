@@ -1,10 +1,9 @@
 #pragma once
 #include "component_pool.hpp"
 #include "entity_component.hpp"
-#include "paged_allocator.hpp"
 #include "view_finder.hpp"
+#include  "entity_component.hpp"
 
-#include <intrin.h>
 #include <memory>
 
 /**
@@ -104,10 +103,9 @@ namespace gcep::ECS
         [[nodiscard]] ComponentPool<T>& getPool();
 
     private:
+        EntityIDGenerator m_idGenerator;
         std::vector<std::unique_ptr<IPool>> m_pools; ///< List of type-erased component m_pools.
-        std::vector<EntityID> m_freeIDs;             ///< Stack of recyclable identifiers.
         std::vector<EntityID> m_entitiesToDestroy;   ///< Queue for deferred destruction.
-        EntityID m_nextId = 0;                       ///< Next ID to allocate (if no recycling available).
 
         /** @brief Internal logic for removing an entity and its associated data. */
         void removeEntity(EntityID toRemove);
