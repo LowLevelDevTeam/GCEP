@@ -3,7 +3,7 @@
 // Externals
 #include <glm/glm.hpp>
 #include <imgui.h>
-
+#include "ImGuizmo.h"
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/Window.hpp>
 #include <RHI/Vulkan/VulkanRHI.hpp>

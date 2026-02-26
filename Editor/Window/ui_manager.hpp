@@ -7,8 +7,11 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
+#include <ImGuizmo.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include "TextEditor.h"
+
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
@@ -23,6 +26,7 @@ class Camera;
 class UiManager {
 public:
 
+    void initEditor();
     // @brief creation of the Editoreditor UI
     UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
 
@@ -34,6 +38,12 @@ public:
     /// @param sceneTexture The descriptor set for the offscreen rendered scene
     /// @param viewportResizeCallback Callback called when viewport size changes
     void uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount);
+
+    void drawGizmoControls();
+
+    void handleGizmoInput();
+
+    void drawGizmo(Camera* camera);
 
     /// @brief Get the current viewport size
     [[nodiscard]] inline ImVec2 getViewportSize()      const { return m_viewportSize; }
@@ -48,6 +58,7 @@ public:
 
 private:
 
+    TextEditor editor;
     GLFWwindow* m_window;
     ImGui_ImplVulkan_InitInfo m_initInfo;
     bool showDemoWindow = false;
@@ -61,6 +72,13 @@ private:
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
     float shininess = 64.0f;
     rhi::vulkan::SceneInfos perFrame;
+
+    ImGuizmo::OPERATION m_currentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGuizmo::MODE m_currentGizmoMode = ImGuizmo::WORLD; // WORLD ou LOCAL
+    bool m_useSnap = false;
+    float m_snapTranslation[3] = {0.5f, 0.5f, 0.5f};
+    float m_snapRotation = 15.0f;  // degrés
+    float m_snapScale = 0.1f;
     ECS::Registry* m_registry;
 };
 

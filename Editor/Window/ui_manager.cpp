@@ -3,9 +3,19 @@
 #include <cmath>
 #include <Editor/Camera/camera.hpp>
 
-#include "imgui_internal.h"
+#include "Editor/Helpers.hpp"
 
 namespace gcep {
+
+
+void UiManager::initEditor()
+{
+    // Exemple pour C++
+    editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+    // Texte de départ
+    editor.SetText("// Écris ton code ici\nint main() {\n    return 0;\n}");
+}
+
 UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
 {
     m_window = window;
@@ -137,6 +147,10 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    // Configurer ImGuizmo pour la frame courante
+    ImGuizmo::BeginFrame();
+    handleGizmoInput();
+
 
     // Enable docking over the entire viewport
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
@@ -174,8 +188,35 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
             // Display placeholder text when no texture is available
             ImGui::Text("Viewport loading...");
         }
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+        ImGuizmo::SetRect(
+            windowPos.x + contentMin.x,
+            windowPos.y + contentMin.y,
+            availSize.x,
+            availSize.y
+        );
+
+        drawGizmo(camera);
     }
     ImGui::End();
+
+
+    ImGui::Begin("Code Editor", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    {
+        editor.Render("TextEditor");
+
+        // Bouton pour récupérer le texte et l’exécuter (exemple Lua/C++)
+        if (ImGui::Button("Run Script"))
+        {
+            std::string code = editor.GetText();
+            // Ici tu peux envoyer 'code' à Lua ou compiler en DLL
+            printf("Script:\n%s\n", code.c_str());
+        }
+
+    }
+    ImGui::End();
+
 
     if (showDemoWindow)
         ImGui::ShowDemoWindow(&showDemoWindow);
@@ -251,6 +292,8 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
                 }
             }
             entity.transform = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID);
+
+            drawGizmoControls();
         }
         else
         {
@@ -264,5 +307,166 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
     perFrame.lightDirection = lightDirection;
     perFrame.shininess = shininess;
 }
+void UiManager::drawGizmoControls()
+{
+    ImGui::Text("Gizmo");
+    if (ImGui::RadioButton("Translate (W)", m_currentGizmoOperation == ImGuizmo::TRANSLATE)) {
+        m_currentGizmoOperation = ImGuizmo::TRANSLATE;
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate (E)", m_currentGizmoOperation == ImGuizmo::ROTATE)) {
+        m_currentGizmoOperation = ImGuizmo::ROTATE;
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale (R)", m_currentGizmoOperation == ImGuizmo::SCALE)) {
+        m_currentGizmoOperation = ImGuizmo::SCALE;
+    }
 
+    if (m_currentGizmoOperation == ImGuizmo::SCALE) {
+        ImGui::TextDisabled("Mode: Local (forced for Scale)");
+    } else {
+        if (ImGui::RadioButton("Local", m_currentGizmoMode == ImGuizmo::LOCAL))
+            m_currentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", m_currentGizmoMode == ImGuizmo::WORLD))
+            m_currentGizmoMode = ImGuizmo::WORLD;
+    }
+
+    ImGui::Checkbox("Snap", &m_useSnap);
+
+    // Afficher les contrôles de snapping selon l'opération courante
+    if (m_useSnap) {
+        switch (m_currentGizmoOperation) {
+        case ImGuizmo::TRANSLATE:
+            ImGui::DragFloat("Snapping X", &m_snapTranslation[0], 0.1f, 0.0f, 100.0f);
+            ImGui::DragFloat("Snapping Y", &m_snapTranslation[1], 0.1f, 0.0f, 100.0f);
+            ImGui::DragFloat("Snapping Z", &m_snapTranslation[2], 0.1f, 0.0f, 100.0f);
+            break;
+        case ImGuizmo::ROTATE:
+            ImGui::DragFloat("Snap Rotation", &m_snapRotation, 1.0f, 0.0f, 360.0f);
+            break;
+        case ImGuizmo::SCALE:
+            ImGui::DragFloat("Snap Scale", &m_snapScale, 0.01f, 0.0f, 1.0f);
+            break;
+        default: break;
+        }
+    }
+}
+
+void UiManager::handleGizmoInput()
+{
+    if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) || ImGuizmo::IsUsing())
+        return;
+
+    if (ImGui::IsKeyPressed(ImGuiKey_W))
+        m_currentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_E))
+        m_currentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_R))
+        m_currentGizmoOperation = ImGuizmo::SCALE;
+}
+
+void UiManager::drawGizmo(Camera* camera)
+{
+    if (m_SelectedEntityID == std::numeric_limits<uint32_t>::max())
+        return;
+    if (!meshData || m_SelectedEntityID >= meshData->size())
+        return;
+
+    glm::mat4 view = camera->getViewMatrix();
+    glm::mat4 projection = camera->getProjectionMatrix();
+    projection[1][1] *= -1.0f;
+
+    rhi::vulkan::VulkanMesh& selectedMesh = (*meshData)[m_SelectedEntityID];
+    glm::mat4 modelMatrix = selectedMesh.getTransform();
+
+    float modelData[16];
+    memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
+
+    float* snapPtr = nullptr;
+    float snapValues[3] = {};
+    if (m_useSnap) {
+        switch (m_currentGizmoOperation) {
+        case ImGuizmo::TRANSLATE:
+            memcpy(snapValues, m_snapTranslation, sizeof(snapValues));
+            break;
+        case ImGuizmo::ROTATE:
+            snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation;
+            break;
+        case ImGuizmo::SCALE:
+            snapValues[0] = snapValues[1] = snapValues[2] = m_snapScale;
+            break;
+        }
+        snapPtr = snapValues;
+    }
+
+    glm::vec3 oldRotation = selectedMesh.transform.rotation;
+    glm::vec3 oldScale = selectedMesh.transform.scale;
+
+    float deltaData[16];
+    glm::mat4 identityDelta = glm::mat4(1.0f);
+    memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
+
+    // Forcer LOCAL pour SCALE — le scale world n'est pas supporté par ImGuizmo
+    ImGuizmo::MODE activeMode = (m_currentGizmoOperation == ImGuizmo::SCALE)
+        ? ImGuizmo::LOCAL
+        : m_currentGizmoMode;
+
+    ImGuizmo::Manipulate(
+        glm::value_ptr(view),
+        glm::value_ptr(projection),
+        m_currentGizmoOperation,
+        activeMode,
+        modelData,
+        deltaData,
+        snapPtr
+    );
+
+    if (ImGuizmo::IsUsing()) {
+        glm::mat4 newModel;
+        memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
+
+        glm::mat4 delta;
+        memcpy(glm::value_ptr(delta), deltaData, sizeof(float) * 16);
+
+        switch (m_currentGizmoOperation) {
+        case ImGuizmo::TRANSLATE: {
+            selectedMesh.transform.position = glm::vec3(newModel[3]);
+            break;
+        }
+        case ImGuizmo::ROTATE: {
+            selectedMesh.transform.position = glm::vec3(newModel[3]);
+
+            glm::vec3 scale;
+            scale.x = glm::length(glm::vec3(newModel[0]));
+            scale.y = glm::length(glm::vec3(newModel[1]));
+            scale.z = glm::length(glm::vec3(newModel[2]));
+
+            glm::mat3 r;
+            r[0] = glm::vec3(newModel[0]) / scale.x;
+            r[1] = glm::vec3(newModel[1]) / scale.y;
+            r[2] = glm::vec3(newModel[2]) / scale.z;
+
+            float sinX = glm::clamp(-r[2][1], -1.0f, 1.0f);
+            selectedMesh.transform.rotation.x = asinf(sinX);
+            selectedMesh.transform.rotation.y = atan2f(r[2][0], r[2][2]);
+            selectedMesh.transform.rotation.z = atan2f(r[0][1], r[1][1]);
+            break;
+        }
+        case ImGuizmo::SCALE: {
+            // En mode LOCAL, le delta de scale est dans l'espace local de l'objet
+            // On extrait directement le scale du delta
+            glm::vec3 deltaScale;
+            deltaScale.x = glm::length(glm::vec3(delta[0]));
+            deltaScale.y = glm::length(glm::vec3(delta[1]));
+            deltaScale.z = glm::length(glm::vec3(delta[2]));
+
+            selectedMesh.transform.scale = oldScale * deltaScale;
+            selectedMesh.transform.rotation = oldRotation;
+            break;
+        }
+        default: break;
+        }
+    }
+}
 }
