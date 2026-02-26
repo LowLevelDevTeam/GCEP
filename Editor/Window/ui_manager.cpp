@@ -396,12 +396,13 @@ void UiManager::drawGizmo(Camera* camera)
         case ImGuizmo::SCALE:
             snapValues[0] = snapValues[1] = snapValues[2] = m_snapScale;
             break;
+        default: break;
         }
         snapPtr = snapValues;
     }
 
-    glm::vec3 oldRotation = selectedMesh.transform.rotation;
-    glm::vec3 oldScale = selectedMesh.transform.scale;
+    glm::vec3 oldRotation = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).rotation;
+    glm::vec3 oldScale = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).scale;
 
     float deltaData[16];
     glm::mat4 identityDelta = glm::mat4(1.0f);
@@ -431,11 +432,11 @@ void UiManager::drawGizmo(Camera* camera)
 
         switch (m_currentGizmoOperation) {
         case ImGuizmo::TRANSLATE: {
-            selectedMesh.transform.position = glm::vec3(newModel[3]);
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).position = glm::vec3(newModel[3]);
             break;
         }
         case ImGuizmo::ROTATE: {
-            selectedMesh.transform.position = glm::vec3(newModel[3]);
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).position = glm::vec3(newModel[3]);
 
             glm::vec3 scale;
             scale.x = glm::length(glm::vec3(newModel[0]));
@@ -448,9 +449,9 @@ void UiManager::drawGizmo(Camera* camera)
             r[2] = glm::vec3(newModel[2]) / scale.z;
 
             float sinX = glm::clamp(-r[2][1], -1.0f, 1.0f);
-            selectedMesh.transform.rotation.x = asinf(sinX);
-            selectedMesh.transform.rotation.y = atan2f(r[2][0], r[2][2]);
-            selectedMesh.transform.rotation.z = atan2f(r[0][1], r[1][1]);
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).rotation.x = asinf(sinX);
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).rotation.y = atan2f(r[2][0], r[2][2]);
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).rotation.z = atan2f(r[0][1], r[1][1]);
             break;
         }
         case ImGuizmo::SCALE: {
@@ -461,8 +462,8 @@ void UiManager::drawGizmo(Camera* camera)
             deltaScale.y = glm::length(glm::vec3(delta[1]));
             deltaScale.z = glm::length(glm::vec3(delta[2]));
 
-            selectedMesh.transform.scale = oldScale * deltaScale;
-            selectedMesh.transform.rotation = oldRotation;
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).scale = oldScale * deltaScale;
+            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_SelectedEntityID).rotation = oldRotation;
             break;
         }
         default: break;
