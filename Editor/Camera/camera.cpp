@@ -1,21 +1,13 @@
 ﻿#include "camera.hpp"
 
-// Externals
-#include <imgui_internal.h>
+#include <Editor/Helpers.hpp>
 
 
 
 namespace gcep
 {
 
-bool isSpecificWindowFocused(const char* name)
-{
-    ImGuiWindow* window = ImGui::FindWindowByName(name);
-    if (!window) return false;
 
-    ImGuiContext& g = *GImGui;
-    return (g.NavWindow == window || g.NavWindow == window->RootWindow) && window->Active;
-}
 
 void Camera::moveForward()
 {

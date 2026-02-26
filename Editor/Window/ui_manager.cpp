@@ -3,12 +3,9 @@
 #include <cmath>
 #include <Editor/Camera/camera.hpp>
 
-#include "imgui_internal.h"
+#include "Editor/Helpers.hpp"
 
 namespace gcep {
-
-
-
 
 
 void UiManager::initEditor()
