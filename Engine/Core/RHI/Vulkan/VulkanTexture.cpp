@@ -1,4 +1,5 @@
 #include "VulkanTexture.hpp"
+
 #include <RHI/Vulkan/VulkanRHI.hpp>
 
 // Externals
@@ -18,6 +19,7 @@ void VulkanTexture::loadTexture(VulkanRHI* instance, const std::filesystem::path
     createTexture(filepath);
     createTextureView();
     createTextureSampler();
+    registerBindless(allocateTextureSlot());
     m_hasTexture = true;
 }
 
@@ -28,7 +30,7 @@ void VulkanTexture::setLodLevel(float lodLevel)
     pRhi->m_device.waitIdle();
 
     createTextureSampler(lodLevel);
-    pRhi->updateDescriptorSets();
+    registerBindless(m_bindlessIndex);
 }
 
 void VulkanTexture::createTexture(const std::filesystem::path& filepath)
@@ -258,6 +260,27 @@ void VulkanTexture::transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLa
 
     cmd->pipelineBarrier(srcStage, dstStage, {}, {}, {}, barrier);
     pRhi->endSingleTimeCommands(*cmd);
+}
+
+uint32_t VulkanTexture::registerBindless(uint32_t slot)
+{
+    m_bindlessIndex = slot;
+
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.sampler     = getSampler();
+    imageInfo.imageView   = getImageView();
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    vk::WriteDescriptorSet write{};
+    write.dstSet          = pRhi->m_bindlessSet;
+    write.dstBinding      = 0;
+    write.dstArrayElement = slot;
+    write.descriptorCount = 1;
+    write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+    write.pImageInfo      = &imageInfo;
+
+    pRhi->m_device.rawDevice().updateDescriptorSets({ write }, {});
+    return slot;
 }
 
 void VulkanTexture::copyBufferToImage(const vk::raii::Buffer& buffer)

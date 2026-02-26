@@ -4,7 +4,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 // STL
 #include <algorithm>
@@ -13,8 +12,6 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-
-#include <RHI/ObjParser/ObjParser.hpp>
 
 namespace gcep::rhi::vulkan
 {
@@ -51,13 +48,527 @@ void VulkanRHI::initRHI()
 
 void VulkanRHI::initSceneResources()
 {
-    createDescriptorSetLayout();
+    // Scene UBO
+    createSceneUBOLayout();
+    createSceneUBOPool();
+    createSceneUBOBuffers();
+    createSceneUBOSets();
+    // Bindless textures
+    createBindlessLayout();
+    createBindlessPool();
+    createBindlessSet();
+    // Textures loading TODO: Move to manager class + use ECS
+    meshes.reserve(MAX_MESHES);
+    meshes.emplace_back();
+    meshes[0].loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
+    meshes[0].name = "Viking Room";
+    setMeshData();
+    createMeshDataDescriptors();
     createGraphicsPipeline();
-    texture.loadTexture(this, "TestTextures/viking_room.png");
-    mesh.loadMesh(this, "TestTextures/viking_room.obj");
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
+    createCullPipeline();
+}
+
+void VulkanRHI::setMeshData()
+{
+    vk::DeviceSize totalVertexBytes = 0;
+    vk::DeviceSize totalIndexBytes  = 0;
+    for (const auto& iMesh : meshes)
+    {
+        totalVertexBytes += iMesh.getVertexBufferSize();
+        totalIndexBytes  += iMesh.getIndexBufferSize();
+    }
+
+    vk::raii::Buffer       stagingVB({});
+    vk::raii::DeviceMemory stagingVBMem({});
+    createBuffer(totalVertexBytes,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        stagingVB, stagingVBMem
+    );
+
+    vk::raii::Buffer       stagingIB({});
+    vk::raii::DeviceMemory stagingIBMem({});
+    createBuffer(totalIndexBytes,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        stagingIB, stagingIBMem
+    );
+
+    createBuffer(totalVertexBytes,
+        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_globalVertexBuffer, m_globalVertexBufferMemory
+    );
+
+    createBuffer(totalIndexBytes,
+        vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_globalIndexBuffer, m_globalIndexBufferMemory
+    );
+
+    m_meshData.reserve(meshes.size());
+
+    auto* vbPtr = static_cast<uint8_t*>(stagingVBMem.mapMemory(0, totalVertexBytes));
+    auto* ibPtr = static_cast<uint8_t*>(stagingIBMem.mapMemory(0, totalIndexBytes));
+
+    vk::DeviceSize vertexByteOffset = 0;
+    vk::DeviceSize indexByteOffset  = 0;
+    uint32_t       vertexCount      = 0;
+    uint32_t       indexCount       = 0;
+
+    for (uint32_t i = 0; i < meshes.size(); ++i)
+    {
+        auto& mesh = meshes[i];
+        const vk::DeviceSize vbSize = mesh.getVertexBufferSize();
+        const vk::DeviceSize ibSize = mesh.getIndexBufferSize();
+
+        std::memcpy(vbPtr + vertexByteOffset, mesh.getVertices().data(), vbSize);
+        std::memcpy(ibPtr + indexByteOffset, mesh.getIndices().data(), ibSize);
+        mesh.clearVertices();
+        mesh.clearIndices();
+
+        GPUMeshData data{};
+        data.firstIndex   = indexCount;
+        data.indexCount   = mesh.getNumIndices();
+        data.vertexOffset = vertexCount;
+        data.textureIndex = mesh.texture()->getBindlessIndex();
+        data.transform    = mesh.getTransform();
+        data.aabbMin      = mesh.getAABBMin();
+        data.aabbMax      = mesh.getAABBMax();
+        m_meshData.emplace_back(data);
+
+        vk::DrawIndexedIndirectCommand drawCmd{};
+        drawCmd.indexCount    = data.indexCount;
+        drawCmd.instanceCount = 1;
+        drawCmd.firstIndex    = data.firstIndex;
+        drawCmd.vertexOffset  = data.vertexOffset;
+        drawCmd.firstInstance = i;
+        m_indirectCommands.emplace_back(drawCmd);
+
+        vertexByteOffset += vbSize;
+        indexByteOffset  += ibSize;
+        vertexCount      += mesh.getNumVertices();
+        indexCount       += mesh.getNumIndices();
+    }
+
+    stagingVBMem.unmapMemory();
+    stagingIBMem.unmapMemory();
+
+    auto cmd = beginSingleTimeCommands();
+
+    vk::BufferCopy vertexCopy{};
+    vertexCopy.size = totalVertexBytes;
+    cmd->copyBuffer(*stagingVB, *m_globalVertexBuffer, { vertexCopy });
+
+    vk::BufferCopy indexCopy{};
+    indexCopy.size = totalIndexBytes;
+    cmd->copyBuffer(*stagingIB, *m_globalIndexBuffer, { indexCopy });
+
+    endSingleTimeCommands(*cmd);
+
+    const vk::DeviceSize size = sizeof(GPUMeshData) * m_meshData.size();
+    createBuffer(size,
+        vk::BufferUsageFlagBits::eStorageBuffer,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        m_meshDataSSBO, m_meshDataSSBOMemory
+    );
+    m_meshDataSSBOMapped = m_meshDataSSBOMemory.mapMemory(0, size);
+
+    updateMeshDataSSBO();
+    uploadIndirectBuffer();
+}
+
+void VulkanRHI::updateMeshDataSSBO()
+{
+    const vk::DeviceSize size = sizeof(GPUMeshData) * m_meshData.size();
+    std::memcpy(m_meshDataSSBOMapped, m_meshData.data(), size);
+}
+
+void VulkanRHI::uploadIndirectBuffer()
+{
+    const vk::DeviceSize size = sizeof(vk::DrawIndexedIndirectCommand) * m_indirectCommands.size();
+
+    vk::raii::Buffer       staging({});
+    vk::raii::DeviceMemory stagingMem({});
+    createBuffer(size,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        staging, stagingMem
+    );
+
+    void* ptr = stagingMem.mapMemory(0, size);
+    std::memcpy(ptr, m_indirectCommands.data(), size);
+    stagingMem.unmapMemory();
+
+    createBuffer(size,
+        vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        m_indirectBuffer, m_indirectBufferMemory
+    );
+
+    auto cmd = beginSingleTimeCommands();
+
+    vk::BufferCopy copy{};
+    copy.size = size;
+    cmd->copyBuffer(*staging, *m_indirectBuffer, { copy });
+
+    endSingleTimeCommands(*cmd);
+}
+
+void VulkanRHI::createMeshDataDescriptors()
+{
+    vk::DescriptorSetLayoutBinding binding{};
+    binding.binding         = 0;
+    binding.descriptorType  = vk::DescriptorType::eStorageBuffer;
+    binding.descriptorCount = 1;
+    binding.stageFlags      = vk::ShaderStageFlagBits::eVertex;
+
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings    = &binding;
+    m_meshDataDescriptorSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
+
+    // Pool
+    vk::DescriptorPoolSize poolSize{};
+    poolSize.type            = vk::DescriptorType::eStorageBuffer;
+    poolSize.descriptorCount = 1;
+
+    vk::DescriptorPoolCreateInfo poolInfo{};
+    poolInfo.maxSets       = 1;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes    = &poolSize;
+    poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    m_meshDataDescriptorPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
+
+    vk::DescriptorSetAllocateInfo allocInfo{};
+    allocInfo.descriptorPool     = *m_meshDataDescriptorPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts        = &(*m_meshDataDescriptorSetLayout);
+    m_meshDataDescriptorSet = std::move(m_device.rawDevice().allocateDescriptorSets(allocInfo)[0]);
+
+    updateMeshDataSet();
+}
+
+void VulkanRHI::updateMeshDataSet()
+{
+    vk::DescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = *m_meshDataSSBO;
+    bufferInfo.offset = 0;
+    bufferInfo.range  = vk::WholeSize;
+
+    vk::WriteDescriptorSet write{};
+    write.dstSet          = *m_meshDataDescriptorSet;
+    write.dstBinding      = 0;
+    write.descriptorCount = 1;
+    write.descriptorType  = vk::DescriptorType::eStorageBuffer;
+    write.pBufferInfo     = &bufferInfo;
+
+    m_device.rawDevice().updateDescriptorSets({ write }, {});
+}
+
+void VulkanRHI::refreshMeshData()
+{
+    for (uint32_t i = 0; i < meshes.size(); ++i)
+    {
+        m_meshData[i].transform = meshes[i].getTransform();
+    }
+    updateMeshDataSSBO();
+}
+
+FrustumPlanes VulkanRHI::extractFrustum(const glm::mat4& viewProj) const
+{
+    FrustumPlanes f{};
+    f.objectCount = static_cast<uint32_t>(m_meshData.size());
+
+    const auto& m = viewProj;
+
+    // Gribb-Hartmann extraction - each plane from a row combination of viewProj
+    // See https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+    f.planes[0] = glm::vec4(m[0][3] + m[0][0], m[1][3] + m[1][0], m[2][3] + m[2][0], m[3][3] + m[3][0]); // left
+    f.planes[1] = glm::vec4(m[0][3] - m[0][0], m[1][3] - m[1][0], m[2][3] - m[2][0], m[3][3] - m[3][0]); // right
+    f.planes[2] = glm::vec4(m[0][3] + m[0][1], m[1][3] + m[1][1], m[2][3] + m[2][1], m[3][3] + m[3][1]); // bottom
+    f.planes[3] = glm::vec4(m[0][3] - m[0][1], m[1][3] - m[1][1], m[2][3] - m[2][1], m[3][3] - m[3][1]); // top
+    f.planes[4] = glm::vec4(m[0][3] + m[0][2], m[1][3] + m[1][2], m[2][3] + m[2][2], m[3][3] + m[3][2]); // near
+    f.planes[5] = glm::vec4(m[0][3] - m[0][2], m[1][3] - m[1][2], m[2][3] - m[2][2], m[3][3] - m[3][2]); // far
+
+    // Normalize
+    for (auto& p : f.planes)
+    {
+        float len = glm::length(glm::vec3(p));
+        p /= len;
+    }
+
+    return f;
+}
+
+void VulkanRHI::createCullPipeline()
+{
+    // Descriptor set layout
+    std::array<vk::DescriptorSetLayoutBinding, 3> bindings{};
+
+    // binding 0 - ObjectData SSBO (read)
+    bindings[0].binding        = 0;
+    bindings[0].descriptorType = vk::DescriptorType::eStorageBuffer;
+    bindings[0].descriptorCount = 1;
+    bindings[0].stageFlags     = vk::ShaderStageFlagBits::eCompute;
+
+    // binding 1 - DrawIndexedIndirectCommand SSBO (write)
+    bindings[1].binding        = 1;
+    bindings[1].descriptorType = vk::DescriptorType::eStorageBuffer;
+    bindings[1].descriptorCount = 1;
+    bindings[1].stageFlags     = vk::ShaderStageFlagBits::eCompute;
+
+    // binding 2 - draw count (atomic uint)
+    bindings[2].binding        = 2;
+    bindings[2].descriptorType = vk::DescriptorType::eStorageBuffer;
+    bindings[2].descriptorCount = 1;
+    bindings[2].stageFlags     = vk::ShaderStageFlagBits::eCompute;
+
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    layoutInfo.pBindings    = bindings.data();
+    m_cullSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
+
+    // Descriptor pool
+    vk::DescriptorPoolSize poolSize{};
+    poolSize.type            = vk::DescriptorType::eStorageBuffer;
+    poolSize.descriptorCount = 3;
+
+    vk::DescriptorPoolCreateInfo poolInfo{};
+    poolInfo.maxSets       = 1;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes    = &poolSize;
+    poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    m_cullPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
+
+    // Descriptor set
+    vk::DescriptorSetAllocateInfo allocInfo{};
+    allocInfo.descriptorPool     = *m_cullPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts        = &(*m_cullSetLayout);
+    m_cullSet = std::move(m_device.rawDevice().allocateDescriptorSets(allocInfo)[0]);
+
+    // Draw count buffer
+    createBuffer(sizeof(uint32_t),
+        vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        m_drawCountBuffer, m_drawCountBufferMemory
+    );
+    m_drawCountMapped = m_drawCountBufferMemory.mapMemory(0, sizeof(uint32_t));
+
+    // Write descriptors
+    vk::DescriptorBufferInfo objectsInfo{};
+    objectsInfo.buffer = *m_meshDataSSBO;
+    objectsInfo.offset = 0;
+    objectsInfo.range  = vk::WholeSize;
+
+    vk::DescriptorBufferInfo commandsInfo{};
+    commandsInfo.buffer = *m_indirectBuffer;
+    commandsInfo.offset = 0;
+    commandsInfo.range  = vk::WholeSize;
+
+    vk::DescriptorBufferInfo countInfo{};
+    countInfo.buffer = *m_drawCountBuffer;
+    countInfo.offset = 0;
+    countInfo.range  = vk::WholeSize;
+
+    std::array<vk::WriteDescriptorSet, 3> writes{};
+    writes[0] = { *m_cullSet, 0, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &objectsInfo };
+    writes[1] = { *m_cullSet, 1, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &commandsInfo };
+    writes[2] = { *m_cullSet, 2, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &countInfo };
+    m_device.rawDevice().updateDescriptorSets(writes, {});
+
+    // Push constant
+    vk::PushConstantRange pushRange{};
+    pushRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
+    pushRange.offset     = 0;
+    pushRange.size       = sizeof(FrustumPlanes);
+
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.setLayoutCount         = 1;
+    pipelineLayoutInfo.pSetLayouts            = &(*m_cullSetLayout);
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges    = &pushRange;
+    m_cullPipelineLayout = vk::raii::PipelineLayout(m_device.rawDevice(), pipelineLayoutInfo);
+
+    // Compute pipeline
+    auto shaderCode = readShader("FrustumCulling.spv");
+    vk::raii::ShaderModule cullModule = createShaderModule(shaderCode);
+
+    vk::PipelineShaderStageCreateInfo stageInfo{};
+    stageInfo.stage  = vk::ShaderStageFlagBits::eCompute;
+    stageInfo.module = *cullModule;
+    stageInfo.pName  = "cullMain";
+
+    vk::ComputePipelineCreateInfo pipelineInfo{};
+    pipelineInfo.stage  = stageInfo;
+    pipelineInfo.layout = *m_cullPipelineLayout;
+
+    m_cullPipeline = vk::raii::Pipeline(m_device.rawDevice(), nullptr, pipelineInfo);
+}
+
+void VulkanRHI::recordCullPass()
+{
+    const vk::CommandBuffer cmd = m_device.currentCommandBuffer();
+
+    m_drawCount = *static_cast<uint32_t*>(m_drawCountMapped);
+    uint32_t zero = 0;
+    std::memcpy(m_drawCountMapped, &zero, sizeof(uint32_t));
+
+    // Makes buffers visible and editable to compute shader
+    vk::BufferMemoryBarrier2 resetBarrier{};
+    resetBarrier.srcStageMask  = vk::PipelineStageFlagBits2::eHost;
+    resetBarrier.srcAccessMask = vk::AccessFlagBits2::eHostWrite;
+    resetBarrier.dstStageMask  = vk::PipelineStageFlagBits2::eComputeShader;
+    resetBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eShaderWrite;
+    resetBarrier.buffer        = *m_drawCountBuffer;
+    resetBarrier.size          = vk::WholeSize;
+
+    vk::BufferMemoryBarrier2 indirectWriteBarrier{};
+    indirectWriteBarrier.srcStageMask  = vk::PipelineStageFlagBits2::eDrawIndirect;
+    indirectWriteBarrier.srcAccessMask = vk::AccessFlagBits2::eIndirectCommandRead;
+    indirectWriteBarrier.dstStageMask  = vk::PipelineStageFlagBits2::eComputeShader;
+    indirectWriteBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderWrite;
+    indirectWriteBarrier.buffer        = *m_indirectBuffer;
+    indirectWriteBarrier.size          = vk::WholeSize;
+
+    std::array preBarriers = { resetBarrier, indirectWriteBarrier };
+    vk::DependencyInfo preDep{};
+    preDep.bufferMemoryBarrierCount = static_cast<uint32_t>(preBarriers.size());
+    preDep.pBufferMemoryBarriers    = preBarriers.data();
+    cmd.pipelineBarrier2(preDep);
+
+    // Dispatch cull compute
+    constexpr int THREADS = 256;
+    FrustumPlanes frustum = extractFrustum(m_cameraUBO.proj * m_cameraUBO.view);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eCompute, *m_cullPipeline);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *m_cullPipelineLayout, 0, { *m_cullSet }, {});
+    cmd.pushConstants<FrustumPlanes>(*m_cullPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, frustum);
+
+    const uint32_t groups = (static_cast<uint32_t>(m_meshData.size()) + (THREADS - 1)) / THREADS;
+    cmd.dispatch(groups, 1, 1);
+
+    // Barrier - compute writes -> indirect draw reads
+    vk::BufferMemoryBarrier2 indirectReadBarrier{};
+    indirectReadBarrier.srcStageMask  = vk::PipelineStageFlagBits2::eComputeShader;
+    indirectReadBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderWrite;
+    indirectReadBarrier.dstStageMask  = vk::PipelineStageFlagBits2::eDrawIndirect;
+    indirectReadBarrier.dstAccessMask = vk::AccessFlagBits2::eIndirectCommandRead;
+    indirectReadBarrier.buffer        = *m_indirectBuffer;
+    indirectReadBarrier.size          = vk::WholeSize;
+
+    vk::BufferMemoryBarrier2 countReadBarrier{};
+    countReadBarrier.srcStageMask  = vk::PipelineStageFlagBits2::eComputeShader;
+    countReadBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderWrite;
+    countReadBarrier.dstStageMask  = vk::PipelineStageFlagBits2::eDrawIndirect;
+    countReadBarrier.dstAccessMask = vk::AccessFlagBits2::eIndirectCommandRead;
+    countReadBarrier.buffer        = *m_drawCountBuffer;
+    countReadBarrier.size          = vk::WholeSize;
+
+    std::array postBarriers = { indirectReadBarrier, countReadBarrier };
+    vk::DependencyInfo postDep{};
+    postDep.bufferMemoryBarrierCount = static_cast<uint32_t>(postBarriers.size());
+    postDep.pBufferMemoryBarriers    = postBarriers.data();
+    cmd.pipelineBarrier2(postDep);
+}
+
+void VulkanRHI::createSceneUBOBuffers()
+{
+    m_uniformBuffers.clear();
+    m_uniformBuffersMemory.clear();
+    m_uniformBuffersMapped.clear();
+
+    const vk::DeviceSize bufferSize = sizeof(SceneUBO);
+
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        vk::raii::Buffer       buffer       = nullptr;
+        vk::raii::DeviceMemory bufferMemory = nullptr;
+
+        createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            buffer, bufferMemory
+        );
+
+        m_uniformBuffers.emplace_back(std::move(buffer));
+        m_uniformBuffersMemory.emplace_back(std::move(bufferMemory));
+        m_uniformBuffersMapped.emplace_back(m_uniformBuffersMemory[i].mapMemory(0, bufferSize));
+    }
+}
+
+void VulkanRHI::createSceneUBOLayout()
+{
+    std::array bindings =
+    {
+        vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment, nullptr),
+    };
+    vk::DescriptorSetLayoutCreateInfo layoutInfo({}, bindings.size(), bindings.data());
+
+    m_UBOLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
+}
+
+void VulkanRHI::createSceneUBOPool()
+{
+    std::array poolSizes =
+    {
+        vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT)
+    };
+    vk::DescriptorPoolCreateInfo poolInfo{};
+    poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    poolInfo.maxSets       = MAX_FRAMES_IN_FLIGHT;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes    = poolSizes.data();
+
+    m_UBOPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
+}
+
+void VulkanRHI::createSceneUBOSets()
+{
+    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_UBOLayout);
+
+    vk::DescriptorSetAllocateInfo allocInfo{};
+    allocInfo.descriptorPool     = *m_UBOPool;
+    allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
+    allocInfo.pSetLayouts        = layouts.data();
+
+    m_UBOSets.clear();
+    m_UBOSets = m_device.rawDevice().allocateDescriptorSets(allocInfo);
+
+    updateSceneUBOSets();
+}
+
+void VulkanRHI::updateSceneUBOSets()
+{
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        vk::DescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = *m_uniformBuffers[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range  = sizeof(SceneUBO);
+
+        vk::WriteDescriptorSet uboWrite{};
+        uboWrite.dstSet          = m_UBOSets[i];
+        uboWrite.dstBinding      = 0;
+        uboWrite.descriptorCount = 1;
+        uboWrite.descriptorType  = vk::DescriptorType::eUniformBuffer;
+        uboWrite.pBufferInfo     = &bufferInfo;
+
+        m_device.rawDevice().updateDescriptorSets({ uboWrite }, {});
+    }
+}
+
+void VulkanRHI::updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraPos)
+{
+    m_clearColor            = upstr->clearColor;
+    m_shininess             = upstr->shininess;
+    m_sceneUBO.lightDir     = upstr->lightDirection;
+    m_sceneUBO.lightColor   = upstr->lightColor;
+    m_sceneUBO.ambientColor = upstr->ambientColor;
+    m_sceneUBO.cameraPos    = cameraPos;
+
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        std::memcpy(m_uniformBuffersMapped[i], &m_sceneUBO, sizeof(m_sceneUBO));
 }
 
 void VulkanRHI::recreateSwapchain()
@@ -154,7 +665,7 @@ void VulkanRHI::drawFrame()
 
     if (!m_device.beginFrame()) return;
 
-    updateUniformBuffer();
+    perFrameUpdate();
 
     const bool offscreenReady =
         (*m_offscreenImage != VK_NULL_HANDLE) &&
@@ -173,10 +684,19 @@ void VulkanRHI::drawFrame()
     m_device.endFrame();
 }
 
-void VulkanRHI::updateEditorInfo(ImVec4& clearColor, UniformBufferObject ubo)
+void VulkanRHI::updateCameraUBO(UniformBufferObject ubo)
 {
-    m_uniformBufferObject = ubo;
-    m_clearColor = clearColor;
+    m_cameraUBO = ubo;
+}
+
+uint32_t VulkanRHI::getDrawCount()
+{
+    return m_drawCount;
+}
+
+std::vector<VulkanMesh>& VulkanRHI::getMeshData()
+{
+    return meshes;
 }
 
 void VulkanRHI::requestOffscreenResize(uint32_t width, uint32_t height)
@@ -295,120 +815,67 @@ void VulkanRHI::resizeOffscreenResources(uint32_t width, uint32_t height)
     createOffscreenResources(width, height);
 }
 
-void VulkanRHI::createUniformBuffers()
+void VulkanRHI::createBindlessLayout()
 {
-    m_uniformBuffers.clear();
-    m_uniformBuffersMemory.clear();
-    m_uniformBuffersMapped.clear();
+    vk::DescriptorSetLayoutBinding binding{};
+    binding.binding         = 0;
+    binding.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+    binding.descriptorCount = MAX_MESHES;
+    binding.stageFlags      = vk::ShaderStageFlagBits::eFragment;
 
-    const vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
+    vk::DescriptorBindingFlags bindingFlags =
+        vk::DescriptorBindingFlagBits::ePartiallyBound |
+        vk::DescriptorBindingFlagBits::eVariableDescriptorCount |
+        vk::DescriptorBindingFlagBits::eUpdateAfterBind;
 
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        vk::raii::Buffer       buffer       = nullptr;
-        vk::raii::DeviceMemory bufferMemory = nullptr;
+    vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsInfo{};
+    flagsInfo.bindingCount  = 1;
+    flagsInfo.pBindingFlags = &bindingFlags;
 
-        createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
-            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-            buffer, bufferMemory
-        );
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.pNext        = &flagsInfo;
+    layoutInfo.flags        = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings    = &binding;
 
-        m_uniformBuffers.emplace_back(std::move(buffer));
-        m_uniformBuffersMemory.emplace_back(std::move(bufferMemory));
-        m_uniformBuffersMapped.emplace_back(m_uniformBuffersMemory[i].mapMemory(0, bufferSize));
-    }
+    m_bindlessLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
 }
 
-void VulkanRHI::createDescriptorSetLayout()
+void VulkanRHI::createBindlessPool()
 {
-    std::array bindings =
-    {
-        vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr),
-        vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr),
-    };
-    vk::DescriptorSetLayoutCreateInfo layoutInfo({}, bindings.size(), bindings.data());
+    vk::DescriptorPoolSize poolSize{};
+    poolSize.type            = vk::DescriptorType::eCombinedImageSampler;
+    poolSize.descriptorCount = MAX_MESHES;
 
-    m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device.rawDevice(), layoutInfo);
-}
-
-void VulkanRHI::createDescriptorPool()
-{
-    std::array poolSizes =
-    {
-        vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_FRAMES_IN_FLIGHT),
-        vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, MAX_FRAMES_IN_FLIGHT),
-    };
     vk::DescriptorPoolCreateInfo poolInfo{};
-    poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    poolInfo.maxSets       = MAX_FRAMES_IN_FLIGHT;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes    = poolSizes.data();
+    poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind | vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    poolInfo.maxSets       = 1;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes    = &poolSize;
 
-    m_descriptorPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
+    m_bindlessPool = vk::raii::DescriptorPool(m_device.rawDevice(), poolInfo);
 }
 
-void VulkanRHI::createDescriptorSets()
+void VulkanRHI::createBindlessSet()
 {
-    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_descriptorSetLayout);
+    uint32_t variableCount = MAX_MESHES;
+
+    vk::DescriptorSetVariableDescriptorCountAllocateInfo varCountInfo{};
+    varCountInfo.descriptorSetCount = 1;
+    varCountInfo.pDescriptorCounts  = &variableCount;
 
     vk::DescriptorSetAllocateInfo allocInfo{};
-    allocInfo.descriptorPool     = *m_descriptorPool;
-    allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
-    allocInfo.pSetLayouts        = layouts.data();
+    allocInfo.pNext              = &varCountInfo;
+    allocInfo.descriptorPool     = *m_bindlessPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts        = &(*m_bindlessLayout);
 
-    m_descriptorSets.clear();
-    m_descriptorSets = m_device.rawDevice().allocateDescriptorSets(allocInfo);
-
-    updateDescriptorSets();
+    m_bindlessSet = std::move(m_device.rawDevice().allocateDescriptorSets(allocInfo)[0]);
 }
 
-void VulkanRHI::updateDescriptorSets()
+void VulkanRHI::perFrameUpdate()
 {
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        vk::DescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = *m_uniformBuffers[i];
-        bufferInfo.offset = 0;
-        bufferInfo.range  = sizeof(UniformBufferObject);
-
-        vk::DescriptorImageInfo imageInfo{};
-        imageInfo.sampler     = texture.getSampler();
-        imageInfo.imageView   = texture.getImageView();
-        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
-        vk::WriteDescriptorSet uboWrite{};
-        uboWrite.dstSet          = m_descriptorSets[i];
-        uboWrite.dstBinding      = 0;
-        uboWrite.descriptorCount = 1;
-        uboWrite.descriptorType  = vk::DescriptorType::eUniformBuffer;
-        uboWrite.pBufferInfo     = &bufferInfo;
-
-        vk::WriteDescriptorSet texWrite{};
-        texWrite.dstSet          = m_descriptorSets[i];
-        texWrite.dstBinding      = 1;
-        texWrite.descriptorCount = 1;
-        texWrite.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-        texWrite.pImageInfo      = &imageInfo;
-
-        m_device.rawDevice().updateDescriptorSets({ uboWrite, texWrite }, {});
-    }
-}
-
-void VulkanRHI::updateUniformBuffer()
-{
-    const auto currentTime = std::chrono::high_resolution_clock::now();
-    const float time = std::chrono::duration<float>(currentTime - m_startTime).count();
-
-    const float aspect = (m_offscreenExtent.width > 0 && m_offscreenExtent.height > 0)
-        ? static_cast<float>(m_offscreenExtent.width) / static_cast<float>(m_offscreenExtent.height)
-        : 1.0f;
-
-
-
-    texture.setLodLevel(std::abs(std::fmod(time * 5.0f, 2.0f * texture.getMipLevels()) - static_cast<float>(texture.getMipLevels())));
-
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-        std::memcpy(m_uniformBuffersMapped[i], &m_uniformBufferObject, sizeof(m_uniformBufferObject));
+    refreshMeshData();
 }
 
 void VulkanRHI::createGraphicsPipeline()
@@ -457,7 +924,7 @@ void VulkanRHI::createGraphicsPipeline()
     rasterizer.depthClampEnable        = vk::False;
     rasterizer.rasterizerDiscardEnable = vk::False;
     rasterizer.polygonMode             = vk::PolygonMode::eFill;
-    rasterizer.cullMode                = vk::CullModeFlagBits::eBack;
+    rasterizer.cullMode                = vk::CullModeFlagBits::eNone;
     rasterizer.frontFace               = vk::FrontFace::eCounterClockwise;
     rasterizer.depthBiasEnable         = vk::False;
     rasterizer.depthBiasSlopeFactor    = 1.0f;
@@ -484,10 +951,23 @@ void VulkanRHI::createGraphicsPipeline()
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments    = &colorBlendAttachment;
 
+    // Push constant, camera UBO (viewProj)
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = static_cast<uint32_t>(sizeof(glm::mat4) + sizeof(float) * 4);
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+
+    std::array<vk::DescriptorSetLayout, 3> layouts
+    {
+        *m_meshDataDescriptorSetLayout, // set = 0 Per mesh data
+        *m_bindlessLayout,              // set = 1 Bindless textures
+        *m_UBOLayout                    // set = 2 Scene UBO
+    };
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.setLayoutCount         = 1;
-    pipelineLayoutInfo.pSetLayouts            = &*m_descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.setLayoutCount         = layouts.size();
+    pipelineLayoutInfo.pSetLayouts            = layouts.data();
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
     m_pipelineLayout = vk::raii::PipelineLayout(m_device.rawDevice(), pipelineLayoutInfo);
 
@@ -514,7 +994,11 @@ void VulkanRHI::createGraphicsPipeline()
 
     m_graphicsPipeline = vk::raii::Pipeline(m_device.rawDevice(), nullptr, pipelineInfo);
 }
-
+static struct PushConstant {
+    glm::mat4 transform;
+    float shininess;
+    float _pad[3];
+} pc;
 void VulkanRHI::recordOffscreenCommandBuffer()
 {
     const vk::CommandBuffer cmd = m_device.currentCommandBuffer();
@@ -577,6 +1061,8 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     renderingInfo.pColorAttachments        = &colorAttachmentInfo;
     renderingInfo.pDepthAttachment         = &depthAttachmentInfo;
 
+    recordCullPass();
+
     cmd.beginRendering(renderingInfo);
 
     // Draw scene
@@ -588,13 +1074,21 @@ void VulkanRHI::recordOffscreenCommandBuffer()
         0.0f, 1.0f)
     );
     cmd.setScissor(0, vk::Rect2D({ 0, 0 }, m_offscreenExtent));
+    cmd.bindVertexBuffers(0, { *m_globalVertexBuffer }, { 0 });
+    cmd.bindIndexBuffer(*m_globalIndexBuffer, 0, vk::IndexType::eUint32);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, { *m_meshDataDescriptorSet, *m_bindlessSet, *m_UBOSets[0] }, {});
+    pc.transform = m_cameraUBO.proj * m_cameraUBO.view;
+    pc.shininess = m_shininess;
+    cmd.pushConstants<PushConstant>(*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pc);
 
-    cmd.bindVertexBuffers(0, mesh.getVertexBuffer(), {0});
-    cmd.bindIndexBuffer(mesh.getIndexBuffer(), 0, vk::IndexType::eUint32);
+    // Entire scene - one call
+    cmd.drawIndexedIndirectCount(
+        *m_indirectBuffer,   0,
+        *m_drawCountBuffer,  0,
+        static_cast<uint32_t>(m_meshData.size()),
+        sizeof(vk::DrawIndexedIndirectCommand)
+    );
 
-    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_descriptorSets[0], nullptr);
-
-    cmd.drawIndexed(mesh.getNumIndices(), 1, 0, 0, 0);
     cmd.endRendering();
 
     vk::ImageMemoryBarrier2 toShaderRead{};

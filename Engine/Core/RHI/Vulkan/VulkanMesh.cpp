@@ -10,9 +10,17 @@
 namespace gcep::rhi::vulkan
 {
 
-void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath)
+void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
 {
+    id = entityID++;
     pRhi = instance;
+    m_transform = transform;
+
+    if(!textureFilepath.empty())
+    {
+        m_texture.loadTexture(pRhi, textureFilepath);
+    }
+
     static constexpr bool deduplication = true;
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
 
@@ -45,11 +53,11 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         if (idx.normal_index != UINT32_MAX)
         {
             const float* n = normals + 3 * idx.normal_index;
-            vertex.color = { n[0], n[1], n[2] };
+            vertex.normal = {n[0], n[1], n[2] };
         }
         else
         {
-            vertex.color = { 1.0f, 1.0f, 1.0f };
+            vertex.normal = {1.0f, 1.0f, 1.0f };
         }
 
         if constexpr (deduplication)
@@ -70,7 +78,8 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         }
     }
 
-    m_numIndices = static_cast<uint32_t>(m_indices.size());
+    m_numVertices = static_cast<int32_t>(m_vertices.size());
+    m_numIndices  = static_cast<int32_t>(m_indices.size());
 
     if constexpr (deduplication)
     {
@@ -78,7 +87,7 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
         std::cout << "Deduplicated: " << modelIndices.size() << " original vertices -> " << m_vertices.size()
                   << " unique vertices (" << (100.0f * m_vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
-        std::cout << "Deduplication took " << duration.count() << "ms." << '\n';
+        std::cout << "Deduplication took " << duration.count() << "ms." << "\n\n";
     }
 
     attrib.vertices.clear();  attrib.vertices.shrink_to_fit();
@@ -89,61 +98,85 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
 
     uniqueVertices.clear();
 
-    createVertexBuffer();
-    createIndexBuffer();
+    m_aabbMin = glm::vec3( std::numeric_limits<float>::max());
+    m_aabbMax = glm::vec3(-std::numeric_limits<float>::max());
+
+    for (const auto& vertex : m_vertices)
+    {
+        m_aabbMin = glm::min(m_aabbMin, vertex.pos);
+        m_aabbMax = glm::max(m_aabbMax, vertex.pos);
+    }
+}
+glm::mat4& VulkanMesh::getTransform() {
+    const float c3 = glm::cos(transform.rotation.z);
+    const float s3 = glm::sin(transform.rotation.z);
+    const float c2 = glm::cos(transform.rotation.x);
+    const float s2 = glm::sin(transform.rotation.x);
+    const float c1 = glm::cos(transform.rotation.y);
+    const float s1 = glm::sin(transform.rotation.y);
+    m_transform = {
+        {
+            transform.scale.x * (c1 * c3 + s1 * s2 * s3),
+            transform.scale.x * (c2 * s3),
+            transform.scale.x * (c1 * s2 * s3 - c3 * s1),
+            0.0f,
+        },
+        {
+            transform.scale.y * (c3 * s1 * s2 - c1 * s3),
+            transform.scale.y * (c2 * c3),
+            transform.scale.y * (c1 * c3 * s2 + s1 * s3),
+            0.0f,
+        },
+        {
+            transform.scale.z * (c2 * s1),
+            transform.scale.z * (-s2),
+            transform.scale.z * (c1 * c2),
+            0.0f,
+        },
+        {transform.position.x, transform.position.y, transform.position.z, 1.0f}
+    };
+    return m_transform;
 }
 
-void VulkanMesh::createVertexBuffer()
+void VulkanMesh::setTexture(const std::filesystem::path& filepath, bool mipmaps)
 {
-    const vk::DeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
-
-    vk::raii::Buffer       stagingBuffer       = nullptr;
-    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
-
-    pRhi->createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingBuffer, stagingBufferMemory
-    );
-
-    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
-    std::memcpy(data, m_vertices.data(), static_cast<size_t>(bufferSize));
-    stagingBufferMemory.unmapMemory();
-    m_vertices.clear(); m_vertices.shrink_to_fit();
-
-    pRhi->createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_vertexBuffer, m_vertexBufferMemory
-    );
-
-    pRhi->copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+    m_texture.loadTexture(pRhi, filepath, mipmaps);
 }
 
-void VulkanMesh::createIndexBuffer()
+void VulkanMesh::setPosition(glm::vec3 pos)
 {
-    const vk::DeviceSize bufferSize = sizeof(m_indices[0]) * m_indices.size();
+    m_transform[3] = glm::vec4(pos, 1.0f);
+}
 
-    vk::raii::Buffer       stagingBuffer       = nullptr;
-    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
-    pRhi->createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingBuffer, stagingBufferMemory
-    );
+void VulkanMesh::setRotation(glm::vec3 eulerDegrees)
+{
+    glm::vec3 translation = glm::vec3(m_transform[3]);
+    glm::vec3 scale =
+    {
+        glm::length(glm::vec3(m_transform[0])),
+        glm::length(glm::vec3(m_transform[1])),
+        glm::length(glm::vec3(m_transform[2]))
+    };
 
-    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
-    std::memcpy(data, m_indices.data(), static_cast<size_t>(bufferSize));
-    stagingBufferMemory.unmapMemory();
-    m_indices.clear(); m_indices.shrink_to_fit();
+    glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(eulerDegrees.x), {1,0,0});
+    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.y), {0,1,0});
+    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.z), {0,0,1});
 
-    pRhi->createBuffer(bufferSize,
-        vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_indexBuffer, m_indexBufferMemory
-    );
+    m_transform = glm::translate(glm::mat4(1.0f), translation)
+                  * rot
+                  * glm::scale(glm::mat4(1.0f), scale);
+}
 
-    pRhi->copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+void VulkanMesh::setScale(glm::vec3 scale)
+{
+    m_transform[0] = glm::vec4(glm::normalize(glm::vec3(m_transform[0])) * scale.x, 0.0f);
+    m_transform[1] = glm::vec4(glm::normalize(glm::vec3(m_transform[1])) * scale.y, 0.0f);
+    m_transform[2] = glm::vec4(glm::normalize(glm::vec3(m_transform[2])) * scale.z, 0.0f);
+}
+
+void VulkanMesh::setTransform(glm::mat4 transform)
+{
+    m_transform = transform;
 }
 
 } // Namespace gcep::rhi::vulkan

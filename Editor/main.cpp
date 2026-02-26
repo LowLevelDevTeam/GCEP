@@ -1,10 +1,10 @@
 #include <iostream>
 
+#include <Editor/Camera/camera.hpp>
+#include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
-#include <Engine/Core/RHI/ObjParser/ObjParser.hpp>
-#include <Editor/Inputs/Inputs.hpp>
-#include <Editor/Camera/camera.hpp>
+#include <RHI/ObjParser/ObjParser.hpp>
 #include <RHI/Vulkan/VulkanRHI.hpp>
 
 int main()
@@ -36,25 +36,27 @@ int main()
         return 1;
     }
 
-    // Initialize ImGui BEFORE creating offscreen resources (ImGui_ImplVulkan_AddTexture requires ImGui)
     gcep::UiManager uiManager(window.getGlfwWindow(), rhi->getInitInfo());
+    uiManager.setMeshList(rhi->getMeshData());
+    uiManager.setVieportResizeCallback(
+        [&rhi](uint32_t width, uint32_t height)
+        {
+            rhi->requestOffscreenResize(width, height);
+        }
+    );
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
     {
         glfwPollEvents();
         inputs.update(window.getGlfwWindow());
 
-        // Process any pending resize BEFORE updating UI
-        // This ensures the descriptor passed to ImGui is valid
         rhi->processPendingOffscreenResize();
-
-        rhi->updateEditorInfo(uiManager.getClearColor(), camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.f));
-        // Update UI with viewport texture and resize callback
         uiManager.uiUpdate(
             rhi->getImGuiTextureDescriptor(),
-            [&rhi](uint32_t width, uint32_t height) {
-                rhi->requestOffscreenResize(width, height);
-            }
+            &camera,
+            rhi->getDrawCount()
         );
+        rhi->updateCameraUBO(camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.camSpeed));
+        rhi->updateSceneUBO(uiManager.getSceneInfos(), camera.position);
 
         rhi->drawFrame();
     }

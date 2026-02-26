@@ -1,6 +1,7 @@
 #include "audio_system.hpp"
 
 // STL
+#include <algorithm>
 #include <iostream>
 
 // Libs

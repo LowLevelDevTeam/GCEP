@@ -4,7 +4,6 @@
 #include "paged_allocator.hpp"
 #include "view_finder.hpp"
 
-#include <intrin.h>
 #include <memory>
 
 /**

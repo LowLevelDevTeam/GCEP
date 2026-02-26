@@ -14,20 +14,37 @@ function(add_slang_shader_target TARGET)
         get_filename_component(FNAME ${SRC} NAME_WE)
         set(OUT ${SHADERS_DIR}/${FNAME}.spv)
 
-        add_custom_command(
-            OUTPUT ${OUT}
-            COMMAND ${SLANGC_EXECUTABLE} ${SRC}
-                    -target spirv
-                    -profile spirv_1_4
-                    -emit-spirv-directly
-                    -fvk-use-entrypoint-name
-                    -entry vertMain
-                    -entry fragMain
-                    -o ${OUT}
-            DEPENDS ${SRC}
-            COMMENT "Compiling ${SRC} -> ${OUT}"
-            VERBATIM
-        )
+        string(FIND "${FNAME}" "FrustumCulling" COMPUTE_POS)
+        if(COMPUTE_POS EQUAL 0)
+            add_custom_command(
+                OUTPUT ${OUT}
+                COMMAND ${SLANGC_EXECUTABLE} ${SRC}
+                        -target spirv
+                        -profile spirv_1_4
+                        -emit-spirv-directly
+                        -fvk-use-entrypoint-name
+                        -entry cullMain
+                        -o ${OUT}
+                DEPENDS ${SRC}
+                COMMENT "Compiling ${SRC} -> ${OUT}"
+                VERBATIM
+            )
+        else()
+            add_custom_command(
+                OUTPUT ${OUT}
+                COMMAND ${SLANGC_EXECUTABLE} ${SRC}
+                        -target spirv
+                        -profile spirv_1_4
+                        -emit-spirv-directly
+                        -fvk-use-entrypoint-name
+                        -entry vertMain
+                        -entry fragMain
+                        -o ${OUT}
+                DEPENDS ${SRC}
+                COMMENT "Compiling ${SRC} -> ${OUT}"
+                VERBATIM
+            )
+        endif()
 
         list(APPEND GENERATED_SPVS ${OUT})
     endforeach()
