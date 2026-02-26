@@ -2,6 +2,19 @@
 #include <cmath>
 
 namespace gcep {
+
+
+
+
+
+void UiManager::initEditor()
+{
+    // Exemple pour C++
+    editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+    // Texte de départ
+    editor.SetText("// Écris ton code ici\nint main() {\n    return 0;\n}");
+}
+
 UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
 {
     m_window = window;
@@ -90,6 +103,21 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, const std::function<void(
             // Display placeholder text when no texture is available
             ImGui::Text("Viewport loading...");
         }
+    }
+    ImGui::End();
+
+    ImGui::Begin("Code Editor", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    {
+        editor.Render("TextEditor");
+
+        // Bouton pour récupérer le texte et l’exécuter (exemple Lua/C++)
+        if (ImGui::Button("Run Script"))
+        {
+            std::string code = editor.GetText();
+            // Ici tu peux envoyer 'code' à Lua ou compiler en DLL
+            printf("Script:\n%s\n", code.c_str());
+        }
+
     }
     ImGui::End();
 

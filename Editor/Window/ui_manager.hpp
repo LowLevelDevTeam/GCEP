@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
+#include "TextEditor.h"
 #include "imgui_impl_vulkan.h"
 #include <vulkan/vulkan_raii.hpp>
 #include <functional>
@@ -11,6 +12,7 @@ namespace gcep
 class UiManager {
 public:
 
+    void initEditor();
     // @brief creation of the Editoreditor UI
     UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
 
@@ -31,6 +33,7 @@ public:
 
 private:
 
+    TextEditor editor;
     GLFWwindow* m_window;
     ImGui_ImplVulkan_InitInfo m_initInfo;
     bool showDemoWindow = true;
