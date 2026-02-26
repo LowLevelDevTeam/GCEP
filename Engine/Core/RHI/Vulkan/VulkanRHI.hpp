@@ -129,6 +129,8 @@ public:
     /// @param ubo         Camera view and projection matrices for the current frame.
     void updateCameraUBO(UniformBufferObject ubo);
 
+    void spawnCube();
+
     /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
     ///
     /// Constructs a @c SceneUBO from the provided parameters and memcpys it into all

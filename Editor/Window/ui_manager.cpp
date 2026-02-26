@@ -139,6 +139,7 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
 
 void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount)
 {
+    m_wantsCube = false;
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
     {
         ImGui_ImplGlfw_Sleep(10);
@@ -263,6 +264,10 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
                 }
             }
             ImGui::TreePop();
+        }
+        if (ImGui::Button("Spawn cube")) 
+        {
+            m_wantsCube = true;
         }
 
         // Deselect if clicking in empty space

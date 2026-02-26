@@ -52,6 +52,7 @@ public:
     [[nodiscard]] inline glm::vec3 getLightDirection() const { return lightDirection; }
     [[nodiscard]] inline glm::vec4& getClearColor()          { return m_clearColor; }
     [[nodiscard]] inline float getShininess()          const { return shininess; }
+    [[nodiscard]] inline bool wantsCube()              const { return m_wantsCube; }
 
 public:
     float camSpeed = 2.0f; // Camera speed, exposed to UI for real-time tweaking
@@ -80,6 +81,7 @@ private:
     float m_snapRotation = 15.0f;  // degrés
     float m_snapScale = 0.1f;
     ECS::Registry* m_registry;
+    bool m_wantsCube = false;
 };
 
 }

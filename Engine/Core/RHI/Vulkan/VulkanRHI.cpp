@@ -110,6 +110,8 @@ void VulkanRHI::setMeshData()
         m_globalIndexBuffer, m_globalIndexBufferMemory
     );
 
+    m_meshData.clear();
+    m_meshData.shrink_to_fit();
     m_meshData.reserve(meshes.size());
 
     auto* vbPtr = static_cast<uint8_t*>(stagingVBMem.mapMemory(0, totalVertexBytes));
@@ -691,6 +693,18 @@ void VulkanRHI::drawFrame()
 void VulkanRHI::updateCameraUBO(UniformBufferObject ubo)
 {
     m_cameraUBO = ubo;
+}
+
+void VulkanRHI::spawnCube()
+{
+    const auto id = m_ECSRegistry.createEntity();
+    meshes.emplace_back();
+    meshes.back().transform = m_ECSRegistry.addComponent<TransformComponent>(id, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+    meshes.back().id = id;
+    meshes.back().loadMesh(this, "TestTextures/cube.obj", "TestTextures/white.png");
+    m_ECSRegistry.getComponent<TransformComponent>(id).position = {1.0f, 1.0f, 1.0f};
+    meshes.back().transform = m_ECSRegistry.getComponent<TransformComponent>(id);
+    setMeshData();
 }
 
 uint32_t VulkanRHI::getDrawCount()

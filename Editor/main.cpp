@@ -56,6 +56,9 @@ int main()
             &camera,
             rhi->getDrawCount()
         );
+        if (uiManager.wantsCube()) {
+            rhi->spawnCube();
+        }
         rhi->updateCameraUBO(camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.camSpeed));
         rhi->updateSceneUBO(uiManager.getSceneInfos(), camera.position);
 
