@@ -13,7 +13,8 @@ namespace gcep::ECS
     }
 
     template<typename T>
-    void PagedAllocator<T>::reserve(size_t entityCount) {
+    void PagedAllocator<T>::reserve(size_t entityCount)
+    {
         size_t lastPageNeeded = entityCount >> PAGE_SHIFT;
 
         if (lastPageNeeded >= m_pages.size()) {

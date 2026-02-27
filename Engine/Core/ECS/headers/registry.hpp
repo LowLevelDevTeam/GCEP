@@ -1,8 +1,8 @@
 #pragma once
 #include "component_pool.hpp"
 #include "entity_component.hpp"
-#include "paged_allocator.hpp"
 #include "view_finder.hpp"
+#include  "entity_component.hpp"
 
 #include <memory>
 
@@ -29,13 +29,18 @@ namespace gcep::ECS
 
         /**
          * @brief Creates a new entity.
-         * Recycles an ID from the free list if available; otherwise, increments the internal counter.
+         * @details Uses the EntityIDGenerator to allocate a new entity ID. If a destroyed entity
+         * slot is available in the free list, that ID is reused with an incremented version number.
+         * Otherwise, a new slot is allocated from the entity pool.
          * @return EntityID The unique identifier of the new entity.
          */
         [[nodiscard]] EntityID createEntity();
 
         /**
          * @brief Marks an entity for deferred destruction.
+         * @details The entity is queued for removal and its ID is invalidated through version
+         * checking by the EntityIDGenerator. The entity remains logically valid until the next
+         * call to update(), where it is permanently removed and its slot recycled.
          * @note The entity remains valid until the next call to update().
          * @param entity The identifier of the entity to be removed.
          */
@@ -103,10 +108,9 @@ namespace gcep::ECS
         [[nodiscard]] ComponentPool<T>& getPool();
 
     private:
+        EntityIDGenerator m_idGenerator; ///< Generator for entity ID allocation, validation, and recycling with versioning support.
         std::vector<std::unique_ptr<IPool>> m_pools; ///< List of type-erased component m_pools.
-        std::vector<EntityID> m_freeIDs;             ///< Stack of recyclable identifiers.
         std::vector<EntityID> m_entitiesToDestroy;   ///< Queue for deferred destruction.
-        EntityID m_nextId = 0;                       ///< Next ID to allocate (if no recycling available).
 
         /** @brief Internal logic for removing an entity and its associated data. */
         void removeEntity(EntityID toRemove);
