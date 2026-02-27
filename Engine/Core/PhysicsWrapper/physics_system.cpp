@@ -38,7 +38,7 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
+        auto view = reg.view<TransformComponent, PhysicsComponent>();
 
         for (auto entity : view) {
             auto& transform = view.get<TransformComponent>(entity);
@@ -60,17 +60,17 @@ namespace gcep
 
     void PhysicsSystem::stopSimulation()
     {
-        auto view = reg.partialView<PhysicsComponent>();
+        auto view = reg.view<PhysicsComponent>();
 
-        for (EntityID id : view) {
+        for (ECS::EntityID id : view) {
             auto& pc = view.get<PhysicsComponent>(id); // getter
             m_world->destroyBody(pc.m_bodyIDRef);
         }
     }
 
-    void PhysicsSystem::syncPhysicsToTransforms(Registry& reg)
+    void PhysicsSystem::syncPhysicsToTransforms(ECS::Registry& reg)
     {
-        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
+        auto view = reg.view<TransformComponent, PhysicsComponent>();
 
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
@@ -93,9 +93,9 @@ namespace gcep
         }
     }
 
-    void PhysicsSystem::syncTransformsToPhysics(Registry& reg)
+    void PhysicsSystem::syncTransformsToPhysics(ECS::Registry& reg)
     {
-        auto view = reg.partialView<TransformComponent, PhysicsComponent>();
+        auto view = reg.view<TransformComponent, PhysicsComponent>();
 
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 

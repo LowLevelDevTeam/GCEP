@@ -103,6 +103,8 @@ namespace gcep
     	// Destroy the factory
     	delete JPH::Factory::sInstance;
     	JPH::Factory::sInstance = nullptr;
+
+    	m_shapeCache.clear();
     }
 
     void PhysicsWorld::step(float deltaTime) const
@@ -113,50 +115,35 @@ namespace gcep
 
     void PhysicsWorld::createBody(TransformComponent& transform, PhysicsComponent& data, JPH::BodyID& dataId)
     {
-    	JPH::ShapeRefC baseShape;
+    	std::shared_ptr<PhysicsShape> shape;
 
-    	// Creating unscaled base shape
+    	// Shape
     	switch (data.shapeType)
     	{
-    		case EShapeType::CUBE :
-    		{
-    			JPH::BoxShapeSettings cubeShapeSettings(JPH::Vec3(100.0f, 100.0f, 100.0f));
-    			baseShape = cubeShapeSettings.Create().Get();
+    		case EShapeType::CUBE:
+    			shape = getOrCreateBox({1.f, 1.f, 1.f});
     			break;
-    		}
-    		case EShapeType::CYLINDER :
-    		{
-    			JPH::CylinderShapeSettings cylinderShapeSettings(100.0f, 50.0f);
-    			baseShape = cylinderShapeSettings.Create().Get();
+    		case EShapeType::CYLINDER:
+    			shape = getOrCreateCylinder(0.5f, 0.5f);
     			break;
-    		}
-    		case EShapeType::SPHERE :
-    		{
-    			JPH::SphereShapeSettings sphereShapeSettings(50.0f);
-    			baseShape = sphereShapeSettings.Create().Get();
+    		case EShapeType::SPHERE:
+    			shape = getOrCreateSphere(0.5f);
     			break;
-    		}
+    		case EShapeType::CAPSULE:
+    			shape = getOrCreateCapsule(0.5f, 0.5f);
+    			break;
+    		default:
+    			shape = getOrCreateBox({1.f, 1.f, 1.f});
+    			break;
     	}
 
-    	if (!baseShape) return;
-
-    	// Scaling
-    	JPH::ShapeRefC finalShape = baseShape;
-    	const auto scale = transform.scale;
-    	const bool hasScale = scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f;
-
-    	if (hasScale)
+    	bool isScaled = transform.scale != Vector3<float>(1.f,1.f,1.f);
+    	if (isScaled)
     	{
-    		JPH::ScaledShapeSettings scaledShapeSettings(
-    			baseShape,
-    			JPH::Vec3(scale.x, scale.y, scale.z)
-    			);
-
-    		auto result = scaledShapeSettings.Create();
-    		if (result.HasError()) return;
-
-    		finalShape = result.Get();
+    		shape = getOrCreateScaled(shape, transform.scale);
     	}
+
+    	if (!shape) return;
 
     	// Motion type
     	JPH::EMotionType motionType = JPH::EMotionType::Static;
@@ -188,7 +175,7 @@ namespace gcep
 
     	// Body creation
     	JPH::BodyCreationSettings bodySettings(
-    		finalShape,
+    		shape->getJoltShape(),
 			position,
 			rotation,
 			motionType,
@@ -211,10 +198,8 @@ namespace gcep
     {
     	RaycastHit hitResult;
 
-    	JPH::RRayCast ray(
-			JPH::RVec3(origin.x, origin.y, origin.z),
-			JPH::Vec3(direction.x, direction.y, direction.z) * maxDistance
-		);
+    	JPH::Vec3 dir = JPH::Vec3(direction.x, direction.y, direction.z).Normalized();
+    	JPH::RRayCast ray(JPH::RVec3(origin.x, origin.y, origin.z), dir * maxDistance);
 
     	JPH::RayCastResult result;
 
@@ -258,4 +243,113 @@ namespace gcep
     	return hitResult;
     }
 
+	std::shared_ptr<PhysicsShape> PhysicsWorld::getOrCreateBox(const Vector3<float> &halfExtents)
+	{
+    	ShapeKey key;
+    	key.type = EPhysicsShapeType::BOX;
+    	key.scale = halfExtents;
+
+    	auto it = m_shapeCache.find(key);
+    	if (it != m_shapeCache.end())
+    	{
+    		if (auto existing = it->second.lock())
+    			return existing;
+    	}
+
+    	auto shape = PhysicsShape::createBox(halfExtents);
+    	m_shapeCache[key] = shape;
+
+    	return shape;
+	}
+
+	std::shared_ptr<PhysicsShape> PhysicsWorld::getOrCreateSphere(float radius)
+    {
+    	ShapeKey key;
+    	key.type = EPhysicsShapeType::SPHERE;
+    	key.radius = radius;
+
+    	auto it = m_shapeCache.find(key);
+    	if (it != m_shapeCache.end())
+    	{
+    		if (auto existing = it->second.lock())
+    			return existing;
+    	}
+
+    	auto shape = PhysicsShape::createSphere(radius);
+    	if (!shape)
+    		return nullptr;
+
+    	m_shapeCache[key] = shape;
+    	return shape;
+    }
+
+	std::shared_ptr<PhysicsShape> PhysicsWorld::getOrCreateCylinder(float halfHeight, float radius)
+    {
+    	ShapeKey key;
+    	key.type = EPhysicsShapeType::CYLINDER;
+    	key.height = halfHeight;
+    	key.radius = radius;
+
+    	auto it = m_shapeCache.find(key);
+    	if (it != m_shapeCache.end())
+    	{
+    		if (auto existing = it->second.lock())
+    			return existing;
+    	}
+
+    	auto shape = PhysicsShape::createCylinder(halfHeight, radius);
+    	if (!shape)
+    		return nullptr;
+
+    	m_shapeCache[key] = shape;
+    	return shape;
+    }
+
+	std::shared_ptr<PhysicsShape> PhysicsWorld::getOrCreateCapsule(float halfHeight, float radius)
+    {
+    	ShapeKey key;
+    	key.type = EPhysicsShapeType::CAPSULE;
+    	key.height = halfHeight;
+    	key.radius = radius;
+
+    	auto it = m_shapeCache.find(key);
+    	if (it != m_shapeCache.end())
+    	{
+    		if (auto existing = it->second.lock())
+    			return existing;
+    	}
+
+    	auto shape = PhysicsShape::createCapsule(halfHeight, radius);
+    	if (!shape)
+    		return nullptr;
+
+    	m_shapeCache[key] = shape;
+    	return shape;
+    }
+
+	std::shared_ptr<PhysicsShape> PhysicsWorld::getOrCreateScaled(std::shared_ptr<PhysicsShape> baseShape, Vector3<float> scale)
+	{
+    	if (!baseShape)
+    		return nullptr;
+
+    	ShapeKey key;
+    	key.type = baseShape->getType();
+    	key.scale = scale;
+
+    	auto it = m_shapeCache.find(key);
+    	if (it != m_shapeCache.end())
+    	{
+    		if (auto existing = it->second.lock())
+    			return existing;
+
+    		m_shapeCache.erase(it);
+    	}
+
+    	auto shape = PhysicsShape::createScaled(baseShape, scale);
+    	if (!shape)
+    		return nullptr;
+
+    	m_shapeCache[key] = shape;
+    	return shape;
+	}
 }
