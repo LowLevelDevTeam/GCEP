@@ -286,7 +286,7 @@ void BroadPhaseBruteForce::FindCollidingPairs(BodyID *ioActiveBodies, int inNumA
 
 			// Check if layers can collide
 			const ObjectLayer layer2 = body2.GetObjectLayer();
-			if (!inObjectLayerPairFilter.ShouldCollide(layer1, layer2))
+			if (!inObjectLayerPairFilter.shouldCollide(layer1, layer2))
 				continue;
 
 			// Check if bounds overlap

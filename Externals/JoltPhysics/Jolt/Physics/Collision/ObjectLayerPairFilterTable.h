@@ -63,7 +63,7 @@ public:
 	}
 
 	/// Returns true if two layers can collide
-	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
+	virtual bool			shouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 	{
 		// Test if the bit is set for this group pair
 		uint bit = GetBit(inObject1, inObject2);

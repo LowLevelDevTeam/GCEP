@@ -31,12 +31,12 @@ public:
 		mObjectToBroadPhase[inObjectLayer] = inBroadPhaseLayer;
 	}
 
-	virtual uint			GetNumBroadPhaseLayers() const override
+	virtual uint			getNumBroadPhaseLayers() const override
 	{
 		return mNumBroadPhaseLayers;
 	}
 
-	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override
+	virtual BroadPhaseLayer	getBroadPhaseLayer(ObjectLayer inLayer) const override
 	{
 		return mObjectToBroadPhase[inLayer];
 	}
@@ -47,7 +47,7 @@ public:
 		mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer] = inName;
 	}
 
-	virtual const char *	GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
+	virtual const char *	getBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
 	{
 		return mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer];
 	}
