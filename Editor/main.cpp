@@ -4,17 +4,23 @@
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
-#include <RHI/Vulkan/VulkanRHI.hpp>
+#include <Engine/RHI/Vulkan/VulkanRHI.hpp>
+#include <Log/Log.hpp>
 
 int main()
 {
     using namespace gcep;
-    using VulkanRHI = gcep::rhi::vulkan::VulkanRHI;
+    using VulkanRHI = rhi::vulkan::VulkanRHI;
 
     Window& window = Window::getInstance();
     window.initWindow();
     InputSystem inputSystem(window.getGlfwWindow());
     Camera camera(&inputSystem, &window);
+    std::string appName = "GC Engine Paris";
+    std::string logPath = "crash_log.txt";
+    std::ofstream logFile("log.txt");
+    Log::initialize(appName, logPath);
+    Log::logSystemInfo(logFile);
 
     int fbWidth = 0, fbHeight = 0;
     glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);
@@ -25,15 +31,17 @@ int main()
     swapDesc.height             = static_cast<uint32_t>(fbHeight);
     swapDesc.vsync              = true;
 
-    std::unique_ptr<VulkanRHI> rhi = std::make_unique<VulkanRHI>(swapDesc);
+    std::unique_ptr<VulkanRHI> rhi = std::make_unique<VulkanRHI>(swapDesc, logFile);
 
     try
     {
         rhi->setWindow(window.getGlfwWindow());
         rhi->initRHI();
+        Log::logVulkanInfo(logFile, rhi->getPhysDev());
     }
     catch (std::exception& e)
     {
+        Log::handleException(e, rhi->getPhysDev());
         std::cerr << e.what() << std::endl;
         return 1;
     }

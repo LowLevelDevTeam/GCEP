@@ -13,10 +13,10 @@
 // STL
 #include <limits>
 
-#include <Audio/audio_system.hpp>
+#include <Engine/Audio/audio_system.hpp>
 #include <ECS/headers/registry.hpp>
-#include <RHI/Vulkan/VulkanMesh.hpp>
-#include <RHI/Vulkan/VulkanRHIDataTypes.hpp>
+#include <Engine/RHI/Vulkan/VulkanMesh.hpp>
+#include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 
 namespace gcep
 {

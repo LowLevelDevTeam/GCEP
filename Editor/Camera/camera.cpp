@@ -56,7 +56,8 @@ void Camera::rotate()
 {
     if (isSpecificWindowFocused("Viewport") && !ImGuizmo::IsUsing())
     {
-        float newPitch = pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+        static float DPI = 1.0f / 1000.0f;
+        float newPitch = pitch - ImGui::GetIO().MouseDelta.y * 180 / glm::pi<float>() * DPI;
         if (newPitch > 89.0f)
         {
             pitch = 89.0f;
@@ -70,7 +71,7 @@ void Camera::rotate()
             pitch = newPitch;
         }
 
-        yaw -= ImGui::GetIO().MouseDelta.x * 180 / glm::pi<float>() * ImGui::GetIO().DeltaTime;
+        yaw -= ImGui::GetIO().MouseDelta.x * 180 / glm::pi<float>() * DPI;
     }
 }
 

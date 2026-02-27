@@ -7,7 +7,7 @@
 
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/Window.hpp>
-#include <RHI/Vulkan/VulkanRHI.hpp>
+#include <Engine/RHI/Vulkan/VulkanRHI.hpp>
 
 namespace gcep
 {
