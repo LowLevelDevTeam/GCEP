@@ -6,10 +6,12 @@
 
 // STD
 #include <cstdint>
+#include <ECS/headers/registry.hpp>
 
 namespace gcep::rhi::vulkan 
 {
-
+class VulkanRHI;
+class VulkanMesh;
 /// @brief Interleaved vertex layout: position (vec3), vertex color or normal (vec3),
 ///        texture coordinate (vec2). Matches the SPIR-V input layout of @c Base_Shader.spv.
 struct Vertex
@@ -105,7 +107,7 @@ struct SceneUBO
 ///
 /// Populated each frame by @c VulkanRHI::extractFrustum() using the Gribb-Hartmann
 /// method applied to the combined @c proj * @c view matrix. Each plane is stored as a
-/// normalised @c vec4 where @c xyz is the inward-facing normal and @c w is the
+/// normalized @c vec4 where @c xyz is the inward-facing normal and @c w is the
 /// signed distance from the origin, such that @c dot(n, p) + d >= 0 means
 /// the point @c p is inside (or on) the plane.
 ///
@@ -125,6 +127,14 @@ struct SceneInfos
     glm::vec3 lightColor     = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
     float     shininess      = 64.0f;
+};
+
+struct InitInfos
+{
+    VulkanRHI* instance;
+    std::vector<VulkanMesh>* meshData;
+    ECS::Registry* registry;
+    VkDescriptorSet* ds;
 };
 
 } // Namespace gcep::rhi::vulkan

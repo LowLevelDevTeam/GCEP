@@ -333,16 +333,14 @@ void VulkanDevice::waitIdle()
     m_device.waitIdle();
 }
 
-void VulkanDevice::recreateSwapchain(uint32_t width, uint32_t height)
+void VulkanDevice::recreateSwapchain(uint32_t width, uint32_t height, SwapchainDesc& desc)
 {
     waitIdle();
 
     m_swapchain.reset();
 
-    SwapchainDesc desc{};
     desc.width  = width;
     desc.height = height;
-    desc.vsync = m_swapchainDesc.vsync;
 
     m_swapchain = std::make_unique<VulkanSwapchain>(m_device, m_physicalDevice, m_surface, desc);
     m_renderFinishedSemaphores.clear();

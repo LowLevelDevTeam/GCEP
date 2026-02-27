@@ -12,7 +12,11 @@ namespace gcep::rhi::vulkan
 
 void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
 {
-    id = entityID++;
+    if (name == "Unknown")
+    {
+        // Make sure every entity has a different name
+        name = std::string("Unknown ") + std::to_string(id);
+    }
     pRhi = instance;
     m_transform = transform;
 
@@ -25,7 +29,6 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
 
     std::unordered_map<Vertex, uint32_t> uniqueVertices;
-    auto start_timer = std::chrono::high_resolution_clock::now();
 
     m_vertices.reserve(modelIndices.size());
     m_indices.reserve(modelIndices.size());
@@ -53,11 +56,11 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         if (idx.normal_index != UINT32_MAX)
         {
             const float* n = normals + 3 * idx.normal_index;
-            vertex.normal = {n[0], n[1], n[2] };
+            vertex.normal = { n[0], n[1], n[2] };
         }
         else
         {
-            vertex.normal = {1.0f, 1.0f, 1.0f };
+            vertex.normal = { 1.0f, 1.0f, 1.0f };
         }
 
         if constexpr (deduplication)
@@ -80,15 +83,6 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
 
     m_numVertices = static_cast<int32_t>(m_vertices.size());
     m_numIndices  = static_cast<int32_t>(m_indices.size());
-
-    if constexpr (deduplication)
-    {
-        auto end_timer = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
-        std::cout << "Deduplicated: " << modelIndices.size() << " original vertices -> " << m_vertices.size()
-                  << " unique vertices (" << (100.0f * m_vertices.size() / modelIndices.size()) << "% were unique vertices)\n";
-        std::cout << "Deduplication took " << duration.count() << "ms." << "\n\n";
-    }
 
     attrib.vertices.clear();  attrib.vertices.shrink_to_fit();
     attrib.texcoords.clear(); attrib.texcoords.shrink_to_fit();

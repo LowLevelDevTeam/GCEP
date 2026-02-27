@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <vector>
 
+#include <ECS/headers/entity_component.hpp>
+
 namespace gcep::rhi::vulkan
 {
 static uint32_t entityID = 0;
@@ -36,7 +38,7 @@ struct TransformComponent {
 /// @code
 /// VulkanMesh mesh;
 /// mesh.loadMesh(rhi, "assets/model.obj", "assets/albedo.png", glm::mat4(1.0f));
-/// // mesh.getVertices() / mesh.getIndices() are ready for upload via VulkanRHI::setMeshData()
+/// // mesh.getVertices() / mesh.getIndices() are ready for upload via VulkanRHI::initMeshBuffers()
 /// @endcode
 ///
 /// @note The mesh holds a non-owning pointer to the @c VulkanRHI instance that
@@ -54,7 +56,7 @@ public:
     ///
     /// CPU-side OBJ attribute data (@c attrib.vertices, @c texcoords, @c normals,
     /// @c modelIndices) is freed immediately after the vertex array is built.
-    /// @c m_vertices and @c m_indices remain populated until @c VulkanRHI::setMeshData()
+    /// @c m_vertices and @c m_indices remain populated until @c VulkanRHI::initMeshBuffers()
     /// calls @c clearVertices() / @c clearIndices() after copying them to the global buffer.
     ///
     /// @param instance          Non-owning pointer to the owning @c VulkanRHI context.
@@ -66,10 +68,13 @@ public:
                   const std::filesystem::path& textureFilepath   = L"",
                   glm::mat4                    transform         = glm::mat4(1.0f));
 
+    bool hasTexture() const noexcept { return m_texture.hasTexture(); }
+    bool hasMipmaps() const noexcept { return m_texture.hasMipmaps(); }
+
 public:
     TransformComponent transform;
     std::string name = "Unknown";
-    uint32_t id = UINT32_MAX;
+    ECS::EntityID id = std::numeric_limits<ECS::EntityID>::max();
 
 public:
     // Accessors
@@ -98,12 +103,12 @@ public:
 
     /// @brief Returns a const reference to the CPU-side vertex array.
     ///
-    /// Valid until @c clearVertices() is called by @c VulkanRHI::setMeshData().
+    /// Valid until @c clearVertices() is called by @c VulkanRHI::initMeshBuffers().
     [[nodiscard]] const std::vector<Vertex>&   getVertices() const noexcept { return m_vertices; }
 
     /// @brief Returns a const reference to the CPU-side index array.
     ///
-    /// Valid until @c clearIndices() is called by @c VulkanRHI::setMeshData().
+    /// Valid until @c clearIndices() is called by @c VulkanRHI::initMeshBuffers().
     [[nodiscard]] const std::vector<uint32_t>& getIndices()  const noexcept { return m_indices;  }
 
     /// @brief Returns the object-space AABB minimum corner.
@@ -120,13 +125,13 @@ public:
 
     /// @brief Frees the CPU-side vertex vector and releases its memory.
     ///
-    /// Called by @c VulkanRHI::setMeshData() after the data has been copied
+    /// Called by @c VulkanRHI::initMeshBuffers() after the data has been copied
     /// to the global staging buffer. @c getNumVertices() remains valid.
     void clearVertices() { m_vertices.clear(); m_vertices.shrink_to_fit(); }
 
     /// @brief Frees the CPU-side index vector and releases its memory.
     ///
-    /// Called by @c VulkanRHI::setMeshData() after the data has been copied
+    /// Called by @c VulkanRHI::initMeshBuffers() after the data has been copied
     /// to the global staging buffer. @c getNumIndices() remains valid.
     void clearIndices()  { m_indices.clear();  m_indices.shrink_to_fit();  }
 

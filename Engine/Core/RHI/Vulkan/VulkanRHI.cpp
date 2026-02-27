@@ -57,162 +57,173 @@ void VulkanRHI::initSceneResources()
     createBindlessLayout();
     createBindlessPool();
     createBindlessSet();
-    // Textures loading TODO: Move to manager class + use ECS
-    meshes.reserve(MAX_MESHES);
-    meshes.emplace_back();
-    meshes[0].loadMesh(this, "TestTextures/viking_room.obj", "TestTextures/viking_room.png");
-    meshes[0].name = "Viking Room";
-    setMeshData();
+    initMeshBuffers();
     createMeshDataDescriptors();
     createGraphicsPipeline();
     createCullPipeline();
+    spawnCube();
 }
 
-void VulkanRHI::setMeshData()
+bool VulkanRHI::isVSync()
 {
-    vk::DeviceSize totalVertexBytes = 0;
-    vk::DeviceSize totalIndexBytes  = 0;
-    for (const auto& iMesh : meshes)
-    {
-        totalVertexBytes += iMesh.getVertexBufferSize();
-        totalIndexBytes  += iMesh.getIndexBufferSize();
-    }
+    return m_swapchainDesc.vsync;
+}
 
-    vk::raii::Buffer       stagingVB({});
-    vk::raii::DeviceMemory stagingVBMem({});
-    createBuffer(totalVertexBytes,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingVB, stagingVBMem
-    );
+void VulkanRHI::setVSync(bool vsync)
+{
+    m_swapchainDesc.vsync = vsync;
+    recreateSwapchain();
+}
 
-    vk::raii::Buffer       stagingIB({});
-    vk::raii::DeviceMemory stagingIBMem({});
-    createBuffer(totalIndexBytes,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        stagingIB, stagingIBMem
-    );
-
-    createBuffer(totalVertexBytes,
+void VulkanRHI::initMeshBuffers()
+{
+    createBuffer(MAX_VERTEX_BUFFER_BYTES,
         vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
         vk::MemoryPropertyFlagBits::eDeviceLocal,
         m_globalVertexBuffer, m_globalVertexBufferMemory
     );
 
-    createBuffer(totalIndexBytes,
+    createBuffer(MAX_INDEX_BUFFER_BYTES,
         vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
         vk::MemoryPropertyFlagBits::eDeviceLocal,
         m_globalIndexBuffer, m_globalIndexBufferMemory
     );
 
-    m_meshData.reserve(meshes.size());
-
-    auto* vbPtr = static_cast<uint8_t*>(stagingVBMem.mapMemory(0, totalVertexBytes));
-    auto* ibPtr = static_cast<uint8_t*>(stagingIBMem.mapMemory(0, totalIndexBytes));
-
-    vk::DeviceSize vertexByteOffset = 0;
-    vk::DeviceSize indexByteOffset  = 0;
-    uint32_t       vertexCount      = 0;
-    uint32_t       indexCount       = 0;
-
-    for (uint32_t i = 0; i < meshes.size(); ++i)
-    {
-        auto& mesh = meshes[i];
-        const vk::DeviceSize vbSize = mesh.getVertexBufferSize();
-        const vk::DeviceSize ibSize = mesh.getIndexBufferSize();
-
-        std::memcpy(vbPtr + vertexByteOffset, mesh.getVertices().data(), vbSize);
-        std::memcpy(ibPtr + indexByteOffset, mesh.getIndices().data(), ibSize);
-        mesh.clearVertices();
-        mesh.clearIndices();
-
-        GPUMeshData data{};
-        data.firstIndex   = indexCount;
-        data.indexCount   = mesh.getNumIndices();
-        data.vertexOffset = vertexCount;
-        data.textureIndex = mesh.texture()->getBindlessIndex();
-        data.transform    = mesh.getTransform();
-        data.aabbMin      = mesh.getAABBMin();
-        data.aabbMax      = mesh.getAABBMax();
-        m_meshData.emplace_back(data);
-
-        vk::DrawIndexedIndirectCommand drawCmd{};
-        drawCmd.indexCount    = data.indexCount;
-        drawCmd.instanceCount = 1;
-        drawCmd.firstIndex    = data.firstIndex;
-        drawCmd.vertexOffset  = data.vertexOffset;
-        drawCmd.firstInstance = i;
-        m_indirectCommands.emplace_back(drawCmd);
-
-        vertexByteOffset += vbSize;
-        indexByteOffset  += ibSize;
-        vertexCount      += mesh.getNumVertices();
-        indexCount       += mesh.getNumIndices();
-    }
-
-    stagingVBMem.unmapMemory();
-    stagingIBMem.unmapMemory();
-
-    auto cmd = beginSingleTimeCommands();
-
-    vk::BufferCopy vertexCopy{};
-    vertexCopy.size = totalVertexBytes;
-    cmd->copyBuffer(*stagingVB, *m_globalVertexBuffer, { vertexCopy });
-
-    vk::BufferCopy indexCopy{};
-    indexCopy.size = totalIndexBytes;
-    cmd->copyBuffer(*stagingIB, *m_globalIndexBuffer, { indexCopy });
-
-    endSingleTimeCommands(*cmd);
-
-    const vk::DeviceSize size = sizeof(GPUMeshData) * m_meshData.size();
-    createBuffer(size,
+    const vk::DeviceSize meshDataSize = sizeof(GPUMeshData) * MAX_MESHES;
+    createBuffer(meshDataSize,
         vk::BufferUsageFlagBits::eStorageBuffer,
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
         m_meshDataSSBO, m_meshDataSSBOMemory
     );
-    m_meshDataSSBOMapped = m_meshDataSSBOMemory.mapMemory(0, size);
+    m_meshDataSSBOMapped = m_meshDataSSBOMemory.mapMemory(0, meshDataSize);
 
-    updateMeshDataSSBO();
-    uploadIndirectBuffer();
+    m_indirectBufferCapacity = sizeof(vk::DrawIndexedIndirectCommand) * MAX_MESHES;
+    createBuffer(m_indirectBufferCapacity,
+        vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer |
+        vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        m_indirectBuffer, m_indirectBufferMemory
+    );
+    m_indirectBufferMapped = m_indirectBufferMemory.mapMemory(0, m_indirectBufferCapacity);
+
+    for (uint32_t i = 0; i < static_cast<uint32_t>(meshes.size()); ++i)
+        uploadSingleMesh(i);
+}
+
+void VulkanRHI::uploadSingleMesh(uint32_t meshIndex)
+{
+    assert(meshIndex < MAX_MESHES && "Exceeded MAX_MESHES");
+
+    auto& mesh = meshes[meshIndex];
+
+    const vk::DeviceSize vbSize = mesh.getVertexBufferSize();
+    const vk::DeviceSize ibSize = mesh.getIndexBufferSize();
+
+    assert(m_vertexBytesFilled + vbSize <= MAX_VERTEX_BUFFER_BYTES && "Vertex buffer overflow");
+    assert(m_indexBytesFilled  + ibSize <= MAX_INDEX_BUFFER_BYTES  && "Index buffer overflow");
+
+    {
+        vk::raii::Buffer       staging({});
+        vk::raii::DeviceMemory stagingMem({});
+        createBuffer(vbSize,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            staging, stagingMem
+        );
+
+        void* ptr = stagingMem.mapMemory(0, vbSize);
+        std::memcpy(ptr, mesh.getVertices().data(), vbSize);
+        stagingMem.unmapMemory();
+
+        auto cmd = beginSingleTimeCommands();
+        vk::BufferCopy copy{};
+        copy.srcOffset = 0;
+        copy.dstOffset = m_vertexBytesFilled;
+        copy.size      = vbSize;
+        cmd->copyBuffer(*staging, *m_globalVertexBuffer, { copy });
+        endSingleTimeCommands(*cmd);
+    }
+
+    {
+        vk::raii::Buffer       staging({});
+        vk::raii::DeviceMemory stagingMem({});
+        createBuffer(ibSize,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            staging, stagingMem
+        );
+
+        void* ptr = stagingMem.mapMemory(0, ibSize);
+        std::memcpy(ptr, mesh.getIndices().data(), ibSize);
+        stagingMem.unmapMemory();
+
+        auto cmd = beginSingleTimeCommands();
+        vk::BufferCopy copy{};
+        copy.srcOffset = 0;
+        copy.dstOffset = m_indexBytesFilled;
+        copy.size      = ibSize;
+        cmd->copyBuffer(*staging, *m_globalIndexBuffer, { copy });
+        endSingleTimeCommands(*cmd);
+    }
+
+    mesh.clearVertices();
+    mesh.clearIndices();
+
+    GPUMeshData data{};
+    data.firstIndex   = m_totalIndexCount;
+    data.indexCount   = mesh.getNumIndices();
+    data.vertexOffset = m_totalVertexCount;
+    data.textureIndex = mesh.texture()->getBindlessIndex();
+    data.transform    = mesh.getTransform();
+    data.aabbMin      = mesh.getAABBMin();
+    data.aabbMax      = mesh.getAABBMax();
+
+    if (meshIndex < m_meshData.size())
+        m_meshData[meshIndex] = data;
+    else
+        m_meshData.emplace_back(data);
+
+    static_cast<GPUMeshData*>(m_meshDataSSBOMapped)[meshIndex] = data;
+
+    vk::DrawIndexedIndirectCommand drawCmd{};
+    drawCmd.indexCount    = data.indexCount;
+    drawCmd.instanceCount = 1;
+    drawCmd.firstIndex    = data.firstIndex;
+    drawCmd.vertexOffset  = static_cast<int32_t>(data.vertexOffset);
+    drawCmd.firstInstance = meshIndex;
+
+    if (meshIndex < m_indirectCommands.size())
+        m_indirectCommands[meshIndex] = drawCmd;
+    else
+        m_indirectCommands.emplace_back(drawCmd);
+
+    static_cast<vk::DrawIndexedIndirectCommand*>(m_indirectBufferMapped)[meshIndex] = drawCmd;
+
+    m_vertexBytesFilled += vbSize;
+    m_indexBytesFilled  += ibSize;
+    m_totalVertexCount  += mesh.getNumVertices();
+    m_totalIndexCount   += mesh.getNumIndices();
+}
+
+void VulkanRHI::updateMeshMetadata(uint32_t meshIndex)
+{
+    assert(meshIndex < m_meshData.size() && "Mesh index out of range");
+
+    auto& mesh = meshes[meshIndex];
+    auto& data = m_meshData[meshIndex];
+
+    data.textureIndex = mesh.texture()->getBindlessIndex();
+    data.transform    = mesh.getTransform();
+    data.aabbMin      = mesh.getAABBMin();
+    data.aabbMax      = mesh.getAABBMax();
+
+    static_cast<GPUMeshData*>(m_meshDataSSBOMapped)[meshIndex] = data;
 }
 
 void VulkanRHI::updateMeshDataSSBO()
 {
     const vk::DeviceSize size = sizeof(GPUMeshData) * m_meshData.size();
     std::memcpy(m_meshDataSSBOMapped, m_meshData.data(), size);
-}
-
-void VulkanRHI::uploadIndirectBuffer()
-{
-    const vk::DeviceSize size = sizeof(vk::DrawIndexedIndirectCommand) * m_indirectCommands.size();
-
-    vk::raii::Buffer       staging({});
-    vk::raii::DeviceMemory stagingMem({});
-    createBuffer(size,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        staging, stagingMem
-    );
-
-    void* ptr = stagingMem.mapMemory(0, size);
-    std::memcpy(ptr, m_indirectCommands.data(), size);
-    stagingMem.unmapMemory();
-
-    createBuffer(size,
-        vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        m_indirectBuffer, m_indirectBufferMemory
-    );
-
-    auto cmd = beginSingleTimeCommands();
-
-    vk::BufferCopy copy{};
-    copy.size = size;
-    cmd->copyBuffer(*staging, *m_indirectBuffer, { copy });
-
-    endSingleTimeCommands(*cmd);
 }
 
 void VulkanRHI::createMeshDataDescriptors()
@@ -270,7 +281,7 @@ void VulkanRHI::refreshMeshData()
 {
     for (uint32_t i = 0; i < meshes.size(); ++i)
     {
-        m_meshData[i].transform = meshes[i].getTransform();
+        updateMeshMetadata(i);
     }
     updateMeshDataSSBO();
 }
@@ -582,10 +593,10 @@ void VulkanRHI::recreateSwapchain()
         glfwGetFramebufferSize(win, &w, &h);
         glfwWaitEvents();
     }
-    m_device.recreateSwapchain(static_cast<uint32_t>(w), static_cast<uint32_t>(h));
+    m_device.recreateSwapchain(static_cast<uint32_t>(w), static_cast<uint32_t>(h), m_swapchainDesc);
 }
 
-ImGui_ImplVulkan_InitInfo VulkanRHI::getInitInfo()
+ImGui_ImplVulkan_InitInfo VulkanRHI::getUIInitInfo()
 {
     VkDescriptorPoolSize poolSizes[] =
     {
@@ -658,6 +669,7 @@ void VulkanRHI::cleanup()
 
 void VulkanRHI::drawFrame()
 {
+    processPendingOffscreenResize();
     if (m_framebufferResized)
     {
         recreateSwapchain();
@@ -689,6 +701,45 @@ void VulkanRHI::updateCameraUBO(UniformBufferObject ubo)
     m_cameraUBO = ubo;
 }
 
+void VulkanRHI::spawnCube(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path = (char*)"TestTextures/cube.obj";
+    char* texPath = (char*)"TestTextures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath);
+}
+
+void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
+{
+    if(!std::filesystem::exists(filepath))
+    {
+        return;
+    }
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    const auto id = m_ECSRegistry.createEntity();
+    meshes.emplace_back();
+    auto& mesh = meshes.back();
+    mesh.transform = m_ECSRegistry.addComponent<TransformComponent>(id);
+    mesh.id = id;
+    mesh.loadMesh(this, filepath);
+    const ECS::EntityID newIndex = static_cast<ECS::EntityID>(meshes.size()) - 1;
+    uploadSingleMesh(newIndex);
+    m_ECSRegistry.getComponent<TransformComponent>(id).position = pos;
+    mesh.transform.position = pos;
+}
+
+void VulkanRHI::addTexture(ECS::EntityID id, char* path)
+{
+    if(!std::filesystem::exists(path) || id >= meshes.size())
+    {
+        return;
+    }
+    meshes[id].texture()->loadTexture(this, path);
+}
+
 uint32_t VulkanRHI::getDrawCount()
 {
     return m_drawCount;
@@ -697,6 +748,21 @@ uint32_t VulkanRHI::getDrawCount()
 std::vector<VulkanMesh>& VulkanRHI::getMeshData()
 {
     return meshes;
+}
+
+ECS::Registry* VulkanRHI::getRegistry()
+{
+    return &m_ECSRegistry;
+}
+
+InitInfos* VulkanRHI::getInitInfos()
+{
+    m_initInfos.instance = this;
+    m_initInfos.meshData = &meshes;
+    m_initInfos.registry = &m_ECSRegistry;
+    m_initInfos.ds = &m_imguiTextureDescriptor;
+
+    return &m_initInfos;
 }
 
 void VulkanRHI::requestOffscreenResize(uint32_t width, uint32_t height)
@@ -995,7 +1061,7 @@ void VulkanRHI::createGraphicsPipeline()
     m_graphicsPipeline = vk::raii::Pipeline(m_device.rawDevice(), nullptr, pipelineInfo);
 }
 static struct PushConstant {
-    glm::mat4 transform;
+    glm::mat4 camViewProj;
     float shininess;
     float _pad[3];
 } pc;
@@ -1077,7 +1143,7 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     cmd.bindVertexBuffers(0, { *m_globalVertexBuffer }, { 0 });
     cmd.bindIndexBuffer(*m_globalIndexBuffer, 0, vk::IndexType::eUint32);
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, { *m_meshDataDescriptorSet, *m_bindlessSet, *m_UBOSets[0] }, {});
-    pc.transform = m_cameraUBO.proj * m_cameraUBO.view;
+    pc.camViewProj = m_cameraUBO.proj * m_cameraUBO.view;
     pc.shininess = m_shininess;
     cmd.pushConstants<PushConstant>(*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pc);
 
@@ -1085,7 +1151,7 @@ void VulkanRHI::recordOffscreenCommandBuffer()
     cmd.drawIndexedIndirectCount(
         *m_indirectBuffer,   0,
         *m_drawCountBuffer,  0,
-        static_cast<uint32_t>(m_meshData.size()),
+        static_cast<uint32_t>(m_indirectCommands.size()),
         sizeof(vk::DrawIndexedIndirectCommand)
     );
 
