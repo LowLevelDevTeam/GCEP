@@ -57,6 +57,11 @@ void UiManager::setVieportResizeCallback(const std::function<void(uint32_t, uint
     m_viewportResizeCallback = callback;
 }
 
+void UiManager::setScriptReloadCallback(const std::function<void()>& callback)
+{
+    m_scriptReloadCallback = callback;
+}
+
 static bool DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
     bool value_changed = false;
     ImGuiIO& io = ImGui::GetIO();
@@ -209,6 +214,15 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
             printf("Script:\n%s\n", code.c_str());
         }
 
+        ImGui::SameLine();
+        if (ImGui::Button("Reload Script"))
+        {
+            if (m_scriptReloadCallback)
+            {
+                m_scriptReloadCallback();
+            }
+        }
+
     }
     ImGui::End();
 
@@ -221,6 +235,14 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
 
         ImGui::Checkbox("Demo Window", &showDemoWindow);
         ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
+
+        if (ImGui::Button("Reload Script"))
+        {
+            if (m_scriptReloadCallback)
+            {
+                m_scriptReloadCallback();
+            }
+        }
 
         ImGui::SeparatorText("Scene infos");
         ImGui::Text("Entities drawn : %d", drawCount);

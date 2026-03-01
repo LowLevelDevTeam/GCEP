@@ -1,0 +1,5 @@
+﻿#pragma once
+
+#define GCE_CMAKE_COMMAND "@CMAKE_COMMAND@"
+#define GCE_CMAKE_BINARY_DIR "@CMAKE_BINARY_DIR@"
+
