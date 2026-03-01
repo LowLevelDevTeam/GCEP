@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include <Log/Log.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -20,6 +21,8 @@ void Window::initWindow()
 
     m_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "GC Engine", nullptr, nullptr);
     centerWindow();
+
+    Log::info(std::format("Window initialized successfully ({}x{})", WINDOW_WIDTH, WINDOW_HEIGHT));
 }
 
 void Window::centerWindow()
@@ -57,6 +60,7 @@ Window::~Window()
 {
     glfwDestroyWindow(m_window);
     glfwTerminate();
+    Log::info("Window destroyed");
 }
 
 } // Namespace gcep

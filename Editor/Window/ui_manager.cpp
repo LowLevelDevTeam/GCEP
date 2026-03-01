@@ -9,6 +9,7 @@
 
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
+#include <Log/Log.hpp>
 
 namespace gcep
 {
@@ -16,6 +17,8 @@ namespace gcep
 UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
 {
     m_window = window;
+    m_initInfo = initInfo;
+    audioSystem = gcep::AudioSystem::getInstance();
 
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
 
@@ -27,7 +30,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
     // Get variables references
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // setup ImGui style
@@ -40,9 +43,15 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
 
     // Setup Platfrom/renderer backend
     ImGui_ImplGlfw_InitForVulkan(window, true);
-    m_initInfo = initInfo;
     ImGui_ImplVulkan_Init(&m_initInfo);
-    audioSystem = gcep::AudioSystem::getInstance();
+    initConsole();
+    Log::info("UiManager initialized successfully");
+}
+
+UiManager::~UiManager()
+{
+    shutdownConsole();
+    Log::info("UiManager destroyed");
 }
 
 void UiManager::setCamera(Camera *pCamera)
@@ -136,6 +145,25 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
     return value_changed;
 }
 
+void UiManager::initConsole() {
+    m_oldCout = std::cout.rdbuf();
+    m_consoleBuffer = std::make_unique<ImGuiConsoleBuffer>(m_oldCout, m_consoleItems);
+    std::cout.rdbuf(m_consoleBuffer.get());
+    std::cerr.rdbuf(m_consoleBuffer.get());
+}
+
+void UiManager::shutdownConsole()
+{
+    if (m_oldCout)
+    {
+        std::cout.rdbuf(m_oldCout);
+        std::cerr.rdbuf(m_oldCout);
+        m_oldCout = nullptr;
+    }
+
+    m_consoleBuffer.reset();
+}
+
 void UiManager::beginFrame()
 {
     ImGui_ImplVulkan_NewFrame();
@@ -218,8 +246,8 @@ void UiManager::drawSceneInfos()
         ImGui::Checkbox("Demo Window", &showDemoWindow);
         ImGui::SeparatorText("Scene infos");
         ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-
-        ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
+        ImGui::Text("Total entities : %d", meshData->size());
+        ImGui::Text("Entities drawn : %d", pRHI->getDrawCount());
 
         ImGui::SeparatorText("Camera");
         ImGui::SliderFloat("Camera Speed", &camSpeed, 2.0f, 5.0f);
@@ -231,6 +259,7 @@ void UiManager::drawSceneInfos()
         ImGui::SeparatorText("Lights & normals");
         ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
         DrawVec3Control("Light direction", lightDirection);
 
         auto& io = ImGui::GetIO();
@@ -379,36 +408,105 @@ void UiManager::drawAudioControl()
     ImGui::End();
 }
 
+void UiManager::drawConsole()
+{
+    static char inputBuffer[256];
+    static bool autoScroll = true;
+    static bool scrollToBottom = false;
+    ImGui::Begin("Console");
+    {
+        if (ImGui::SmallButton("Clear"))
+        {
+            m_consoleItems.clear();
+        }
+        ImGui::SameLine();
+        bool copyToClipboard = ImGui::SmallButton("Copy");
+
+        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            if (ImGui::BeginPopupContextWindow())
+            {
+                if (ImGui::Selectable("Clear"))
+                {
+                    m_consoleItems.clear();
+                }
+                ImGui::EndPopup();
+            }
+
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+            if (copyToClipboard)
+            {
+                ImGui::LogToClipboard();
+            }
+            for (const auto& item : m_consoleItems)
+            {
+                ImGui::TextUnformatted(item.c_str());
+            }
+            if (copyToClipboard)
+            {
+                ImGui::LogFinish();
+            }
+
+            if (scrollToBottom || (autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+                ImGui::SetScrollHereY(1.0f);
+            scrollToBottom = false;
+
+            ImGui::PopStyleVar();
+        }
+        ImGui::EndChild();
+        ImGui::Separator();
+
+        // Command-line
+        bool reclaimFocus = false;
+        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+        if (ImGui::InputText("Input", inputBuffer, IM_COUNTOF(inputBuffer), inputTextFlags))
+        {
+            m_consoleItems.push_back(inputBuffer);
+            inputBuffer[0] = '\0';
+            reclaimFocus = true;
+        }
+
+        ImGui::SetItemDefaultFocus();
+        if (reclaimFocus)
+        {
+            ImGui::SetKeyboardFocusHere(-1);
+        }
+    }
+    ImGui::End();
+}
+
 void UiManager::uiUpdate()
 {
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
     {
         ImGui_ImplGlfw_Sleep(10);
     }
-    if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
-    {
-        pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
-    }
 
     beginFrame();
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
     drawViewport();
     drawCodeEditor();
-    if (showDemoWindow)
-    {
-        ImGui::ShowDemoWindow(&showDemoWindow);
-    }
     drawSceneInfos();
     drawSceneHierarchy();
     drawEntityProperties();
     drawAudioControl();
+    drawConsole();
 
+    if (showDemoWindow)
+    {
+        ImGui::ShowDemoWindow(&showDemoWindow);
+    }
     sceneInfos.clearColor = m_clearColor;
     sceneInfos.ambientColor = ambientColor;
     sceneInfos.lightColor = lightColor;
     sceneInfos.lightDirection = lightDirection;
     sceneInfos.shininess = shininess;
     pRHI->updateSceneUBO(&sceneInfos, cameraRef->position);
+    if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
+    {
+        pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
+    }
 }
 
 void UiManager::drawGizmoControls()

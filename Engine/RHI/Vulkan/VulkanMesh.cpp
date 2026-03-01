@@ -1,4 +1,5 @@
 #include "VulkanMesh.hpp"
+#include "Log/Log.hpp"
 
 #include <Engine/ObjParser/ObjParser.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHI.hpp>
@@ -100,6 +101,8 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         m_aabbMin = glm::min(m_aabbMin, vertex.pos);
         m_aabbMax = glm::max(m_aabbMax, vertex.pos);
     }
+
+    Log::info(std::string_view("Loaded mesh " + filepath.filename().string()));
 }
 glm::mat4& VulkanMesh::getTransform() {
     const float c3 = glm::cos(transform.rotation.z);

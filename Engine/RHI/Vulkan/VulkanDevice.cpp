@@ -1,4 +1,5 @@
 #include "VulkanDevice.hpp"
+#include "Log/Log.hpp"
 
 // Externals
 #define GLFW_INCLUDE_VULKAN
@@ -27,6 +28,7 @@ void VulkanDevice::createVulkanDevice(const SwapchainDesc& desc)
     initLogicalDevice();
     initSwapchain(desc);
     initFrameContexts();
+    Log::info("Vulkan device creation completed successfully");
 }
 
 static std::vector<const char*> getRequiredInstanceExtensions()
@@ -191,6 +193,7 @@ void VulkanDevice::selectPhysicalDevice()
         throw std::runtime_error("VulkanDevice : Failed to find a suitable physical device!");
     }
     m_physicalDevice = candidates.rbegin()->second;
+    Log::setVulkanDevice(&m_physicalDevice);
 }
 
 void VulkanDevice::initLogicalDevice()

@@ -18,9 +18,9 @@
 namespace gcep::rhi::vulkan
 {
 
-VulkanRHI::VulkanRHI(const SwapchainDesc& desc, std::ofstream& logFile) : m_swapchainDesc(desc), logFileRef(logFile) {}
+VulkanRHI::VulkanRHI(const SwapchainDesc& desc) : m_swapchainDesc(desc) {}
 
-static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+static void framebufferResizeCallback(GLFWwindow* window, int /*width*/, int /*height*/)
 {
     auto* rhi = static_cast<VulkanRHI*>(glfwGetWindowUserPointer(window));
     if (rhi)
@@ -29,28 +29,26 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     }
 }
 
-    void VulkanRHI::setWindow(GLFWwindow* window)
+void VulkanRHI::setWindow(GLFWwindow* window)
 {
     m_swapchainDesc.nativeWindowHandle = window;
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-    void VulkanRHI::initRHI()
+void VulkanRHI::initRHI()
 {
-    Log::log(logFileRef, "RHI Initialization begins");
-    Log::log(logFileRef, "Vulkan device creation begins");
     m_device.createVulkanDevice(m_swapchainDesc);
-    Log::log(logFileRef, "Vulkan device creation ends");
 
     vk::CommandPoolCreateInfo createInfo{};
     createInfo.flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     createInfo.queueFamilyIndex = m_device.queueFamily();
     m_uploadCommandPool         = vk::raii::CommandPool(m_device.rawDevice(), createInfo);
 
-    Log::log(logFileRef, "Scene ressources creation begins");
+    Log::info("Scene resources initialization started");
     initSceneResources();
-    Log::log(logFileRef, "Scene ressources creation ends");
+    Log::info("Scene resources initialization completed successfully");
+    Log::info("Renderer initialized successfully");
 }
 
 void VulkanRHI::initSceneResources()
@@ -99,7 +97,8 @@ bool VulkanRHI::isVSync()
 void VulkanRHI::setVSync(bool vsync)
 {
     m_swapchainDesc.vsync = vsync;
-    recreateSwapchain();
+    recreateSwapchain(true);
+    Log::info(std::format("V-Sync mode set to {}", vsync));
 }
 
 void VulkanRHI::initMeshBuffers()
@@ -609,7 +608,7 @@ void VulkanRHI::updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraP
         std::memcpy(m_uniformBuffersMapped[i], &m_sceneUBO, sizeof(m_sceneUBO));
 }
 
-void VulkanRHI::recreateSwapchain()
+void VulkanRHI::recreateSwapchain(bool forVSync)
 {
     m_framebufferResized = false;
     auto* win = static_cast<GLFWwindow*>(m_swapchainDesc.nativeWindowHandle);
@@ -621,6 +620,10 @@ void VulkanRHI::recreateSwapchain()
         glfwWaitEvents();
     }
     m_device.recreateSwapchain(static_cast<uint32_t>(w), static_cast<uint32_t>(h), m_swapchainDesc);
+    if(!forVSync)
+    {
+        Log::info(std::format("Window resized to {}x{}", w, h));
+    }
 }
 
 ImGui_ImplVulkan_InitInfo VulkanRHI::getUIInitInfo()
@@ -692,6 +695,7 @@ void VulkanRHI::cleanup()
         vkDestroyDescriptorPool(*m_device.rawDevice(), m_descriptorPoolImGui, nullptr);
         m_descriptorPoolImGui = VK_NULL_HANDLE;
     }
+    Log::info("Renderer cleaned up");
 }
 
 void VulkanRHI::drawFrame()
@@ -775,6 +779,7 @@ void VulkanRHI::addTexture(ECS::EntityID id, char* path, bool mipmaps)
         return;
     }
     meshes[id].texture()->loadTexture(this, path, mipmaps);
+    Log::info(std::format("Loaded texture {}, mipmaps = {}", std::string(path), mipmaps));
 }
 
 uint32_t VulkanRHI::getDrawCount()

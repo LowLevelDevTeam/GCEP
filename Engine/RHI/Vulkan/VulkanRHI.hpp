@@ -62,7 +62,7 @@ public:
     ///
     /// @param desc  Swapchain parameters (width, height, vsync). The
     ///              @c nativeWindowHandle field is populated by @c setWindow().
-    explicit VulkanRHI(const gcep::rhi::SwapchainDesc& desc, std::ofstream& logFile);
+    explicit VulkanRHI(const gcep::rhi::SwapchainDesc& desc);
 
     ~VulkanRHI() override = default;
 
@@ -232,7 +232,7 @@ private:
     ///
     /// Spins on @c glfwGetFramebufferSize until the window is non-zero
     /// (handles minimization), then delegates to @c VulkanDevice::recreateSwapchain().
-    void recreateSwapchain();
+    void recreateSwapchain(bool forVSync = false);
 
     // UBO
 
@@ -702,7 +702,6 @@ private:
     /// Epoch used for procedural animations in @c perFrameUpdate().
     std::chrono::high_resolution_clock::time_point m_startTime =
             std::chrono::high_resolution_clock::now();
-    std::ofstream& logFileRef;
 };
 
 } // Namespace gcep::rhi::vulkan
@@ -717,7 +716,7 @@ template<> struct hash<gcep::rhi::vulkan::Vertex> {
     size_t operator()(gcep::rhi::vulkan::Vertex const& vertex) const {
         return ((hash<glm::vec3>()(vertex.pos) ^
                 (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
-               (hash<glm::vec2>()(vertex.texCoord) << 1);
+                (hash<glm::vec2>()(vertex.texCoord) << 1);
     }
 };
 
