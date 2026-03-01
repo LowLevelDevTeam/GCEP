@@ -11,21 +11,53 @@
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
+#include <iostream>
 #include <limits>
 
-#include <Audio/audio_system.hpp>
+#include <Engine/Audio/audio_system.hpp>
 #include <ECS/headers/registry.hpp>
-#include <RHI/Vulkan/VulkanMesh.hpp>
-#include <RHI/Vulkan/VulkanRHIDataTypes.hpp>
+#include <Engine/RHI/Vulkan/VulkanMesh.hpp>
+#include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 
 namespace gcep
 {
 class Camera;
+
+class ImGuiConsoleBuffer : public std::streambuf
+{
+public:
+    ImGuiConsoleBuffer(std::streambuf* original, std::vector<std::string>& log)
+            : m_original(original), m_log(log)
+    {}
+
+protected:
+    virtual int overflow(int c) override
+    {
+        if (c == '\n')
+        {
+            m_log.push_back(m_currentLine);
+            m_currentLine.clear();
+        }
+        else
+        {
+            m_currentLine += static_cast<char>(c);
+        }
+
+        return m_original->sputc(c);
+    }
+
+private:
+    std::streambuf* m_original;
+    std::vector<std::string>& m_log;
+    std::string m_currentLine;
+};
+
 class UiManager
 {
 public:
     // @brief creation of the Editor UI
     UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
+    ~UiManager();
 
     void setInfos(rhi::vulkan::InitInfos* initInfos);
 
@@ -38,6 +70,11 @@ public:
     void setCamera(Camera *pCamera);
 
 private:
+    // Init
+    void initConsole();
+    // Shutdown
+    void shutdownConsole();
+    // Loop
     void beginFrame();
     void drawCodeEditor();
     void drawViewport();
@@ -45,6 +82,7 @@ private:
     void drawSceneHierarchy();
     void drawEntityProperties();
     void drawAudioControl();
+    void drawConsole();
 
 private:
     TextEditor editor;
@@ -73,6 +111,10 @@ private:
     rhi::vulkan::VulkanRHI* pRHI;
     AudioSystem* audioSystem;
     std::vector<std::shared_ptr<gcep::AudioSource>> audioSources;
+    // Console
+    std::vector<std::string> m_consoleItems;
+    std::unique_ptr<ImGuiConsoleBuffer> m_consoleBuffer;
+    std::streambuf* m_oldCout = nullptr;
 };
 
 } // Namespace gcep

@@ -4,13 +4,15 @@
 #include <Editor/Inputs/Inputs.hpp>
 #include <Editor/Window/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
-#include <RHI/Vulkan/VulkanRHI.hpp>
+#include <Engine/RHI/Vulkan/VulkanRHI.hpp>
+#include <Log/Log.hpp>
 
 int main()
 {
     using namespace gcep;
-    using VulkanRHI = gcep::rhi::vulkan::VulkanRHI;
+    using VulkanRHI = rhi::vulkan::VulkanRHI;
 
+    Log::initialize("GC Engine Paris", "crash.log");
     Window& window = Window::getInstance();
     window.initWindow();
     InputSystem inputSystem(window.getGlfwWindow());
@@ -34,6 +36,7 @@ int main()
     }
     catch (std::exception& e)
     {
+        Log::handleException(e);
         std::cerr << e.what() << std::endl;
         return 1;
     }
@@ -49,6 +52,7 @@ int main()
         uiManager.uiUpdate();
         rhi->drawFrame();
     }
+    Log::info("Window closed");
     rhi->cleanup();
     rhi.reset();
 
