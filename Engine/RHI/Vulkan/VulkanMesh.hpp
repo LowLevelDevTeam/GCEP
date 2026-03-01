@@ -2,7 +2,7 @@
 
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <Engine/RHI/Vulkan/VulkanTexture.hpp>
-
+#include <PhysicsWrapper/physics_shape.hpp>
 // Externals
 #include <glm/glm.hpp>
 #include <vulkan/vulkan_raii.hpp>
@@ -13,6 +13,8 @@
 #include <vector>
 
 #include <ECS/headers/entity_component.hpp>
+#include "PhysicsWrapper/Component/physics_component.hpp"
+#include "PhysicsWrapper/physics_world.hpp"
 
 namespace gcep::rhi::vulkan
 {
@@ -23,6 +25,7 @@ struct TransformComponent {
     glm::vec3 rotation = {0.0f, 0.0f, 0.0f};
     glm::vec3 scale = {1.0f, 1.0f, 1.0f};
 };
+static PhysicsWorld world;
 /// @brief Manages the CPU-side geometry and transform data for a single 3D mesh.
 ///
 /// Handles the full pipeline from loading an OBJ file off disk to making geometry
@@ -73,6 +76,7 @@ public:
 
 public:
     TransformComponent transform;
+    PhysicsComponent physics;
     std::string name = "Unknown";
     ECS::EntityID id = std::numeric_limits<ECS::EntityID>::max();
 
@@ -193,6 +197,8 @@ private:
     int32_t m_numVertices = 0; ///< Cached vertex count; valid even after @c clearVertices().
 
     glm::mat4 m_transform; ///< Current model-to-world transform.
+
+    std::shared_ptr<PhysicsShape> m_physicsShape;
 
     VulkanTexture m_texture; ///< Albedo texture registered in the bindless array.
 };

@@ -66,6 +66,7 @@ void VulkanRHI::initSceneResources()
     createMeshDataDescriptors();
     createGraphicsPipeline();
     createCullPipeline();
+    createGridPipeline();
     spawnCube();
     /*
     const int size = 10;
@@ -510,6 +511,119 @@ void VulkanRHI::recordCullPass()
     cmd.pipelineBarrier2(postDep);
 }
 
+void VulkanRHI::createGridPipeline()
+{
+    vk::PushConstantRange pcRange{
+        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+        0,
+        sizeof(GridPushConstant)
+    };
+
+    std::array<vk::DescriptorSetLayout, 1> setLayouts = { *m_UBOLayout };
+
+    vk::PipelineLayoutCreateInfo layoutCI{};
+    layoutCI.setLayoutCount         = static_cast<uint32_t>(setLayouts.size());
+    layoutCI.pSetLayouts            = setLayouts.data();
+    layoutCI.pushConstantRangeCount = 1;
+    layoutCI.pPushConstantRanges    = &pcRange;
+
+    m_gridPipelineLayout = vk::raii::PipelineLayout(m_device.rawDevice(), layoutCI);
+
+    auto shaderCode = readShader("Grid.spv");
+    auto shaderModule = createShaderModule(shaderCode);
+
+    vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{};
+    vertexShaderStageInfo.stage     = vk::ShaderStageFlagBits::eVertex;
+    vertexShaderStageInfo.module    = shaderModule;
+    vertexShaderStageInfo.pName     = "vertMain";
+
+    vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo{};
+    fragmentShaderStageInfo.stage     = vk::ShaderStageFlagBits::eFragment;
+    fragmentShaderStageInfo.module    = shaderModule;
+    fragmentShaderStageInfo.pName     = "fragMain";
+
+    vk::PipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageInfo, fragmentShaderStageInfo};
+
+    vk::PipelineVertexInputStateCreateInfo   vertexInput{};
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly{ {}, vk::PrimitiveTopology::eTriangleList };
+
+    vk::PipelineRasterizationStateCreateInfo raster{};
+    raster.polygonMode = vk::PolygonMode::eFill;
+    raster.cullMode    = vk::CullModeFlagBits::eNone;
+    raster.frontFace   = vk::FrontFace::eCounterClockwise;
+    raster.lineWidth   = 1.0f;
+
+    vk::PipelineDepthStencilStateCreateInfo depth{};
+    depth.depthTestEnable  = true;
+    depth.depthWriteEnable = false;
+    depth.depthCompareOp   = vk::CompareOp::eLess;
+
+    vk::PipelineColorBlendAttachmentState blendAtt{};
+    blendAtt.blendEnable         = true;
+    blendAtt.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    blendAtt.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    blendAtt.colorBlendOp        = vk::BlendOp::eAdd;
+    blendAtt.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    blendAtt.dstAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    blendAtt.alphaBlendOp        = vk::BlendOp::eAdd;
+    blendAtt.colorWriteMask      = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                                   | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+
+    vk::PipelineColorBlendStateCreateInfo blend{};
+    blend.attachmentCount = 1;
+    blend.pAttachments    = &blendAtt;
+
+    std::array<vk::DynamicState, 2> dynStates{ vk::DynamicState::eViewport, vk::DynamicState::eScissor };
+    vk::PipelineDynamicStateCreateInfo dynState{ {}, dynStates };
+
+    vk::Viewport vp{};
+    vk::Rect2D   sc{};
+    vk::PipelineViewportStateCreateInfo vpState{ {}, 1, &vp, 1, &sc };
+
+    vk::PipelineMultisampleStateCreateInfo msaa{};
+    msaa.rasterizationSamples = vk::SampleCountFlagBits::e1;
+
+    vk::PipelineRenderingCreateInfo renderingCI{};
+    renderingCI.colorAttachmentCount    = 1;
+    renderingCI.pColorAttachmentFormats = &m_swapchainFormat;
+    renderingCI.depthAttachmentFormat   = findDepthFormat();
+
+    vk::GraphicsPipelineCreateInfo pipelineCI{};
+    pipelineCI.pNext               = &renderingCI;
+    pipelineCI.stageCount          = 2;
+    pipelineCI.pStages             = shaderStages;
+    pipelineCI.pVertexInputState   = &vertexInput;
+    pipelineCI.pInputAssemblyState = &inputAssembly;
+    pipelineCI.pViewportState      = &vpState;
+    pipelineCI.pRasterizationState = &raster;
+    pipelineCI.pMultisampleState   = &msaa;
+    pipelineCI.pDepthStencilState  = &depth;
+    pipelineCI.pColorBlendState    = &blend;
+    pipelineCI.pDynamicState       = &dynState;
+    pipelineCI.layout              = *m_gridPipelineLayout;
+
+    auto pipeline  = m_device.rawDevice().createGraphicsPipeline(nullptr, pipelineCI);
+    m_gridPipeline = std::move(pipeline);
+}
+
+void VulkanRHI::recordGridPass()
+{
+    const vk::CommandBuffer cmd = m_device.currentCommandBuffer();
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_gridPipeline);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_gridPipelineLayout, 0, { *m_UBOSets[0] }, {});
+
+    m_gridPC.invView      = glm::inverse(m_cameraUBO.view);
+    m_gridPC.invProj      = glm::inverse(m_cameraUBO.proj);
+    m_gridPC.viewProj     = m_cameraUBO.proj * m_cameraUBO.view;
+
+    cmd.pushConstants<GridPushConstant>(*m_gridPipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, m_gridPC);
+
+    cmd.draw(3, 1, 0, 0);
+
+    cmd.endRendering();
+}
+
 void VulkanRHI::createSceneUBOBuffers()
 {
     m_uniformBuffers.clear();
@@ -764,12 +878,22 @@ void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
     meshes.emplace_back();
     auto& mesh = meshes.back();
     mesh.transform = m_ECSRegistry.addComponent<TransformComponent>(id);
+    mesh.physics   = m_ECSRegistry.addComponent<PhysicsComponent>(id);
     mesh.id = id;
     mesh.loadMesh(this, filepath);
     const ECS::EntityID newIndex = static_cast<ECS::EntityID>(meshes.size()) - 1;
     uploadSingleMesh(newIndex);
-    m_ECSRegistry.getComponent<TransformComponent>(id).position = pos;
+    m_ECSRegistry.getComponent<TransformComponent>(id).position      = pos;
+    m_ECSRegistry.getComponent<PhysicsComponent>(id).motionType      = EMotionType::DYNAMIC;
+    m_ECSRegistry.getComponent<PhysicsComponent>(id).angularVelocity = Vector3<float>(1.0f, 1.0f, 1.0f);
     mesh.transform.position = pos;
+    mesh.physics.motionType = EMotionType::DYNAMIC;
+    mesh.physics.angularVelocity = Vector3<float>(1.0f, 1.0f, 1.0f);
+}
+
+void VulkanRHI::setGridPC(gcep::rhi::vulkan::GridPushConstant* gridPC)
+{
+    m_gridPC = *gridPC;
 }
 
 void VulkanRHI::addTexture(ECS::EntityID id, char* path, bool mipmaps)
@@ -1202,7 +1326,7 @@ void VulkanRHI::recordOffscreenCommandBuffer()
         sizeof(vk::DrawIndexedIndirectCommand)
     );
 
-    cmd.endRendering();
+    recordGridPass();
 
     vk::ImageMemoryBarrier2 toShaderRead{};
     toShaderRead.srcStageMask  = vk::PipelineStageFlagBits2::eColorAttachmentOutput;

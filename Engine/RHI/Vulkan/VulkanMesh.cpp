@@ -102,6 +102,9 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         m_aabbMax = glm::max(m_aabbMax, vertex.pos);
     }
 
+    Vector3<float> halfExtents = { m_aabbMax.x / 2.0f, m_aabbMax.y / 2.0f, m_aabbMax.z / 2.0f };
+    m_physicsShape = PhysicsShape::createBox(halfExtents);
+
     Log::info(std::string_view("Loaded mesh " + filepath.filename().string()));
 }
 glm::mat4& VulkanMesh::getTransform() {

@@ -1,6 +1,7 @@
 #include "ui_manager.hpp"
 
 // Externals
+#include <font_awesome.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <tinyfiledialogs.h>
 
@@ -14,7 +15,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
+UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : physicsSystem(PhysicsSystem::getInstance())
 {
     m_window = window;
     m_initInfo = initInfo;
@@ -40,6 +41,16 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo)
     style.ScaleAllSizes(main_scale);
     style.FontScaleDpi = main_scale;
     style.WindowPadding = ImVec2(0.0f, 0.0f);
+
+    constexpr float baseFontSize = 16.0f;
+    constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("TestTextures/Roboto-Regular.ttf", baseFontSize);
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.GlyphMinAdvanceX = iconFontSize;
+    static constexpr ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, iconFontSize, &icons_config, icons_ranges);
 
     // Setup Platfrom/renderer backend
     ImGui_ImplGlfw_InitForVulkan(window, true);
@@ -145,6 +156,63 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
     return value_changed;
 }
 
+ImGuiViewport* UiManager::setupViewport() {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    return viewport;
+}
+
+ImGuiID UiManager::getDockspaceID() {
+    constexpr ImGuiWindowFlags hostFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+                                           ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                           ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+                                           ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDocking;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::Begin("DockSpaceHost", nullptr, hostFlags);
+    ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
+    drawMainMenuBar();
+    ImGui::End();
+    ImGui::PopStyleVar();
+    return dockspace_id;
+}
+
+void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* viewport)
+{
+    ImGui::DockBuilderRemoveNode(dockspace_id);
+    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
+
+    // Main dockspace: left panel and a "main" area
+    ImGuiID dock_id_left, dock_id_main;
+    ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, &dock_id_left, &dock_id_main);
+
+    // "main" area: right panel and a "center" area
+    ImGuiID dock_id_right, dock_id_center;
+    ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Right, 0.25f, &dock_id_right, &dock_id_center);
+
+    // "center" area: viewport on top, console on bottom
+    ImGuiID dock_id_viewport, dock_id_console;
+    ImGui::DockBuilderSplitNode(dock_id_center, ImGuiDir_Down, 0.25f, &dock_id_console, &dock_id_viewport);
+
+    // Left panel: hierarchy on top, properties on bottom
+    ImGuiID dock_id_hierarchy, dock_id_properties;
+    ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, &dock_id_properties, &dock_id_hierarchy);
+
+    // Dock windows
+    ImGui::DockBuilderDockWindow("Scene Hierarchy", dock_id_hierarchy);
+    ImGui::DockBuilderDockWindow("Entity properties", dock_id_properties);
+    ImGui::DockBuilderDockWindow("Viewport", dock_id_viewport);
+    ImGui::DockBuilderDockWindow("Scene infos", dock_id_right);
+    ImGui::DockBuilderDockWindow("Audio control", dock_id_right);
+    ImGui::DockBuilderDockWindow("Console", dock_id_console);
+
+    ImGui::DockBuilderFinish(dockspace_id);
+}
+
 void UiManager::initConsole() {
     m_oldCout = std::cout.rdbuf();
     m_consoleBuffer = std::make_unique<ImGuiConsoleBuffer>(m_oldCout, m_consoleItems);
@@ -172,6 +240,31 @@ void UiManager::beginFrame()
     // Configurer ImGuizmo pour la frame courante
     ImGuizmo::BeginFrame();
     handleGizmoInput();
+}
+
+void UiManager::drawMainMenuBar()
+{
+    const ImGuiIO& io = ImGui::GetIO();
+    ImGui::PushStyleVarY(ImGuiStyleVar_FramePadding, 5.f);
+    ImGui::PushFont(io.Fonts->Fonts[0]);
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu((std::string(ICON_FA_FILE) + " File").c_str()))
+        {
+            if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
+            {
+                // TODO: Add stuff
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu((std::string(ICON_FA_TASKS) + " Window").c_str()))
+        {
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleVar();
 }
 
 void UiManager::drawViewport()
@@ -262,6 +355,12 @@ void UiManager::drawSceneInfos()
         ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
         DrawVec3Control("Light direction", lightDirection);
 
+        ImGui::SeparatorText("Grid options");
+        ImGui::InputFloat("Cell size", &gridPC.cellSize);
+        ImGui::InputFloat("Thick every", &gridPC.thickEvery);
+        ImGui::InputFloat("Fade distance", &gridPC.fadeDistance);
+        ImGui::InputFloat("Line width", &gridPC.lineWidth);
+
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
@@ -279,7 +378,9 @@ void UiManager::drawSceneHierarchy()
             for (auto &entity: *meshData)
             {
                 bool is_selected = (m_selectedEntityID == entity.id);
-                if (ImGui::Selectable(entity.name.c_str(), is_selected))
+                std::string name = std::string(ICON_FA_CUBE) + " ";
+                name += entity.name;
+                if (ImGui::Selectable(name.c_str(), is_selected))
                 {
                     m_selectedEntityID = entity.id;
                 }
@@ -476,6 +577,19 @@ void UiManager::drawConsole()
     ImGui::End();
 }
 
+void UiManager::drawSimulationPanel()
+{
+    static bool open = true;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGui::Begin("Simple overlay", &open, window_flags);
+    {
+        ImGui::Text("Overlay");
+    }
+    ImGui::End();
+}
+
 void UiManager::uiUpdate()
 {
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
@@ -484,9 +598,16 @@ void UiManager::uiUpdate()
     }
 
     beginFrame();
-    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+    const ImGuiViewport* viewport = setupViewport();
+    const ImGuiID dockspace_id = getDockspaceID();
+    static bool dockspaceInitialized = false;
+    if (!dockspaceInitialized) {
+        initDockspace(dockspace_id, viewport);
+        dockspaceInitialized = true;
+    }
+
     drawViewport();
-    drawCodeEditor();
     drawSceneInfos();
     drawSceneHierarchy();
     drawEntityProperties();
@@ -507,6 +628,10 @@ void UiManager::uiUpdate()
     {
         pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
     }
+    gridPC.invView      = glm::inverse(cameraRef->getViewMatrix());
+    gridPC.invProj      = glm::inverse(cameraRef->getProjectionMatrix());
+    gridPC.viewProj     = cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix();
+    pRHI->setGridPC(&gridPC);
 }
 
 void UiManager::drawGizmoControls()

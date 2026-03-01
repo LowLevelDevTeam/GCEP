@@ -18,6 +18,7 @@
 #include <ECS/headers/registry.hpp>
 #include <Engine/RHI/Vulkan/VulkanMesh.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
+#include <PhysicsWrapper/physics_system.hpp>
 
 namespace gcep
 {
@@ -71,6 +72,10 @@ public:
 
 private:
     // Init
+    ImGuiViewport* setupViewport();
+    ImGuiID getDockspaceID();
+    void drawMainMenuBar();
+    void initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* viewport);
     void initConsole();
     // Shutdown
     void shutdownConsole();
@@ -83,6 +88,7 @@ private:
     void drawEntityProperties();
     void drawAudioControl();
     void drawConsole();
+    void drawSimulationPanel();
 
 private:
     TextEditor editor;
@@ -99,6 +105,7 @@ private:
     float shininess = 64.0f;
     float camSpeed = 2.0f; // Camera speed, exposed to UI for real-time tweaking
     rhi::vulkan::SceneInfos sceneInfos;
+    rhi::vulkan::GridPushConstant gridPC;
     ImGuizmo::OPERATION m_currentGizmoOperation = ImGuizmo::TRANSLATE;
     ImGuizmo::MODE m_currentGizmoMode = ImGuizmo::WORLD; // WORLD ou LOCAL
     bool m_useSnap = false;
@@ -115,6 +122,8 @@ private:
     std::vector<std::string> m_consoleItems;
     std::unique_ptr<ImGuiConsoleBuffer> m_consoleBuffer;
     std::streambuf* m_oldCout = nullptr;
+    // Physics
+    PhysicsSystem& physicsSystem;
 };
 
 } // Namespace gcep

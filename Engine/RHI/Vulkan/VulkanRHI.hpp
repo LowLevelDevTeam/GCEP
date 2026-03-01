@@ -134,6 +134,7 @@ public:
     void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
     void spawnVikingRoom(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
     void spawnAsset(char* filepath, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void setGridPC(GridPushConstant* gridPC);
 
     /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
     ///
@@ -319,6 +320,9 @@ private:
     ///
     /// Must be called before @c beginRendering() in @c recordOffscreenCommandBuffer().
     void recordCullPass();
+
+    void createGridPipeline();
+    void recordGridPass();
 
     /// @brief Records the scene pass into the current frame's command buffer.
     ///
@@ -660,6 +664,10 @@ private:
     vk::raii::DescriptorPool      m_cullPool           = nullptr;
     vk::raii::DescriptorSet       m_cullSet            = nullptr;
 
+    // Grid pipeline
+    vk::raii::Pipeline            m_gridPipeline       = nullptr;
+    vk::raii::PipelineLayout      m_gridPipelineLayout = nullptr;
+
     /// Host-visible, persistently-mapped atomic draw count written by the cull shader.
     vk::raii::Buffer       m_drawCountBuffer       = nullptr;
     vk::raii::DeviceMemory m_drawCountBufferMemory = nullptr;
@@ -698,6 +706,7 @@ private:
     static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
     static constexpr uint32_t MAX_MESHES           = 4096;
     InitInfos m_initInfos;
+    GridPushConstant m_gridPC;
 
     /// Epoch used for procedural animations in @c perFrameUpdate().
     std::chrono::high_resolution_clock::time_point m_startTime =

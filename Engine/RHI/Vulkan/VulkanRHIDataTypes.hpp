@@ -137,4 +137,17 @@ struct InitInfos
     VkDescriptorSet* ds;
 };
 
+// TODO: Fit in 128 bytes
+struct GridPushConstant
+{
+    glm::mat4 invView;
+    glm::mat4 invProj;
+    glm::mat4 viewProj;
+
+    float cellSize     = 1.0f;
+    float thickEvery   = 10.0f;
+    float fadeDistance = 100.0f;
+    float lineWidth    = 1.0f;
+};
+
 } // Namespace gcep::rhi::vulkan

@@ -30,6 +30,9 @@ target_sources(GCEngine PRIVATE ImGuiColorTextEdit/TextEditor.cpp)
 target_include_directories(GCEngine PRIVATE TinyFileDialogs)
 target_sources(GCEngine PRIVATE TinyFileDialogs/tinyfiledialogs.cpp)
 
+# Font Awesome
+target_include_directories(GCEngine PRIVATE FontAwesome)
+
 # KTX-Software
 # set(LIBKTX_VERSION_FULL ON)
 # add_subdirectory(KTX-Software/lib)
