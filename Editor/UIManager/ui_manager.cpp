@@ -372,6 +372,12 @@ void UiManager::drawSceneInfos()
             startedSim = true;
         }
         if (startedSim) {
+            Log::info(std::format("Quat rotation: w={} x={} y={} z={}",
+                m_registry->getComponent<TransformComponent>(0).rotation.w,
+                m_registry->getComponent<TransformComponent>(0).rotation.x,
+                m_registry->getComponent<TransformComponent>(0).rotation.y,
+                m_registry->getComponent<TransformComponent>(0).rotation.z)
+            );
             physicsSystem.update(ImGui::GetIO().DeltaTime);
             if (ImGui::Button("Stop simulation")) {
                 physicsSystem.stopSimulation();
@@ -432,7 +438,7 @@ void UiManager::drawEntityProperties()
 {
     for (auto& entity : *meshData) {
         entity.transform = m_registry->getComponent<TransformComponent>(entity.id);
-        entity.transform.rotation = Quaternion::FromEuler(entity.transform.eulerRadians);
+        //entity.transform.rotation = Quaternion::FromEuler(entity.transform.eulerRadians);
         entity.transform.rotation.Normalize();
         entity.physics   = m_registry->getComponent<PhysicsComponent>(entity.id);
     }
@@ -836,9 +842,6 @@ void UiManager::drawGizmo(Camera* camera)
                 skew,
                 perspective
             );
-
-            // ❌ REMOVE THIS — it's causing the inversion
-            // rotation = glm::conjugate(rotation);
 
             auto& tc = m_registry->getComponent<TransformComponent>(m_selectedEntityID);
 

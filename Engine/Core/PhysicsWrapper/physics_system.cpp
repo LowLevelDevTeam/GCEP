@@ -95,8 +95,18 @@ namespace gcep
             JPH::RVec3 pos = bodyInterface.GetPosition(physics.m_bodyIDRef);
             JPH::Quat rot = bodyInterface.GetRotation(physics.m_bodyIDRef);
 
-            transform.position = { (float)pos.GetX(), (float)pos.GetY(), (float)pos.GetZ() };
-            transform.rotation = { rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ() };
+            transform.position = {
+                (float)pos.GetX(),
+                (float)pos.GetY(),
+                (float)pos.GetZ()
+            };
+
+            transform.rotation = {
+                rot.GetW(),
+                rot.GetX(),
+                rot.GetY(),
+                rot.GetZ()
+            };
         }
     }
 

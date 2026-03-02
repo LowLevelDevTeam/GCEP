@@ -20,6 +20,7 @@ namespace gcep
     {
         return m_ObjectToBroadPhase[layer];
     }
+
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
     const char* BPlayerInterfaceImpl::getBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const
     {
@@ -31,4 +32,5 @@ namespace gcep
         }
     }
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
+
 } // gcep

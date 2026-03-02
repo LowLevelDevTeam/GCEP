@@ -169,7 +169,7 @@ namespace gcep
 
     	// Transform
     	const auto& pos = transform.position;
-    	const auto& rot = transform.rotation.Normalized();
+    	const auto& rot = transform.rotation;
 
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
