@@ -63,6 +63,18 @@ namespace gcep
          */
         ~Quaternion();
 
+        /*
+        Quaternion & operator=(const glm::vec3 & b) noexcept {
+            this->x = b.x;
+            this->y = b.y;
+            this->z = b.z;
+            return *this;
+        }
+
+        glm::vec3 operator=(const Quaternion& b) noexcept {
+            return glm::vec3(b.x, b.y, b.z);
+        }
+        */
         /**
          * @brief Returns the identity quaternion.
          * @return A quaternion representing no rotation.

@@ -20,12 +20,6 @@ namespace gcep::rhi::vulkan
 {
 static uint32_t entityID = 0;
 class VulkanRHI;
-struct TransformComponent {
-    glm::vec3 position = {0.0f, 0.0f, 0.0f};
-    glm::vec3 rotation = {0.0f, 0.0f, 0.0f};
-    glm::vec3 scale = {1.0f, 1.0f, 1.0f};
-};
-static PhysicsWorld world;
 /// @brief Manages the CPU-side geometry and transform data for a single 3D mesh.
 ///
 /// Handles the full pipeline from loading an OBJ file off disk to making geometry
@@ -197,8 +191,6 @@ private:
     int32_t m_numVertices = 0; ///< Cached vertex count; valid even after @c clearVertices().
 
     glm::mat4 m_transform; ///< Current model-to-world transform.
-
-    std::shared_ptr<PhysicsShape> m_physicsShape;
 
     VulkanTexture m_texture; ///< Albedo texture registered in the bindless array.
 };

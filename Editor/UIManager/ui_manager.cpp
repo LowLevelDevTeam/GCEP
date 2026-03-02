@@ -11,6 +11,9 @@
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Log/Log.hpp>
+#include <Maths/quaternion.hpp>
+
+#include "glm/gtx/matrix_decompose.hpp"
 
 namespace gcep
 {
@@ -361,6 +364,21 @@ void UiManager::drawSceneInfos()
         ImGui::InputFloat("Fade distance", &gridPC.fadeDistance);
         ImGui::InputFloat("Line width", &gridPC.lineWidth);
 
+        static bool startedSim = false;
+        if (ImGui::Button("Start simulation") && !startedSim)
+        {
+            physicsSystem.setReg(m_registry);
+            physicsSystem.startSimulation();
+            startedSim = true;
+        }
+        if (startedSim) {
+            physicsSystem.update(ImGui::GetIO().DeltaTime);
+            if (ImGui::Button("Stop simulation")) {
+                physicsSystem.stopSimulation();
+                startedSim = false;
+            }
+        }
+
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
@@ -412,6 +430,12 @@ void UiManager::drawSceneHierarchy()
 
 void UiManager::drawEntityProperties()
 {
+    for (auto& entity : *meshData) {
+        entity.transform = m_registry->getComponent<TransformComponent>(entity.id);
+        entity.transform.rotation = Quaternion::FromEuler(entity.transform.eulerRadians);
+        entity.transform.rotation.Normalize();
+        entity.physics   = m_registry->getComponent<PhysicsComponent>(entity.id);
+    }
     ImGui::Begin("Entity properties");
     {
         if (m_selectedEntityID != std::numeric_limits<ECS::EntityID>::max())
@@ -419,16 +443,31 @@ void UiManager::drawEntityProperties()
             static float lodLevel = 0.0f;
             auto &entities = *meshData;
             auto &entity = entities[m_selectedEntityID];
-            auto &[position, rotation, scale] = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID);
+            auto &[position, rotation, scale, euler] = m_registry->getComponent<TransformComponent>(m_selectedEntityID);
             char buffer[256];
             strncpy(buffer, entity.name.c_str(), sizeof(buffer));
             if (ImGui::InputText("Name", buffer, sizeof(buffer)))
             {
                 entity.name = std::string(buffer);
             }
-            DrawVec3Control("Translation", position);
-            DrawVec3Control("Rotation", rotation);
-            DrawVec3Control("Scale", scale);
+            //DrawVec3Control("Translation", position);
+            //DrawVec3Control("Rotation", rotation);
+            //DrawVec3Control("Scale", scale);
+            if (ImGui::Button("Kinematic")) {
+                m_registry->getComponent<PhysicsComponent>(entity.id).motionType = EMotionType::KINEMATIC;
+            }
+            if (ImGui::Button("Static")) {
+                m_registry->getComponent<PhysicsComponent>(entity.id).motionType = EMotionType::STATIC;
+            }
+            if (ImGui::Button("Dynamic")) {
+                m_registry->getComponent<PhysicsComponent>(entity.id).motionType = EMotionType::DYNAMIC;
+            }
+            if (ImGui::Button("Moving")) {
+                m_registry->getComponent<PhysicsComponent>(entity.id).layers = ELayers::MOVING;
+            };
+            if (ImGui::Button("Non moving")) {
+                m_registry->getComponent<PhysicsComponent>(entity.id).layers = ELayers::NON_MOVING;
+            }
             if (entity.hasTexture() && entity.hasMipmaps()) {
 
                 if (ImGui::DragFloat("LOD level", &lodLevel, 0.1f, 0.0f, static_cast<float>(entity.texture()->getMipLevels())))
@@ -447,7 +486,6 @@ void UiManager::drawEntityProperties()
                     pRHI->addTexture(m_selectedEntityID, path);
                 }
             }
-            entity.transform = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID);
 
             drawGizmoControls();
         }
@@ -739,8 +777,16 @@ void UiManager::drawGizmo(Camera* camera)
         snapPtr = snapValues;
     }
 
-    glm::vec3 oldRotation = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).rotation;
-    glm::vec3 oldScale = m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).scale;
+    glm::vec3 oldRotation = glm::vec3(
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).eulerRadians.x,
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).eulerRadians.y,
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).eulerRadians.z
+    );
+    glm::vec3 oldScale = glm::vec3(
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).scale.x,
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).scale.y,
+        m_registry->getComponent<TransformComponent>(m_selectedEntityID).scale.z
+    );
 
     float deltaData[16];
     glm::mat4 identityDelta = glm::mat4(1.0f);
@@ -773,27 +819,45 @@ void UiManager::drawGizmo(Camera* camera)
         {
         case ImGuizmo::TRANSLATE:
         {
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).position = glm::vec3(newModel[3]);
+            m_registry->getComponent<TransformComponent>(m_selectedEntityID).position = {newModel[3].x, newModel[3].y, newModel[3].z};
             break;
         }
         case ImGuizmo::ROTATE:
         {
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).position = glm::vec3(newModel[3]);
+            glm::vec3 position, scale, skew;
+            glm::vec4 perspective;
+            glm::quat rotation;
 
-            glm::vec3 scale;
-            scale.x = glm::length(glm::vec3(newModel[0]));
-            scale.y = glm::length(glm::vec3(newModel[1]));
-            scale.z = glm::length(glm::vec3(newModel[2]));
+            glm::decompose(
+                newModel,
+                scale,
+                rotation,
+                position,
+                skew,
+                perspective
+            );
 
-            glm::mat3 r;
-            r[0] = glm::vec3(newModel[0]) / scale.x;
-            r[1] = glm::vec3(newModel[1]) / scale.y;
-            r[2] = glm::vec3(newModel[2]) / scale.z;
+            // ❌ REMOVE THIS — it's causing the inversion
+            // rotation = glm::conjugate(rotation);
 
-            float sinX = glm::clamp(-r[2][1], -1.0f, 1.0f);
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).rotation.x = asinf(sinX);
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).rotation.y = atan2f(r[2][0], r[2][2]);
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).rotation.z = atan2f(r[0][1], r[1][1]);
+            auto& tc = m_registry->getComponent<TransformComponent>(m_selectedEntityID);
+
+            tc.position = { position.x, position.y, position.z };
+
+            tc.rotation = Quaternion(
+                rotation.w,
+                rotation.x,
+                rotation.y,
+                rotation.z
+            );
+            tc.rotation.Normalize();
+
+            // Optional editor display
+            tc.eulerRadians = {
+                glm::eulerAngles(rotation).x,
+                glm::eulerAngles(rotation).y,
+                glm::eulerAngles(rotation).z
+            };
             break;
         }
         case ImGuizmo::SCALE:
@@ -805,8 +869,9 @@ void UiManager::drawGizmo(Camera* camera)
             deltaScale.y = glm::length(glm::vec3(delta[1]));
             deltaScale.z = glm::length(glm::vec3(delta[2]));
 
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).scale = oldScale * deltaScale;
-            m_registry->getComponent<rhi::vulkan::TransformComponent>(m_selectedEntityID).rotation = oldRotation;
+            glm::vec3 newScale = oldScale * deltaScale;
+            m_registry->getComponent<TransformComponent>(m_selectedEntityID).scale = {newScale.x, newScale.y, newScale.z};
+            m_registry->getComponent<TransformComponent>(m_selectedEntityID).eulerRadians = {oldRotation.x, oldRotation.y, oldRotation.z};
             break;
         }
         default: break;

@@ -103,7 +103,7 @@ private:
     glm::vec3 lightColor = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
     float shininess = 64.0f;
-    float camSpeed = 2.0f; // Camera speed, exposed to UI for real-time tweaking
+    float camSpeed = 5.0f; // Camera speed, exposed to UI for real-time tweaking
     rhi::vulkan::SceneInfos sceneInfos;
     rhi::vulkan::GridPushConstant gridPC;
     ImGuizmo::OPERATION m_currentGizmoOperation = ImGuizmo::TRANSLATE;

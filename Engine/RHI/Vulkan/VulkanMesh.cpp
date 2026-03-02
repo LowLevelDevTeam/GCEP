@@ -102,11 +102,10 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         m_aabbMax = glm::max(m_aabbMax, vertex.pos);
     }
 
-    Vector3<float> halfExtents = { m_aabbMax.x / 2.0f, m_aabbMax.y / 2.0f, m_aabbMax.z / 2.0f };
-    m_physicsShape = PhysicsShape::createBox(halfExtents);
-
     Log::info(std::string_view("Loaded mesh " + filepath.filename().string()));
 }
+
+/*
 glm::mat4& VulkanMesh::getTransform() {
     const float c3 = glm::cos(transform.rotation.z);
     const float s3 = glm::sin(transform.rotation.z);
@@ -135,6 +134,23 @@ glm::mat4& VulkanMesh::getTransform() {
         },
         {transform.position.x, transform.position.y, transform.position.z, 1.0f}
     };
+    return m_transform;
+}*/
+
+glm::mat4& VulkanMesh::getTransform()
+{
+    glm::quat q(
+        transform.rotation.w,
+        transform.rotation.x,
+        transform.rotation.y,
+        transform.rotation.z
+    );
+
+    glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(transform.position.x, transform.position.y, transform.position.z));
+    glm::mat4 R = glm::mat4_cast(q);
+    glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(transform.scale.x, transform.scale.y, transform.scale.z));
+
+    m_transform = T * R * S;
     return m_transform;
 }
 

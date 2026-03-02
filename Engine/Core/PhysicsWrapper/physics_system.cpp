@@ -4,6 +4,7 @@
 
 #include "physics_world.hpp"
 #include "Component/transform_component.hpp"
+#include "Maths/Utils/vector3_convertor.hpp"
 
 
 namespace gcep
@@ -38,7 +39,7 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        auto view = reg.view<TransformComponent, PhysicsComponent>();
+        auto view = reg->view<TransformComponent, PhysicsComponent>();
 
         for (auto entity : view) {
             auto& transform = view.get<TransformComponent>(entity);
@@ -46,26 +47,32 @@ namespace gcep
 
             m_world->createBody(transform, physics, physics.m_bodyIDRef);
         }
+        m_world->m_physicsSystem->OptimizeBroadPhase();
     }
 
     void PhysicsSystem::update(float dt)
     {
         m_world->step(dt);
         // Sync dynamic bodies → Transform
-        syncPhysicsToTransforms(reg);
+        syncPhysicsToTransforms(*reg);
 
         // Sync kinematic bodies ← Transform
-        syncTransformsToPhysics(reg);
+        syncTransformsToPhysics(*reg);
     }
 
     void PhysicsSystem::stopSimulation()
     {
-        auto view = reg.view<PhysicsComponent>();
+        auto view = reg->view<PhysicsComponent>();
 
         for (ECS::EntityID id : view) {
             auto& pc = view.get<PhysicsComponent>(id); // getter
             m_world->destroyBody(pc.m_bodyIDRef);
         }
+    }
+
+    void PhysicsSystem::setReg(ECS::Registry* arg)
+    {
+        reg = arg;
     }
 
     void PhysicsSystem::syncPhysicsToTransforms(ECS::Registry& reg)

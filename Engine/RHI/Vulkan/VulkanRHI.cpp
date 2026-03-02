@@ -14,6 +14,7 @@
 #include <stdexcept>
 
 #include "Log/Log.hpp"
+#include "Maths/Utils/vector3_convertor.hpp"
 
 namespace gcep::rhi::vulkan
 {
@@ -67,7 +68,10 @@ void VulkanRHI::initSceneResources()
     createGraphicsPipeline();
     createCullPipeline();
     createGridPipeline();
-    spawnCube();
+    spawnCube({0, 0, 10});
+    spawnCube({0, 0, 0});
+    meshes.at(1).setScale({10.0f, 10.0f , 1.0f});
+    m_ECSRegistry.getComponent<TransformComponent>(1).scale = Vector3<float>(10.0f, 10.0f, 1.0f);
     /*
     const int size = 10;
     const float spacing = 2.0f;
@@ -877,18 +881,21 @@ void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
     const auto id = m_ECSRegistry.createEntity();
     meshes.emplace_back();
     auto& mesh = meshes.back();
-    mesh.transform = m_ECSRegistry.addComponent<TransformComponent>(id);
-    mesh.physics   = m_ECSRegistry.addComponent<PhysicsComponent>(id);
+    mesh.transform        = m_ECSRegistry.addComponent<TransformComponent>(id);
+    mesh.physics          = m_ECSRegistry.addComponent<PhysicsComponent>(id);
     mesh.id = id;
     mesh.loadMesh(this, filepath);
     const ECS::EntityID newIndex = static_cast<ECS::EntityID>(meshes.size()) - 1;
     uploadSingleMesh(newIndex);
-    m_ECSRegistry.getComponent<TransformComponent>(id).position      = pos;
-    m_ECSRegistry.getComponent<PhysicsComponent>(id).motionType      = EMotionType::DYNAMIC;
-    m_ECSRegistry.getComponent<PhysicsComponent>(id).angularVelocity = Vector3<float>(1.0f, 1.0f, 1.0f);
-    mesh.transform.position = pos;
+    Vector3<float> halfExtents = { mesh.getAABBMax().x, mesh.getAABBMax().y, mesh.getAABBMax().z };
+    m_ECSRegistry.getComponent<TransformComponent>(id).position = Vector3<float>(pos.x,  pos.y,  pos.z);
+    m_ECSRegistry.getComponent<TransformComponent>(id).scale          = halfExtents;
+    m_ECSRegistry.getComponent<PhysicsComponent>(id).motionType       = EMotionType::DYNAMIC;
+    m_ECSRegistry.getComponent<PhysicsComponent>(id).layers       = ELayers::MOVING;
+    mesh.transform.position = Vector3<float>(pos.x,  pos.y,  pos.z);
+    mesh.transform.scale = halfExtents;
     mesh.physics.motionType = EMotionType::DYNAMIC;
-    mesh.physics.angularVelocity = Vector3<float>(1.0f, 1.0f, 1.0f);
+    mesh.physics.layers     = ELayers::MOVING;
 }
 
 void VulkanRHI::setGridPC(gcep::rhi::vulkan::GridPushConstant* gridPC)
