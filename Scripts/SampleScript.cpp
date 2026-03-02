@@ -37,11 +37,12 @@ namespace
             context->log(message.c_str());
         }
 
+        gcep::scripting::getMesh(context)->transform.position.x += 0.01f;
 
         if (auto* mesh = gcep::scripting::getMesh(context))
         {
             glm::vec3 pos = mesh->transform.position;
-            pos.x -= 0.01f;
+            pos.z -= 0.01f;
             gcep::scripting::setMeshPosition(context, pos);
         }
     }

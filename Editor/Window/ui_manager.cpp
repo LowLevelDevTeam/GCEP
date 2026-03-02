@@ -57,10 +57,7 @@ void UiManager::setVieportResizeCallback(const std::function<void(uint32_t, uint
     m_viewportResizeCallback = callback;
 }
 
-void UiManager::setScriptReloadCallback(const std::function<void()>& callback)
-{
-    m_scriptReloadCallback = callback;
-}
+
 
 static bool DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
     bool value_changed = false;
@@ -137,8 +134,9 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
     return value_changed;
 }
 
-void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount)
+void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount,bool* shouldReload)
 {
+    m_shouldReload = shouldReload;
     if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
     {
         ImGui_ImplGlfw_Sleep(10);
@@ -215,13 +213,7 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Reload Script"))
-        {
-            if (m_scriptReloadCallback)
-            {
-                m_scriptReloadCallback();
-            }
-        }
+
 
     }
     ImGui::End();
@@ -231,17 +223,14 @@ void UiManager::uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t 
         ImGui::ShowDemoWindow(&showDemoWindow);
 
     {
-        ImGui::Begin("Hello, world!");
+        ImGui::Begin("Engine Settings");
 
         ImGui::Checkbox("Demo Window", &showDemoWindow);
         ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
 
-        if (ImGui::Button("Reload Script"))
+        if (ImGui::Button("Run"))
         {
-            if (m_scriptReloadCallback)
-            {
-                m_scriptReloadCallback();
-            }
+            m_shouldReload = true;
         }
 
         ImGui::SeparatorText("Scene infos");

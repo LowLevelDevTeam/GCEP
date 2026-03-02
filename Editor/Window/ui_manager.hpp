@@ -31,12 +31,11 @@ public:
 
     void setMeshList(std::vector<rhi::vulkan::VulkanMesh>& data);
     void setVieportResizeCallback(const std::function<void(uint32_t, uint32_t)>& callback);
-    void setScriptReloadCallback(const std::function<void()>& callback);
 
     /// @brief Update UI with viewport texture
     /// @param sceneTexture The descriptor set for the offscreen rendered scene
     /// @param viewportResizeCallback Callback called when viewport size changes
-    void uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount);
+    void uiUpdate(VkDescriptorSet sceneTexture, Camera* camera, uint32_t drawCount,bool* shouldReload);
 
     void drawGizmoControls();
 
@@ -64,7 +63,6 @@ private:
     ImVec2 m_viewportSize = {800, 600};
     std::vector<rhi::vulkan::VulkanMesh>* meshData;
     std::function<void(uint32_t, uint32_t)> m_viewportResizeCallback;
-    std::function<void()> m_scriptReloadCallback;
     uint32_t m_SelectedEntityID = std::numeric_limits<uint32_t>::max();
     glm::vec4 m_clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
     glm::vec3 ambientColor = {0.2f, 0.2f, 0.2f};
@@ -79,6 +77,8 @@ private:
     float m_snapTranslation[3] = {0.5f, 0.5f, 0.5f};
     float m_snapRotation = 15.0f;  // degrés
     float m_snapScale = 0.1f;
+
+    bool* m_shouldReload = nullptr;
 };
 
 }

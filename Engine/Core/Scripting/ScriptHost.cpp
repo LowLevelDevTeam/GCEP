@@ -25,7 +25,10 @@ namespace gcep::scripting
 
     void ScriptHost::unload()
     {
-        notifyUnload();
+        for (auto& context : m_contexts)
+        {
+            notifyUnload(context.get());
+        }
 
         if (m_destroyPlugin && m_plugin)
         {
@@ -44,9 +47,9 @@ namespace gcep::scripting
         }
     }
 
-    void ScriptHost::update(double deltaSeconds)
+    void ScriptHost::update(ScriptContext* context, double deltaSeconds)
     {
-        m_context.deltaSeconds = deltaSeconds;
+        context->deltaSeconds = deltaSeconds;
 
         if (reloadIfNeeded())
         {
@@ -55,7 +58,7 @@ namespace gcep::scripting
 
         if (m_plugin && m_plugin->onUpdate)
         {
-            m_plugin->onUpdate(&m_context, m_plugin->state);
+            m_plugin->onUpdate(context, m_plugin->state);
         }
     }
 
@@ -214,7 +217,10 @@ namespace gcep::scripting
             return false;
         }
 
-        notifyLoad();
+        for (auto& context : m_contexts)
+        {
+            notifyLoad(context.get());
+        }
         return true;
     }
 
@@ -241,19 +247,19 @@ namespace gcep::scripting
         return timestamp != m_lastWriteTime;
     }
 
-    void ScriptHost::notifyLoad()
+    void ScriptHost::notifyLoad(ScriptContext* context)
     {
         if (m_plugin && m_plugin->onLoad)
         {
-            m_plugin->onLoad(&m_context, &m_plugin->state);
+            m_plugin->onLoad(context, &m_plugin->state);
         }
     }
 
-    void ScriptHost::notifyUnload()
+    void ScriptHost::notifyUnload(ScriptContext* context)
     {
         if (m_plugin && m_plugin->onUnload)
         {
-            m_plugin->onUnload(&m_context, m_plugin->state);
+            m_plugin->onUnload(context, m_plugin->state);
         }
     }
 
@@ -425,14 +431,14 @@ namespace gcep::scripting
         m_buildCommand = std::move(commandLine);
     }
 
-    void ScriptHost::setEcsContext(ECS::Registry* registry, ECS::EntityID entity)
+    void ScriptHost::setEcsContext(ScriptContext* context, ECS::Registry* registry, ECS::EntityID entity)
     {
-        m_context.registry = registry;
-        m_context.entity = entity;
+        context->registry = registry;
+        context->entity = entity;
     }
 
-    void ScriptHost::setMeshContext(rhi::vulkan::VulkanMesh* mesh)
+    void ScriptHost::setMeshContext(ScriptContext* context, rhi::vulkan::VulkanMesh* mesh)
     {
-        m_context.mesh = mesh;
+        context->mesh = mesh;
     }
 }
