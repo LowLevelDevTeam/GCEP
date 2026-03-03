@@ -107,8 +107,10 @@ namespace gcep::ECS
         template<typename T>
         [[nodiscard]] ComponentPool<T>& getPool();
 
+        [[nodiscard]] const std::vector<std::unique_ptr<IPool>>& getPools() const;
+
     private:
-        EntityIDGenerator m_idGenerator; ///< Generator for entity ID allocation, validation, and recycling with versioning support.
+        EntityIDGenerator m_idGenerator; ///< Generator for entity ID allocation, validation, and recycling with versioning support (provides generateID(), isValid(), destroyEntity()).
         std::vector<std::unique_ptr<IPool>> m_pools; ///< List of type-erased component m_pools.
         std::vector<EntityID> m_entitiesToDestroy;   ///< Queue for deferred destruction.
 

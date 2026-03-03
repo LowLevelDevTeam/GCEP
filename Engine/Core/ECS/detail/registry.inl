@@ -73,6 +73,11 @@ namespace gcep::ECS
         return static_cast<ComponentPool<T>&>(*m_pools[id]);
     }
 
+    inline const std::vector<std::unique_ptr<IPool>> & Registry::getPools() const
+    {
+        return m_pools;
+    }
+
     inline void Registry::removeEntity(EntityID toRemove)
     {
         for (auto& pool : m_pools)
