@@ -1,25 +1,25 @@
-#include "VulkanMesh.hpp"
-#include "Log/Log.hpp"
+#include "Mesh.hpp"
 
 #include <Engine/ObjParser/ObjParser.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHI.hpp>
+#include <Log/Log.hpp>
 
 // STL
-#include <iostream>
 #include <unordered_map>
 
 namespace gcep::rhi::vulkan
 {
 
-void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
+void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
 {
     if (name == "Unknown")
     {
-        // Make sure every entity has a different name
-        name = std::string("Unknown ") + std::to_string(id);
+        name = "Unknown " + std::to_string(id);
     }
-    pRhi = instance;
+
+    pRhi        = instance;
     m_transform = transform;
+    m_objPath   = filepath;
 
     if(!textureFilepath.empty())
     {
@@ -41,8 +41,8 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
     for (const auto& idx : modelIndices)
     {
         Vertex vertex{};
-        const float* v = verts + 3 * idx.vertex_index;
-        vertex.pos = { v[0], v[1], v[2] };
+        const float* vp = verts + 3 * idx.vertex_index;
+        vertex.pos = {vp[0], vp[1], vp[2] };
 
         if (idx.texcoord_index != UINT32_MAX)
         {
@@ -61,7 +61,7 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         }
         else
         {
-            vertex.normal = { 1.0f, 1.0f, 1.0f };
+            vertex.normal = { 0.0f, 1.0f, 0.0f };
         }
 
         if constexpr (deduplication)
@@ -102,10 +102,10 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         m_aabbMax = glm::max(m_aabbMax, vertex.pos);
     }
 
-    Log::info(std::string_view("Loaded mesh " + filepath.filename().string()));
+    Log::info("Loaded mesh " + filepath.filename().string());
 }
 
-glm::mat4& VulkanMesh::getTransform()
+glm::mat4& Mesh::getTransform()
 {
     glm::quat q(
         transform.rotation.w,
@@ -122,17 +122,17 @@ glm::mat4& VulkanMesh::getTransform()
     return m_transform;
 }
 
-void VulkanMesh::setTexture(const std::filesystem::path& filepath, bool mipmaps)
+void Mesh::setTexture(const std::filesystem::path& filepath, bool mipmaps)
 {
     m_texture.loadTexture(pRhi, filepath, mipmaps);
 }
 
-void VulkanMesh::setPosition(glm::vec3 pos)
+void Mesh::setPosition(glm::vec3 pos)
 {
     m_transform[3] = glm::vec4(pos, 1.0f);
 }
 
-void VulkanMesh::setRotation(glm::vec3 eulerDegrees)
+void Mesh::setRotation(glm::vec3 eulerDegrees)
 {
     glm::vec3 translation = glm::vec3(m_transform[3]);
     glm::vec3 scale =
@@ -142,25 +142,25 @@ void VulkanMesh::setRotation(glm::vec3 eulerDegrees)
         glm::length(glm::vec3(m_transform[2]))
     };
 
-    glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(eulerDegrees.x), {1,0,0});
-    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.y), {0,1,0});
-    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.z), {0,0,1});
+    glm::mat4 R = glm::rotate(glm::mat4(1.0f), glm::radians(eulerDegrees.x), {1,0,0});
+    R           = glm::rotate(R,               glm::radians(eulerDegrees.y), {0,1,0});
+    R           = glm::rotate(R,               glm::radians(eulerDegrees.z), {0,0,1});
 
     m_transform = glm::translate(glm::mat4(1.0f), translation)
-                  * rot
+                  * R
                   * glm::scale(glm::mat4(1.0f), scale);
 }
 
-void VulkanMesh::setScale(glm::vec3 scale)
+void Mesh::setScale(glm::vec3 scale)
 {
     m_transform[0] = glm::vec4(glm::normalize(glm::vec3(m_transform[0])) * scale.x, 0.0f);
     m_transform[1] = glm::vec4(glm::normalize(glm::vec3(m_transform[1])) * scale.y, 0.0f);
     m_transform[2] = glm::vec4(glm::normalize(glm::vec3(m_transform[2])) * scale.z, 0.0f);
 }
 
-void VulkanMesh::setTransform(glm::mat4 transform)
+void Mesh::setTransform(glm::mat4 t)
 {
-    m_transform = transform;
+    m_transform = t;
 }
 
-} // Namespace gcep::rhi::vulkan
+} // namespace gcep::rhi::vulkan

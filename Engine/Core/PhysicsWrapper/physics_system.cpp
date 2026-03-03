@@ -39,7 +39,7 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        auto view = reg->view<TransformComponent, PhysicsComponent>();
+        auto view = registry->view<TransformComponent, PhysicsComponent>();
 
         for (auto entity : view) {
             auto& transform = view.get<TransformComponent>(entity);
@@ -54,15 +54,15 @@ namespace gcep
     {
         m_world->step(dt);
         // Sync dynamic bodies → Transform
-        syncPhysicsToTransforms(*reg);
+        syncPhysicsToTransforms(*registry);
 
         // Sync kinematic bodies ← Transform
-        syncTransformsToPhysics(*reg);
+        syncTransformsToPhysics(*registry);
     }
 
     void PhysicsSystem::stopSimulation()
     {
-        auto view = reg->view<PhysicsComponent>();
+        auto view = registry->view<PhysicsComponent>();
 
         for (ECS::EntityID id : view) {
             auto& pc = view.get<PhysicsComponent>(id); // getter
@@ -70,9 +70,9 @@ namespace gcep
         }
     }
 
-    void PhysicsSystem::setReg(ECS::Registry* arg)
+    void PhysicsSystem::setRegistry(ECS::Registry* reg)
     {
-        reg = arg;
+        registry = reg;
     }
 
     void PhysicsSystem::syncPhysicsToTransforms(ECS::Registry& reg)

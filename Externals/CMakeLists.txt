@@ -22,10 +22,6 @@ target_include_directories(GCEngine PRIVATE JoltPhysics)
 add_subdirectory(miniaudio)
 target_include_directories(GCEngine PRIVATE miniaudio)
 
-# ImGuiColorTextEdit
-target_include_directories(GCEngine PRIVATE ImGuiColorTextEdit)
-target_sources(GCEngine PRIVATE ImGuiColorTextEdit/TextEditor.cpp)
-
 # TinyFileDialogs
 target_include_directories(GCEngine PRIVATE TinyFileDialogs)
 target_sources(GCEngine PRIVATE TinyFileDialogs/tinyfiledialogs.cpp)
