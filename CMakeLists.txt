@@ -29,6 +29,13 @@ file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 # Adding the executable
 add_executable(GCEngine)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
+# include(FetchContent)
+# FetchContent_Declare(
+#         cpptrace
+#         GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+#         GIT_TAG        v1.0.4
+# )
+# FetchContent_MakeAvailable(cpptrace)
 
 # Vulkan
 find_package(Vulkan 1.3 REQUIRED)
@@ -51,6 +58,12 @@ target_link_libraries(GCEngine PRIVATE Vulkan::Vulkan)
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
+add_subdirectory(UnitTests)
+
+# Compile the engine into a lib (to use GoogleTest)
+add_library(GCEngineLib STATIC ${ENGINE_SOURCE})
+target_include_directories(GCEngineLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Externals/JoltPhysics Externals/glfw Externals/miniaudio Externals/glm Externals/imgui Externals/ImGuizmo Externals/stb ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(GCEngineLib PRIVATE Vulkan::Vulkan Jolt miniaudio glfw glm ImGui ImGuizmo)
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
     add_subdirectory(UnitTests)
 endif()

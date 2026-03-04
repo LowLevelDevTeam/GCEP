@@ -2,7 +2,7 @@
 
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Inputs/Inputs.hpp>
-#include <Editor/Window/ui_manager.hpp>
+#include <Editor/UIManager/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
 #include <RHI/ObjParser/ObjParser.hpp>
 #include <RHI/Vulkan/VulkanRHI.hpp>
@@ -10,26 +10,32 @@
 #include <Engine/Core/Scripting/ScriptSystem.hpp>
 #include <Engine/Core/ECS/headers/registry.hpp>
 
+#include <Engine/RHI/Vulkan/VulkanRHI.hpp>
+#include <Log/Log.hpp>
 
 int main()
 {
-    gcep::Window& window = gcep::Window::getInstance();
+    using namespace gcep;
+    using VulkanRHI = rhi::vulkan::VulkanRHI;
+
+    Log::initialize("GC Engine Paris", "crash.log");
+    Window& window = Window::getInstance();
     window.initWindow();
-    gcep::Inputs inputs;
-    gcep::Camera camera(&inputs, &window);
+    InputSystem inputSystem(window.getGlfwWindow());
+    Camera camera(&inputSystem, &window);
 
     gcep::ECS::Registry registry;
 
     int fbWidth = 0, fbHeight = 0;
     glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);
 
-    gcep::rhi::SwapchainDesc swapDesc{};
+    rhi::SwapchainDesc swapDesc{};
     swapDesc.nativeWindowHandle = window.getGlfwWindow();
     swapDesc.width              = static_cast<uint32_t>(fbWidth);
     swapDesc.height             = static_cast<uint32_t>(fbHeight);
     swapDesc.vsync              = true;
 
-    std::unique_ptr<gcep::rhi::vulkan::VulkanRHI> rhi = std::make_unique<gcep::rhi::vulkan::VulkanRHI>(swapDesc);
+    std::unique_ptr<VulkanRHI> rhi = std::make_unique<VulkanRHI>(swapDesc);
 
 
     bool hasToReload = false;
@@ -40,7 +46,8 @@ int main()
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        Log::handleException(e);
+        std::cerr << e.what() << std::endl;
         return 1;
     }
 
@@ -62,6 +69,11 @@ int main()
 
     double lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window.getGlfwWindow()))
+    UiManager uiManager(window.getGlfwWindow(), rhi->getUIInitInfo());
+    uiManager.setCamera(&camera);
+    uiManager.setInfos(rhi->getInitInfos());
+
+    while (!window.shouldClose())
     {
         const double now = glfwGetTime();
         const double deltaSeconds = now - lastTime;
@@ -85,13 +97,13 @@ int main()
         rhi->updateCameraUBO(camera.update(uiManager.getViewportSize().x / uiManager.getViewportSize().y, uiManager.camSpeed));
         rhi->updateSceneUBO(uiManager.getSceneInfos(), camera.position);
 
+        inputSystem.update();
+        uiManager.uiUpdate();
         rhi->drawFrame();
     }
+    Log::info("Window closed");
     rhi->cleanup();
     rhi.reset();
-
-    glfwDestroyWindow(gcep::Window::getInstance().getGlfwWindow());
-    glfwTerminate();
 
     return 0;
 }

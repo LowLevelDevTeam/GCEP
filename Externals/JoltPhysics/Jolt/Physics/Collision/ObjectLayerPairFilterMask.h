@@ -42,7 +42,7 @@ public:
 	}
 
 	/// Returns true if two layers can collide
-	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
+	virtual bool			shouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 	{
 		return (sGetGroup(inObject1) & sGetMask(inObject2)) != 0
 			&& (sGetGroup(inObject2) & sGetMask(inObject1)) != 0;
