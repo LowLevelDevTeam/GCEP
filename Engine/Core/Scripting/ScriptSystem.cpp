@@ -7,14 +7,14 @@
 
 namespace gcep::scripting
 {
-    void ScriptSystem::init(ECS::Registry* registry, std::vector<rhi::vulkan::VulkanMesh>& meshData)
+    void ScriptSystem::init(ECS::Registry* registry, const std::vector<rhi::vulkan::Mesh>& meshDataVector)
     {
         m_registry = registry;
 
         const std::filesystem::path scriptPath = findScriptLibrary();
         const gcep::ECS::EntityID scriptEntity = m_registry->createEntity();
 
-        for (auto& mesh : meshData)
+        for (auto& mesh : meshDataVector)
         {
             const std::uint32_t meshId = mesh.id;
 
@@ -70,29 +70,36 @@ namespace gcep::scripting
 
             if (scriptComponent.host)
             {
-                scriptComponent.host->startWatching();
+                // No hot reload scriptComponent.host->startWatching();
             }
         }
     }
 
-    void ScriptSystem::setMeshList(std::vector<rhi::vulkan::VulkanMesh>* meshes)
+    void ScriptSystem::setMeshList(std::vector<rhi::vulkan::Mesh>* meshes)
     {
         m_meshes = meshes;
     }
 
-    void ScriptSystem::update(ECS::Registry& registry, double deltaSeconds)
+    void ScriptSystem::update(ECS::Registry* registry, double deltaSeconds)
     {
-        for (auto entity : registry.view<ScriptComponent>())
+        for (auto entity : registry->view<ScriptComponent>())
         {
-            auto& component = registry.getComponent<ScriptComponent>(entity);
+
+            auto& component = registry->getComponent<ScriptComponent>(entity);
             if (!component.host)
             {
                 continue;
             }
-            component.host->setEcsContext(&registry, entity);
+            component.host->setEcsContext(registry, entity);
             component.host->setMeshContext(findMesh(component.meshId));
             component.host->update(deltaSeconds);
         }
+    }
+
+    ScriptSystem& ScriptSystem::getInstance()
+    {
+        static ScriptSystem s_instance;
+        return s_instance;
     }
 
     std::filesystem::path ScriptSystem::getExecutableDir()
@@ -238,7 +245,7 @@ namespace gcep::scripting
     }
 #endif
 
-    rhi::vulkan::VulkanMesh* ScriptSystem::findMesh(std::uint32_t meshId) const
+    rhi::vulkan::Mesh* ScriptSystem::findMesh(std::uint32_t meshId) const
     {
         if (!m_meshes)
         {

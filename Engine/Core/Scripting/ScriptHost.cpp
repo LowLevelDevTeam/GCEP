@@ -7,9 +7,9 @@
 namespace gcep::scripting
 {
     ScriptHost::ScriptHost(std::filesystem::path sourceLibraryPath)
-        : m_sourcePath(std::move(sourceLibraryPath))
+        : m_sourcePath(std::move(sourceLibraryPath)), m_context(std::make_unique<ScriptContext>())
     {
-        m_context.log = &ScriptHost::defaultLog;
+        m_context->log = &ScriptHost::defaultLog;
     }
 
     ScriptHost::~ScriptHost()
@@ -25,10 +25,7 @@ namespace gcep::scripting
 
     void ScriptHost::unload()
     {
-        for (auto& context : m_contexts)
-        {
-            notifyUnload(context.get());
-        }
+        notifyUnload();
 
         if (m_destroyPlugin && m_plugin)
         {
@@ -47,9 +44,9 @@ namespace gcep::scripting
         }
     }
 
-    void ScriptHost::update(ScriptContext* context, double deltaSeconds)
+    void ScriptHost::update(double deltaSeconds)
     {
-        context->deltaSeconds = deltaSeconds;
+        m_context->deltaSeconds = deltaSeconds;
 
         if (reloadIfNeeded())
         {
@@ -58,7 +55,7 @@ namespace gcep::scripting
 
         if (m_plugin && m_plugin->onUpdate)
         {
-            m_plugin->onUpdate(context, m_plugin->state);
+            m_plugin->onUpdate(m_context.get(), m_plugin->state);
         }
     }
 
@@ -217,10 +214,8 @@ namespace gcep::scripting
             return false;
         }
 
-        for (auto& context : m_contexts)
-        {
-            notifyLoad(context.get());
-        }
+        notifyLoad();
+
         return true;
     }
 
@@ -247,19 +242,19 @@ namespace gcep::scripting
         return timestamp != m_lastWriteTime;
     }
 
-    void ScriptHost::notifyLoad(ScriptContext* context)
+    void ScriptHost::notifyLoad()
     {
         if (m_plugin && m_plugin->onLoad)
         {
-            m_plugin->onLoad(context, &m_plugin->state);
+            m_plugin->onLoad(m_context.get(), &m_plugin->state);
         }
     }
 
-    void ScriptHost::notifyUnload(ScriptContext* context)
+    void ScriptHost::notifyUnload()
     {
         if (m_plugin && m_plugin->onUnload)
         {
-            m_plugin->onUnload(context, m_plugin->state);
+            m_plugin->onUnload(m_context.get(), m_plugin->state);
         }
     }
 
@@ -431,14 +426,14 @@ namespace gcep::scripting
         m_buildCommand = std::move(commandLine);
     }
 
-    void ScriptHost::setEcsContext(ScriptContext* context, ECS::Registry* registry, ECS::EntityID entity)
+    void ScriptHost::setEcsContext(ECS::Registry* registry, ECS::EntityID entity)
     {
-        context->registry = registry;
-        context->entity = entity;
+        m_context->registry = registry;
+        m_context->entity = entity;
     }
 
-    void ScriptHost::setMeshContext(ScriptContext* context, rhi::vulkan::VulkanMesh* mesh)
+    void ScriptHost::setMeshContext(rhi::vulkan::Mesh* mesh)
     {
-        context->mesh = mesh;
+        m_context->mesh = mesh;
     }
 }

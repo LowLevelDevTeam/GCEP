@@ -18,7 +18,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : physicsSystem(PhysicsSystem::getInstance())
+UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : physicsSystem(PhysicsSystem::getInstance()), scriptSystem(scripting::ScriptSystem::getInstance())
 {
     m_window = window;
     m_initInfo = initInfo;
@@ -315,6 +315,12 @@ void UiManager::drawViewport()
         if(simulationStarted && !simulationPaused)
         {
             physicsSystem.update(io.DeltaTime);
+            // Run scripts
+            // Run script
+            if (m_registry)
+                scriptSystem.update(m_registry, io.DeltaTime);
+            else
+                std::cout << "no registry !" << std::endl;
         }
         ImVec2 availSize = ImGui::GetContentRegionAvail();
 

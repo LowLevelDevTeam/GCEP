@@ -16,12 +16,12 @@ namespace gcep::scripting
         ScriptComponent() = default;
 
         ScriptComponent(std::filesystem::path libraryPath, std::uint32_t meshIdValue)
-            : host(std::make_shared<ScriptHost>(std::move(libraryPath))), meshId(meshIdValue)
+            : host(std::make_shared<ScriptHost>(libraryPath)), meshId(meshIdValue)
         {
         }
 
         explicit ScriptComponent(std::filesystem::path libraryPath)
-            : host(std::make_shared<ScriptHost>(std::move(libraryPath)))
+            : host(std::make_shared<ScriptHost>(libraryPath))
         {
         }
     };

@@ -3,7 +3,7 @@
 #include <cstddef>
 
 #include <Engine/Core/ECS/headers/registry.hpp>
-#include <Engine/Core/RHI/Vulkan/VulkanMesh.hpp>
+#include <Engine/RHI/Mesh/Mesh.hpp>
 
 #if defined(_WIN32)
     #if defined(GCE_SCRIPT_BUILD)
@@ -24,7 +24,7 @@ namespace gcep::scripting
         void* userData = nullptr;
         ECS::Registry* registry = nullptr;
         ECS::EntityID entity = ECS::INVALID_VALUE;
-        rhi::vulkan::VulkanMesh* mesh = nullptr;
+        rhi::vulkan::Mesh* mesh = nullptr;
     };
 
     struct ScriptPlugin
@@ -49,12 +49,12 @@ namespace gcep::scripting
     inline constexpr const char* kSharedLibraryExtension = ".so";
     #endif
 
-    inline rhi::vulkan::VulkanMesh* getMesh(ScriptContext* context)
+    inline rhi::vulkan::Mesh* getMesh(ScriptContext* context)
     {
         return context ? context->mesh : nullptr;
     }
 
-    inline void setMeshPosition(ScriptContext* context, const glm::vec3& position)
+    inline void setMeshPosition(ScriptContext* context, const Vector3<float>& position)
     {
         if (auto* mesh = getMesh(context))
         {
@@ -62,7 +62,7 @@ namespace gcep::scripting
         }
     }
 
-    inline void setMeshRotation(ScriptContext* context, const glm::vec3& rotation)
+    inline void setMeshRotation(ScriptContext* context, const Quaternion& rotation)
     {
         if (auto* mesh = getMesh(context))
         {
@@ -70,7 +70,7 @@ namespace gcep::scripting
         }
     }
 
-    inline void setMeshScale(ScriptContext* context, const glm::vec3& scale)
+    inline void setMeshScale(ScriptContext* context, const Vector3<float>& scale)
     {
         if (auto* mesh = getMesh(context))
         {

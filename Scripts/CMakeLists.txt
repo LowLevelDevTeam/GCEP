@@ -7,6 +7,7 @@ target_include_directories(GCEngineScripts PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Scripting
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/JoltPhysics
     ${Vulkan_INCLUDE_DIRS}
 )
 

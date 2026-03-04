@@ -21,11 +21,9 @@ namespace gcep
 
     PhysicsSystem& PhysicsSystem::getInstance()
     {
-
         static PhysicsSystem s_instance;
         return s_instance;
     }
-
 
     void PhysicsSystem::init()
     {

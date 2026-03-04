@@ -6,7 +6,7 @@
 #include <ScriptBuildConfig.hpp>
 #include <Engine/Core/Scripting/ScriptComponent.hpp>
 #include <Engine/Core/ECS/headers/registry.hpp>
-#include <Engine/Core/RHI/Vulkan/VulkanMesh.hpp>
+#include <Engine/RHI/Mesh/Mesh.hpp>
 
 #if defined(_WIN32)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -26,10 +26,12 @@ namespace gcep::scripting
     {
     public:
 
-        void init(ECS::Registry* registry, std::vector<rhi::vulkan::VulkanMesh>& meshData);
+        void init(ECS::Registry* registry, const std::vector<rhi::vulkan::Mesh>& meshDataVector);
 
-        void setMeshList(std::vector<rhi::vulkan::VulkanMesh>* meshes);
-        void update(ECS::Registry& registry, double deltaSeconds);
+        void setMeshList(std::vector<rhi::vulkan::Mesh>* meshes);
+        void update(ECS::Registry* registry, double deltaSeconds);
+
+        static ScriptSystem& getInstance();
 
     private:
         std::filesystem::path getExecutableDir();
@@ -41,10 +43,10 @@ namespace gcep::scripting
         std::string toShortPath(const std::string& path);
 #endif
 
-        rhi::vulkan::VulkanMesh* findMesh(std::uint32_t meshId) const;
+        rhi::vulkan::Mesh* findMesh(std::uint32_t meshId) const;
 
     private:
-        std::vector<rhi::vulkan::VulkanMesh>* m_meshes = nullptr;
+        std::vector<rhi::vulkan::Mesh>* m_meshes = nullptr;
 
         ECS::Registry* m_registry = nullptr;
     };

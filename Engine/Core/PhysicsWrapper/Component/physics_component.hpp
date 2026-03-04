@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "Jolt/Jolt.h"
+#include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
 #include "Engine/Core/Maths/vector3.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/headers/entity_component.hpp>
+#include <Engine/Core/ECS/headers/entity_component.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <Engine/RHI/Vulkan/VulkanTexture.hpp>
 #include <PhysicsWrapper/Component/physics_component.hpp>

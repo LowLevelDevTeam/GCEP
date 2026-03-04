@@ -41,9 +41,9 @@ namespace
 
         if (auto* mesh = gcep::scripting::getMesh(context))
         {
-            glm::vec3 pos = mesh->transform.position;
-            pos.z -= 0.01f;
-            gcep::scripting::setMeshPosition(context, pos);
+            //glm::vec3 pos = mesh->transform.position;
+            //pos.z -= 0.01f;
+            //gcep::scripting::setMeshPosition(context, pos);
         }
     }
 

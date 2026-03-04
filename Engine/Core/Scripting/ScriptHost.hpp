@@ -30,15 +30,15 @@ namespace gcep::scripting
 
         [[nodiscard]] bool load(std::string* error = nullptr);
         void unload();
-        void update(ScriptContext* context, double deltaSeconds);
+        void update(double deltaSeconds);
 
         void requestReload();
         void startWatching(std::chrono::milliseconds interval = std::chrono::milliseconds(250));
         void stopWatching();
         void setSourceFilePath(const std::filesystem::path& sourcePath);
         void setBuildCommand(std::string commandLine);
-        void setEcsContext(ScriptContext* context, ECS::Registry* registry, ECS::EntityID entity);
-        void setMeshContext(ScriptContext* context, rhi::vulkan::VulkanMesh* mesh);
+        void setEcsContext(ECS::Registry* registry, ECS::EntityID entity);
+        void setMeshContext(rhi::vulkan::Mesh* mesh);
 
         [[nodiscard]] const std::filesystem::path& getSourcePath() const;
 
@@ -46,8 +46,8 @@ namespace gcep::scripting
         bool reloadIfNeeded();
         [[nodiscard]] bool loadInternal(std::string* error);
         [[nodiscard]] bool shouldReload() const;
-        void notifyLoad(ScriptContext* context);
-        void notifyUnload(ScriptContext* context);
+        void notifyLoad();
+        void notifyUnload();
         void runWatcher(std::chrono::milliseconds interval);
         bool maybeBuildFromSource();
         bool waitForLibraryUpdate(std::chrono::milliseconds timeout);
@@ -66,7 +66,7 @@ namespace gcep::scripting
         DestroyScriptPluginFn m_destroyPlugin = nullptr;
         std::atomic<bool> m_reloadRequested{false};
         unsigned long long m_reloadCounter = 0;
-        std::vector<std::unique_ptr<ScriptContext>> m_contexts = {};
+        std::unique_ptr<ScriptContext> m_context;
         std::string m_buildCommand;
 
         std::atomic<bool> m_watcherRunning{false};
