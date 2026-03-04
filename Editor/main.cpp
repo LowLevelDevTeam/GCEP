@@ -2,7 +2,7 @@
 
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Inputs/Inputs.hpp>
-#include <Editor/Window/ui_manager.hpp>
+#include <Editor/UIManager/ui_manager.hpp>
 #include <Editor/Window/Window.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHI.hpp>
 #include <Log/Log.hpp>

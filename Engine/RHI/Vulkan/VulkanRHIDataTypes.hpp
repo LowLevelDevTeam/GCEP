@@ -6,12 +6,13 @@
 
 // STD
 #include <cstdint>
+
 #include <ECS/headers/registry.hpp>
 
 namespace gcep::rhi::vulkan 
 {
 class VulkanRHI;
-class VulkanMesh;
+class Mesh;
 /// @brief Interleaved vertex layout: position (vec3), vertex color or normal (vec3),
 ///        texture coordinate (vec2). Matches the SPIR-V input layout of @c Base_Shader.spv.
 struct Vertex
@@ -132,9 +133,22 @@ struct SceneInfos
 struct InitInfos
 {
     VulkanRHI* instance;
-    std::vector<VulkanMesh>* meshData;
+    std::vector<Mesh>* meshData;
     ECS::Registry* registry;
     VkDescriptorSet* ds;
+};
+
+// TODO: Fit in 128 bytes
+struct GridPushConstant
+{
+    glm::mat4 invView;
+    glm::mat4 invProj;
+    glm::mat4 viewProj;
+
+    float cellSize     = 1.0f;
+    float thickEvery   = 10.0f;
+    float fadeDistance = 100.0f;
+    float lineWidth    = 1.0f;
 };
 
 } // Namespace gcep::rhi::vulkan

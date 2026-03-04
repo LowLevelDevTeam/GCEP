@@ -1,11 +1,12 @@
 #pragma once
 
+#include <ECS/headers/registry.hpp>
+#include <Engine/RHI/Mesh/Mesh.hpp>
+#include <Engine/RHI/Mesh/MeshCache.hpp>
 #include <Engine/RHI/RHI.hpp>
 #include <Engine/RHI/Vulkan/VulkanDevice.hpp>
-#include <Engine/RHI/Vulkan/VulkanMesh.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <Engine/RHI/Vulkan/VulkanTexture.hpp>
-#include <ECS/headers/registry.hpp>
 
 // Externals
 #include <vulkan/vulkan_raii.hpp>
@@ -27,43 +28,62 @@ namespace gcep::rhi::vulkan
 {
 /// @brief Top-level Vulkan renderer implementing the @c gcep::RHI interface.
 ///
-/// @c VulkanRHI owns:
-///   - @c VulkanDevice - device, swapchain, and per-frame contexts.
-///   - Scene resources - merged global vertex + index buffers, per-mesh SSBO,
-///     GPU-driven indirect draw buffer, bindless texture array, UBO, descriptor
-///     layouts / pools / sets, and both the graphics and compute (culling) pipelines.
-///   - Offscreen render target - a separate color + depth image rendered into by the
-///     scene pass and displayed inside an ImGui viewport via @c ImGui_ImplVulkan_AddTexture.
-///   - ImGui integration - its own @c VkDescriptorPool, GLFW + Vulkan backends.
+/// @c VulkanRHI is the central rendering context for the engine. It owns and
+/// manages the full Vulkan resource hierarchy:
 ///
-/// @par Frame sequence (drawFrame)
+/// @par Owned subsystems
+///   - Device - @c VulkanDevice wrapping the physical/logical device,
+///     swapchain, and per-frame command buffers.
+///   - Scene geometry - merged global vertex + index buffers (device-local,
+///     pre-allocated to @c MAX_VERTEX_BUFFER_BYTES / @c MAX_INDEX_BUFFER_BYTES),
+///     a per-mesh SSBO for transforms and metadata, and a GPU-driven indirect
+///     draw buffer written by the cull compute shader.
+///   - Bindless textures - a partially-bound @c eCombinedImageSampler array
+///     at set 1, binding 0, supporting up to @c MAX_TEXTURES entries.
+///   - Offscreen render target - a separate RGBA16F color + D32 depth image
+///     rendered into by the scene pass and displayed inside an ImGui viewport
+///     via @c ImGui_ImplVulkan_AddTexture.
+///   - ImGui integration - dedicated @c VkDescriptorPool, GLFW + Vulkan
+///     backends, multi-viewport support.
+///   - ECS - owns the @c ECS::Registry; entities are created/destroyed via
+///     @c spawnAsset() / @c removeMesh().
+///
+/// @par Frame sequence (@c drawFrame)
 ///   @code
-///   processPendingOffscreenResize()   // deferred to avoid mid-frame resize hazards
-///   // handle deferred swapchain resize from GLFW callback
-///   beginFrame()                      // fence wait + acquire
-///   perFrameUpdate()                  // mesh transform updates + SSBO upload
-///   recordOffscreenCommandBuffer()    // cull pass -> scene -> offscreen image
+///   processPendingOffscreenResize()  // deferred resize - never mid-frame
+///   // deferred swapchain resize from GLFW callback if flagged
+///   beginFrame()                     // fence wait + swapchain acquire
+///   perFrameUpdate()                 // transform sync + SSBO + UBO upload
+///   recordOffscreenCommandBuffer()   // cull -> scene -> grid -> offscreen image
 ///   ImGui::Render()
-///   recordImGuiCommandBuffer()        // ImGui draw data -> swapchain image
-///   endFrame()                        // submit + present
+///   recordImGuiCommandBuffer()       // ImGui draw data -> swapchain image
+///   endFrame()                       // queue submit + present
 ///   @endcode
+///
+/// @par Descriptor set layout (graphics pipeline)
+///   - Set 0, binding 0 - @c GPUMeshData SSBO (vertex stage)
+///   - Set 1, binding 0 - bindless @c Sampler2D[] (fragment stage)
+///   - Set 2, binding 0 - @c SceneUBO (fragment stage)
+///   - Push constants   - @c PushConstant (vertex + fragment)
 ///
 /// @par Thread safety
 ///   All public methods must be called from the main/render thread.
+///   No internal synchronisation is provided.
 class VulkanRHI final : public gcep::RHI
 {
     friend class VulkanTexture;
-    friend class VulkanMesh;
 public:
     /// @brief Constructs the RHI object and stores the swapchain creation parameters.
     ///
     /// No Vulkan objects are created here. Call @c setWindow() then @c initRHI()
     /// before using any other method.
     ///
-    /// @param desc  Swapchain parameters (width, height, vsync). The
-    ///              @c nativeWindowHandle field is populated by @c setWindow().
+    /// @param desc  Swapchain parameters (width, height, vsync flag).
+    ///              The @c nativeWindowHandle field is populated by @c setWindow().
     explicit VulkanRHI(const gcep::rhi::SwapchainDesc& desc);
 
+    /// @brief Default destructor. All Vulkan resources are destroyed by their
+    ///        RAII wrappers in reverse declaration order.
     ~VulkanRHI() override = default;
 
     VulkanRHI(const VulkanRHI&)            = delete;
@@ -73,150 +93,190 @@ public:
 
     // gcep::RHI
 
-    /// @brief Stores the window handle and registers the GLFW framebuffer-resize callback.
+    /// @brief Stores the GLFW window handle and registers the framebuffer-resize callback.
     ///
-    /// Must be called before @c initRHI(). Stores @p window into @c m_swapchainDesc
-    /// and calls @c glfwSetWindowUserPointer / @c glfwSetFramebufferSizeCallback so
-    /// that resize events set @c m_framebufferResized, which @c drawFrame() checks
-    /// at the top of every frame.
+    /// Must be called before @c initRHI(). Stores @p window in @c m_swapchainDesc
+    /// and registers @c glfwSetFramebufferSizeCallback so that resize events set
+    /// @c m_framebufferResized, which @c drawFrame() checks at the top of every frame.
     ///
-    /// @param window  The application's GLFW window. Must remain valid for the
-    ///                lifetime of this object.
+    /// @param window  The application's GLFW window. Must outlive this object.
     void setWindow(GLFWwindow* window) override;
 
     /// @brief Initialises all Vulkan objects and scene resources.
     ///
-    /// Call order:
-    ///   1. @c VulkanDevice::createVulkanDevice() - device + swapchain.
-    ///   2. Creates the upload command pool (persistent, used for single-time submits).
-    ///   3. @c initSceneResources() - UBO, bindless textures, mesh loading,
-    ///      global buffers, descriptor sets, cull pipeline, and graphics pipeline.
+    /// Initialisation order:
+    ///   1. @c VulkanDevice::createVulkanDevice() - instance, device, swapchain.
+    ///   2. Creates @c m_uploadCommandPool for single-time submit operations.
+    ///   3. @c initSceneResources() - UBO, bindless textures, mesh buffers,
+    ///      descriptor sets, culling pipeline, graphics pipeline, offscreen target.
     ///
-    /// @throws std::runtime_error if any init step fails.
+    /// @throws std::runtime_error if any initialisation step fails.
     void initRHI() override;
 
-    /// @brief Records and submits one frame.
+    /// @brief Records and submits one complete frame.
     ///
+    /// Returns early without submitting if @c beginFrame() reports an out-of-date
+    /// swapchain, or if a swapchain / offscreen resize is serviced on this tick.
     /// See the class-level frame sequence for the full call order.
-    /// Silently returns early if @c beginFrame() signals an out-of-date swapchain
-    /// or if a swapchain / offscreen resize is serviced on this tick.
     void drawFrame() override;
 
-    /// @brief Waits for the GPU to be idle, shuts down ImGui, and frees the ImGui pool.
+    /// @brief Waits for GPU idle, shuts down ImGui, and frees the ImGui pool.
     ///
-    /// Calls @c m_device.waitIdle(), removes any registered ImGui texture descriptor,
-    /// calls @c ImGui_ImplVulkan_Shutdown / @c ImGui_ImplGlfw_Shutdown /
-    /// @c ImGui::DestroyContext, and destroys @c m_descriptorPoolImGui.
+    /// Call order: @c m_device.waitIdle() -> remove registered ImGui texture
+    /// descriptor -> @c ImGui_ImplVulkan_Shutdown -> @c ImGui_ImplGlfw_Shutdown
+    /// -> @c ImGui::DestroyContext -> destroy @c m_descriptorPoolImGui.
+    /// Must be called before the window is destroyed.
     void cleanup() override;
 
-    vk::raii::PhysicalDevice* getPhysDev();
-
-    // Editor surface
+    // Editor / window surface
 
     /// @brief Sets the framebuffer-resized flag.
     ///
-    /// Called from the GLFW @c framebufferResizeCallback. The flag is consumed at
-    /// the top of the next @c drawFrame() call, which then calls @c recreateSwapchain().
+    /// Called from the GLFW @c framebufferResizeCallback. The flag is consumed
+    /// at the top of the next @c drawFrame() call, triggering @c recreateSwapchain().
     ///
-    /// @param resized  Pass @c true when the framebuffer size has changed.
+    /// @param resized  @c true when the framebuffer dimensions have changed.
     void setFramebufferResized(bool resized) noexcept { m_framebufferResized = resized; }
 
-    /// @brief Pushes per-frame editor state into the renderer.
+    /// @brief Uploads per-frame camera matrices to the persistently-mapped UBO.
     ///
-    /// Stores @p clearColor and @p ubo for use by @c recordOffscreenCommandBuffer()
-    /// and @c perFrameUpdate() respectively. Called by the editor once per frame
-    /// before @c drawFrame().
+    /// Stores @p ubo for use in @c recordOffscreenCommandBuffer() during the
+    /// same frame. Call once per frame before @c drawFrame().
     ///
-    /// @param clearColor  RGBA clear color in linear [0, 1] float space.
-    /// @param ubo         Camera view and projection matrices for the current frame.
+    /// @param ubo  Camera view and projection matrices for the current frame.
     void updateCameraUBO(UniformBufferObject ubo);
 
-    void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-    void spawnVikingRoom(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-    void spawnAsset(char* filepath, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-
-    /// @brief Uploads per-frame lighting and camera data to the persistently-mapped scene UBO.
+    /// @brief Uploads per-frame lighting and camera data to the scene UBO.
     ///
-    /// Constructs a @c SceneUBO from the provided parameters and memcpys it into all
-    /// mapped scene UBO slots (one per frame-in-flight). Call this once per frame
-    /// before recording the offscreen command buffer, typically from @c perFrameUpdate().
+    /// Constructs a @c SceneUBO from @p upstr and @p cameraPos and memcpys it
+    /// into all persistently-mapped UBO slots (one per frame-in-flight). Call
+    /// once per frame before @c drawFrame().
     ///
-    /// @param lightDir    Normalized world-space direction pointing toward the light source.
-    ///                    Does not need to be pre-normalized; the shader re-normalizes in the fragment stage.
-    /// @param lightCol    Linear RGB color and intensity of the directional light (e.g. @c {1,1,1} for white).
-    /// @param ambientCol  Linear RGB ambient term applied uniformly to all fragments (e.g. @c {0.05,0.05,0.05}).
-    /// @param cameraPos   World-space camera position, used to compute the half-vector for specular highlights.
+    /// @param upstr      Scene lighting parameters (light direction, color, ambient).
+    /// @param cameraPos  World-space camera position for specular highlight computation.
     void updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraPos);
 
     /// @brief Defers an offscreen render target resize to the next frame boundary.
     ///
     /// Safe to call at any time, including while a frame is being recorded.
-    /// If @p width × @p height matches the current extent, the request is ignored.
-    /// The resize is applied by @c processPendingOffscreenResize() at the top of
-    /// the next @c drawFrame() call, after the previous frame has been presented.
+    /// Ignored if @p width × @p height matches the current extent. Applied by
+    /// @c processPendingOffscreenResize() at the top of the next @c drawFrame() call.
     ///
-    /// @param width   New offscreen render target width in pixels. Must be > 0.
-    /// @param height  New offscreen render target height in pixels. Must be > 0.
+    /// @param width   New render target width in pixels. Must be > 0.
+    /// @param height  New render target height in pixels. Must be > 0.
     void requestOffscreenResize(uint32_t width, uint32_t height);
 
-    /// @brief Returns the ImGui texture descriptor for the offscreen color image.
+    /// @brief Enables or disables vertical synchronisation.
     ///
-    /// Pass this to @c ImGui::Image() to display the scene inside an ImGui viewport.
-    /// Valid after @c createOffscreenResources() and until the next
-    /// @c resizeOffscreenResources() call, which removes and re-registers the descriptor.
+    /// Triggers a swapchain recreation with the requested present mode.
+    /// Blocks until the GPU is idle before recreating.
     ///
-    /// @returns A @c VkDescriptorSet registered with @c ImGui_ImplVulkan_AddTexture,
-    ///          or @c VK_NULL_HANDLE if offscreen resources have not been created yet.
-    [[nodiscard]] VkDescriptorSet* getImGuiTextureDescriptor() { return &m_imguiTextureDescriptor; }
+    /// @param vsync  @c true for @c eFifo (vsync on), @c false for @c eImmediate.
+    void setVSync(bool vsync);
 
-    /// @brief Returns a mutable reference to the underlying @c VulkanDevice.
+    /// @brief Returns whether vertical synchronisation is currently enabled.
+    [[nodiscard]] bool isVSync();
+
+    // Scene management
+
+    /// @brief Spawns a unit cube at @p pos and uploads it to the GPU.
+    ///
+    /// Creates an ECS entity, adds @c TransformComponent and @c PhysicsComponent,
+    /// loads a built-in cube OBJ, and calls @c uploadSingleMesh(). The cube is
+    /// registered as a static non-moving body.
+    ///
+    /// @param pos  Initial world-space position. Defaults to the origin.
+    void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+
+    /// @brief Spawns an arbitrary OBJ asset at @p pos and uploads it to the GPU.
+    ///
+    /// Creates an ECS entity, loads the OBJ via @c VulkanMesh::loadMesh(),
+    /// calls @c uploadSingleMesh(), and configures the transform and physics
+    /// components. If the same OBJ path was previously uploaded, geometry is
+    /// reused from @c m_meshCache without re-uploading.
+    ///
+    /// @param filepath  Path to the OBJ file. Must exist on disk.
+    /// @param pos       Initial world-space position. Defaults to the origin.
+    void spawnAsset(char* filepath, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+
+    /// @brief Destroys the mesh at @p meshIndex and compacts the GPU buffers.
+    ///
+    /// Releases the geometry reference in @c m_meshCache. If this was the last
+    /// entity using that OBJ, physically compacts the global vertex and index
+    /// buffers via @c compactGeometry(). Destroys the ECS entity, erases from
+    /// @c meshes / @c m_meshData / @c m_indirectCommands, and rewrites the GPU
+    /// SSBO and indirect buffer for all surviving slots.
+    ///
+    /// @param meshIndex  0-based index into @c meshes. Must be < @c meshes.size().
+    void removeMesh(uint32_t meshIndex);
+
+    /// @brief Loads or replaces the texture of the mesh identified by @p id.
+    ///
+    /// If @p path is already in the texture cache, the existing bindless slot is
+    /// reused. Otherwise the texture is uploaded and registered. The mesh's
+    /// @c GPUMeshData entry is updated on the next @c refreshMeshData() call.
+    ///
+    /// @param id      ECS @c EntityID of the target mesh.
+    /// @param path    File path to the new texture (PNG / JPG / JPEG).
+    /// @param mipmaps When @c true, generates a full mip chain.
+    void addTexture(ECS::EntityID id, char* path, bool mipmaps = true);
+
+    /// @brief Writes the grid push constant for the current frame.
+    ///
+    /// Stores @p gridPC for use in @c recordGridPass() during the same frame.
+    /// Call once per frame before @c drawFrame() if the grid parameters have changed.
+    ///
+    /// @param gridPC  Grid rendering parameters (invViewProj, viewProj, cell size, etc.).
+    void setGridPC(GridPushConstant* gridPC);
+
+    // Queries
+
+    /// @brief Returns a pointer to the mesh whose @c id field matches @p id,
+    ///        or @c nullptr if no such mesh exists.
+    ///
+    /// Performs a linear search over @c meshes. Prefer caching the result for
+    /// the duration of a single frame rather than calling this repeatedly.
+    ///
+    /// @param id  ECS @c EntityID to search for.
+    [[nodiscard]] Mesh* findMesh(ECS::EntityID id);
+
+    /// @brief Returns a pointer to the renderer initialisation info struct.
+    [[nodiscard]] InitInfos* getInitInfos();
+
+    /// @brief Returns the number of draw calls issued in the most recent frame.
+    ///
+    /// Reads directly from the persistently-mapped @c m_drawCountBuffer written
+    /// atomically by the culling compute shader. The value lags by one frame due
+    /// to GPU/CPU pipelining - use only for editor display, not synchronisation.
+    [[nodiscard]] uint32_t getDrawCount();
+
+    /// @brief Returns a mutable reference to the @c VulkanDevice.
     [[nodiscard]] VulkanDevice& device() noexcept { return m_device; }
 
-    /// @brief Returns a const reference to the underlying @c VulkanDevice.
+    /// @brief Returns a const reference to the @c VulkanDevice.
     [[nodiscard]] const VulkanDevice& device() const noexcept { return m_device; }
 
-    void setVSync(bool vsync);
-    bool isVSync();
-
-public:
+    // ImGui integration
 
     /// @brief Builds and returns the @c ImGui_ImplVulkan_InitInfo for this device.
     ///
-    /// Creates the ImGui-owned @c VkDescriptorPool (@c m_descriptorPoolImGui),
-    /// fills the init info with instance / device / queue handles, configures
-    /// @c UseDynamicRendering, sets the swapchain color format, queries the depth
-    /// format, and sets @c MSAASamples to 1.
+    /// Creates @c m_descriptorPoolImGui (11 descriptor types × 1000 sets), fills
+    /// the init info with instance / device / queue handles, configures
+    /// @c UseDynamicRendering, sets swapchain color and depth formats, and sets
+    /// @c MSAASamples to @c e1.
     ///
     /// @returns A fully populated @c ImGui_ImplVulkan_InitInfo ready to pass to
     ///          @c ImGui_ImplVulkan_Init().
-    /// @throws std::runtime_error if @c vkCreateDescriptorPool fails.
+    /// @throws std::runtime_error if descriptor pool creation fails.
     ImGui_ImplVulkan_InitInfo getUIInitInfo();
 
     /// @brief Applies a pending offscreen resize if one was requested via
     ///        @c requestOffscreenResize().
     ///
-    /// Clears the pending flag then calls @c resizeOffscreenResources(). Called at the
-    /// very start of @c drawFrame() so the resize happens between frames, never
-    /// mid-recording.
+    /// Clears the pending flag and calls @c resizeOffscreenResources(). Called
+    /// at the very start of @c drawFrame() so the resize always occurs between
+    /// frames, never mid-recording.
     void processPendingOffscreenResize();
-
-    /// @brief Returns the number of draw calls issued by the GPU cull pass in the last frame.
-    ///
-    /// Reads directly from the persistently-mapped @c m_drawCountBuffer, which is
-    /// written atomically by the culling compute shader via @c InterlockedAdd.
-    /// The value reflects the previous frame due to GPU/CPU pipelining - do not
-    /// use it for synchronisation, only for display (e.g. an editor debug overlay).
-    ///
-    /// @returns Number of meshes that passed frustum culling in the previous frame.
-    uint32_t getDrawCount();
-
-    std::vector<VulkanMesh>& getMeshData();
-
-    ECS::Registry* getRegistry();
-
-    InitInfos* getInitInfos();
-
-    void addTexture(ECS::EntityID id, char *path, bool mipmaps = true);
 
 private:
     // Init helpers
@@ -224,131 +284,53 @@ private:
     /// @brief Calls all scene-resource init functions in dependency order.
     ///
     /// Order: UBO layout/pool/buffers/sets -> bindless layout/pool/set ->
-    /// mesh loading -> @c initMeshBuffers() -> @c createMeshDataDescriptors() ->
-    /// @c createCullPipeline() -> @c createGraphicsPipeline().
+    /// @c initMeshBuffers() -> @c createMeshDataDescriptors() ->
+    /// @c createCullPipeline() -> @c createGraphicsPipeline() ->
+    /// @c createGridPipeline() -> @c createOffscreenResources().
     void initSceneResources();
 
-    /// @brief Recreates the swapchain in response to a resize event.
+    /// @brief Recreates the swapchain in response to a window resize or vsync change.
     ///
-    /// Spins on @c glfwGetFramebufferSize until the window is non-zero
-    /// (handles minimization), then delegates to @c VulkanDevice::recreateSwapchain().
+    /// Spins on @c glfwGetFramebufferSize until the window is non-zero (handles
+    /// minimisation), then delegates to @c VulkanDevice::recreateSwapchain().
+    ///
+    /// @param forVSync  @c true when called to change the present mode rather than
+    ///                  to respond to a framebuffer resize.
     void recreateSwapchain(bool forVSync = false);
 
-    // UBO
+    // Scene UBO
 
     /// @brief Creates the descriptor set layout for the per-frame scene UBO.
     ///
-    /// Single binding at location 2: @c eUniformBuffer, fragment stage only.
+    /// Single binding at set 2, location 0: @c eUniformBuffer, fragment stage.
     void createSceneUBOLayout();
 
-    /// @brief Creates the descriptor pool that backs the per-frame UBO descriptor sets.
+    /// @brief Creates the descriptor pool backing the per-frame UBO descriptor sets.
     ///
     /// Allocates @c MAX_FRAMES_IN_FLIGHT uniform buffer descriptors.
     void createSceneUBOPool();
 
     /// @brief Allocates one host-visible, host-coherent UBO per frame-in-flight
-    ///        and maps each persistently into @c m_uniformBuffersMapped.
+    ///        and persistently maps each into @c m_uniformBuffersMapped.
     void createSceneUBOBuffers();
 
     /// @brief Allocates @c MAX_FRAMES_IN_FLIGHT descriptor sets from @c m_UBOPool
-    ///        and writes each one to point at its corresponding uniform buffer.
+    ///        and writes each to point at its corresponding uniform buffer.
     void createSceneUBOSets();
 
     /// @brief Re-writes all UBO descriptor sets to point at the current uniform buffers.
     ///
-    /// Called once after initial allocation and again if buffers are recreated.
+    /// Called once after initial allocation and again if the buffers are recreated.
     void updateSceneUBOSets();
-
-    // Pipeline
-
-    /// @brief Compiles and links the graphics pipeline for the offscreen scene pass.
-    ///
-    /// Reads @c Base_Shader.spv from the @c Shaders/ directory (single SPIR-V binary
-    /// with entry points @c vertMain and @c fragMain). Pipeline layout uses two
-    /// descriptor sets: set 0 = mesh data SSBO, set 1 = bindless texture array.
-    /// A single push constant range carries the 64-byte @c viewProj matrix.
-    /// Enables depth test/write, back-face culling, counter-clockwise front faces,
-    /// and dynamic viewport/scissor. Configured for dynamic rendering targeting
-    /// the offscreen color + depth format.
-    ///
-    /// @throws std::runtime_error if the shader file cannot be read.
-    void createGraphicsPipeline();
-
-    // Offscreen resources
-
-    /// @brief Creates the offscreen color image, depth image, sampler, and
-    ///        registers the color image with ImGui via @c ImGui_ImplVulkan_AddTexture.
-    ///
-    /// The color image is immediately transitioned to @c eShaderReadOnlyOptimal
-    /// so it can be sampled by ImGui before the first scene frame is rendered.
-    ///
-    /// @param width   Render target width in pixels.
-    /// @param height  Render target height in pixels.
-    void createOffscreenResources(uint32_t width, uint32_t height);
-
-    /// @brief Waits for the GPU, destroys all offscreen resources, and recreates them
-    ///        at the new resolution. Also removes and re-registers the ImGui descriptor.
-    ///
-    /// @param width   New render target width in pixels.
-    /// @param height  New render target height in pixels.
-    void resizeOffscreenResources(uint32_t width, uint32_t height);
-
-    // Per-frame recording
-
-    /// @brief Performs all CPU-side per-frame updates before command recording.
-    ///
-    /// Computes @c time from @c m_startTime, applies procedural mesh animations
-    /// (rotation on meshes[0], sinusoidal X translation on meshes[1]), calls
-    /// @c refreshMeshData() to sync @c m_meshData with current transforms,
-    /// @c updateMeshDataSSBO() to push the SSBO to the GPU, and
-    /// @c updateSceneUBO() to copy UBO data into the mapped buffers.
-    void perFrameUpdate();
-
-    /// @brief Records the GPU frustum-cull compute pass into the current command buffer.
-    ///
-    /// Steps performed in order:
-    ///   1. Resets @c m_drawCountBuffer to zero via the persistently-mapped pointer.
-    ///   2. Emits a host-write -> compute-shader barrier on the count buffer, and a
-    ///      draw-indirect-read -> compute-shader-write barrier on the indirect buffer.
-    ///   3. Extracts frustum planes from the current @c viewProj matrix via
-    ///      @c extractFrustum() and uploads them as a push constant.
-    ///   4. Binds the cull pipeline and descriptor set, dispatches
-    ///      @c ceil(objectCount / 64) thread groups.
-    ///   5. Emits compute-shader-write -> draw-indirect-read barriers on both
-    ///      the indirect buffer and the count buffer.
-    ///
-    /// Must be called before @c beginRendering() in @c recordOffscreenCommandBuffer().
-    void recordCullPass();
-
-    /// @brief Records the scene pass into the current frame's command buffer.
-    ///
-    /// Transitions the offscreen color image (@c eShaderReadOnlyOptimal ->
-    /// @c eColorAttachmentOptimal) and depth image (@c eUndefined ->
-    /// @c eDepthAttachmentOptimal), calls @c recordCullPass(), begins a dynamic
-    /// render pass, binds the graphics pipeline, viewport, scissor, global vertex
-    /// and index buffers, descriptor sets (mesh SSBO + bindless textures), pushes
-    /// the @c viewProj constant, then issues @c drawIndexedIndirectCount using
-    /// the GPU-written @c m_indirectBuffer and @c m_drawCountBuffer. Transitions
-    /// color back to @c eShaderReadOnlyOptimal after @c endRendering so ImGui
-    /// can sample it.
-    void recordOffscreenCommandBuffer();
-
-    /// @brief Records the ImGui pass into the current frame's command buffer,
-    ///        targeting the acquired swapchain image.
-    ///
-    /// Transitions the swapchain image (@c eUndefined -> @c eColorAttachmentOptimal),
-    /// begins a dynamic render pass, calls @c ImGui_ImplVulkan_RenderDrawData,
-    /// ends the pass, handles multi-viewport platform windows, then transitions the
-    /// swapchain image to @c ePresentSrcKHR.
-    void recordImGuiCommandBuffer();
 
     // Bindless textures
 
     /// @brief Creates the bindless descriptor set layout for the global texture array.
     ///
-    /// Single binding at location 0: @c eCombinedImageSampler array of @c MAX_TEXTURES,
-    /// fragment stage. Flags: @c ePartiallyBound | @c eVariableDescriptorCount |
-    /// @c eUpdateAfterBind. Layout creation flag: @c eUpdateAfterBindPool.
+    /// Single binding at set 1, location 0: @c eCombinedImageSampler array of
+    /// @c MAX_TEXTURES, fragment stage. Flags: @c ePartiallyBound |
+    /// @c eVariableDescriptorCount | @c eUpdateAfterBind.
+    /// Layout flag: @c eUpdateAfterBindPool.
     void createBindlessLayout();
 
     /// @brief Creates the descriptor pool backing the bindless texture set.
@@ -363,89 +345,220 @@ private:
     /// @c MAX_TEXTURES as the variable descriptor count.
     void createBindlessSet();
 
-    // Mesh data / GPU scene buffers
+    // Mesh / geometry buffers
 
-    /// @brief Builds and uploads the global vertex buffer, index buffer, per-mesh
-    ///        SSBO, and indirect draw command buffer from the loaded @c meshes.
+    /// @brief Allocates the global vertex buffer, index buffer, mesh data SSBO,
+    ///        and indirect draw buffer, then uploads all currently loaded meshes.
     ///
-    /// Iterates over @c meshes once to accumulate total byte sizes, allocates one
-    /// host-visible staging buffer for vertices and one for indices, memcpys all
-    /// mesh data contiguously, then transfers both to device-local buffers in a
-    /// single command buffer. Simultaneously builds @c m_meshData and
-    /// @c m_indirectCommands (one entry per mesh, @c firstInstance = mesh index).
-    /// Finally calls @c uploadMeshDataSSBO() (initial upload) and
-    /// @c uploadIndirectBuffer().
+    /// Sizes are fixed at @c MAX_VERTEX_BUFFER_BYTES and @c MAX_INDEX_BUFFER_BYTES.
+    /// Calls @c uploadSingleMesh() for each entry in @c meshes.
     void initMeshBuffers();
 
-    /// @brief Copies the current @c m_meshData vector into the mapped SSBO.
+    /// @brief Uploads the geometry for one mesh into the global buffers.
     ///
-    /// The SSBO is host-visible and persistently mapped (@c m_meshDataSSBOMapped),
-    /// so this is a plain @c memcpy with no staging or synchronisation overhead.
-    /// Called every frame from @c perFrameUpdate() after @c refreshMeshData().
+    /// Checks @c m_meshCache first. On a cache hit the geometry region is shared
+    /// and no GPU upload is performed. On a miss the vertex and index data are
+    /// staged and copied into the global buffers, and the region is registered in
+    /// @c m_meshCache. In both cases a new @c GPUMeshData and
+    /// @c DrawIndexedIndirectCommand entry are written for this mesh's ECS slot.
+    ///
+    /// @param meshIndex  0-based index into @c meshes.
+    void uploadSingleMesh(uint32_t meshIndex);
+
+    /// @brief Re-writes the @c GPUMeshData and @c DrawIndexedIndirectCommand
+    ///        entries for an existing mesh slot without re-uploading geometry.
+    ///
+    /// Called after a transform, texture, or AABB change to keep the GPU-side
+    /// data in sync without a full re-upload.
+    ///
+    /// @param meshIndex  0-based index into @c meshes.
+    void updateMeshMetadata(uint32_t meshIndex);
+
+    /// @brief Memcpys the current @c m_meshData vector into the persistently-mapped SSBO.
+    ///
+    /// No staging or synchronisation overhead - the SSBO is host-visible and
+    /// host-coherent. Called every frame from @c perFrameUpdate() after
+    /// @c refreshMeshData().
     void updateMeshDataSSBO();
 
-    /// @brief Uploads the @c m_indirectCommands vector to @c m_indirectBuffer
-    ///        via a staging buffer.
-    ///
-    /// The indirect buffer is device-local with @c eIndirectBuffer |
-    /// @c eStorageBuffer | @c eTransferDst usage. @c eStorageBuffer is required
-    /// because the cull compute shader writes into it each frame.
-    /// Called once during @c initMeshBuffers().
-    void uploadIndirectBuffer();
-
     /// @brief Creates the descriptor set layout, pool, set, and writes the SSBO
-    ///        binding for the per-mesh data accessible in the vertex shader.
+    ///        binding for the per-mesh data read by the vertex shader.
     ///
-    /// Single binding at location 0: @c eStorageBuffer, vertex stage.
-    /// The SSBO backing @c m_meshDataSSBO must already exist before calling this.
+    /// Single binding at set 0, location 0: @c eStorageBuffer, vertex stage.
+    /// The SSBO (@c m_meshDataSSBO) must exist before calling this.
     void createMeshDataDescriptors();
 
-    /// @brief Re-writes the @c m_meshDataDescriptorSet binding after the SSBO is
-    ///        recreated (e.g. if mesh count changes and the buffer is reallocated).
+    /// @brief Re-writes the @c m_meshDataDescriptorSet binding to point at
+    ///        the current SSBO.
+    ///
+    /// Called if the SSBO is reallocated (e.g. mesh count grows past capacity).
     void updateMeshDataSet();
 
-    /// @brief Syncs @c m_meshData[i].transform (and AABB) from each @c meshes[i].
+    /// @brief Syncs @c m_meshData transforms and AABBs from the live @c meshes array.
     ///
     /// Must be called before @c updateMeshDataSSBO() whenever any mesh transform
-    /// has changed. Iterates over all meshes and overwrites the @c transform,
-    /// @c aabbMin, and @c aabbMax fields in the CPU-side @c m_meshData mirror.
+    /// has changed. Iterates all meshes and overwrites @c transform, @c aabbMin,
+    /// and @c aabbMax in the CPU-side @c m_meshData mirror.
     void refreshMeshData();
 
-    // Culling compute pipeline
+    // GPU-driven culling compute pipeline
 
-    /// @brief Creates the GPU frustum culling compute pipeline and all associated
-    ///        Vulkan objects.
+    /// @brief Creates the frustum-cull compute pipeline and all associated Vulkan objects.
     ///
     /// Creates:
     ///   - @c m_cullSetLayout - three @c eStorageBuffer bindings:
     ///     binding 0 = read-only @c ObjectData array, binding 1 = write
     ///     @c DrawIndexedIndirectCommand array, binding 2 = atomic draw count.
-    ///   - @c m_cullPool / @c m_cullSet - pool + set backed by the three SSBOs.
+    ///   - @c m_cullPool / @c m_cullSet - pool and set backed by the three SSBOs.
     ///   - @c m_drawCountBuffer - host-visible, host-coherent @c uint32_t buffer
-    ///     persistently mapped into @c m_drawCountMapped. Reset to 0 each frame
-    ///     before the dispatch.
-    ///   - @c m_cullPipelineLayout - push constant range: @c FrustumPlanes,
-    ///     compute stage.
-    ///   - @c m_cullPipeline - compute pipeline reading @c Cull.spv with entry
-    ///     point @c cullMain.
+    ///     persistently mapped into @c m_drawCountMapped. Reset to 0 each frame.
+    ///   - @c m_cullPipelineLayout - push constant range: @c FrustumPlanes, compute stage.
+    ///   - @c m_cullPipeline - compute pipeline with entry point @c cullMain from @c Cull.spv.
     ///
-    /// Must be called after @c uploadMeshDataSSBO() and @c uploadIndirectBuffer()
-    /// so the SSBOs exist when the descriptor set is written.
+    /// Must be called after @c initMeshBuffers() so the SSBOs exist when the
+    /// descriptor set is written.
     void createCullPipeline();
 
-    /// @brief Extracts the six world-space frustum planes from a combined
-    ///        view-projection matrix using the Gribb-Hartmann method.
+    /// @brief Records the GPU frustum-cull compute pass into the current command buffer.
     ///
-    /// Each plane is derived from a row combination of @p viewProj and then
-    /// normalised so that the plane equation @c dot(n, p) + d can be used
-    /// directly as a signed distance test.
+    /// Steps:
+    ///   1. Resets @c m_drawCountBuffer to zero via the persistently-mapped pointer.
+    ///   2. Emits host-write -> compute-read barriers on the count and indirect buffers.
+    ///   3. Extracts frustum planes via @c extractFrustum() and pushes them as constants.
+    ///   4. Binds the cull pipeline and descriptor set, dispatches
+    ///      (numberOfMeshes + (threads - 1)) / threads) thread groups.
+    ///   5. Emits compute-write -> indirect-read barriers on both buffers.
     ///
-    /// @note See https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+    /// Must be called before @c beginRendering() in @c recordOffscreenCommandBuffer().
+    void recordCullPass();
+
+    /// @brief Extracts six world-space frustum planes from a view-projection matrix.
     ///
-    /// @param viewProj  The combined @c proj * view matrix for the current frame.
+    /// Uses the Gribb-Hartmann method. Each plane is normalised so that
+    /// @c dot(n, p) + d can be used directly as a signed distance test.
+    ///
+    /// @note Reference: https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+    ///
+    /// @param viewProj  The combined @c proj × view matrix for the current frame.
     /// @returns A @c FrustumPlanes struct with six normalised planes and
     ///          @c objectCount set to @c m_meshData.size().
     [[nodiscard]] FrustumPlanes extractFrustum(const glm::mat4& viewProj) const;
+
+    // Graphics pipeline
+
+    /// @brief Compiles and links the main scene graphics pipeline.
+    ///
+    /// Reads @c Base_Shader.spv (entry points @c vertMain / @c fragMain).
+    /// Pipeline layout: set 0 = mesh SSBO, set 1 = bindless textures,
+    /// set 2 = scene UBO, push constants = @c PushConstant (128 bytes max).
+    /// Enables depth test/write, back-face culling (CCW front faces),
+    /// dynamic viewport/scissor. Targets offscreen color + depth formats
+    /// via @c VkPipelineRenderingCreateInfo.
+    ///
+    /// @throws std::runtime_error if the shader file cannot be read.
+    void createGraphicsPipeline();
+
+    // Grid pipeline
+
+    /// @brief Compiles and links the infinite grid graphics pipeline.
+    ///
+    /// Reads @c Grid.spv (entry points @c vertMain / @c fragMain). Uses a
+    /// fullscreen triangle (3 vertices, no VBO) and reconstructs the grid
+    /// plane via ray-plane intersection in the fragment shader.
+    /// Pipeline state: no vertex input, cull mode none, depth test enabled,
+    /// depth write disabled, alpha blending enabled.
+    /// Push constants = @c GridPushConstant.
+    ///
+    /// @throws std::runtime_error if the shader file cannot be read.
+    void createGridPipeline();
+
+    /// @brief Records the grid pass into the current frame's command buffer.
+    ///
+    /// Binds @c m_gridPipeline, pushes @c m_gridPC, binds the SceneUBO descriptor
+    /// set, and issues @c vkCmdDraw(3, 1, 0, 0). Must be called inside an active
+    /// @c beginRendering() block, after the opaque scene pass.
+    void recordGridPass();
+
+    // Offscreen render target
+
+    /// @brief Creates the offscreen color + depth images, sampler, and registers
+    ///        the color image with ImGui via @c ImGui_ImplVulkan_AddTexture.
+    ///
+    /// The color image is immediately transitioned to @c eShaderReadOnlyOptimal
+    /// so it can be sampled by ImGui before the first scene frame is rendered.
+    ///
+    /// @param width   Render target width in pixels.
+    /// @param height  Render target height in pixels.
+    void createOffscreenResources(uint32_t width, uint32_t height);
+
+    /// @brief Destroys all offscreen resources and recreates them at the new size.
+    ///
+    /// Waits for GPU idle, removes and re-registers the ImGui descriptor,
+    /// then calls @c createOffscreenResources().
+    ///
+    /// @param width   New render target width in pixels.
+    /// @param height  New render target height in pixels.
+    void resizeOffscreenResources(uint32_t width, uint32_t height);
+
+    // Per-frame recording
+
+    /// @brief Performs CPU-side per-frame updates before command recording.
+    ///
+    /// Calls @c refreshMeshData() to sync transforms, @c updateMeshDataSSBO()
+    /// to push the SSBO to the GPU, and @c updateSceneUBO() to upload UBO data
+    /// into the mapped buffers. Also runs any procedural animation callbacks.
+    void perFrameUpdate();
+
+    /// @brief Records the full offscreen scene pass into the current command buffer.
+    ///
+    /// Steps: transition offscreen images -> @c recordCullPass() -> @c beginRendering()
+    /// -> bind graphics pipeline, viewport, scissor, buffers, descriptors, push
+    /// constants -> @c drawIndexedIndirectCount() -> @c recordGridPass() ->
+    /// @c endRendering() -> transition color image to @c eShaderReadOnlyOptimal.
+    void recordOffscreenCommandBuffer();
+
+    /// @brief Records the ImGui pass into the current frame's command buffer,
+    ///        targeting the acquired swapchain image.
+    ///
+    /// Steps: transition swapchain image to @c eColorAttachmentOptimal ->
+    /// @c beginRendering() -> @c ImGui_ImplVulkan_RenderDrawData() ->
+    /// @c endRendering() -> handle multi-viewport platform windows ->
+    /// transition swapchain image to @c ePresentSrcKHR.
+    void recordImGuiCommandBuffer();
+
+    // Compaction
+
+    /// @brief Compacts a GPU buffer by removing a byte range using a temporary scratch buffer.
+    ///
+    /// Allocates a device-local scratch buffer sized to the tail (bytes after the
+    /// hole), copies the tail out via single-time commands, then copies it back
+    /// over the hole. Avoids the undefined behaviour of self-overlapping
+    /// @c vkCmdCopyBuffer calls.
+    ///
+    /// @param buffer            The buffer to compact (vertex or index).
+    /// @param removeByteOffset  Byte offset of the start of the region to remove.
+    /// @param removeByteSize    Byte size of the region to remove.
+    /// @param totalBytesFilled  [in/out] Running watermark; decremented by @p removeByteSize.
+    void compactBuffer(vk::raii::Buffer& buffer,
+                       vk::DeviceSize    removeByteOffset,
+                       vk::DeviceSize    removeByteSize,
+                       vk::DeviceSize&   totalBytesFilled);
+
+    /// @brief Removes a geometry region from both global buffers and patches all
+    ///        surviving mesh metadata to reflect the shifted offsets.
+    ///
+    /// Calls @c compactBuffer() for the vertex and index buffers, updates
+    /// @c m_totalVertexCount / @c m_totalIndexCount, calls
+    /// @c m_meshCache.patchAfterCompaction(), then patches every surviving entry
+    /// in @c m_meshData and @c m_indirectCommands whose offsets fall after the
+    /// removed region.
+    ///
+    /// @param removedVertexOffset  @c vertexOffset of the region being removed.
+    /// @param removedFirstIndex    @c firstIndex   of the region being removed.
+    /// @param removedVertexCount   Number of vertices in the removed region.
+    /// @param removedIndexCount    Number of indices  in the removed region.
+    void compactGeometry(uint32_t removedVertexOffset, uint32_t removedFirstIndex,
+                         uint32_t removedVertexCount,  uint32_t removedIndexCount);
 
     // Low-level Vulkan helpers
 
@@ -467,9 +580,9 @@ private:
 
     /// @brief Creates a 2D @c VkImageView for the given image.
     ///
-    /// @param image        The image to create a view for.
+    /// @param image        The image to view.
     /// @param format       Must match the image's creation format.
-    /// @param aspectFlags  e.g. @c eColor or @c eDepth.
+    /// @param aspectFlags  @c eColor or @c eDepth.
     /// @param mipLevels    Number of mip levels exposed by the view.
     /// @returns A new @c vk::raii::ImageView.
     [[nodiscard]] vk::raii::ImageView createImageView(vk::raii::Image& image,
@@ -488,185 +601,193 @@ private:
                       vk::MemoryPropertyFlags properties,
                       vk::raii::Buffer& buffer, vk::raii::DeviceMemory& bufferMemory);
 
-    /// @brief Copies @p size bytes from @p src to @p dst using a single-time command buffer.
+    /// @brief Copies @p size bytes from @p src to @p dst via a single-time command buffer.
     ///
     /// @param src   Source buffer (must have @c eTransferSrc usage).
     /// @param dst   Destination buffer (must have @c eTransferDst usage).
     /// @param size  Number of bytes to copy.
     void copyBuffer(vk::raii::Buffer& src, vk::raii::Buffer& dst, vk::DeviceSize size);
 
-    /// @brief Emits a @c pipelineBarrier2 into the currently-open frame command buffer.
-    ///
-    /// Used to transition swapchain and offscreen images during recording, where a
-    /// single-time submit would be incorrect. Uses Synchronization2 for precise
-    /// stage and access masks.
+    /// @brief Emits a @c pipelineBarrier2 image transition into the active frame
+    ///        command buffer (not a single-time submit).
     ///
     /// @param image      The image to transition.
     /// @param oldLayout  Layout the image is currently in.
-    /// @param newLayout  Layout to transition into.
+    /// @param newLayout  Target layout.
     /// @param srcAccess  Access types that must complete before the barrier.
     /// @param dstAccess  Access types that must wait until after the barrier.
-    /// @param srcStage   Pipeline stage(s) that produce @p srcAccess.
-    /// @param dstStage   Pipeline stage(s) that consume @p dstAccess.
-    /// @param aspect     Image aspect mask (e.g. @c eColor or @c eDepth).
+    /// @param srcStage   Pipeline stage(s) producing @p srcAccess.
+    /// @param dstStage   Pipeline stage(s) consuming @p dstAccess.
+    /// @param aspect     Image aspect mask (@c eColor or @c eDepth).
     /// @param mipLevels  Number of mip levels covered by the barrier.
     void transitionImageInFrame(vk::Image image,
-                                vk::ImageLayout oldLayout,   vk::ImageLayout newLayout,
-                                vk::AccessFlags2 srcAccess,  vk::AccessFlags2 dstAccess,
+                                vk::ImageLayout oldLayout,        vk::ImageLayout newLayout,
+                                vk::AccessFlags2 srcAccess,       vk::AccessFlags2 dstAccess,
                                 vk::PipelineStageFlags2 srcStage, vk::PipelineStageFlags2 dstStage,
-                                vk::ImageAspectFlags aspect, uint32_t mipLevels);
+                                vk::ImageAspectFlags aspect,      uint32_t mipLevels);
 
-    /// @brief Allocates a primary command buffer from @c m_uploadCommandPool and
-    ///        begins recording with @c eOneTimeSubmit.
+    /// @brief Allocates a primary command buffer from @c m_uploadCommandPool
+    ///        and begins recording with @c eOneTimeSubmit.
     ///
-    /// Pair each call with @c endSingleTimeCommands().
+    /// Always pair with @c endSingleTimeCommands().
     ///
     /// @returns A heap-allocated @c vk::raii::CommandBuffer in the recording state.
     [[nodiscard]] std::unique_ptr<vk::raii::CommandBuffer> beginSingleTimeCommands();
 
-    /// @brief Ends recording, submits the command buffer, and blocks until the queue is idle.
+    /// @brief Ends recording, submits to the graphics queue, waits for idle,
+    ///        and frees the command buffer.
     ///
     /// @param cmd  The command buffer returned by @c beginSingleTimeCommands().
-    ///             Freed when this function returns.
     void endSingleTimeCommands(vk::raii::CommandBuffer& cmd);
 
-    /// @brief Finds the index of a device memory type satisfying both @p typeFilter
-    ///        and @p props.
+    /// @brief Finds the index of a device memory type satisfying @p typeFilter and @p props.
     ///
     /// @param typeFilter  Bitmask of acceptable memory type indices from
     ///                    @c VkMemoryRequirements::memoryTypeBits.
     /// @param props       Required property flags (e.g. @c eDeviceLocal).
     /// @returns The matching memory type index.
-    /// @throws std::runtime_error if no suitable type exists.
-    [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags props) const;
+    /// @throws std::runtime_error if no suitable memory type exists.
+    [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter,
+                                          vk::MemoryPropertyFlags props) const;
 
     /// @brief Returns the best depth format supported by the physical device.
     ///
-    /// Queries @c findSupportedFormat() with candidates
-    /// @c eD32Sfloat -> @c eD32SfloatS8Uint -> @c eD24UnormS8Uint and
-    /// requires @c eDepthStencilAttachment optimal tiling support.
+    /// Tests @c eD32Sfloat -> @c eD32SfloatS8Uint -> @c eD24UnormS8Uint in order,
+    /// requiring @c eDepthStencilAttachment optimal tiling support.
     ///
     /// @returns The first supported depth (or depth-stencil) format.
     [[nodiscard]] vk::Format findDepthFormat() const;
 
-    /// @brief Finds the first format in @p candidates supported for @p tiling and @p features.
+    /// @brief Finds the first format in @p candidates supporting @p tiling and @p features.
     ///
     /// @param candidates  Ordered list of formats to test.
     /// @param tiling      @c eLinear or @c eOptimal.
-    /// @param features    Required @c VkFormatFeatureFlags (e.g. @c eDepthStencilAttachment).
+    /// @param features    Required @c VkFormatFeatureFlags.
     /// @returns The first matching format.
     /// @throws std::runtime_error if no candidate satisfies the requirements.
     [[nodiscard]] vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates,
-                                                 vk::ImageTiling tiling,
-                                                 vk::FormatFeatureFlags features) const;
+                                                  vk::ImageTiling tiling,
+                                                  vk::FormatFeatureFlags features) const;
 
-    /// @brief Reads a SPIR-V shader binary from @c <cwd>/Shaders/<fileName>.
+    /// @brief Reads a SPIR-V binary from @c <cwd>/Shaders/<fileName>.
     ///
     /// @param fileName  File name including extension (e.g. @c "Base_Shader.spv").
-    /// @returns The raw binary data as a @c std::vector<char>.
+    /// @returns The raw binary as a @c std::vector<char>.
     /// @throws std::runtime_error if the file cannot be opened.
     [[nodiscard]] static std::vector<char> readShader(const std::string& fileName);
 
-    /// @brief Wraps raw SPIR-V bytes in a @c VkShaderModule.
+    /// @brief Wraps a SPIR-V binary in a @c VkShaderModule.
     ///
-    /// @param code  SPIR-V binary as returned by @c readShader(). Size must be a
-    ///              multiple of 4 bytes.
+    /// @param code  SPIR-V binary as returned by @c readShader(). Size must be
+    ///              a multiple of 4 bytes.
     /// @returns A @c vk::raii::ShaderModule valid until destroyed.
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
 
-    void uploadSingleMesh(uint32_t meshIndex);
-    void updateMeshMetadata(uint32_t meshIndex);
-
 private:
-    // Members
-
+    // Core
     gcep::rhi::SwapchainDesc m_swapchainDesc;
-    VulkanDevice             m_device;
+
+    /// @brief Wraps the Vulkan instance, physical device, logical device, and swapchain.
+    VulkanDevice m_device;
+
     bool                     m_framebufferResized = false;
 
-    /// ImGui's dedicated descriptor pool (11 types x 1000 sets).
+    /// @brief ImGui-owned descriptor pool (11 types × 1000 sets).
     VkDescriptorPool         m_descriptorPoolImGui = VK_NULL_HANDLE;
 
-    /// Persistent command pool for @c beginSingleTimeCommands() / @c endSingleTimeCommands().
+    /// @brief Persistent command pool for @c beginSingleTimeCommands() uploads.
     vk::raii::CommandPool    m_uploadCommandPool   = nullptr;
 
-    /// Swapchain format cached at init for pipeline creation and ImGui init info.
+    /// @brief Swapchain image format cached at init for pipeline and ImGui configuration.
     vk::Format               m_swapchainFormat     = vk::Format::eUndefined;
 
-    /// Persistently-mapped pointer into @c m_meshDataSSBOMemory.
-    /// Written by @c updateMeshDataSSBO(); never unmapped.
-    void* m_meshDataSSBOMapped = nullptr;
+    glm::vec4           m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
+    UniformBufferObject m_cameraUBO;
+    SceneUBO            m_sceneUBO;
+    float               m_shininess = 32.0f;
+    GridPushConstant    m_gridPC;
+    InitInfos           m_initInfos;
+    ECS::Registry       m_ECSRegistry;
 
-    /// Persistently-mapped pointer into @c m_drawCountBufferMemory.
-    /// Reset to 0 each frame in @c recordCullPass(); read by @c getDrawCount().
-    void* m_drawCountMapped    = nullptr;
+    std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now();
 
-    // Bindless texture array - set 1 in the graphics pipeline
-    vk::raii::DescriptorSetLayout m_bindlessLayout = nullptr;
-    vk::raii::DescriptorPool      m_bindlessPool   = nullptr;
+    static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
+    static constexpr uint32_t MAX_MESHES           = 4096;
 
-    // UBO
-    std::vector<vk::raii::Buffer>       m_uniformBuffers;
-    std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
+    // Scene UBO - set 2, binding 0
+    std::vector<vk::raii::Buffer>        m_uniformBuffers;
+    std::vector<vk::raii::DeviceMemory>  m_uniformBuffersMemory;
 
-    /// Persistently-mapped pointers into @c m_uniformBuffersMemory; written each frame.
+    /// @brief Persistently-mapped pointers into @c m_uniformBuffersMemory.
+    ///        Written each frame by @c updateSceneUBO().
     std::vector<void*>                   m_uniformBuffersMapped;
     vk::raii::DescriptorSetLayout        m_UBOLayout = nullptr;
     vk::raii::DescriptorPool             m_UBOPool   = nullptr;
     std::vector<vk::raii::DescriptorSet> m_UBOSets;
 
+    // Bindless texture array - set 1, binding 0
+    vk::raii::DescriptorSetLayout m_bindlessLayout = nullptr;
+    vk::raii::DescriptorPool      m_bindlessPool   = nullptr;
     vk::raii::DescriptorSet       m_bindlessSet    = nullptr;
-    // Global scene geometry buffers (all meshes merged into one allocation each)
-    vk::raii::Buffer       m_globalVertexBuffer       = nullptr;
-    vk::raii::DeviceMemory m_globalVertexBufferMemory = nullptr;
-    vk::raii::Buffer       m_globalIndexBuffer        = nullptr;
 
-    vk::raii::DeviceMemory m_globalIndexBufferMemory  = nullptr;
-
-    // Mesh data SSBO - set 0 in the graphics pipeline, read by the vertex shader
+    // Mesh data SSBO - set 0, binding 0
     vk::raii::DescriptorSetLayout m_meshDataDescriptorSetLayout = nullptr;
     vk::raii::DescriptorPool      m_meshDataDescriptorPool      = nullptr;
     vk::raii::DescriptorSet       m_meshDataDescriptorSet       = nullptr;
     vk::raii::Buffer              m_meshDataSSBO                = nullptr;
     vk::raii::DeviceMemory        m_meshDataSSBOMemory          = nullptr;
 
-    // Indirect draw buffer - written by the cull compute shader, consumed by drawIndexedIndirectCount
+    /// @brief Persistently-mapped pointer into @c m_meshDataSSBOMemory.
+    ///        Written by @c updateMeshDataSSBO(); never unmapped.
+    void* m_meshDataSSBOMapped = nullptr;
+
+    // Global geometry buffers
+    static constexpr vk::DeviceSize MAX_VERTEX_BUFFER_BYTES = 512 * 1024 * 1024; ///< 512 MB vertex budget.
+    static constexpr vk::DeviceSize MAX_INDEX_BUFFER_BYTES  = 256 * 1024 * 1024; ///< 256 MB index budget.
+
+    vk::raii::Buffer       m_globalVertexBuffer       = nullptr;
+    vk::raii::DeviceMemory m_globalVertexBufferMemory = nullptr;
+    vk::raii::Buffer       m_globalIndexBuffer        = nullptr;
+    vk::raii::DeviceMemory m_globalIndexBufferMemory  = nullptr;
+
+    vk::DeviceSize m_vertexBytesFilled = 0; ///< Current byte watermark in @c m_globalVertexBuffer.
+    vk::DeviceSize m_indexBytesFilled  = 0; ///< Current byte watermark in @c m_globalIndexBuffer.
+    uint32_t       m_totalVertexCount  = 0; ///< Total uploaded vertex count across all meshes.
+    uint32_t       m_totalIndexCount   = 0; ///< Total uploaded index  count across all meshes.
+
+    // Indirect draw buffer + culling
+
+    /// @brief Host-visible indirect draw command buffer written by the cull shader.
     vk::raii::Buffer       m_indirectBuffer       = nullptr;
     vk::raii::DeviceMemory m_indirectBufferMemory = nullptr;
-    // Pre-allocated capacities
-    static constexpr vk::DeviceSize MAX_VERTEX_BUFFER_BYTES = 512 * 1024 * 1024; // 512 MB
-    static constexpr vk::DeviceSize MAX_INDEX_BUFFER_BYTES  = 256 * 1024 * 1024; // 256 MB
 
-    // Runtime fill tracking
-    vk::DeviceSize m_vertexBytesFilled = 0;
-    vk::DeviceSize m_indexBytesFilled  = 0;
-    uint32_t       m_totalVertexCount  = 0;
-    uint32_t       m_totalIndexCount   = 0;
-
-    // Persistent mapped SSBO for indirect commands
+    /// @brief Persistently-mapped pointer into @c m_indirectBufferMemory.
     void*          m_indirectBufferMapped   = nullptr;
     vk::DeviceSize m_indirectBufferCapacity = 0;
 
-    // CPU-side mirrors of GPU buffers, rebuilt each frame by refreshMeshData()
-    std::vector<GPUMeshData>                    m_meshData;
-    std::vector<vk::DrawIndexedIndirectCommand> m_indirectCommands;
+    /// @brief Host-visible atomic draw count written by the cull shader.
+    vk::raii::Buffer       m_drawCountBuffer       = nullptr;
+    vk::raii::DeviceMemory m_drawCountBufferMemory = nullptr;
 
-    std::vector<VulkanMesh> meshes;
+    /// @brief Persistently-mapped pointer into @c m_drawCountBufferMemory.
+    ///        Reset to 0 each frame before the cull dispatch.
+    void* m_drawCountMapped = nullptr;
 
-    // Frustum culling compute pipeline
+    /// @brief Cached draw count read from @c m_drawCountBuffer after each frame.
+    ///        Used only for editor display. Lags by one frame.
+    uint32_t m_drawCount = 0;
+
     vk::raii::Pipeline            m_cullPipeline       = nullptr;
     vk::raii::PipelineLayout      m_cullPipelineLayout = nullptr;
     vk::raii::DescriptorSetLayout m_cullSetLayout      = nullptr;
     vk::raii::DescriptorPool      m_cullPool           = nullptr;
     vk::raii::DescriptorSet       m_cullSet            = nullptr;
 
-    /// Host-visible, persistently-mapped atomic draw count written by the cull shader.
-    vk::raii::Buffer       m_drawCountBuffer       = nullptr;
-    vk::raii::DeviceMemory m_drawCountBufferMemory = nullptr;
-
-    // Graphics pipeline
-    vk::raii::PipelineLayout m_pipelineLayout   = nullptr;
-    vk::raii::Pipeline       m_graphicsPipeline = nullptr;
+    // Pipelines
+    vk::raii::PipelineLayout m_pipelineLayout    = nullptr;
+    vk::raii::Pipeline       m_graphicsPipeline  = nullptr;
+    vk::raii::Pipeline       m_gridPipeline      = nullptr;
+    vk::raii::PipelineLayout m_gridPipelineLayout = nullptr;
 
     // Offscreen render target
     vk::Extent2D           m_offscreenExtent{};
@@ -678,45 +799,46 @@ private:
     vk::raii::ImageView    m_offscreenDepthImageView   = nullptr;
     vk::raii::Sampler      m_offscreenSampler          = nullptr;
 
-    /// Registered with @c ImGui_ImplVulkan_AddTexture; displayed via @c ImGui::Image().
+    /// @brief Registered via @c ImGui_ImplVulkan_AddTexture; displayed by @c ImGui::Image().
     VkDescriptorSet m_imguiTextureDescriptor = VK_NULL_HANDLE;
 
     bool     m_offscreenResizePending = false;
     uint32_t m_pendingOffscreenWidth  = 0;
     uint32_t m_pendingOffscreenHeight = 0;
 
-    /// Cached draw count read from @c m_drawCountBuffer after each frame for the editor overlay.
-    uint32_t m_drawCount = 0;
+    // CPU-side scene mirrors
 
-    glm::vec4           m_clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
-    UniformBufferObject m_cameraUBO;
-    SceneUBO            m_sceneUBO;
-    float               m_shininess;
+    /// @brief CPU mirror of the mesh data SSBO. Rebuilt each frame by @c refreshMeshData().
+    std::vector<GPUMeshData>                    m_meshData;
 
-    ECS::Registry m_ECSRegistry;
+    /// @brief CPU mirror of the indirect command buffer. Patched on spawn/remove.
+    std::vector<vk::DrawIndexedIndirectCommand> m_indirectCommands;
 
-    static constexpr int      MAX_FRAMES_IN_FLIGHT = 2;
-    static constexpr uint32_t MAX_MESHES           = 4096;
-    InitInfos m_initInfos;
+    std::vector<Mesh> meshes;        ///< All live mesh entities.
+    MeshCache         m_meshCache;   ///< OBJ path -> geometry region, ref-counted.
 
-    /// Epoch used for procedural animations in @c perFrameUpdate().
-    std::chrono::high_resolution_clock::time_point m_startTime =
-            std::chrono::high_resolution_clock::now();
+    /// @brief OBJ path -> texture cache entry (@c shared_ptr<TextureData> + bindless slot).
+    ///        Declared before @c m_device so it destructs first, releasing GPU texture memory.
+    std::unordered_map<std::string, TextureCacheEntry> m_textureCache;
 };
 
 } // Namespace gcep::rhi::vulkan
 
-namespace std {
-/// @brief Hash specialisation for @c Vertex enabling its use as an @c unordered_map key.
+namespace std
+{
+/// @brief Hash specialisation for @c gcep::rhi::vulkan::Vertex enabling its use
+///        as an @c unordered_map key during OBJ vertex deduplication.
 ///
-/// Combines the GLM hashes of @c pos, @c color, and @c texCoord using the standard
-/// hash-combine XOR/shift pattern. Requires @c GLM_ENABLE_EXPERIMENTAL and
-/// @c <glm/gtx/hash.hpp>.
-template<> struct hash<gcep::rhi::vulkan::Vertex> {
-    size_t operator()(gcep::rhi::vulkan::Vertex const& vertex) const {
-        return ((hash<glm::vec3>()(vertex.pos) ^
-                (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
-                (hash<glm::vec2>()(vertex.texCoord) << 1);
+/// Combines the GLM hashes of @c pos, @c normal, and @c texCoord using the
+/// standard hash-combine XOR/shift pattern. Requires @c GLM_ENABLE_EXPERIMENTAL
+/// and @c \<glm/gtx/hash.hpp\>.
+template<> struct hash<gcep::rhi::vulkan::Vertex>
+{
+    size_t operator()(gcep::rhi::vulkan::Vertex const& v) const
+    {
+        return ((hash<glm::vec3>()(v.pos) ^
+                (hash<glm::vec3>()(v.normal) << 1)) >> 1) ^
+                (hash<glm::vec2>()(v.texCoord) << 1);
     }
 };
 

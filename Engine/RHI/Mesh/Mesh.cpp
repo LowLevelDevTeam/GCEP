@@ -1,25 +1,25 @@
-#include "VulkanMesh.hpp"
-#include "Log/Log.hpp"
+#include "Mesh.hpp"
 
 #include <Engine/ObjParser/ObjParser.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHI.hpp>
+#include <Log/Log.hpp>
 
 // STL
-#include <iostream>
 #include <unordered_map>
 
 namespace gcep::rhi::vulkan
 {
 
-void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
+void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, const std::filesystem::path& textureFilepath, glm::mat4 transform)
 {
     if (name == "Unknown")
     {
-        // Make sure every entity has a different name
-        name = std::string("Unknown ") + std::to_string(id);
+        name = "Unknown " + std::to_string(id);
     }
-    pRhi = instance;
+
+    pRhi        = instance;
     m_transform = transform;
+    m_objPath   = filepath;
 
     if(!textureFilepath.empty())
     {
@@ -41,8 +41,8 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
     for (const auto& idx : modelIndices)
     {
         Vertex vertex{};
-        const float* v = verts + 3 * idx.vertex_index;
-        vertex.pos = { v[0], v[1], v[2] };
+        const float* vp = verts + 3 * idx.vertex_index;
+        vertex.pos = {vp[0], vp[1], vp[2] };
 
         if (idx.texcoord_index != UINT32_MAX)
         {
@@ -61,7 +61,7 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         }
         else
         {
-            vertex.normal = { 1.0f, 1.0f, 1.0f };
+            vertex.normal = { 0.0f, 1.0f, 0.0f };
         }
 
         if constexpr (deduplication)
@@ -102,50 +102,37 @@ void VulkanMesh::loadMesh(VulkanRHI* instance, const std::filesystem::path& file
         m_aabbMax = glm::max(m_aabbMax, vertex.pos);
     }
 
-    Log::info(std::string_view("Loaded mesh " + filepath.filename().string()));
+    Log::info("Loaded mesh " + filepath.filename().string());
 }
-glm::mat4& VulkanMesh::getTransform() {
-    const float c3 = glm::cos(transform.rotation.z);
-    const float s3 = glm::sin(transform.rotation.z);
-    const float c2 = glm::cos(transform.rotation.x);
-    const float s2 = glm::sin(transform.rotation.x);
-    const float c1 = glm::cos(transform.rotation.y);
-    const float s1 = glm::sin(transform.rotation.y);
-    m_transform = {
-        {
-            transform.scale.x * (c1 * c3 + s1 * s2 * s3),
-            transform.scale.x * (c2 * s3),
-            transform.scale.x * (c1 * s2 * s3 - c3 * s1),
-            0.0f,
-        },
-        {
-            transform.scale.y * (c3 * s1 * s2 - c1 * s3),
-            transform.scale.y * (c2 * c3),
-            transform.scale.y * (c1 * c3 * s2 + s1 * s3),
-            0.0f,
-        },
-        {
-            transform.scale.z * (c2 * s1),
-            transform.scale.z * (-s2),
-            transform.scale.z * (c1 * c2),
-            0.0f,
-        },
-        {transform.position.x, transform.position.y, transform.position.z, 1.0f}
-    };
+
+glm::mat4& Mesh::getTransform()
+{
+    glm::quat q(
+        transform.rotation.w,
+        transform.rotation.x,
+        transform.rotation.y,
+        transform.rotation.z
+    );
+
+    glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(transform.position.x, transform.position.y, transform.position.z));
+    glm::mat4 R = glm::mat4_cast(q);
+    glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(transform.scale.x, transform.scale.y, transform.scale.z));
+
+    m_transform = T * R * S;
     return m_transform;
 }
 
-void VulkanMesh::setTexture(const std::filesystem::path& filepath, bool mipmaps)
+void Mesh::setTexture(const std::filesystem::path& filepath, bool mipmaps)
 {
     m_texture.loadTexture(pRhi, filepath, mipmaps);
 }
 
-void VulkanMesh::setPosition(glm::vec3 pos)
+void Mesh::setPosition(glm::vec3 pos)
 {
     m_transform[3] = glm::vec4(pos, 1.0f);
 }
 
-void VulkanMesh::setRotation(glm::vec3 eulerDegrees)
+void Mesh::setRotation(glm::vec3 eulerDegrees)
 {
     glm::vec3 translation = glm::vec3(m_transform[3]);
     glm::vec3 scale =
@@ -155,25 +142,25 @@ void VulkanMesh::setRotation(glm::vec3 eulerDegrees)
         glm::length(glm::vec3(m_transform[2]))
     };
 
-    glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(eulerDegrees.x), {1,0,0});
-    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.y), {0,1,0});
-    rot           = glm::rotate(rot,             glm::radians(eulerDegrees.z), {0,0,1});
+    glm::mat4 R = glm::rotate(glm::mat4(1.0f), glm::radians(eulerDegrees.x), {1,0,0});
+    R           = glm::rotate(R,               glm::radians(eulerDegrees.y), {0,1,0});
+    R           = glm::rotate(R,               glm::radians(eulerDegrees.z), {0,0,1});
 
     m_transform = glm::translate(glm::mat4(1.0f), translation)
-                  * rot
+                  * R
                   * glm::scale(glm::mat4(1.0f), scale);
 }
 
-void VulkanMesh::setScale(glm::vec3 scale)
+void Mesh::setScale(glm::vec3 scale)
 {
     m_transform[0] = glm::vec4(glm::normalize(glm::vec3(m_transform[0])) * scale.x, 0.0f);
     m_transform[1] = glm::vec4(glm::normalize(glm::vec3(m_transform[1])) * scale.y, 0.0f);
     m_transform[2] = glm::vec4(glm::normalize(glm::vec3(m_transform[2])) * scale.z, 0.0f);
 }
 
-void VulkanMesh::setTransform(glm::mat4 transform)
+void Mesh::setTransform(glm::mat4 t)
 {
-    m_transform = transform;
+    m_transform = t;
 }
 
-} // Namespace gcep::rhi::vulkan
+} // namespace gcep::rhi::vulkan

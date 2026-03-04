@@ -14,14 +14,15 @@ namespace gcep {
      */
     struct TransformComponent
     {
-        /// World-space position of the entity.
-        alignas(16) Vector3<float> position = Vector3<float>(0.f, 0.f, 0.f);
+        alignas(16) Vector3<float> position{0.f, 0.f, 0.f};
 
-        /// World-space rotation of the entity.
-        alignas(16) Quaternion rotation = Quaternion(1.f, 0.f, 0.f, 0.f);
+        // Single authoritative rotation
+        alignas(16) Quaternion rotation{1.f, 0.f, 0.f, 0.f};
 
-        /// Local scale of the entity.
-        alignas(16) Vector3<float> scale = Vector3<float>(1.f, 1.f, 1.f);
+        alignas(16) Vector3<float> scale{1.f, 1.f, 1.f};
+
+        // Optional: editor-only Euler cache
+        alignas(16) Vector3<float> eulerRadians{0.f, 0.f, 0.f};
     };
 
 } // namespace gcep

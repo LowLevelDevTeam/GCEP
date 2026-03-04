@@ -88,6 +88,8 @@ namespace gcep
          */
         void stopSimulation();
 
+        void setRegistry(ECS::Registry* reg);
+
         /**
          * @brief Synchronizes entity transforms with the current physics simulation.
          *
@@ -124,7 +126,7 @@ namespace gcep
          * Holds all entities, including those with PhysicsComponents and TransformComponents.
          * Typically this would be private, but exposed here for testing.
          */
-        ECS::Registry reg;
+        ECS::Registry* registry;
 
     private:
         std::unique_ptr<PhysicsWorld> m_world; ///< Internal physics world instance.
