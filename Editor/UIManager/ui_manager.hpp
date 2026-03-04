@@ -230,6 +230,7 @@ private:
     /// Saves the original @c std::cout buffer into @c m_oldCout, then installs
     /// a new @c ImGuiConsoleBuffer that tees output into @c m_consoleItems.
     void initConsole();
+    void setDarkTheme();
 
     // Shutdown
 
@@ -299,6 +300,8 @@ private:
     /// that appends submitted lines to the log.
     void drawConsole();
 
+    void drawBottomBar();
+
 private:
     GLFWwindow*               m_window;
     ImGui_ImplVulkan_InitInfo m_initInfo;
@@ -350,6 +353,9 @@ private:
     PhysicsSystem& physicsSystem;    ///< Reference to the singleton @c PhysicsSystem.
     bool simulationStarted = false;
     bool simulationPaused  = false;
+
+    // Settings
+    bool showSettings = false;
 };
 
 } // Namespace gcep

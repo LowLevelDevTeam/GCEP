@@ -250,6 +250,11 @@ void VulkanRHI::setGridPC(GridPushConstant* gridPC)
     m_gridPC = *gridPC;
 }
 
+void VulkanRHI::setSimulationStarted(bool started)
+{
+    simulationStarted = started;
+}
+
 // ============================================================================
 // Queries
 // ============================================================================
@@ -1188,8 +1193,6 @@ void VulkanRHI::recordGridPass()
     cmd.pushConstants<GridPushConstant>(*m_gridPipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, m_gridPC);
 
     cmd.draw(3, 1, 0, 0);
-
-    cmd.endRendering();
 }
 
 // ============================================================================
@@ -1396,7 +1399,12 @@ void VulkanRHI::recordOffscreenCommandBuffer()
         sizeof(vk::DrawIndexedIndirectCommand)
     );
 
-    recordGridPass();
+    if(!simulationStarted)
+    {
+        recordGridPass();
+    }
+
+    cmd.endRendering();
 
     vk::ImageMemoryBarrier2 toShaderRead{};
     toShaderRead.srcStageMask  = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
