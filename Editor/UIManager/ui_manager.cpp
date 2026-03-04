@@ -314,14 +314,15 @@ void UiManager::drawViewport()
         ImGui::PopFont();
         if(simulationStarted && !simulationPaused)
         {
-            physicsSystem.update(io.DeltaTime);
-            // Run scripts
             // Run script
             if (m_registry)
                 scriptSystem.update(m_registry, io.DeltaTime);
             else
                 std::cout << "no registry !" << std::endl;
+
+            physicsSystem.update(io.DeltaTime);
         }
+
         ImVec2 availSize = ImGui::GetContentRegionAvail();
 
         // Check if viewport size changed (with a small threshold to avoid floating point issues)

@@ -4,6 +4,7 @@
 
 #include "ScriptAPI.hpp"
 #include "ScriptComponent.hpp"
+#include "PhysicsWrapper/physics_system.hpp"
 
 namespace gcep::scripting
 {
@@ -92,6 +93,7 @@ namespace gcep::scripting
             }
             component.host->setEcsContext(registry, entity);
             component.host->setMeshContext(findMesh(component.meshId));
+            component.host->setPhysicsContext(&gcep::PhysicsSystem::getInstance());
             component.host->update(deltaSeconds);
         }
     }

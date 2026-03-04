@@ -1,16 +1,17 @@
 #include "physics_system.hpp"
 
 #include <memory>
+#include <iostream>
 
 #include "physics_world.hpp"
 #include "Component/transform_component.hpp"
 #include "Maths/Utils/vector3_convertor.hpp"
 
-
 namespace gcep
 {
     PhysicsSystem::PhysicsSystem()
     {
+        std::cout << "Physics System created\n";
         init();
     }
 
@@ -144,4 +145,22 @@ namespace gcep
         return m_world->raycast(origin, direction, maxDistance);
     }
 
+    void PhysicsSystem::addImpulse(const JPH::BodyID bodyID, const Vector3<float> impulse) const
+    {
+        JPH::BodyInterface& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
+
+        bodyInterface.ActivateBody(bodyID);
+        bodyInterface.AddImpulse(bodyID, Vector3Convertor::ToJolt(impulse));
+    }
+
+    void PhysicsSystem::addForce(const JPH::BodyID bodyID, const Vector3<float> force) const
+    {
+        std::cout << "[Physics System] Adding Force\n";
+
+        JPH::BodyInterface& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
+
+        bodyInterface.ActivateBody(bodyID);
+        bodyInterface.AddForce(bodyID, Vector3Convertor::ToJolt(force));
+
+    }
 } // gcep

@@ -120,6 +120,9 @@ namespace gcep
          */
         RaycastHit raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance);
 
+        void addImpulse(const JPH::BodyID bodyID, const Vector3<float> impulse) const;
+        void addForce(const JPH::BodyID bodyID, const Vector3<float> force) const;
+
         /**
          * @brief Entity-Component-System registry.
          *

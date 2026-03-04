@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include <Engine/Core/ECS/headers/registry.hpp>
+#include <Engine/Core/PhysicsWrapper/physics_system.hpp>
 #include <Engine/RHI/Mesh/Mesh.hpp>
 
 #if defined(_WIN32)
@@ -25,6 +26,7 @@ namespace gcep::scripting
         ECS::Registry* registry = nullptr;
         ECS::EntityID entity = ECS::INVALID_VALUE;
         rhi::vulkan::Mesh* mesh = nullptr;
+        gcep::PhysicsSystem* physicsSystem = nullptr;
     };
 
     struct ScriptPlugin

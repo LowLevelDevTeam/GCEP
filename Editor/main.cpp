@@ -8,7 +8,6 @@
 #include <Log/Log.hpp>
 #include <Engine/Core/Scripting/ScriptHost.hpp>
 #include <Engine/Core/Scripting/ScriptSystem.hpp>
-#include <Engine/Core/ECS/headers/registry.hpp>
 
 
 int main()
@@ -21,8 +20,6 @@ int main()
     window.initWindow();
     InputSystem inputSystem(window.getGlfwWindow());
     Camera camera(&inputSystem, &window);
-
-    gcep::ECS::Registry registry;
 
     int fbWidth = 0, fbHeight = 0;
     glfwGetFramebufferSize(window.getGlfwWindow(), &fbWidth, &fbHeight);
@@ -51,20 +48,20 @@ int main()
     auto& meshData = rhi->getInitInfos()->meshData;
 
     // Run at game startup
-    gcep::scripting::ScriptSystem scriptSystem = scripting::ScriptSystem::getInstance();
-    scriptSystem.init(&registry, *meshData);
+    gcep::scripting::ScriptSystem& scriptSystem = scripting::ScriptSystem::getInstance();
+    auto* initInfos = rhi->getInitInfos();
+    scriptSystem.init(initInfos->registry, *meshData);
     scriptSystem.setMeshList(meshData);
 
     UiManager uiManager(window.getGlfwWindow(), rhi->getUIInitInfo());
     uiManager.setCamera(&camera);
-    uiManager.setInfos(rhi->getInitInfos());
+    uiManager.setInfos(initInfos);
 
 
     while (!window.shouldClose())
     {
         glfwPollEvents();
         inputSystem.update();
-        //scriptSystem.update(&registry, 0.16f);
         uiManager.uiUpdate();
         rhi->drawFrame();
     }

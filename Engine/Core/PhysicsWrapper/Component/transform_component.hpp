@@ -5,6 +5,8 @@
 
 namespace gcep {
 
+    class UiManager;
+
     /**
      * @struct TransformComponent
      * @brief Represents the position, rotation, and scale of an entity in the world.
@@ -14,6 +16,8 @@ namespace gcep {
      */
     struct TransformComponent
     {
+        friend class UiManager;
+
         alignas(16) Vector3<float> position{0.f, 0.f, 0.f};
 
         // Single authoritative rotation
@@ -21,6 +25,7 @@ namespace gcep {
 
         alignas(16) Vector3<float> scale{1.f, 1.f, 1.f};
 
+    private:
         // Optional: editor-only Euler cache
         alignas(16) Vector3<float> eulerRadians{0.f, 0.f, 0.f};
     };

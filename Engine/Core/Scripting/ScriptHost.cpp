@@ -3,9 +3,19 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 namespace gcep::scripting
 {
+    namespace
+    {
+        std::string makeUniqueSuffix();
+    }
+
     ScriptHost::ScriptHost(std::filesystem::path sourceLibraryPath)
         : m_sourcePath(std::move(sourceLibraryPath)), m_context(std::make_unique<ScriptContext>())
     {
@@ -155,10 +165,17 @@ namespace gcep::scripting
         const std::string stem = m_sourcePath.stem().string();
         const std::string extension = m_sourcePath.extension().string();
 
-        m_loadedPath = parent / (stem + "_hot_" + std::to_string(++m_reloadCounter) + extension);
+        const std::string uniqueSuffix = makeUniqueSuffix();
+        m_loadedPath = parent / (stem + "_hot_" + uniqueSuffix + "_" + std::to_string(++m_reloadCounter) + extension);
         std::error_code copyError;
         for (int attempt = 0; attempt < m_copyRetryCount; ++attempt)
         {
+            std::error_code removeError;
+            if (std::filesystem::exists(m_loadedPath, removeError))
+            {
+                std::filesystem::remove(m_loadedPath, removeError);
+            }
+
             std::filesystem::copy_file(m_sourcePath, m_loadedPath, std::filesystem::copy_options::overwrite_existing, copyError);
             if (!copyError)
             {
@@ -221,25 +238,7 @@ namespace gcep::scripting
 
     bool ScriptHost::shouldReload() const
     {
-        if (m_reloadRequested.load(std::memory_order_relaxed))
-        {
-            return true;
-        }
-
-        std::error_code fileError;
-        if (!std::filesystem::exists(m_sourcePath, fileError))
-        {
-            return false;
-        }
-
-        const auto timestamp = std::filesystem::last_write_time(m_sourcePath, fileError);
-        if (fileError)
-        {
-            return false;
-        }
-
-        std::lock_guard<std::mutex> lock(m_timestampMutex);
-        return timestamp != m_lastWriteTime;
+        return m_reloadRequested.load(std::memory_order_relaxed);
     }
 
     void ScriptHost::notifyLoad()
@@ -435,5 +434,25 @@ namespace gcep::scripting
     void ScriptHost::setMeshContext(rhi::vulkan::Mesh* mesh)
     {
         m_context->mesh = mesh;
+    }
+
+    void ScriptHost::setPhysicsContext(gcep::PhysicsSystem* physicsSystem)
+    {
+        m_context->physicsSystem = physicsSystem;
+    }
+
+    namespace
+    {
+        std::string makeUniqueSuffix()
+        {
+            using namespace std::chrono;
+            const auto nowMs = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+#if defined(_WIN32)
+            const auto pid = static_cast<unsigned long>(::GetCurrentProcessId());
+#else
+            const auto pid = static_cast<unsigned long>(::getpid());
+#endif
+            return std::to_string(pid) + "_" + std::to_string(nowMs);
+        }
     }
 }

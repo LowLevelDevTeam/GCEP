@@ -72,6 +72,8 @@ namespace gcep
         /// Collision layer of the physics body.
         ELayers layers = ELayers::NON_MOVING;
 
+        const JPH::BodyID getBodyID() const {return m_bodyIDRef;}
+
     private:
         /// Reference to the internal Jolt BodyID for this entity.
         JPH::BodyID m_bodyIDRef;

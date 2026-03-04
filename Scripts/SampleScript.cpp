@@ -1,7 +1,8 @@
 ﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
 
-#include <glm/glm.hpp>
 #include <string>
+#include <Engine/Core/PhysicsWrapper/Component/physics_component.hpp>
+#include <Engine/Core/PhysicsWrapper/physics_system.hpp>
 
 namespace
 {
@@ -25,6 +26,7 @@ namespace
 
     void onUpdate(gcep::scripting::ScriptContext* context, void* state)
     {
+        //static bool foo = true;
         auto* counter = static_cast<CounterState*>(state);
         if (!counter)
         {
@@ -33,18 +35,25 @@ namespace
         counter->value += 1;
         if (context && context->log)
         {
-            std::string message = "tick YAY: " + std::to_string(counter->value);
-            context->log(message.c_str());
+            /*std::string message = "tick YAY: " + std::to_string(counter->value);
+            context->log(message.c_str());*/
         }
 
-        gcep::scripting::getMesh(context)->transform.position.x += 0.01f;
 
-        if (auto* mesh = gcep::scripting::getMesh(context))
-        {
-            //glm::vec3 pos = mesh->transform.position;
-            //pos.z -= 0.01f;
-            //gcep::scripting::setMeshPosition(context, pos);
-        }
+        //gcep::Quaternion quat;
+        //gcep::scripting::getMesh(context)->transform.position.x += 0.01f;
+        //if (foo)
+        //{
+            auto& physicsSystem = context->physicsSystem;
+
+            auto& physicsComp = context->registry->getComponent<gcep::PhysicsComponent>(0);
+
+
+            physicsComp.linearVelocity.x += 100.f;
+            physicsSystem->addImpulse(physicsComp.getBodyID(), gcep::Vector3<float>(25000.f, 0.f, 0.f));
+
+            context->log("addForce");
+        //}
     }
 
     void onUnload(gcep::scripting::ScriptContext* context, void* state)

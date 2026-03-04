@@ -16,7 +16,7 @@ namespace gcep::ECS
         {
             Index denseIndex = m_sparse.get(entity);
             m_components[denseIndex] = T(std::forward<Args>(args)...);
-            return m_components[entity];
+            return m_components[denseIndex];
         }
         m_sparse.get(entity) = static_cast<Index>(m_components.size());
         m_dense.push_back(entity);

@@ -39,6 +39,7 @@ namespace gcep::scripting
         void setBuildCommand(std::string commandLine);
         void setEcsContext(ECS::Registry* registry, ECS::EntityID entity);
         void setMeshContext(rhi::vulkan::Mesh* mesh);
+        void setPhysicsContext(gcep::PhysicsSystem* physicsSystem);
 
         [[nodiscard]] const std::filesystem::path& getSourcePath() const;
 

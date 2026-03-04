@@ -1,10 +1,21 @@
-﻿add_library(GCEngineScripts SHARED SampleScript.cpp)
+﻿file(GLOB_RECURSE GCENGINE_CORE_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/*.cpp
+)
+
+add_library(GCEngineScripts SHARED
+    SampleScript.cpp
+    ${GCENGINE_CORE_SOURCES}
+)
+
+target_link_libraries(GCEngineScripts PRIVATE Jolt)
 
 target_compile_definitions(GCEngineScripts PRIVATE GCE_SCRIPT_BUILD)
 
 target_include_directories(GCEngineScripts PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Scripting
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/JoltPhysics
