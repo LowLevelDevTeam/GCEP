@@ -229,6 +229,8 @@ public:
     /// @param gridPC  Grid rendering parameters (invViewProj, viewProj, cell size, etc.).
     void setGridPC(GridPushConstant* gridPC);
 
+    void setSimulationStarted(bool started);
+
     // Queries
 
     /// @brief Returns a pointer to the mesh whose @c id field matches @p id,
@@ -708,6 +710,7 @@ private:
     GridPushConstant    m_gridPC;
     InitInfos           m_initInfos;
     ECS::Registry       m_ECSRegistry;
+    bool                simulationStarted = false;
 
     std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now();
 

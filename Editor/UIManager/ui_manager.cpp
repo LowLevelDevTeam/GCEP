@@ -375,10 +375,9 @@ void UiManager::drawMainMenuBar()
         {
             ImGui::EndMenu();
         }
-        if(ImGui::BeginMenu((std::string(ICON_FA_PLUS) + " Settings").c_str()))
+        if(ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
         {
             showSettings = !showSettings;
-            ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
@@ -397,6 +396,7 @@ void UiManager::drawViewport()
             if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
             {
                 simulationPaused = false;
+                pRHI->setSimulationStarted(true);
                 if(!simulationStarted)
                 {
                     simulationStarted = true;
@@ -408,11 +408,16 @@ void UiManager::drawViewport()
             if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
             {
                 simulationPaused = !simulationPaused;
+                if(simulationPaused)
+                {
+                    pRHI->setSimulationStarted(false);
+                }
             }
             ImGui::SameLine();
             if (ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str()) && simulationStarted)
             {
                 simulationStarted = false;
+                pRHI->setSimulationStarted(false);
                 physicsSystem.stopSimulation();
             }
             ImGui::SameLine();
@@ -577,7 +582,8 @@ void UiManager::drawSceneHierarchy()
 
 void UiManager::drawEntityProperties()
 {
-    for (auto& entity : *meshData) {
+    for (auto& entity : *meshData)
+    {
         entity.transform = m_registry->getComponent<TransformComponent>(entity.id);
         entity.transform.rotation.Normalize();
         entity.physics   = m_registry->getComponent<PhysicsComponent>(entity.id);
@@ -662,6 +668,15 @@ void UiManager::drawEntityProperties()
         {
             physics.layers = static_cast<ELayers>(currentLayer);
         }
+
+        ImGui::SeparatorText("Scripting");
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::PushFont(io.Fonts->Fonts[0]);
+        if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
+        {
+            // TODO: Add script
+        }
+        ImGui::PopFont();
 
         if(!simulationStarted || simulationPaused)
         {
@@ -773,7 +788,7 @@ void UiManager::drawConsole()
 
         // Command-line
         bool reclaimFocus = false;
-        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll;
         if (ImGui::InputText("Input", inputBuffer, IM_COUNTOF(inputBuffer), inputTextFlags))
         {
             m_consoleItems.emplace_back(inputBuffer);
