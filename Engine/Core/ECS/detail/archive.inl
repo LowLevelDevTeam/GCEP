@@ -1,33 +1,44 @@
 #pragma once
-#include <fstream>
-#include <ios>
-#include <Engine/Core/ECS/headers/archive.hpp>
 
-namespace gcep::ECS
+namespace gcep::SER
 {
-    inline FileArchive::FileArchive(const std::string& filename, bool isWriting) : m_filename(filename), m_isWriting(isWriting)
+    inline FileArchive::FileArchive(const std::string& filename, bool isWriting)
+    : m_filename(filename), m_isWriting(isWriting)
     {
         std::ios::openmode mode = std::ios::binary;
         if (isWriting)
-        {
-            mode |= std::ios::out;
-        }
+            mode |= std::ios::out | std::ios::trunc;
         else
-        {
             mode |= std::ios::in;
-        }
+
         m_file.open(filename, mode);
         if (!m_file.is_open())
-        {
-            throw std::runtime_error("Failed to open file for writing");
-        }
+            throw std::runtime_error("Failed to open file: " + filename);
     }
 
-    inline FileArchive::~FileArchive() {
+    inline FileArchive::~FileArchive()
+    {
         if (m_file.is_open()) {
             m_file.close();
         }
     }
+
+    inline std::streampos FileArchive::tell()
+    {
+        return m_file.tellp();
+    }
+
+    inline void FileArchive::seek(std::streampos pos)
+    {
+        m_file.seekp(pos);
+    }
+
+    inline void FileArchive::skip(uint32_t bytes)
+    {
+        m_file.seekg(bytes, std::ios::cur);
+    }
+
+
 
     inline void FileArchive::writeFloat(float val)
     {
@@ -56,6 +67,24 @@ namespace gcep::ECS
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(uint64_t));
     }
 
+    inline void FileArchive::writeInt8(int8_t val)
+    {
+        m_file.write(reinterpret_cast<const char*>(&val), sizeof(int8_t));
+    }
+    inline void FileArchive::writeInt16(int16_t val)
+    {
+        m_file.write(reinterpret_cast<const char*>(&val), sizeof(int16_t));
+    }
+    inline void FileArchive::writeInt32(int32_t val)
+    {
+        m_file.write(reinterpret_cast<const char*>(&val), sizeof(int32_t));
+    }
+    inline void FileArchive::writeInt64(int64_t val)
+    {
+        m_file.write(reinterpret_cast<const char*>(&val), sizeof(int64_t));
+    }
+
+
     inline void FileArchive::writeSize(uint32_t val)
     {
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(uint32_t));
@@ -67,7 +96,6 @@ namespace gcep::ECS
         m_file.write(reinterpret_cast<const char*>(&len), sizeof(uint32_t));
         m_file.write(name.data(), name.size());
     }
-
 
     inline float FileArchive::readFloat()
     {
@@ -82,33 +110,60 @@ namespace gcep::ECS
         m_file.read(reinterpret_cast<char*>(&val), sizeof(double));
         return val;
     }
-
-    inline int FileArchive::readUint8(uint8_t val)
+    inline uint8_t FileArchive::readUint8()
     {
-        uint8_t readVal;
-        m_file.read(reinterpret_cast<char*>(&readVal), sizeof(uint8_t));
-        return readVal;
+        uint8_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(uint8_t));
+        return val;
     }
 
-    inline int FileArchive::readUint16(uint16_t val)
+    inline uint16_t FileArchive::readUint16()
     {
-        uint16_t readVal;
-        m_file.read(reinterpret_cast<char*>(&readVal), sizeof(uint16_t));
-        return readVal;
+        uint16_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(uint16_t));
+        return val;
     }
 
-    inline int FileArchive::readUint32(uint32_t val)
+    inline uint32_t FileArchive::readUint32()
     {
-        uint32_t readVal;
-        m_file.read(reinterpret_cast<char*>(&readVal), sizeof(uint32_t));
-        return readVal;
+        uint32_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(uint32_t));
+        return val;
     }
 
-    inline int FileArchive::readUint64(uint64_t val)
+    inline uint64_t FileArchive::readUint64()
     {
         uint64_t readVal;
         m_file.read(reinterpret_cast<char*>(&readVal), sizeof(uint64_t));
         return readVal;
+    }
+
+    inline int8_t FileArchive::readInt8()
+    {
+        int8_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(int8_t));
+        return val;
+    }
+
+    inline int16_t FileArchive::readInt16()
+    {
+        int16_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(int16_t));
+        return val;
+    }
+
+    inline int32_t FileArchive::readInt32()
+    {
+        int32_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(int32_t));
+        return val;
+    }
+
+    inline int64_t FileArchive::readInt64()
+    {
+        int64_t val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(int64_t));
+        return val;
     }
 
     inline size_t FileArchive::readSize()
@@ -127,3 +182,4 @@ namespace gcep::ECS
         return name;
     }
 }
+

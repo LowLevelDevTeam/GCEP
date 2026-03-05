@@ -31,7 +31,9 @@ target_include_directories(GCEngine PRIVATE TinyFileDialogs)
 target_sources(GCEngine PRIVATE TinyFileDialogs/tinyfiledialogs.cpp)
 
 # Boost.pfr
-target_include_directories(GCEngine PRIVATE boost)
+add_subdirectory(boost_pfr)
+target_include_directories(GCEngine PRIVATE boost_pfr/include)
+
 
 # rapidjson
 target_include_directories(GCEngine PRIVATE rapidjson)

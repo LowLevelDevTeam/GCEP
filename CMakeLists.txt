@@ -43,6 +43,7 @@ add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
 add_subdirectory(UnitTests)
+add_subdirectory(SERIALISERTEST)
 
 # Compile the engine into a lib (to use GoogleTest)
 add_library(GCEngineLib STATIC ${ENGINE_SOURCE})

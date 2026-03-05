@@ -1,8 +1,15 @@
 #pragma once
-#include "paged_allocator.hpp"
-#include "entity_component.hpp"
 
+#include <ECS/headers/archive.hpp>
+#include <Externals/boost_pfr/include/boost/pfr.hpp>
+#include <ECS/headers/paged_allocator.hpp>
+#include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/binary_component_serializer.hpp>
+
+#include <string>
+#include <type_traits>
 #include <vector>
+#include <limits>
 
 /**
  * @namespace gcep
@@ -11,15 +18,38 @@
 namespace gcep::ECS
 {
     /**
+     * @concept ComponentConcept
+     * @brief Constrains a type to be a valid gcep ECS component.
+     *
+     * A valid component must expose a static boolean member `_gcep_registered`,
+     * which is produced by declaring the component with the registration line :
+     *
+     * @code
+     * struct Health {
+     *     float current = 100.f;
+     *     float max     = 100.f;
+     *     static inline bool _gcep_registered =
+     *         gcep::ECS::ComponentRegistry::instance().reg<Health>();
+     * };
+     * @endcode
+     *
+     * This guarantees the component is registered in the ComponentRegistry
+     * before any serialization or deserialization occurs.
+     */
+    template<typename T>
+    concept ComponentConcept =
+    std::is_aggregate_v<T> &&
+    requires {
+        { T::_gcep_registered } -> std::convertible_to<bool>;
+    };
+    /**
      * @struct IPool
      * @brief Virtual interface allowing interactions with different types of component pools.
      */
     struct IPool
     {
         /// @brief Default virtual destructor.
-        virtual ~IPool()
-        {
-        }
+        virtual ~IPool()= default;
 
         /**
          * @brief Allocates and attaches a new component to an entity.
@@ -52,7 +82,7 @@ namespace gcep::ECS
          * by Views to optimize iterations.
          * @return const std::vector<EntityID>& A reference to the dense vector.
          */
-        virtual const std::vector<EntityID>& getEntities() const = 0;
+        [[nodiscard]] virtual const std::vector<EntityID>& getEntities() const = 0;
 
         /**
          * @brief Pre-allocates memory to accommodate n components.
@@ -61,6 +91,14 @@ namespace gcep::ECS
          * @param n Number of elements to reserve space for.
          */
         virtual void reserve(size_t n) = 0;
+        /**
+        * @brief Returns the name of the component type stored in this pool.
+        * @return The string name of the component type (e.g., "Transform", "Health").
+        */
+        [[nodiscard]] virtual std::string getName() const = 0;
+
+        virtual void serializeEntity(EntityID entity, SER::IArchive& archive) = 0;
+        virtual void deserializeEntity(EntityID entity, SER::IArchive& ar) = 0;
     };
 
     /**
@@ -73,7 +111,7 @@ namespace gcep::ECS
      * - A contiguous data array to maximize CPU cache efficiency.
      * @tparam T The type of component stored in this pool.
      */
-    template<typename T>
+    template<ComponentConcept T>
     struct ComponentPool : public IPool
     {
     public:
@@ -152,6 +190,11 @@ namespace gcep::ECS
         {
             return m_dense;
         }
+
+        [[nodiscard]] std::string getName() const override;
+
+        void serializeEntity(EntityID entity, SER::IArchive& archive) override ;
+        void deserializeEntity(EntityID entity, SER::IArchive& archive) override;
 
     private:
         /**
