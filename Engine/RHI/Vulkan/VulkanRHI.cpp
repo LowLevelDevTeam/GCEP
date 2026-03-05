@@ -162,12 +162,123 @@ bool VulkanRHI::isVSync()
 // Scene management
 // ============================================================================
 
+void VulkanRHI::spawnCone(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/cone.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+    // Aliases
+    auto& mesh = meshes.back();
+    auto& id   = mesh.id;
+    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
+    // Values
+    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
+    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+    // Save values
+    mesh.transform = tc;
+}
+
 void VulkanRHI::spawnCube(glm::vec3 pos)
 {
     assert(meshes.size() < MAX_MESHES && "Too many meshes");
 
-    char* path    = (char*)"TestTextures/cube.obj";
-    char* texPath = (char*)"TestTextures/white.png";
+    char* path    = (char*)"Assets/Models/cube.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+}
+
+void VulkanRHI::spawnCylinder(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/cylinder.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+    // Aliases
+    auto& mesh = meshes.back();
+    auto& id   = mesh.id;
+    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
+    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
+    // Values
+    pc.motionType = EMotionType::STATIC;
+    pc.layers     = ELayers::NON_MOVING;
+    pc.shapeType  = EShapeType::CYLINDER;
+    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
+    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+    // Save values
+    mesh.transform = tc;
+    mesh.physics   = pc;
+}
+
+void VulkanRHI::spawnIcosphere(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/icosphere.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+    // Aliases
+    auto& mesh = meshes.back();
+    auto& id   = mesh.id;
+    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
+    // Values
+    pc.shapeType = EShapeType::SPHERE;
+    // Save values
+    mesh.physics   = pc;
+}
+
+void VulkanRHI::spawnSphere(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/sphere.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+    // Aliases
+    auto& mesh = meshes.back();
+    auto& id   = mesh.id;
+    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
+    // Values
+    pc.shapeType  = EShapeType::SPHERE;
+    // Save values
+    mesh.physics   = pc;
+}
+
+void VulkanRHI::spawnSuzanne(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/suzanne.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
+    spawnAsset(path, pos);
+    addTexture(meshes.size() - 1, texPath, false);
+    // Aliases
+    auto& mesh = meshes.back();
+    auto& id   = mesh.id;
+    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
+    // Values
+    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, glm::pi<float>() / 2.0f};
+    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+    // Save values
+    mesh.transform = tc;
+}
+
+void VulkanRHI::spawnTorus(glm::vec3 pos)
+{
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    char* path    = (char*)"Assets/Models/torus.obj";
+    char* texPath = (char*)"Assets/Textures/white.png";
     spawnAsset(path, pos);
     addTexture(meshes.size() - 1, texPath, false);
 }
@@ -191,14 +302,22 @@ void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
     mesh.name      = std::filesystem::path(filepath).filename().string() + " / id = " + std::to_string(id);
 
     mesh.load(this, filepath);
-    uploadSingleMesh(index);
+    if(uploadSingleMesh(index) != 0)
+    {
+        meshes.pop_back();
+        m_ECSRegistry.removeComponent<TransformComponent>(id);
+        m_ECSRegistry.removeComponent<PhysicsComponent>(id);
+        m_ECSRegistry.update();
+        return;
+    }
 
-    Vector3<float> halfExtents = { mesh.getAABBMax().x, mesh.getAABBMax().y, mesh.getAABBMax().z };
+    Vector3<float> halfExtents = { 1.0f, 1.0f, 1.0f };
 
     m_ECSRegistry.getComponent<TransformComponent>(id).position = { pos.x, pos.y, pos.z };
     m_ECSRegistry.getComponent<TransformComponent>(id).scale    = halfExtents;
     m_ECSRegistry.getComponent<PhysicsComponent>(id).motionType = EMotionType::STATIC;
     m_ECSRegistry.getComponent<PhysicsComponent>(id).layers     = ELayers::NON_MOVING;
+    m_ECSRegistry.getComponent<PhysicsComponent>(id).shapeType  = EShapeType::CUBE;
 
     mesh.transform = m_ECSRegistry.getComponent<TransformComponent>(id);
     mesh.physics   = m_ECSRegistry.getComponent<PhysicsComponent>(id);
@@ -581,7 +700,7 @@ void VulkanRHI::initMeshBuffers()
         uploadSingleMesh(i);
 }
 
-void VulkanRHI::uploadSingleMesh(uint32_t meshIndex)
+int VulkanRHI::uploadSingleMesh(uint32_t meshIndex)
 {
     assert(meshIndex < MAX_MESHES && "Exceeded MAX_MESHES");
 
@@ -605,6 +724,11 @@ void VulkanRHI::uploadSingleMesh(uint32_t meshIndex)
     {
         const vk::DeviceSize vbSize = mesh.getVertexBufferSize();
         const vk::DeviceSize ibSize = mesh.getIndexBufferSize();
+
+        if(ibSize == 0 || vbSize == 0)
+        {
+            return -1;
+        }
 
         assert(m_vertexBytesFilled + vbSize <= MAX_VERTEX_BUFFER_BYTES && "Vertex buffer overflow");
         assert(m_indexBytesFilled  + ibSize <= MAX_INDEX_BUFFER_BYTES  && "Index buffer overflow");
@@ -701,6 +825,8 @@ void VulkanRHI::uploadSingleMesh(uint32_t meshIndex)
         m_indirectCommands.emplace_back(drawCmd);
 
     static_cast<vk::DrawIndexedIndirectCommand*>(m_indirectBufferMapped)[meshIndex] = drawCmd;
+
+    return 0;
 }
 
 void VulkanRHI::updateMeshMetadata(uint32_t meshIndex)
@@ -1815,7 +1941,7 @@ vk::Format VulkanRHI::findSupportedFormat(const std::vector<vk::Format>& candida
 
 std::vector<char> VulkanRHI::readShader(const std::string& fileName)
 {
-    const auto path = std::filesystem::current_path() / "Shaders" / fileName;
+    const auto path = std::filesystem::current_path() / "Assets" / "Shaders" / fileName;
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open())
     {
@@ -2036,8 +2162,6 @@ void VulkanRHI::createTAAResources(uint32_t width, uint32_t height)
     cpCI.stage  = stageCI;
     cpCI.layout = *m_taaPipelineLayout;
     m_taaPipeline = std::move(m_device.rawDevice().createComputePipeline(nullptr, cpCI));
-
-    Log::info("TAA resources created.");
 }
 
 // ============================================================================

@@ -48,7 +48,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : p
 
     constexpr float baseFontSize = 18.0f;
     constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("TestTextures/Nunito-Regular.ttf", baseFontSize);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Nunito-Regular.ttf", baseFontSize);
     ImFontConfig icons_config;
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
@@ -539,10 +539,38 @@ void UiManager::drawSceneHierarchy()
             }
             ImGui::TreePop();
         }
-
-        if (ImGui::Button("Spawn cube"))
+        glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
+        if (ImGui::BeginMenu("Add shape"))
         {
-            pRHI->spawnCube(cameraRef->position + cameraRef->front * 4.0f);
+            if(ImGui::MenuItem("Cone"))
+            {
+                pRHI->spawnCone(frontOfCam);
+            }
+            if(ImGui::MenuItem("Cube"))
+            {
+                pRHI->spawnCube(frontOfCam);
+            }
+            if(ImGui::MenuItem("Cylinder"))
+            {
+                pRHI->spawnCylinder(frontOfCam);
+            }
+            if(ImGui::MenuItem("Icosphere"))
+            {
+                pRHI->spawnIcosphere(frontOfCam);
+            }
+            if(ImGui::MenuItem("Sphere"))
+            {
+                pRHI->spawnSphere(frontOfCam);
+            }
+            if(ImGui::MenuItem("Suzanne"))
+            {
+                pRHI->spawnSuzanne(frontOfCam);
+            }
+            if(ImGui::MenuItem("Torus"))
+            {
+                pRHI->spawnTorus(frontOfCam);
+            }
+            ImGui::EndMenu();
         }
 
         if (ImGui::Button("Add asset"))
@@ -550,7 +578,7 @@ void UiManager::drawSceneHierarchy()
             const char *filters[] = { "*.obj", "*.gltf" };
             if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0); path != nullptr)
             {
-                pRHI->spawnAsset(path, cameraRef->position + cameraRef->front * 4.0f);
+                pRHI->spawnAsset(path, frontOfCam);
             }
         }
 

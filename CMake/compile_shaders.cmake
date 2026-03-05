@@ -1,10 +1,10 @@
 function(add_slang_shader_target TARGET)
-    set(SHADERS_DIR ${CMAKE_BINARY_DIR}/Shaders)
+    set(SHADERS_DIR ${CMAKE_BINARY_DIR}/Assets/Shaders)
     file(MAKE_DIRECTORY ${SHADERS_DIR})
 
     file(GLOB_RECURSE SLANG_FILES
          CONFIGURE_DEPENDS
-         "${CMAKE_SOURCE_DIR}/Engine/*.slang"
+         "${CMAKE_SOURCE_DIR}/Assets/*.slang"
     )
 
     find_program(SLANGC_EXECUTABLE slangc REQUIRED)

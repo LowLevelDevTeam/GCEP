@@ -186,7 +186,13 @@ public:
     /// registered as a static non-moving body.
     ///
     /// @param pos  Initial world-space position. Defaults to the origin.
+    void spawnCone(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
     void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnCylinder(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnIcosphere(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnSphere(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnSuzanne(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnTorus(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
 
     /// @brief Spawns an arbitrary OBJ asset at @p pos and uploads it to the GPU.
     ///
@@ -376,7 +382,7 @@ private:
     /// @c DrawIndexedIndirectCommand entry are written for this mesh's ECS slot.
     ///
     /// @param meshIndex  0-based index into @c meshes.
-    void uploadSingleMesh(uint32_t meshIndex);
+    int uploadSingleMesh(uint32_t meshIndex);
 
     /// @brief Re-writes the @c GPUMeshData and @c DrawIndexedIndirectCommand
     ///        entries for an existing mesh slot without re-uploading geometry.

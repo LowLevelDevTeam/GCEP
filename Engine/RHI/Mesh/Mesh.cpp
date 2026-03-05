@@ -44,6 +44,10 @@ void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, cons
     {
         return;
     }
+    if(m_vertices.empty() || m_indices.empty())
+    {
+        return;
+    }
 
     m_numVertices = static_cast<int32_t>(m_vertices.size());
     m_numIndices  = static_cast<int32_t>(m_indices.size());
@@ -62,6 +66,9 @@ void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, cons
 
 void Mesh::loadObj(const std::filesystem::path& filepath) {
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
+
+    if(attrib.vertices.empty() || modelIndices.empty())
+        return;
 
     static constexpr bool deduplication = false;
 
