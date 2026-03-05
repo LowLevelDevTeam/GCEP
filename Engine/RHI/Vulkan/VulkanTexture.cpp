@@ -5,6 +5,7 @@
 // Externals
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <ktx.h>
 
 // STL
 #include <cmath>
@@ -54,11 +55,36 @@ void VulkanTexture::setLodLevel(float lodLevel)
 
 void VulkanTexture::createTexture(const std::filesystem::path& filepath)
 {
+    bool isKtx = false;
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(filepath.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    void* pixels = nullptr;
+    ktxTexture* kTexture;
 
+    if (filepath.extension().string().starts_with(".ktx"))
+    {
+        isKtx = true;
+        KTX_error_code result = ktxTexture_CreateFromNamedFile(
+            filepath.string().c_str(),
+            KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+            &kTexture
+        );
+
+        if (result != KTX_SUCCESS)
+        {
+            goto err;
+        }
+
+        texWidth = kTexture->baseWidth;
+        texHeight = kTexture->baseHeight;
+        pixels = ktxTexture_GetData(kTexture);
+    }
+    else
+    {
+        pixels = stbi_load(filepath.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    }
     if (!pixels)
     {
+        err:
         throw std::runtime_error(std::string("[VulkanRHI] Failed to load texture: " + filepath.string()));
     }
 
@@ -66,9 +92,13 @@ void VulkanTexture::createTexture(const std::filesystem::path& filepath)
     m_data->height = static_cast<uint32_t>(texHeight);
     vk::DeviceSize imageSize = m_data->width * m_data->height * 4;
 
-    if(m_hasMipmaps)
+    if(m_hasMipmaps && !isKtx)
     {
         m_data->mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_data->width, m_data->height)))) + 1;
+    }
+    else if (m_hasMipmaps && isKtx)
+    {
+        m_data->mipLevels = kTexture->numLevels;
     }
 
     vk::raii::Buffer       stagingBuffer({});
@@ -81,10 +111,17 @@ void VulkanTexture::createTexture(const std::filesystem::path& filepath)
     );
 
     void* data = stagingBufferMemory.mapMemory(0, imageSize);
-    std::memcpy(data, pixels, static_cast<size_t>(imageSize));
+    std::memcpy(data, pixels, imageSize);
     stagingBufferMemory.unmapMemory();
 
-    stbi_image_free(pixels);
+    if (isKtx)
+    {
+        ktxTexture_Destroy(kTexture);
+    }
+    else
+    {
+        stbi_image_free(pixels);
+    }
 
     createImage(
         vk::ImageTiling::eOptimal,
@@ -97,7 +134,7 @@ void VulkanTexture::createTexture(const std::filesystem::path& filepath)
 
     if(m_hasMipmaps)
     {
-        generateMipmaps();
+        generateMipmaps(isKtx, kTexture);
     }
 }
 
@@ -182,7 +219,7 @@ vk::raii::ImageView VulkanTexture::createImageView(vk::ImageAspectFlags aspectFl
     return vk::raii::ImageView(pRhi->m_device.rawDevice(), viewInfo);
 }
 
-void VulkanTexture::generateMipmaps()
+void VulkanTexture::generateMipmaps(bool isKtx, ktxTexture* texture)
 {
     // Check linear filtering support
     const auto props = pRhi->m_device.rawPhysDevice().getFormatProperties(m_format);
@@ -199,51 +236,111 @@ void VulkanTexture::generateMipmaps()
     barrier.subresourceRange.layerCount = 1;
     barrier.subresourceRange.levelCount = 1;
 
-    int32_t mipW = m_data->width, mipH = m_data->height;
-    for (uint32_t i = 1; i < m_data->mipLevels; ++i)
+    if (isKtx)
     {
-        barrier.subresourceRange.baseMipLevel = i - 1;
-        barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
-        barrier.newLayout     = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
-        cmd->pipelineBarrier(
-                vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer,
-                {}, {}, {}, barrier
+        std::vector<vk::BufferImageCopy> regions;
+
+        for (uint32_t i = 0; i < texture->numLevels; ++i)
+        {
+            ktx_size_t offset;
+            ktxTexture_GetImageOffset(texture, i, 0, 0, &offset);
+
+            vk::BufferImageCopy region{};
+            region.bufferOffset = offset;
+            region.bufferRowLength = 0;
+            region.bufferImageHeight = 0;
+
+            region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+            region.imageSubresource.mipLevel = i;
+            region.imageSubresource.baseArrayLayer = 0;
+            region.imageSubresource.layerCount = 1;
+
+            region.imageExtent.width  = std::max(1u, texture->baseWidth  >> i);
+            region.imageExtent.height = std::max(1u, texture->baseHeight >> i);
+            region.imageExtent.depth  = 1;
+
+            regions.push_back(region);
+        }
+        vk::raii::Buffer stagingBuffer({});
+        vk::raii::DeviceMemory stagingBufferMemory({});
+        uint8_t* data = ktxTexture_GetData(texture);
+        ktx_size_t size = ktxTexture_GetDataSize(texture);
+        createBuffer(
+            size,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            stagingBuffer,
+            stagingBufferMemory
         );
+        void* mapped = stagingBufferMemory.mapMemory(0, size, {});
+        std::memcpy(mapped, data, size);
+        stagingBufferMemory.unmapMemory();
+        cmd->copyBufferToImage(
+            stagingBuffer,
+            *m_data->image,
+            vk::ImageLayout::eTransferDstOptimal,
+            regions
+        );
+        vk::ImageMemoryBarrier barrier{};
+        barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = texture->numLevels;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+        barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        cmd->pipelineBarrier(
+            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
+            {}, {}, {}, barrier
+        );
+    }
+    else
+    {
+        int32_t mipW = m_data->width, mipH = m_data->height;
+        for (uint32_t i = 1; i < m_data->mipLevels; ++i)
+        {
+            barrier.subresourceRange.baseMipLevel = i - 1;
+            barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
+            barrier.newLayout     = vk::ImageLayout::eTransferSrcOptimal;
+            barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+            cmd->pipelineBarrier(
+                    vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer,
+                    {}, {}, {}, barrier
+            );
 
-        vk::ImageBlit blit{};
-        blit.srcSubresource = { vk::ImageAspectFlagBits::eColor, i - 1, 0, 1 };
-        blit.srcOffsets[0]  = vk::Offset3D(0, 0, 0);
-        blit.srcOffsets[1]  = vk::Offset3D(mipW, mipH, 1);
-        blit.dstSubresource = { vk::ImageAspectFlagBits::eColor, i, 0, 1 };
-        blit.dstOffsets[0]  = vk::Offset3D(0, 0, 0);
-        blit.dstOffsets[1]  = vk::Offset3D(mipW > 1 ? mipW / 2 : 1, mipH > 1 ? mipH / 2 : 1, 1);
-        cmd->blitImage(*m_data->image, vk::ImageLayout::eTransferSrcOptimal,
-                       *m_data->image, vk::ImageLayout::eTransferDstOptimal, { blit }, vk::Filter::eLinear);
+            vk::ImageBlit blit{};
+            blit.srcSubresource = { vk::ImageAspectFlagBits::eColor, i - 1, 0, 1 };
+            blit.srcOffsets[0]  = vk::Offset3D(0, 0, 0);
+            blit.srcOffsets[1]  = vk::Offset3D(mipW, mipH, 1);
+            blit.dstSubresource = { vk::ImageAspectFlagBits::eColor, i, 0, 1 };
+            blit.dstOffsets[0]  = vk::Offset3D(0, 0, 0);
+            blit.dstOffsets[1]  = vk::Offset3D(mipW > 1 ? mipW / 2 : 1, mipH > 1 ? mipH / 2 : 1, 1);
+            cmd->blitImage(*m_data->image, vk::ImageLayout::eTransferSrcOptimal,
+                           *m_data->image, vk::ImageLayout::eTransferDstOptimal, { blit }, vk::Filter::eLinear);
 
-        barrier.oldLayout     = vk::ImageLayout::eTransferSrcOptimal;
+            barrier.oldLayout     = vk::ImageLayout::eTransferSrcOptimal;
+            barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
+            barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+            cmd->pipelineBarrier(
+                    vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
+                    {}, {}, {}, barrier
+            );
+
+            if (mipW > 1) mipW /= 2;
+            if (mipH > 1) mipH /= 2;
+        }
+        barrier.subresourceRange.baseMipLevel = m_data->mipLevels - 1;
+        barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
         barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
         cmd->pipelineBarrier(
                 vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
                 {}, {}, {}, barrier
         );
-
-        if (mipW > 1) mipW /= 2;
-        if (mipH > 1) mipH /= 2;
     }
-
-    barrier.subresourceRange.baseMipLevel = m_data->mipLevels - 1;
-    barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
-    barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
-    barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    cmd->pipelineBarrier(
-            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-            {}, {}, {}, barrier
-    );
 
     pRhi->endSingleTimeCommands(*cmd);
 }

@@ -34,13 +34,18 @@ target_sources(GCEngine PRIVATE TinyFileDialogs/tinyfiledialogs.cpp)
 target_include_directories(GCEngine PRIVATE FontAwesome)
 
 # KTX-Software
-# set(LIBKTX_VERSION_FULL ON)
-# add_subdirectory(KTX-Software/lib)
-# target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
-# add_lib_dependencies(GCEngine ktx)
+set(KTX_VERSION 4.4.2)
+set(KTX_GIT_VERSION_FULL 4.4.2)
+set(LIBKTX_VERSION_FULL ON)
+add_subdirectory(KTX-Software/lib)
+target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
+add_lib_dependencies(GCEngine ktx)
+
+# TinyGLTF
+target_include_directories(GCEngine PRIVATE TinyGLTF)
 
 # stb image
 target_include_directories(GCEngine PRIVATE stb)
 
 # Final libraries linking
-target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio Jolt)
+target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio Jolt ktx)

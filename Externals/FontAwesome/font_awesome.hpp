@@ -1,6 +1,6 @@
 #pragma once
 
-auto inline FONT_ICON_FILE_NAME_FA = "TestTextures/fontawesome.ttf";
+auto inline FONT_ICON_FILE_NAME_FA = "Assets/Fonts/fontawesome.ttf";
 
 constexpr int ICON_MIN_FA = 0xf000;
 constexpr int ICON_MAX_16_FA = 0xf2e0;

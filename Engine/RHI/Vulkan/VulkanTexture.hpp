@@ -1,6 +1,8 @@
 #pragma once
 
 // Externals
+#include <vulkan/vulkan.h>
+#include <ktxvulkan.h>
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
@@ -194,7 +196,7 @@ private:
     ///
     /// @throws std::runtime_error if @c m_format does not support
     ///         @c eSampledImageFilterLinear in optimal tiling.
-    void generateMipmaps();
+    void generateMipmaps(bool isKtx = false, ktxTexture* texture = nullptr);
 
     /// @brief Transitions @c m_image layout using a single-time command buffer.
     ///

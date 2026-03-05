@@ -57,6 +57,10 @@ public:
               const std::filesystem::path& textureFilepath = L"",
               glm::mat4                    transform       = glm::mat4(1.0f));
 
+    void loadObj(const std::filesystem::path& objPath);
+
+    void loadGLTF(const std::filesystem::path& objPath);
+
     // Texture
 
     /// @brief Loads or replaces the mesh's texture at runtime.

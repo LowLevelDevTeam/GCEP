@@ -135,7 +135,7 @@ public:
     ///
     /// @param window    The application GLFW window. Must outlive this object.
     /// @param initInfo  Vulkan backend initialisation info from @c VulkanRHI::getUIInitInfo().
-    UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo);
+    UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close);
 
     /// @brief Calls @c shutdownConsole() to restore stream buffers.
     ~UiManager();
@@ -310,6 +310,8 @@ private:
     ImGui_ImplVulkan_InitInfo m_initInfo;
     bool                      showDemoWindow  = false;
     ImVec2                    m_viewportSize  = { 800, 600 };
+    bool&                     reloadApp;
+    bool&                     closeApp;
 
     std::vector<rhi::vulkan::Mesh>* meshData  = nullptr;
 
