@@ -19,7 +19,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : physicsSystem(PhysicsSystem::getInstance())
+UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close) : physicsSystem(PhysicsSystem::getInstance()), reloadApp(reload), closeApp(close)
 {
     m_window = window;
     m_initInfo = initInfo;
@@ -35,7 +35,6 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : p
     // Get variables references
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // setup ImGui style
@@ -365,7 +364,7 @@ void UiManager::drawMainMenuBar()
         {
             if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
             {
-                // TODO: Add stuff
+                closeApp = true;
             }
             ImGui::EndMenu();
         }
@@ -376,6 +375,10 @@ void UiManager::drawMainMenuBar()
         if(ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
         {
             showSettings = !showSettings;
+        }
+        if(ImGui::Button("Reload engine"))
+        {
+            reloadApp = true;
         }
         ImGui::EndMainMenuBar();
     }
@@ -673,7 +676,7 @@ void UiManager::drawEntityProperties()
 
         ImGui::SeparatorText("Physics");
 
-        PhysicsComponent& physics = m_registry->getComponent<PhysicsComponent>(m_selectedEntityID);
+        auto& physics = m_registry->getComponent<PhysicsComponent>(m_selectedEntityID);
         const char* motionTypeLabels[] =
         {
             "Static",
@@ -991,11 +994,11 @@ void UiManager::handleGizmoInput()
     if(simulationStarted && !simulationPaused)
         return;
 
-    if (ImGui::IsKeyPressed(ImGuiKey_W))
+    if (ImGui::IsKeyPressed(ImGuiKey_W) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E))
+    if (ImGui::IsKeyPressed(ImGuiKey_E) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R))
+    if (ImGui::IsKeyPressed(ImGuiKey_R) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::SCALE;
 }
 

@@ -56,11 +56,16 @@ bool Window::shouldClose()
     return glfwWindowShouldClose(m_window);
 }
 
-Window::~Window()
+void Window::destroy()
 {
     glfwDestroyWindow(m_window);
     glfwTerminate();
     Log::info("Window destroyed");
+}
+
+Window::~Window()
+{
+    destroy();
 }
 
 } // Namespace gcep

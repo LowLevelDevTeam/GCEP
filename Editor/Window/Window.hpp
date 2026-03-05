@@ -23,6 +23,7 @@ public:
 public:
     GLFWwindow* getGlfwWindow();
     bool shouldClose();
+    void destroy();
 
 private:
     Window() = default;
