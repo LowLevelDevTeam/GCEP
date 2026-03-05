@@ -49,7 +49,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, boo
 
     constexpr float baseFontSize = 18.0f;
     constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("TestTextures/Nunito-Regular.ttf", baseFontSize);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Nunito-Regular.ttf", baseFontSize);
     ImFontConfig icons_config;
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
