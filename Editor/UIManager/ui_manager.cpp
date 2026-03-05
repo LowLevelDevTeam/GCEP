@@ -19,7 +19,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : physicsSystem(PhysicsSystem::getInstance())
+UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close) : physicsSystem(PhysicsSystem::getInstance()), reloadApp(reload), closeApp(close)
 {
     m_window = window;
     m_initInfo = initInfo;
@@ -35,7 +35,6 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : p
     // Get variables references
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // setup ImGui style
@@ -48,7 +47,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : p
 
     constexpr float baseFontSize = 18.0f;
     constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("TestTextures/Nunito-Regular.ttf", baseFontSize);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Nunito-Regular.ttf", baseFontSize);
     ImFontConfig icons_config;
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
@@ -365,7 +364,7 @@ void UiManager::drawMainMenuBar()
         {
             if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
             {
-                // TODO: Add stuff
+                closeApp = true;
             }
             ImGui::EndMenu();
         }
@@ -376,6 +375,10 @@ void UiManager::drawMainMenuBar()
         if(ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
         {
             showSettings = !showSettings;
+        }
+        if(ImGui::Button("Reload engine"))
+        {
+            reloadApp = true;
         }
         ImGui::EndMainMenuBar();
     }
@@ -539,18 +542,46 @@ void UiManager::drawSceneHierarchy()
             }
             ImGui::TreePop();
         }
-
-        if (ImGui::Button("Spawn cube"))
+        glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
+        if (ImGui::BeginMenu("Add shape"))
         {
-            pRHI->spawnCube(cameraRef->position + cameraRef->front * 4.0f);
+            if(ImGui::MenuItem("Cone"))
+            {
+                pRHI->spawnCone(frontOfCam);
+            }
+            if(ImGui::MenuItem("Cube"))
+            {
+                pRHI->spawnCube(frontOfCam);
+            }
+            if(ImGui::MenuItem("Cylinder"))
+            {
+                pRHI->spawnCylinder(frontOfCam);
+            }
+            if(ImGui::MenuItem("Icosphere"))
+            {
+                pRHI->spawnIcosphere(frontOfCam);
+            }
+            if(ImGui::MenuItem("Sphere"))
+            {
+                pRHI->spawnSphere(frontOfCam);
+            }
+            if(ImGui::MenuItem("Suzanne"))
+            {
+                pRHI->spawnSuzanne(frontOfCam);
+            }
+            if(ImGui::MenuItem("Torus"))
+            {
+                pRHI->spawnTorus(frontOfCam);
+            }
+            ImGui::EndMenu();
         }
 
         if (ImGui::Button("Add asset"))
         {
-            const char *filters[] = { "*.obj" };
-            if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 1, filters, "3D Object files", 0); path != nullptr)
+            const char *filters[] = { "*.obj", "*.gltf" };
+            if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0); path != nullptr)
             {
-                pRHI->spawnAsset(path, cameraRef->position + cameraRef->front * 4.0f);
+                pRHI->spawnAsset(path, frontOfCam);
             }
         }
 
@@ -645,7 +676,7 @@ void UiManager::drawEntityProperties()
 
         ImGui::SeparatorText("Physics");
 
-        PhysicsComponent& physics = m_registry->getComponent<PhysicsComponent>(m_selectedEntityID);
+        auto& physics = m_registry->getComponent<PhysicsComponent>(m_selectedEntityID);
         const char* motionTypeLabels[] =
         {
             "Static",
@@ -657,19 +688,33 @@ void UiManager::drawEntityProperties()
             "Non moving",
             "Moving"
         };
+        const char* bodyShapes[] =
+        {
+            "Cube",
+            "Sphere",
+            "Cylinder",
+            "Capsule"
+        };
         int currentMotion = static_cast<int>(physics.motionType);
         int currentLayer = static_cast<int>(physics.layers);
-        if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
+        int currentShape = static_cast<int>(physics.shapeType);
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::PushFont(io.Fonts->Fonts[0]);
+        if (ImGui::Combo((std::string(ICON_FA_CAR) + " Motion Type").c_str(), &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
         {
             physics.motionType = static_cast<EMotionType>(currentMotion);
         }
-        if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
+        if (ImGui::Combo((std::string(ICON_FA_CERTIFICATE) + " Layer").c_str(), &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
         {
             physics.layers = static_cast<ELayers>(currentLayer);
         }
+        if (ImGui::Combo((std::string(ICON_FA_EDGE) + " Shape type").c_str(), &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
+        {
+            physics.shapeType = static_cast<EShapeType>(currentShape);
+        }
+        ImGui::PopFont();
 
         ImGui::SeparatorText("Scripting");
-        ImGuiIO& io = ImGui::GetIO();
         ImGui::PushFont(io.Fonts->Fonts[0]);
         if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
         {
@@ -949,11 +994,11 @@ void UiManager::handleGizmoInput()
     if(simulationStarted && !simulationPaused)
         return;
 
-    if (ImGui::IsKeyPressed(ImGuiKey_W))
+    if (ImGui::IsKeyPressed(ImGuiKey_W) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E))
+    if (ImGui::IsKeyPressed(ImGuiKey_E) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R))
+    if (ImGui::IsKeyPressed(ImGuiKey_R) && isSpecificWindowFocused("Viewport"))
         m_currentGizmoOperation = ImGuizmo::SCALE;
 }
 
