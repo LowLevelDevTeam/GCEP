@@ -1,16 +1,36 @@
 #pragma once
 
 // Externals
+#include <vulkan/vulkan.h>
+#include <ktxvulkan.h>
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
 #include <atomic>
 #include <cstdint>
 #include <filesystem>
+#include <unordered_map>
 
-namespace gcep::rhi::vulkan {
+namespace gcep::rhi::vulkan
+{
 
 class VulkanRHI;
+struct TextureData
+{
+    vk::raii::Image        image         = nullptr;
+    vk::raii::DeviceMemory imageMemory   = nullptr;
+    vk::raii::ImageView    imageView     = nullptr;
+    vk::raii::Sampler      sampler       = nullptr;
+    uint32_t               bindlessIndex = 0;
+    uint32_t               mipLevels     = 1;
+    uint32_t               width         = 0;
+    uint32_t               height        = 0;
+};
+
+struct TextureCacheEntry
+{
+    std::shared_ptr<TextureData> data;
+};
 
 /// @brief Global atomic slot allocator for the bindless texture array.
 ///
@@ -76,27 +96,22 @@ public:
     // Accessors
 
     /// @brief Returns the underlying @c VkImage handle.
-    [[nodiscard]] vk::Image         getImage()         noexcept { return m_image;         }
+    [[nodiscard]] vk::Image         getImage()         noexcept { return m_data->image; }
 
     /// @brief Returns the @c VkImageView covering all mip levels and the single array layer.
-    [[nodiscard]] vk::ImageView     getImageView()     noexcept { return m_imageView;     }
+    [[nodiscard]] vk::ImageView     getImageView()     noexcept { return m_data->imageView;     }
 
     /// @brief Returns the @c VkSampler configured for this texture.
-    [[nodiscard]] vk::Sampler       getSampler()       noexcept { return m_sampler;       }
-
-    /// @brief Returns the legacy per-texture @c VkDescriptorSet.
-    ///
-    /// @deprecated Not used in the bindless pipeline. Prefer @c getBindlessIndex().
-    [[nodiscard]] vk::DescriptorSet getDescriptorSet() noexcept { return m_descriptorSet; }
+    [[nodiscard]] vk::Sampler       getSampler()       noexcept { return m_data->sampler;       }
 
     /// @brief Returns the number of mip levels present in the image.
-    [[nodiscard]] uint32_t  getMipLevels() noexcept { return m_mipLevels; }
+    [[nodiscard]] uint32_t  getMipLevels() noexcept { return m_data->mipLevels; }
 
     /// @brief Returns the width of mip level 0 in texels.
-    [[nodiscard]] uint32_t getWidth()     noexcept { return m_width;     }
+    [[nodiscard]] uint32_t getWidth()     noexcept { return m_data->width;     }
 
     /// @brief Returns the height of mip level 0 in texels.
-    [[nodiscard]] uint32_t getHeight()    noexcept { return m_height;    }
+    [[nodiscard]] uint32_t getHeight()    noexcept { return m_data->height;    }
 
     /// @brief Returns the slot index of this texture in the global bindless array.
     ///
@@ -181,7 +196,7 @@ private:
     ///
     /// @throws std::runtime_error if @c m_format does not support
     ///         @c eSampledImageFilterLinear in optimal tiling.
-    void generateMipmaps();
+    void generateMipmaps(bool isKtx = false, ktxTexture* texture = nullptr);
 
     /// @brief Transitions @c m_image layout using a single-time command buffer.
     ///
@@ -218,22 +233,14 @@ private:
 private:
     VulkanRHI* pRhi; ///< Non-owning pointer to the parent RHI context.
 
-    vk::raii::Image         m_image         = nullptr; ///< Device-local texture image.
-    vk::raii::DeviceMemory  m_imageMemory   = nullptr; ///< Memory backing @c m_image.
-    vk::raii::ImageView     m_imageView     = nullptr; ///< View covering all mip levels.
-    vk::raii::Sampler       m_sampler       = nullptr; ///< Sampler for shader access.
-    vk::raii::DescriptorSet m_descriptorSet = nullptr; ///< Legacy per-texture set (unused in bindless path).
-    vk::Format              m_format        = vk::Format::eR8G8B8A8Srgb; ///< Texel format (fixed at RGBA8 sRGB).
-
-    /// Slot in the global bindless array. Set by @c registerBindless(); @c UINT32_MAX until then.
-    uint32_t m_bindlessIndex = UINT32_MAX;
-
-    uint32_t m_width     = 0; ///< Texel width of mip level 0.
-    uint32_t m_height    = 0; ///< Texel height of mip level 0.
-    uint32_t m_mipLevels = 1; ///< Total number of mip levels (1 if mipmaps disabled).
+    std::shared_ptr<TextureData> m_data;
+    vk::Format                   m_format = vk::Format::eR8G8B8A8Srgb; ///< Texel format (fixed at RGBA8 sRGB).
+    uint32_t                     m_bindlessIndex;
 
     bool m_hasMipmaps = true;  ///< Whether a full mip chain was requested on load.
     bool m_hasTexture = false; ///< Set to @c true after @c loadTexture() completes.
+
+    VulkanTexture* m_sharedOwner = nullptr;
 };
 
 } // Namespace gcep::rhi::vulkan

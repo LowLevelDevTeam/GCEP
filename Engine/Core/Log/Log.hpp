@@ -134,6 +134,7 @@ private:
                            const std::source_location& location);
 
     static std::string buildTimeHeader();
+    //static std::string stacktrace();
 
     // State
     static std::mutex                                    s_mutex;

@@ -20,6 +20,13 @@ file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 # Adding the executable
 add_executable(GCEngine)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
+# include(FetchContent)
+# FetchContent_Declare(
+#         cpptrace
+#         GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+#         GIT_TAG        v1.0.4
+# )
+# FetchContent_MakeAvailable(cpptrace)
 
 # Vulkan
 find_package(Vulkan 1.3 REQUIRED)

@@ -23,6 +23,11 @@
     #include <unistd.h>
 #endif
 
+/*
+// Externals
+#include <cpptrace/cpptrace.hpp>
+*/
+
 namespace gcep
 {
 
@@ -62,7 +67,12 @@ std::string Log::buildTimeHeader()
         << "] ";
     return oss.str();
 }
-
+/*
+std::string Log::stacktrace()
+{
+    return cpptrace::generate_trace().to_string();
+}
+*/
 // ─────────────────────────────────────────────────────────────────────────────
 //  Internal write (called with s_mutex held)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -342,10 +352,13 @@ void Log::handleException(const std::exception& e)
         std::ofstream out(s_crashLogPath);
         out << "==== Crash Report ====\n";
         logSystemInfo(out);
-        logVulkanInfo(out, s_physicalDevice.load(std::memory_order_relaxed));
-        out << "Exception type : " << typeid(e).name() << '\n'
-            << "Exception what : " << e.what()         << '\n'
-            << "==== End of Crash Report ====\n";
+        logVulkanInfo(out, s_physicalDevice.load());
+
+        out << "Exception : " << typeid(e).name() << '\n'
+            << "What      : " << e.what()         << '\n';
+        //    << stacktrace() << '\n';
+
+        out << "==== End of Crash Report ====\n";
     }
     catch (...)
     {
@@ -382,6 +395,7 @@ void Log::signalHandler(int signalNum)
                 out << "Unknown";
                 break;
         }
+        //out << stacktrace() << '\n';
         out << ")\n==== End of Crash Report ====\n";
     }
     catch (...)

@@ -1,10 +1,10 @@
 function(add_slang_shader_target TARGET)
-    set(SHADERS_DIR ${CMAKE_BINARY_DIR}/Shaders)
+    set(SHADERS_DIR ${CMAKE_BINARY_DIR}/Assets/Shaders)
     file(MAKE_DIRECTORY ${SHADERS_DIR})
 
     file(GLOB_RECURSE SLANG_FILES
          CONFIGURE_DEPENDS
-         "${CMAKE_SOURCE_DIR}/Engine/*.slang"
+         "${CMAKE_SOURCE_DIR}/Assets/*.slang"
     )
 
     find_program(SLANGC_EXECUTABLE slangc REQUIRED)
@@ -14,7 +14,7 @@ function(add_slang_shader_target TARGET)
         get_filename_component(FNAME ${SRC} NAME_WE)
         set(OUT ${SHADERS_DIR}/${FNAME}.spv)
 
-        string(FIND "${FNAME}" "FrustumCulling" COMPUTE_POS)
+        string(FIND "${FNAME}" "Compute" COMPUTE_POS)
         if(COMPUTE_POS EQUAL 0)
             add_custom_command(
                 OUTPUT ${OUT}
@@ -23,7 +23,7 @@ function(add_slang_shader_target TARGET)
                         -profile spirv_1_4
                         -emit-spirv-directly
                         -fvk-use-entrypoint-name
-                        -entry cullMain
+                        -entry compMain
                         -o ${OUT}
                 DEPENDS ${SRC}
                 COMMENT "Compiling ${SRC} -> ${OUT}"

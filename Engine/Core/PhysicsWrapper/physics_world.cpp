@@ -26,6 +26,7 @@
 #include "physics_shape.hpp"
 #include "Component/transform_component.hpp"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
+#include "Maths/Utils/vector3_convertor.hpp"
 
 namespace gcep
 {
@@ -85,7 +86,7 @@ namespace gcep
 			*m_objectLayerPairFilter
 			);
 
-    	m_physicsSystem->SetGravity(JPH::Vec3(0, -9.81f, 0));
+    	m_physicsSystem->SetGravity(JPH::Vec3(0, 0, -9.81f));
     }
 
 	PhysicsWorld::~PhysicsWorld()
@@ -167,8 +168,8 @@ namespace gcep
     	}
 
     	// Transform
-    	const Vector3<float>& pos = transform.position;
-    	const Quaternion& rot = transform.rotation;
+    	const auto& pos = transform.position;
+    	const auto& rot = transform.rotation;
 
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -180,12 +181,18 @@ namespace gcep
 			rotation,
 			motionType,
 			static_cast<int>(data.layers)
-    		);
+    	);
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-    	JPH::Body* body = bodyInterface.CreateBody(bodySettings);
-    	bodyInterface.AddBody(body->GetID(), JPH::EActivation::Activate);
-    	dataId = body->GetID();
+	    JPH::Body* body = bodyInterface.CreateBody(bodySettings);
+    	if (data.motionType != EMotionType::STATIC)
+    	{
+    		body->SetAngularVelocity(Vector3Convertor::ToJolt(data.angularVelocity));
+    		body->SetLinearVelocity(Vector3Convertor::ToJolt(data.linearVelocity));
+    	}
+	    JPH::EActivation activation = (motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate : JPH::EActivation::Activate;
+	    bodyInterface.AddBody(body->GetID(), activation);
+	    dataId = body->GetID();
     }
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const
@@ -223,13 +230,13 @@ namespace gcep
 					worldPoint
 				);
 
-    			hitResult.point = {
+    			hitResult.point = Vector3<float>{
     				worldPoint.GetX(),
 					worldPoint.GetY(),
 					worldPoint.GetZ()
 				};
 
-    			hitResult.normal = {
+    			hitResult.normal = Vector3<float>{
     				normal.GetX(),
 					normal.GetY(),
 					normal.GetZ()

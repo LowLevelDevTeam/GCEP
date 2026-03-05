@@ -294,9 +294,9 @@ namespace gcep
 
         float s = std::sqrt(1.0f - q.w * q.w);
         if (s < 1e-6f)
-            axis = { 1.0f, 0.0f, 0.0f };
+            axis = {1.0f, 0.0f, 0.0f};
         else
-            axis = { q.x / s, q.y / s, q.z / s };
+            axis = {q.x / s, q.y / s, q.z / s};
     }
 
     Vector3<float> Quaternion::ToEuler() const
