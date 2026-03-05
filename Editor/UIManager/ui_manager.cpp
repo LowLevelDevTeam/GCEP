@@ -657,19 +657,33 @@ void UiManager::drawEntityProperties()
             "Non moving",
             "Moving"
         };
+        const char* bodyShapes[] =
+        {
+            "Cube",
+            "Sphere",
+            "Cylinder",
+            "Capsule"
+        };
         int currentMotion = static_cast<int>(physics.motionType);
         int currentLayer = static_cast<int>(physics.layers);
-        if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
+        int currentShape = static_cast<int>(physics.shapeType);
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::PushFont(io.Fonts->Fonts[0]);
+        if (ImGui::Combo((std::string(ICON_FA_CAR) + " Motion Type").c_str(), &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
         {
             physics.motionType = static_cast<EMotionType>(currentMotion);
         }
-        if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
+        if (ImGui::Combo((std::string(ICON_FA_CERTIFICATE) + " Layer").c_str(), &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
         {
             physics.layers = static_cast<ELayers>(currentLayer);
         }
+        if (ImGui::Combo((std::string(ICON_FA_EDGE) + " Shape type").c_str(), &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
+        {
+            physics.shapeType = static_cast<EShapeType>(currentShape);
+        }
+        ImGui::PopFont();
 
         ImGui::SeparatorText("Scripting");
-        ImGuiIO& io = ImGui::GetIO();
         ImGui::PushFont(io.Fonts->Fonts[0]);
         if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
         {
