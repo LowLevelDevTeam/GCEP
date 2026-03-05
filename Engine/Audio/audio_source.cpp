@@ -43,7 +43,7 @@ namespace gcep
 		m_volume = volume;
 	}
 
-	void AudioSource::setPosition(const glm::vec3& position)
+	void AudioSource::setPosition(const Vector3<float>& position)
 	{
 		m_position = position;
 	}
@@ -98,7 +98,7 @@ namespace gcep
 		return m_volume;
 	}
 
-	const glm::vec3& AudioSource::getPosition() const
+	Vector3<float>& AudioSource::getPosition()
 	{
 		return m_position;
 	}

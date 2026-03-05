@@ -72,11 +72,5 @@ namespace
     };
 }
 
-GCE_SCRIPT_API gcep::scripting::ScriptPlugin* GCE_CreateScriptPlugin()
-{
-    return &g_plugin;
-}
-
-GCE_SCRIPT_API void GCE_DestroyScriptPlugin(gcep::scripting::ScriptPlugin* /*plugin*/)
-{
-}
+// Register this script — DO NOT DELETE
+GCE_REGISTER_SCRIPT("SampleScript", g_plugin);

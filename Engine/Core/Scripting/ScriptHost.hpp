@@ -30,16 +30,20 @@ namespace gcep::scripting
 
         [[nodiscard]] bool load(std::string* error = nullptr);
         void unload();
-        void update(double deltaSeconds);
+
+        /// Update a specific plugin by name with a caller-owned context
+        void updatePlugin(const std::string& scriptName, ScriptContext* context);
+
+        /// Get a plugin entry by name (nullptr if not found)
+        [[nodiscard]] ScriptRegistryEntry* getPluginByName(const std::string& name) const;
+        /// Get the number of registered scripts in the loaded DLL
+        [[nodiscard]] std::size_t getScriptCount() const;
 
         void requestReload();
         void startWatching(std::chrono::milliseconds interval = std::chrono::milliseconds(250));
         void stopWatching();
         void setSourceFilePath(const std::filesystem::path& sourcePath);
         void setBuildCommand(std::string commandLine);
-        void setEcsContext(ECS::Registry* registry, ECS::EntityID entity);
-        void setMeshContext(rhi::vulkan::Mesh* mesh);
-        void setPhysicsContext(gcep::PhysicsSystem* physicsSystem);
 
         [[nodiscard]] const std::filesystem::path& getSourcePath() const;
 
@@ -63,8 +67,12 @@ namespace gcep::scripting
         std::filesystem::file_time_type m_lastWriteTime{};
         std::filesystem::file_time_type m_lastSourceWriteTime{};
         SharedLibrary m_library;
-        ScriptPlugin* m_plugin = nullptr;
-        DestroyScriptPluginFn m_destroyPlugin = nullptr;
+
+        // Multi-plugin registry function pointers (resolved from DLL)
+        GetScriptCountFn m_getCount = nullptr;
+        GetScriptEntryFn m_getEntry = nullptr;
+        GetScriptEntryByNameFn m_getEntryByName = nullptr;
+
         std::atomic<bool> m_reloadRequested{false};
         unsigned long long m_reloadCounter = 0;
         std::unique_ptr<ScriptContext> m_context;

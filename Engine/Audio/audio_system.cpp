@@ -87,10 +87,10 @@ namespace gcep
 
             if (source->isSpatialized())
             {
-                const glm::vec3 delta =
+                const Vector3<float> delta =
                     source->getPosition() - m_listener.getPosition();
 
-                const float distance = glm::length(delta);
+                const float distance = delta.Length();
                 const float clamped =
                     std::clamp(distance, source->getMinDistance(), source->getMaxDistance());
 
@@ -116,6 +116,11 @@ namespace gcep
 
         m_sources.clear();
         m_voiceBuffer.clear();
+    }
+
+    AudioListener *AudioSystem::getListener()
+    {
+        return &m_listener;
     }
 
     AudioSystem* AudioSystem::getInstance()

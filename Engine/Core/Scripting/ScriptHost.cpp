@@ -37,12 +37,9 @@ namespace gcep::scripting
     {
         notifyUnload();
 
-        if (m_destroyPlugin && m_plugin)
-        {
-            m_destroyPlugin(m_plugin);
-        }
-        m_plugin = nullptr;
-        m_destroyPlugin = nullptr;
+        m_getCount = nullptr;
+        m_getEntry = nullptr;
+        m_getEntryByName = nullptr;
 
         m_library.unload();
 
@@ -54,19 +51,36 @@ namespace gcep::scripting
         }
     }
 
-    void ScriptHost::update(double deltaSeconds)
+    void ScriptHost::updatePlugin(const std::string& scriptName, ScriptContext* context)
     {
-        m_context->deltaSeconds = deltaSeconds;
-
         if (reloadIfNeeded())
         {
             return;
         }
 
-        if (m_plugin && m_plugin->onUpdate)
+        auto* entry = getPluginByName(scriptName);
+        if (entry && entry->plugin.onUpdate && context)
         {
-            m_plugin->onUpdate(m_context.get(), m_plugin->state);
+            entry->plugin.onUpdate(context, entry->plugin.state);
         }
+    }
+
+    ScriptRegistryEntry* ScriptHost::getPluginByName(const std::string& name) const
+    {
+        if (m_getEntryByName)
+        {
+            return m_getEntryByName(name.c_str());
+        }
+        return nullptr;
+    }
+
+    std::size_t ScriptHost::getScriptCount() const
+    {
+        if (m_getCount)
+        {
+            return m_getCount();
+        }
+        return 0;
     }
 
     void ScriptHost::requestReload()
@@ -198,38 +212,41 @@ namespace gcep::scripting
         }
 
         std::string symbolError;
-        auto createFn = reinterpret_cast<CreateScriptPluginFn>(m_library.getSymbol(kCreateSymbol, &symbolError));
-        if (!createFn)
+        m_getCount = reinterpret_cast<GetScriptCountFn>(m_library.getSymbol(kGetCountSymbol, &symbolError));
+        if (!m_getCount)
         {
             if (error)
             {
-                *error = symbolError.empty() ? "Missing create symbol" : symbolError;
+                *error = symbolError.empty() ? "Missing GCE_GetScriptCount symbol" : symbolError;
             }
             m_library.unload();
             return false;
         }
 
-        m_destroyPlugin = reinterpret_cast<DestroyScriptPluginFn>(m_library.getSymbol(kDestroySymbol, &symbolError));
-        if (!m_destroyPlugin)
+        m_getEntry = reinterpret_cast<GetScriptEntryFn>(m_library.getSymbol(kGetEntrySymbol, &symbolError));
+        if (!m_getEntry)
         {
             if (error)
             {
-                *error = symbolError.empty() ? "Missing destroy symbol" : symbolError;
+                *error = symbolError.empty() ? "Missing GCE_GetScriptEntry symbol" : symbolError;
             }
             m_library.unload();
             return false;
         }
 
-        m_plugin = createFn();
-        if (!m_plugin)
+        m_getEntryByName = reinterpret_cast<GetScriptEntryByNameFn>(m_library.getSymbol(kGetEntryByNameSymbol, &symbolError));
+        if (!m_getEntryByName)
         {
             if (error)
             {
-                *error = "Create plugin returned null";
+                *error = symbolError.empty() ? "Missing GCE_GetScriptEntryByName symbol" : symbolError;
             }
             m_library.unload();
             return false;
         }
+
+        const std::size_t count = m_getCount();
+        defaultLog(("Loaded " + std::to_string(count) + " script(s) from DLL").c_str());
 
         notifyLoad();
 
@@ -243,17 +260,33 @@ namespace gcep::scripting
 
     void ScriptHost::notifyLoad()
     {
-        if (m_plugin && m_plugin->onLoad)
+        if (!m_getCount || !m_getEntry)
+            return;
+
+        const std::size_t count = m_getCount();
+        for (std::size_t i = 0; i < count; ++i)
         {
-            m_plugin->onLoad(m_context.get(), &m_plugin->state);
+            auto* entry = m_getEntry(i);
+            if (entry && entry->plugin.onLoad)
+            {
+                entry->plugin.onLoad(m_context.get(), &entry->plugin.state);
+            }
         }
     }
 
     void ScriptHost::notifyUnload()
     {
-        if (m_plugin && m_plugin->onUnload)
+        if (!m_getCount || !m_getEntry)
+            return;
+
+        const std::size_t count = m_getCount();
+        for (std::size_t i = 0; i < count; ++i)
         {
-            m_plugin->onUnload(m_context.get(), m_plugin->state);
+            auto* entry = m_getEntry(i);
+            if (entry && entry->plugin.onUnload)
+            {
+                entry->plugin.onUnload(m_context.get(), entry->plugin.state);
+            }
         }
     }
 
@@ -425,21 +458,6 @@ namespace gcep::scripting
         m_buildCommand = std::move(commandLine);
     }
 
-    void ScriptHost::setEcsContext(ECS::Registry* registry, ECS::EntityID entity)
-    {
-        m_context->registry = registry;
-        m_context->entity = entity;
-    }
-
-    void ScriptHost::setMeshContext(rhi::vulkan::Mesh* mesh)
-    {
-        m_context->mesh = mesh;
-    }
-
-    void ScriptHost::setPhysicsContext(gcep::PhysicsSystem* physicsSystem)
-    {
-        m_context->physicsSystem = physicsSystem;
-    }
 
     namespace
     {

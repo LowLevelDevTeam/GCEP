@@ -8,93 +8,106 @@
 
 namespace gcep::scripting
 {
+    namespace
+    {
+        void scriptLog(const char* msg)
+        {
+            if (msg) std::cout << "[Script] " << msg << std::endl;
+        }
+    }
+
     void ScriptSystem::init(ECS::Registry* registry, const std::vector<rhi::vulkan::Mesh>& meshDataVector)
     {
-        // Build Scripts
-        std::string configureCommand =
-             "cmake -S \"" + m_sourcePath +
-             "\" -B \"" + m_buildPath +
-             "\" -G Ninja";
+        // Build Scripts — use the main project build directory (GCE_CMAKE_BINARY_DIR)
+        // so that all parent targets (Jolt, etc.) are available.
+        // CONFIGURE_DEPENDS in Scripts/CMakeLists.txt ensures cmake --build
+        // auto-reconfigures when .cpp files are added or removed.
+#if defined(_WIN32)
+        const std::string cmakeExe = toShortPath(GCE_CMAKE_COMMAND);
+#else
+        const std::string cmakeExe = "cmake";
+#endif
+        const std::string projectBuildDir = GCE_CMAKE_BINARY_DIR;
 
-        int configureResult = std::system(configureCommand.c_str());
-        if (configureResult != 0)
-        {
-            std::cerr << "[ScriptSystem] CMake configure failed\n";
-            return;
-        }
+        const std::string buildCommand =
+            cmakeExe + " --build \"" + projectBuildDir + "\" --target GCEngineScripts";
 
-        std::string buildCommand =
-            "cmake --build \"" + m_buildPath + "\"";
-
+        std::cout << "[ScriptSystem] Building scripts: " << buildCommand << std::endl;
         int buildResult = std::system(buildCommand.c_str());
         if (buildResult != 0)
         {
-            std::cerr << "[ScriptSystem] CMake build failed\n";
+            std::cerr << "[ScriptSystem] Script build failed (exit code " << buildResult << ")\n";
         }
         //========================================
 
         m_registry = registry;
 
         const std::filesystem::path scriptPath = findScriptLibrary();
-        const gcep::ECS::EntityID scriptEntity = m_registry->createEntity();
 
-        for (auto& mesh : meshDataVector)
+        // Create a single shared ScriptHost for the DLL
+        std::shared_ptr<ScriptHost> sharedHost;
+        if (!scriptPath.empty())
         {
-            const std::uint32_t meshId = mesh.id;
-
-            auto& scriptComponent = m_registry->addComponent<gcep::scripting::ScriptComponent>(scriptEntity, scriptPath, meshId);
-
+            sharedHost = std::make_shared<ScriptHost>(scriptPath);
             std::string scriptError;
-            if (!scriptPath.empty())
+            std::cout << "Script library found: " << scriptPath.string() << std::endl;
+            if (!sharedHost->load(&scriptError))
             {
-                std::cout << "Script library found: " << scriptPath.string() << std::endl;
-                if (scriptComponent.host && !scriptComponent.host->load(&scriptError))
-                {
-                    std::cout << "Script load failed: " << scriptError << std::endl;
-                }
+                std::cout << "Script load failed: " << scriptError << std::endl;
+                sharedHost.reset();
             }
             else
             {
-                const std::filesystem::path expected = getExecutableDir() / "Scripts" / (std::string("GCEngineScripts") + gcep::scripting::kSharedLibraryExtension);
-                std::cout << "Script library not found. Expected: " << expected.string() << std::endl;
+                std::cout << "Loaded " << sharedHost->getScriptCount() << " script(s)" << std::endl;
             }
+        }
+        else
+        {
+            const std::filesystem::path expected = getExecutableDir() / "Scripts" / (std::string("GCEngineScripts") + gcep::scripting::kSharedLibraryExtension);
+            std::cout << "Script library not found. Expected: " << expected.string() << std::endl;
+        }
 
-            const std::filesystem::path sourcePath = findScriptSource();
-            if (!sourcePath.empty())
+        // Create one ScriptComponent per mesh, each referencing its own script by name
+        for (auto& mesh : meshDataVector)
+        {
+            const std::uint32_t meshId = mesh.id;
+            const std::string scriptName = "Script" + std::to_string(meshId);
+
+            std::cout << "[ScriptSystem] Mesh id=" << meshId
+                      << " -> script name=\"" << scriptName << "\"" << std::endl;
+
+            const gcep::ECS::EntityID scriptEntity = m_registry->createEntity();
+            auto& scriptComponent = m_registry->addComponent<gcep::scripting::ScriptComponent>(
+                scriptEntity, sharedHost, meshId, scriptName);
+
+            if (sharedHost)
             {
-                if (scriptComponent.host)
+                // Set up hot-reload build command
+                std::filesystem::path buildDir;
+                if (!scriptPath.empty())
+                {
+                    buildDir = scriptPath.parent_path().parent_path();
+                }
+                if (buildDir.empty())
+                {
+                    buildDir = findBuildDir();
+                }
+                if (!buildDir.empty())
+                {
+#if defined(_WIN32)
+                    const std::string cmakePath = toShortPath(GCE_CMAKE_COMMAND);
+                    const std::string rebuildCmd = cmakePath + " --build \"" + buildDir.string() + "\" --target GCEngineScripts";
+#else
+                    const std::string rebuildCmd = std::string("cmake") + " --build \"" + buildDir.string() + "\" --target GCEngineScripts";
+#endif
+                    scriptComponent.host->setBuildCommand(rebuildCmd);
+                }
+
+                const std::filesystem::path sourcePath = findScriptSource();
+                if (!sourcePath.empty())
                 {
                     scriptComponent.host->setSourceFilePath(sourcePath);
                 }
-            }
-
-            std::filesystem::path buildDir;
-            if (!scriptPath.empty())
-            {
-                buildDir = scriptPath.parent_path().parent_path();
-            }
-            if (buildDir.empty())
-            {
-                buildDir = findBuildDir();
-            }
-
-            if (!buildDir.empty())
-            {
-#if defined(_WIN32)
-                const std::string cmakePath = toShortPath(GCE_CMAKE_COMMAND);
-                const std::string buildCommand = cmakePath + " --build \"" + buildDir.string() + "\" --target GCEngineScripts";
-#else
-                const std::string buildCommand = std::string("cmake") + " --build \"" + buildDir.string() + "\" --target GCEngineScripts";
-#endif
-                if (scriptComponent.host)
-                {
-                    scriptComponent.host->setBuildCommand(buildCommand);
-                }
-            }
-
-            if (scriptComponent.host)
-            {
-                // No hot reload scriptComponent.host->startWatching();
             }
         }
     }
@@ -108,16 +121,33 @@ namespace gcep::scripting
     {
         for (auto entity : registry->view<ScriptComponent>())
         {
-
             auto& component = registry->getComponent<ScriptComponent>(entity);
             if (!component.host)
             {
                 continue;
             }
-            component.host->setEcsContext(registry, entity);
-            component.host->setMeshContext(findMesh(component.meshId));
-            component.host->setPhysicsContext(&gcep::PhysicsSystem::getInstance());
-            component.host->update(deltaSeconds);
+
+            // Build a per-component context so each script sees its own mesh/entity
+            ScriptContext ctx{};
+            ctx.deltaSeconds   = deltaSeconds;
+            ctx.log            = &scriptLog;
+            ctx.registry       = registry;
+            ctx.entity         = entity;
+            ctx.mesh           = findMesh(component.meshId);
+            ctx.physicsSystem  = &gcep::PhysicsSystem::getInstance();
+
+            if (!ctx.mesh)
+            {
+                static bool warnedOnce = false;
+                if (!warnedOnce)
+                {
+                    std::cerr << "[ScriptSystem] Warning: mesh not found for meshId="
+                              << component.meshId << " (script: " << component.scriptName << ")\n";
+                    warnedOnce = true;
+                }
+            }
+
+            component.host->updatePlugin(component.scriptName, &ctx);
         }
     }
 

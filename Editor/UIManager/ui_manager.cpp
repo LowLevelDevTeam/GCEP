@@ -625,7 +625,7 @@ void UiManager::drawEntityProperties()
 
         // Transform
         DrawVec3Control("Position", tc.position);
-        if(DrawVec3Control("Rotation", tc.eulerRadians))
+        if(DrawVec3Control("Rotation", tc.eulerRadians) && (!simulationStarted || simulationPaused))
         {
             glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
             tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
@@ -697,6 +697,19 @@ void UiManager::drawEntityProperties()
             }
             else
             {
+                // Read the model content as a string
+                std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
+                                          std::istreambuf_iterator<char>());
+
+                // Replace the placeholder with the actual script name
+                const std::string scriptName = "Script" + std::to_string(mesh->id);
+                const std::string placeholder = "SCRIPT_NAME";
+                auto pos = modelContent.find(placeholder);
+                if (pos != std::string::npos)
+                {
+                    modelContent.replace(pos, placeholder.size(), scriptName);
+                }
+
                 std::ofstream scriptFile(outputPath, std::ios::binary);
                 if (!scriptFile.is_open())
                 {
@@ -704,7 +717,7 @@ void UiManager::drawEntityProperties()
                 }
                 else
                 {
-                    scriptFile << scriptFileModel.rdbuf();
+                    scriptFile << modelContent;
                     if (scriptFile.good())
                         std::cout << "Script created: " << outputPath << std::endl;
                     else
@@ -735,7 +748,7 @@ void UiManager::drawAudioControl()
             bool isPlaying = source->isPlaying();
             bool isLooping = source->isLooping();
             bool isSpatialized = source->isSpatialized();
-            ImGui::DragFloat3(std::string("Audio source " + std::to_string(i)).c_str(), glm::value_ptr(const_cast<glm::vec3&>(source->getPosition())));
+            DrawVec3Control(std::string("Audio source " + std::to_string(i)).c_str(), source->getPosition());
             if(ImGui::Checkbox("Play", &isPlaying))
             {
                 if(source->isPlaying())

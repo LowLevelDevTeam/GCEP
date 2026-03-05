@@ -14,13 +14,17 @@ namespace
 
         if (context && context->log)
         {
-            context->log("SampleScript loaded");
+            context->log("DWAFAFSTFGEWGSDGDGSDFEGES");
         }
     }
 
     void onUpdate(gcep::scripting::ScriptContext* context, void* state)
     {
         // execute every tick
+        if (auto* tc = gcep::scripting::getTransform(context))
+        {
+            //tc->position.x += 1.f * static_cast<float>(context->deltaSeconds);
+        }
     }
 
     void onUnload(gcep::scripting::ScriptContext* context, void* state)
@@ -41,5 +45,5 @@ namespace
 }
 
 // Register this script — DO NOT DELETE
-GCE_REGISTER_SCRIPT("SCRIPT_NAME", g_plugin);
+GCE_REGISTER_SCRIPT("Script1", g_plugin);
 

@@ -5,32 +5,32 @@ namespace gcep
     AudioListener::AudioListener()
     {}
 
-    void AudioListener::setPosition(const glm::vec3& position)
+    void AudioListener::setPosition(const Vector3<float>& position)
     {
         m_position = position;
     }
 
-    void AudioListener::setForward(const glm::vec3& forward)
+    void AudioListener::setForward(const Vector3<float>& forward)
     {
         m_forward = forward;
     }
 
-    void AudioListener::setUp(const glm::vec3& up)
+    void AudioListener::setUp(const Vector3<float>& up)
     {
         m_up = up;
     }
 
-    const glm::vec3& AudioListener::getPosition() const
+    Vector3<float>& AudioListener::getPosition()
     {
         return m_position;
     }
 
-    const glm::vec3& AudioListener::getForward() const
+    Vector3<float>& AudioListener::getForward()
     {
         return m_forward;
     }
 
-    const glm::vec3& AudioListener::getUp() const
+    Vector3<float>& AudioListener::getUp()
     {
         return m_up;
     }

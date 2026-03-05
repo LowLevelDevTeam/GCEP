@@ -49,8 +49,5 @@ namespace gcep::scripting
         std::vector<rhi::vulkan::Mesh>* m_meshes = nullptr;
 
         ECS::Registry* m_registry = nullptr;
-
-        std::string m_sourcePath = "../Scripts";
-        std::string m_buildPath = "Scripts";
     };
 }

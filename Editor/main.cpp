@@ -8,6 +8,7 @@
 #include <Log/Log.hpp>
 #include <Engine/Core/Scripting/ScriptHost.hpp>
 #include <Engine/Core/Scripting/ScriptSystem.hpp>
+#include <Engine/Core/Maths/vector3.hpp>
 
 
 int main()
@@ -56,11 +57,23 @@ int main()
     uiManager.setCamera(&camera);
     uiManager.setInfos(initInfos);
 
+    AudioSystem* audio = AudioSystem::getInstance();
 
     while (!window.shouldClose())
     {
         glfwPollEvents();
         inputSystem.update();
+
+        // Update audio listener's position
+        if (audio)
+        {
+            AudioListener* listener = audio->getListener();
+
+            listener->setPosition(gcep::Vector3<float>(camera.position.x, camera.position.y, camera.position.z));
+            listener->setForward(gcep::Vector3<float>(camera.front.x, camera.front.y, camera.front.z));
+            listener->setUp(gcep::Vector3<float>(0.0f, 1.0f, 0.0f));
+        }
+
         uiManager.uiUpdate();
         rhi->drawFrame();
     }
