@@ -21,7 +21,6 @@ namespace gcep {
 
         alignas(16) Vector3<float> scale{1.f, 1.f, 1.f};
 
-        // Optional: editor-only Euler cache
         alignas(16) Vector3<float> eulerRadians{0.f, 0.f, 0.f};
     };
 

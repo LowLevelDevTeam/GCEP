@@ -5,6 +5,15 @@ project(GCEngine VERSION 0.1 LANGUAGES CXX)
 include(CMake/compile_shaders.cmake)
 include(CMake/copy_textures.cmake)
 
+# Generated build config for scripting
+set(GCE_SCRIPT_CONFIG_OUT "${CMAKE_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY "${GCE_SCRIPT_CONFIG_OUT}")
+configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core/Scripting/ScriptBuildConfig.hpp.in
+        ${GCE_SCRIPT_CONFIG_OUT}/ScriptBuildConfig.hpp
+        @ONLY
+)
+
 # Set properties
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,15 +27,9 @@ file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.in
 file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 
 # Adding the executable
-add_executable(GCEngine)
+add_executable(GCEngine
+        Engine/Core/Scripting/ScriptModel.cpp)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
-# include(FetchContent)
-# FetchContent_Declare(
-#         cpptrace
-#         GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
-#         GIT_TAG        v1.0.4
-# )
-# FetchContent_MakeAvailable(cpptrace)
 
 # Vulkan
 find_package(Vulkan 1.3 REQUIRED)
@@ -49,17 +52,39 @@ target_link_libraries(GCEngine PRIVATE Vulkan::Vulkan)
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
-add_subdirectory(UnitTests)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
+    add_subdirectory(UnitTests)
+endif()
+
+# Scripting support (lightweight lib for tools)
+add_library(GCEngineScripting STATIC
+        Engine/Core/Scripting/SharedLibrary.cpp
+        Engine/Core/Scripting/ScriptHost.cpp
+)
+
+add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+
+target_include_directories(GCEngineScripting PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/JoltPhysics
+        ${Vulkan_INCLUDE_DIRS}
+)
+
+# Scripts + tools
+add_subdirectory(Scripts)
+add_subdirectory(Tools/ScriptingRunner)
 
 # Compile the engine into a lib (to use GoogleTest)
 add_library(GCEngineLib STATIC ${ENGINE_SOURCE})
-target_include_directories(GCEngineLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Externals/JoltPhysics Externals/glfw Externals/miniaudio Externals/glm Externals/imgui Externals/ImGuizmo Externals/stb ${Vulkan_INCLUDE_DIRS})
-target_link_libraries(GCEngineLib PRIVATE Vulkan::Vulkan Jolt miniaudio glfw glm ImGui ImGuizmo)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # e.g. <RHI/RHI.hpp>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core)
+# Generated scripting config
+target_include_directories(GCEngine PRIVATE ${GCE_SCRIPT_CONFIG_OUT})
 
 # Compile the shaders
 file(GLOB_RECURSE SHADER_SOURCES Engine/*.slang)
@@ -69,3 +94,4 @@ add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 copy_textures(Textures)
 
 add_dependencies(GCEngine Shaders Textures)
+add_dependencies(GCEngine GCEngineScripts)

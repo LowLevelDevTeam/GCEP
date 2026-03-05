@@ -3,11 +3,9 @@
 // STL
 #include <memory>
 
-// Libs
-#include <glm/vec3.hpp>
-
 // Core
 #include "audio_buffer.hpp"
+#include "Engine/Core/Maths/vector3.hpp"
 
 namespace gcep
 {
@@ -30,7 +28,7 @@ namespace gcep
         void setPitch(float pitch);
         void setVolume(float volume);
 
-        void setPosition(const glm::vec3& position);
+        void setPosition(const Vector3<float>& position);
         void setSpatialized(bool isSpatialized);
 
         void setMinDistance(float minDistance);
@@ -44,7 +42,7 @@ namespace gcep
         [[nodiscard]] double* getFrameCursor() const;
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getVolume() const;
-        [[nodiscard]] const glm::vec3& getPosition() const;
+        [[nodiscard]] Vector3<float>& getPosition();
         [[nodiscard]] float getMinDistance() const;
         [[nodiscard]] float getMaxDistance() const;
 
@@ -58,7 +56,7 @@ namespace gcep
         float m_pitch = 1.f;
         float m_volume = 1.f;
 
-        glm::vec3 m_position{0.0f};
+        Vector3<float> m_position{0.0f, 0.0f, 0.0f};
         bool m_isSpatialized = false;
 
         float m_minDistance = 1.0f;

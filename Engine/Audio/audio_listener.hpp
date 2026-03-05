@@ -1,7 +1,6 @@
 #pragma once
 
-// Libs
-#include <glm/vec3.hpp>
+#include "Engine/Core/Maths/vector3.hpp"
 
 namespace gcep
 {
@@ -10,17 +9,17 @@ namespace gcep
     public:
         AudioListener();
 
-        void setPosition(const glm::vec3& position);
-        void setForward(const glm::vec3& forward);
-        void setUp(const glm::vec3& up);
+        void setPosition(const Vector3<float>& position);
+        void setForward(const Vector3<float>& forward);
+        void setUp(const Vector3<float>& up);
 
-        [[nodiscard]] const glm::vec3& getPosition() const;
-        [[nodiscard]] const glm::vec3& getForward() const;
-        [[nodiscard]] const glm::vec3& getUp() const;
+        [[nodiscard]] Vector3<float>& getPosition();
+        [[nodiscard]] Vector3<float>& getForward();
+        [[nodiscard]] Vector3<float>& getUp();
 
     private:
-        glm::vec3 m_position{0.0f};
-        glm::vec3 m_forward{0.0f, 0.0f, -1.0f};
-        glm::vec3 m_up{0.0f, 1.0f, 0.0f};
+        Vector3<float> m_position{0.0f, 0.0f, 0.0f};
+        Vector3<float> m_forward{0.0f, 0.0f, -1.0f};
+        Vector3<float> m_up{0.0f, 1.0f, 0.0f};
     };
 } // gcep

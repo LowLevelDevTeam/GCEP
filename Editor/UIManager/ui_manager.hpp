@@ -18,6 +18,7 @@
 #include <Engine/RHI/Mesh/Mesh.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <PhysicsWrapper/physics_system.hpp>
+#include <Scripting/ScriptSystem.hpp>
 
 namespace gcep
 {
@@ -359,6 +360,9 @@ private:
 
     // Settings
     bool showSettings = false;
+
+    // Scripts
+    scripting::ScriptSystem& scriptSystem;
 };
 
 } // Namespace gcep
