@@ -35,6 +35,21 @@ struct SceneUBO
 [[vk::binding(0, 0)]]
 StructuredBuffer<GPUMeshData> meshData;
 
+[[vk::binding(0, 1)]]
+Sampler2D textures[];
+
+[[vk::binding(0, 2)]]
+ConstantBuffer<SceneUBO> scene;
+
+struct PushConstants
+{
+    float4x4 viewProj;         // current frame (jittered)
+    float4x4 prevViewProj;     // previous frame (unjittered)
+};
+
+[[vk::push_constant]]
+PushConstants pc;
+
 struct VSOutput
 {
     float4 pos       : SV_Position;
@@ -42,23 +57,14 @@ struct VSOutput
     float3 normal    : NORMAL;
     float2 uv        : TEXCOORD0;
     uint   texIndex  : TEXINDEX;
+    float4 currentClip : CURRENT_CLIP;
+    float4 prevClip    : PREV_CLIP;
 };
-
-struct PushConstants
-{
-    float4x4 viewProj;
-    float shininess;
-    float _pad[3];
-};
-
-[[vk::push_constant]]
-PushConstants pc;
 
 [shader("vertex")]
 VSOutput vertMain(VSInput input)
 {
     GPUMeshData data = meshData[input.baseInstance];
-
     float4 worldPos4 = mul(data.transform, float4(input.pos, 1.0));
 
     VSOutput output;
@@ -70,17 +76,20 @@ VSOutput vertMain(VSInput input)
     float3x3 normalMatrix = (float3x3)transpose(data.transform);
     output.normal = normalize(mul(normalMatrix, input.normal));
 
+    output.currentClip = mul(pc.viewProj, worldPos4);
+    output.prevClip    = mul(pc.prevViewProj,  worldPos4);
+
     return output;
 }
 
-[[vk::binding(0, 1)]]
-Sampler2D textures[];
-
-[[vk::binding(0, 2)]]
-ConstantBuffer<SceneUBO> scene;
+struct FSOutput
+{
+    float4 color        : SV_Target0;
+    float2 motionVector : SV_Target1;
+};
 
 [shader("fragment")]
-float4 fragMain(VSOutput input) : SV_Target
+FSOutput fragMain(VSOutput input)
 {
     float4 albedo = textures[input.texIndex].Sample(input.uv);
 
@@ -94,10 +103,19 @@ float4 fragMain(VSOutput input) : SV_Target
     // Specular - Blinn-Phong
     float3 V       = normalize(scene.cameraPos - input.worldPos);
     float3 H       = normalize(L + V);
-    float  spec    = pow(max(dot(N, H), 0.0f), pc.shininess);
+    float  spec    = pow(max(dot(N, H), 0.0f), 64.0f);
     float3 specular = spec * scene.lightColor;
 
     float3 lighting = scene.ambientColor + diffuse + specular;
 
-    return float4(albedo.rgb * lighting, albedo.a);
+    float2 ndcCurrent  = input.currentClip.xy / input.currentClip.w;
+    float2 ndcPrevious = input.prevClip.xy    / input.prevClip.w;
+
+    float2 motion;
+    motion = (ndcCurrent - ndcPrevious) * 0.5f;
+
+    FSOutput o;
+    o.color        = float4(albedo.rgb * lighting, albedo.a);
+    o.motionVector = motion;
+    return o;
 }
