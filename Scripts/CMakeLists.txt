@@ -12,7 +12,7 @@ add_library(GCEngineScripts SHARED
     ${GCENGINE_CORE_SOURCES}
 )
 
-target_link_libraries(GCEngineScripts PRIVATE Jolt)
+target_link_libraries(GCEngineScripts PRIVATE Jolt ktx)
 
 target_compile_definitions(GCEngineScripts PRIVATE GCE_SCRIPT_BUILD)
 
@@ -23,6 +23,7 @@ target_include_directories(GCEngineScripts PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Scripting
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/JoltPhysics
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/KTX-Software/lib/include
     ${Vulkan_INCLUDE_DIRS}
 )
 
