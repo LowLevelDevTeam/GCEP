@@ -1,6 +1,8 @@
 ﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
 
 #include <string>
+#include <Engine/Core/PhysicsWrapper/Component/physics_component.hpp>
+#include <Engine/Core/PhysicsWrapper/physics_system.hpp>
 
 namespace
 {
@@ -14,7 +16,7 @@ namespace
 
         if (context && context->log)
         {
-            context->log("SampleScript loaded");
+            context->log("fsebgyusfioisdfhbshfoidslk loaded");
         }
     }
 
@@ -39,3 +41,4 @@ namespace
         &onUnload
     };
 }
+

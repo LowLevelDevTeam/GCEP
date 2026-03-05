@@ -39,7 +39,6 @@ namespace
             context->log(message.c_str());*/
         }
 
-
         //gcep::Quaternion quat;
         //gcep::scripting::getMesh(context)->transform.position.x += 0.01f;
         if (foo)
@@ -47,7 +46,11 @@ namespace
             auto& physicsSystem = context->physicsSystem;
             auto& physicsComp = context->registry->getComponent<gcep::PhysicsComponent>(0);
 
-            physicsComp.force = gcep::Vector3<float>{0.f, 50.f, 0.f};
+            // z = 0 -> crêpe
+            //physicsComp.force = gcep::Vector3<float>{1.0f, 1.0f, 0.0f};
+            // modifie la scale
+            //physicsComp.force += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
+            //physicsComp.angularImpulse += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
             //foo = false;
         }
     }

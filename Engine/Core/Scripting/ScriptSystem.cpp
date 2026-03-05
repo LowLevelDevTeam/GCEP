@@ -10,6 +10,29 @@ namespace gcep::scripting
 {
     void ScriptSystem::init(ECS::Registry* registry, const std::vector<rhi::vulkan::Mesh>& meshDataVector)
     {
+        // Build Scripts
+        std::string configureCommand =
+             "cmake -S \"" + m_sourcePath +
+             "\" -B \"" + m_buildPath +
+             "\" -G Ninja";
+
+        int configureResult = std::system(configureCommand.c_str());
+        if (configureResult != 0)
+        {
+            std::cerr << "[ScriptSystem] CMake configure failed\n";
+            return;
+        }
+
+        std::string buildCommand =
+            "cmake --build \"" + m_buildPath + "\"";
+
+        int buildResult = std::system(buildCommand.c_str());
+        if (buildResult != 0)
+        {
+            std::cerr << "[ScriptSystem] CMake build failed\n";
+        }
+        //========================================
+
         m_registry = registry;
 
         const std::filesystem::path scriptPath = findScriptLibrary();

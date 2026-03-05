@@ -119,8 +119,6 @@ namespace gcep
             if (physics.m_bodyIDRef.IsInvalid())
                 continue;
 
-            Quaternion normalizedRot = transform.rotation.Normalized();
-
             bodyInterface.SetPositionAndRotation(
                 physics.m_bodyIDRef,
                 Vector3Convertor::ToJolt(transform.position),

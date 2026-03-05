@@ -32,7 +32,6 @@ int main()
 
     std::unique_ptr<VulkanRHI> rhi = std::make_unique<VulkanRHI>(swapDesc);
 
-
     try
     {
         rhi->setWindow(window.getGlfwWindow());
