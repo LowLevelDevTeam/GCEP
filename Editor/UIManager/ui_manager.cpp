@@ -49,7 +49,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, boo
 
     constexpr float baseFontSize = 18.0f;
     constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Nunito-Regular.ttf", baseFontSize);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("TestTextures/Nunito-Regular.ttf", baseFontSize);
     ImFontConfig icons_config;
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
@@ -709,15 +709,15 @@ void UiManager::drawEntityProperties()
         int currentShape = static_cast<int>(physics.shapeType);
         ImGuiIO& io = ImGui::GetIO();
         ImGui::PushFont(io.Fonts->Fonts[0]);
-        if (ImGui::Combo((std::string(ICON_FA_CAR) + " Motion Type").c_str(), &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
+        if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
         {
             physics.motionType = static_cast<EMotionType>(currentMotion);
         }
-        if (ImGui::Combo((std::string(ICON_FA_CERTIFICATE) + " Layer").c_str(), &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
+        if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
         {
             physics.layers = static_cast<ELayers>(currentLayer);
         }
-        if (ImGui::Combo((std::string(ICON_FA_EDGE) + " Shape type").c_str(), &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
+        if (ImGui::Combo("Shape type", &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
         {
             physics.shapeType = static_cast<EShapeType>(currentShape);
         }
@@ -995,6 +995,20 @@ void UiManager::drawGizmoControls()
         "Rotate (E)",
         "Scale (R)"
     };
+    const char* gizmoModeLabels[] =
+    {
+        "Local",
+        "World"
+    };
+
+    int currentMode = 0;
+    switch(m_currentGizmoMode)
+    {
+
+        case ImGuizmo::LOCAL: currentMode = 0; break;
+        case ImGuizmo::WORLD: currentMode = 1; break;
+        default:                               break;
+    }
 
     int currentOp = 0;
     switch (m_currentGizmoOperation)
@@ -1012,6 +1026,24 @@ void UiManager::drawGizmoControls()
             case 0: m_currentGizmoOperation = ImGuizmo::TRANSLATE; break;
             case 1: m_currentGizmoOperation = ImGuizmo::ROTATE;    break;
             case 2: m_currentGizmoOperation = ImGuizmo::SCALE;     break;
+            default:                                               break;
+        }
+    }
+    if(m_currentGizmoOperation != ImGuizmo::SCALE)
+    {
+        if (ImGui::Combo("Mode", &currentMode, gizmoModeLabels, IM_ARRAYSIZE(gizmoModeLabels)))
+        {
+            switch (currentMode)
+            {
+                case 0:
+                    m_currentGizmoMode = ImGuizmo::LOCAL;
+                    break;
+                case 1:
+                    m_currentGizmoMode = ImGuizmo::WORLD;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -1044,11 +1076,11 @@ void UiManager::handleGizmoInput()
     if(simulationStarted && !simulationPaused)
         return;
 
-    if (ImGui::IsKeyPressed(ImGuiKey_W) && isSpecificWindowFocused("Viewport"))
+    if (ImGui::IsKeyPressed(ImGuiKey_W))
         m_currentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E) && isSpecificWindowFocused("Viewport"))
+    if (ImGui::IsKeyPressed(ImGuiKey_E))
         m_currentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R) && isSpecificWindowFocused("Viewport"))
+    if (ImGui::IsKeyPressed(ImGuiKey_R))
         m_currentGizmoOperation = ImGuizmo::SCALE;
 }
 
