@@ -1,9 +1,13 @@
-// component_registry.inl
 #pragma once
 #ifdef __GNUG__
     #include <cxxabi.h>
     #include <cstdlib>
 #endif
+
+// IMPORTANT: Ces includes doivent être AVANT le code pour que ComponentIDGenerator soit connu
+#include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/json_archive.hpp>
+#include <ECS/headers/json_component_serializer.hpp>
 
 namespace gcep::ECS
 {
@@ -47,9 +51,9 @@ namespace gcep::ECS
         entry.typeID      = id;
         entry.name        = demangle(typeid(T).name());
         entry.ensurePool  = [](Registry& r) { (void)r.getPool<T>(); };
-        entry.deserialize = [](Registry& r, EntityID e, SER::IArchive& a) { r.getPool<T>().deserializeEntity(e, a); };
+        entry.deserialize = [](Registry& r, EntityID e, ::gcep::SER::IArchive& a) { r.getPool<T>().deserializeEntity(e, a); };
 
-        entry.serializeJson = [](Registry& r, SER::JsonWriteArchive& ar)
+        entry.serializeJson = [](Registry& r, ::gcep::SER::JsonWriteArchive& ar)
         {
             auto& pool = r.getPool<T>();
             if (pool.getEntities().empty()) return;
@@ -57,15 +61,15 @@ namespace gcep::ECS
             for (auto entity : pool.getEntities())
             {
                 ar.beginEntity(entity & 0xFFFFFF);
-                SER::JsonComponentSerializer<T>::serialize(ar, pool.get(entity));
+                ::gcep::SER::JsonComponentSerializer<T>::serialize(ar, pool.get(entity));
                 ar.endEntity();
             }
             ar.endPool();
         };
 
-        entry.deserializeJson = [](Registry& r, EntityID id, const SER::JsonReadArchive::EntityData& ed)
+        entry.deserializeJson = [](Registry& r, EntityID id, const ::gcep::SER::JsonReadArchive::EntityData& ed)
         {
-            T component = SER::JsonComponentSerializer<T>::deserialize(ed);
+            T component = ::gcep::SER::JsonComponentSerializer<T>::deserialize(ed);
             (void)r.getPool<T>().add(id, std::move(component));
         };
 

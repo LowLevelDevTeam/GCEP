@@ -4,6 +4,7 @@
 
 namespace gcep::SLS
 {
+    class Scene;
     class binarySnapShot
     {
     public:
@@ -17,4 +18,4 @@ namespace gcep::SLS
     };
 }
 
-#include <Scene/detail/binary_scene_snapshot.inl>
+//#include <Scene/detail/binary_scene_snapshot.inl>

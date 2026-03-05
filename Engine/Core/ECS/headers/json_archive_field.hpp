@@ -96,4 +96,9 @@ namespace gcep::SER
         v.y = static_cast<T>(ed.readFloat(key + ".y"));
         v.z = static_cast<T>(ed.readFloat(key + ".z"));
     }
+
+    inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, std::string& v)
+    {
+        v = ed.readString(key);
+    }
 }

@@ -136,6 +136,10 @@ namespace gcep::SER
     {
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val.c_str(), m_alloc), m_alloc);
     }
+    inline void JsonWriteArchive::writeSceneName(const std::string& name)
+    {
+        m_doc.AddMember("scene_name", rapidjson::Value(name.c_str(), m_alloc), m_alloc);
+    }
 
 
     inline JsonReadArchive::JsonReadArchive(const std::string& filename)
@@ -233,4 +237,11 @@ namespace gcep::SER
     inline std::string JsonReadArchive::EntityData::readString(const std::string& key) const
     {
         return (*obj)[key.c_str()].GetString();
+    }
+    inline std::string JsonReadArchive::readSceneName() const
+    {
+        if (m_doc.HasMember("scene_name") && m_doc["scene_name"].IsString())
+            return m_doc["scene_name"].GetString();
+        return "Unnamed Scene";
+    }
 }

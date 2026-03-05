@@ -10,6 +10,7 @@ inline void binarySnapShot::serializeAll(SER::FileArchive& archive)
 
     archive.writeName("GCEP_SCENE");
     archive.writeUint64(1); // version
+    archive.writeName(m_scene.getName());
 
     uint32_t poolCount = 0;
     for (auto& pool : pools)
@@ -47,12 +48,14 @@ inline void binarySnapShot::serializeAll(SER::FileArchive& archive)
 
 inline void binarySnapShot::deserializeAll(SER::FileArchive& archive)
 {
-    auto& registry = m_scene.getRegistry(); // plus de const_cast
+    auto& registry = m_scene.getRegistry();
 
     if (archive.readName() != "GCEP_SCENE")
         throw std::runtime_error("Format invalide");
 
     archive.readUint64();
+    m_scene.setName(archive.readName());
+
     uint32_t poolCount = archive.readSize();
 
     for (uint32_t i = 0; i < poolCount; ++i)

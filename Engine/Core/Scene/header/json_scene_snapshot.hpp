@@ -1,10 +1,11 @@
 #pragma once
 #include <Engine/Core/ECS/headers/json_archive.hpp>
 #include <Engine/Core/ECS/headers/component_registry.hpp>
-#include <Engine/Core/Scene/header/scene.hpp>
 
 namespace gcep::SLS
 {
+    class Scene;
+
     class JsonSnapShot
     {
     public:
@@ -18,4 +19,4 @@ namespace gcep::SLS
     };
 }
 
-#include <Engine/Core/Scene/detail/json_scene_snapshot.inl>
+//#include <Engine/Core/Scene/detail/json_scene_snapshot.inl>

@@ -1,15 +1,12 @@
 #pragma once
-#include "PhysicsWrapper/Component/transform_component.hpp"
-#include "Scene/header/scene.hpp"
-
 
 namespace gcep::SLS
 {
 
     Scene::Scene(const std::string& name) : m_name(name)
     {
-        m_registry.getPool<TransformComponent>().reserve(1000);
-        m_registry.getPool<TagComponent>().reserve(1000);
+        m_registry.getPool<Transform>().reserve(1000);
+        m_registry.getPool<Tag>().reserve(1000);
         m_registry.getPool<HierarchyComponent>().reserve(1000);
     }
 
@@ -35,9 +32,9 @@ namespace gcep::SLS
     inline ECS::EntityID Scene::createEntity(const std::string& name)
     {
         auto entity = m_registry.createEntity();
-        m_registry.addComponent<TagComponent>(entity, name.empty() ? "Entity" : name);
-        m_registry.addComponent<TransformComponent>(entity);
-        m_registry.addComponent<WorldTransformComponent>(entity);
+        m_registry.addComponent<Tag>(entity, name.empty() ? "Entity" : name);
+        m_registry.addComponent<Transform>(entity);
+        m_registry.addComponent<WorldTransform>(entity);
         m_registry.addComponent<HierarchyComponent>(entity);
         return entity;
     }
@@ -46,14 +43,32 @@ namespace gcep::SLS
     inline void Scene::load(const std::string& path)
     {
         clear();
-        JsonSnapShot snapshot(*this);
-        snapshot.deserializeAll(path);
+        std::string basePath = path.substr(0, path.find_last_of('.'));
+
+        #ifdef GCEP_EDITOR
+            std::string jsonPath = basePath + ".json";
+            JsonSnapShot snapshot(*this);
+            snapshot.deserializeAll(jsonPath);
+        #else
+            std::string binPath = basePath + ".bin";
+            SER::FileArchive ar(binPath, false);
+            binarySnapShot snapshot(*this);
+            snapshot.deserializeAll(ar);
+        #endif
     }
 
     inline void Scene::save(const std::string& path)
     {
-        SER::JsonSnapShot snapshot(*this);
-        snapshot.serializeAll(path);
+        // Sauvegarde JSON (editor)
+        std::string jsonPath = path.substr(0, path.find_last_of('.')) + ".json";
+        JsonSnapShot jsonSnapshot(*this);
+        jsonSnapshot.serializeAll(jsonPath);
+
+        // Sauvegarde binaire (runtime)
+        std::string binPath = path.substr(0, path.find_last_of('.')) + ".bin";
+        SER::FileArchive ar(binPath, true);
+        binarySnapShot binSnapshot(*this);
+        binSnapshot.serializeAll(ar);
     }
 
 
@@ -108,6 +123,8 @@ namespace gcep::SLS
 
         auto& childHierarchy  = m_registry.getComponent<HierarchyComponent>(child);
         auto& parentHierarchy = m_registry.getComponent<HierarchyComponent>(parent);
+
+        childHierarchy.parent = parent;  // ← THIS LINE WAS MISSING
 
         if (parentHierarchy.firstChild != ECS::INVALID_VALUE)
         {

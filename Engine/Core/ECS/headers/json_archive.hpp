@@ -44,6 +44,7 @@ namespace gcep::SER
         void writeInt32 (const std::string& key, int32_t  val);
         void writeInt64 (const std::string& key, int64_t  val);
         void writeString (const std::string& key, const std::string& val);
+        void writeSceneName(const std::string &name);
 
     private:
         std::string                       m_filename;
@@ -70,12 +71,14 @@ namespace gcep::SER
 
         const std::string& magic()   const { return m_magic;   }
         uint64_t           version() const { return m_version; }
+        std::string readSceneName() const;
+
 
         // ── Entité parsée ─────────────────────────────────────────────────────
         struct EntityData
         {
             uint32_t id = 0;
-            const rapidjson::Value* obj = nullptr; // objet JSON de l'entité
+            const rapidjson::Value* obj = nullptr;
 
             float    readFloat (const std::string& key) const;
             double   readDouble(const std::string& key) const;
@@ -88,6 +91,8 @@ namespace gcep::SER
             int32_t  readInt32 (const std::string& key) const;
             int64_t  readInt64 (const std::string& key) const;
             std::string readString(const std::string& key) const;
+            std::string readSceneName() const;
+
         };
 
         // ── Pool parsé ────────────────────────────────────────────────────────
@@ -106,6 +111,7 @@ namespace gcep::SER
         std::vector<PoolData> m_pools;
 
         void parse();
+
     };
 }
 

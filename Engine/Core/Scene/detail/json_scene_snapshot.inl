@@ -6,6 +6,7 @@ namespace gcep::SLS
     {
         SER::JsonWriteArchive ar(path);
         ar.beginScene("GCEP_SCENE", 1);
+        ar.writeSceneName(m_scene.getName());
 
         for (const auto& entry : ECS::ComponentRegistry::instance().entries())
             entry.serializeJson(m_scene.getRegistry(), ar);
@@ -14,7 +15,7 @@ namespace gcep::SLS
     inline void JsonSnapShot::deserializeAll(const std::string& path)
     {
         SER::JsonReadArchive ar(path);
-
+        m_scene.setName(ar.readSceneName());
         for (const auto& pool : ar.pools())
         {
             for (const auto& entry : ECS::ComponentRegistry::instance().entries())

@@ -1,4 +1,3 @@
-// scene_manager.hpp
 #pragma once
 #include <memory>
 #include <string>
@@ -15,9 +14,8 @@ namespace gcep::SLS
         // ── Scène courante ────────────────────────────────────────────────
         Scene& current();
 
-        // ── Chargement / Sauvegarde ───────────────────────────────────────
-        void load(const std::string& path);
-        void save(const std::string& path);
+        // ── Chargement ────────────────────────────────────────────────────
+        void loadScene(const std::string& path);
 
         // ── Gestion des scènes connues ────────────────────────────────────
         void registerScene(const std::string& path);
@@ -32,6 +30,8 @@ namespace gcep::SLS
         SceneManager& operator=(const SceneManager&) = delete;
 
         std::unique_ptr<Scene>   m_currentScene;
-        std::vector<std::string> m_sceneList; // chemins des scènes connues
+        std::vector<std::string> m_sceneList;
     };
 }
+
+#include <Engine/Core/Scene/detail/scene_manager.inl>
