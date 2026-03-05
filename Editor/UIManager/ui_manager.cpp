@@ -9,11 +9,11 @@
 
 // STL
 #include <cmath>
+
+#include <config.hpp>
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Log/Log.hpp>
-
-#include <config.hpp>
 #include <Maths/quaternion.hpp>
 
 namespace gcep
@@ -212,7 +212,6 @@ void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* 
     ImGui::DockBuilderDockWindow("Entity properties", dock_id_properties);
     ImGui::DockBuilderDockWindow("Audio control", dock_id_properties);
     ImGui::DockBuilderDockWindow("Viewport", dock_id_viewport);
-    //ImGui::DockBuilderDockWindow("Scene infos", dock_id_right);
     ImGui::DockBuilderDockWindow("Console", dock_id_console);
 
     ImGui::DockBuilderGetNode(dock_id_viewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
@@ -233,7 +232,6 @@ void UiManager::setDarkTheme()
     auto &colors = style.Colors;
 
     // geometry & spacing
-    //style.WindowPadding = ImVec2(10, 10);
     style.FramePadding = ImVec2(6, 4);
     style.CellPadding = ImVec2(4, 2);
     style.ItemSpacing = ImVec2(8, 6);
@@ -480,16 +478,15 @@ void UiManager::drawViewport()
     ImGui::End();
 }
 
-void UiManager::drawSceneInfos()
+void UiManager::drawSettings()
 {
-    ImGui::Begin("Scene infos");
+    ImGui::Begin("Settings");
     {
         bool vsyncState = pRHI->isVSync();
         if(ImGui::Checkbox("V-Sync", &vsyncState))
         {
             pRHI->setVSync(!pRHI->isVSync());
         }
-        ImGui::Checkbox("Demo Window", &showDemoWindow);
         ImGui::SeparatorText("Scene infos");
         ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::Text("Total entities : %d", meshData->size());
@@ -497,15 +494,10 @@ void UiManager::drawSceneInfos()
 
         ImGui::SeparatorText("Camera");
         ImGui::SliderFloat("Camera Speed", &camSpeed, 1.0f, 20.0f);
-        ImGui::DragFloat3("Camera position", glm::value_ptr(cameraRef->position));
-        ImGui::DragFloat3("Camera front vector", glm::value_ptr(cameraRef->front), 0.1f, -1.0f, 1.0f);
-        ImGui::DragFloat("Camera yaw", &cameraRef->yaw);
-        ImGui::DragFloat("Camera pitch", &cameraRef->pitch);
 
-        ImGui::SeparatorText("Lights & normals");
+        ImGui::SeparatorText("Scene light");
         ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
         ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
 
         ImGui::SeparatorText("Grid options");
@@ -513,6 +505,13 @@ void UiManager::drawSceneInfos()
         ImGui::InputFloat("Thick every", &gridPC.thickEvery);
         ImGui::InputFloat("Fade distance", &gridPC.fadeDistance);
         ImGui::InputFloat("Line width", &gridPC.lineWidth);
+
+        ImGui::SeparatorText("Temporal Anti-Aliasing");
+        static float blendAlpha = 0.10f;
+        if(ImGui::InputFloat("Blend alpha", &blendAlpha, 0.01f, 0.10f))
+        {
+            pRHI->setTAABlendAlpha(blendAlpha);
+        }
 
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
@@ -864,7 +863,7 @@ void UiManager::uiUpdate()
     drawViewport();
     if(showSettings)
     {
-        drawSceneInfos();
+        drawSettings();
     }
     drawSceneHierarchy();
     drawEntityProperties();
@@ -880,7 +879,6 @@ void UiManager::uiUpdate()
     sceneInfos.ambientColor = ambientColor;
     sceneInfos.lightColor = lightColor;
     sceneInfos.lightDirection = lightDirection;
-    sceneInfos.shininess = shininess;
     pRHI->updateSceneUBO(&sceneInfos, cameraRef->position);
     if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
     {

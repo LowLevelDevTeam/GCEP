@@ -97,7 +97,7 @@ private:
 ///       initDockspace()       // one-time layout split (first frame only)
 ///   }
 ///   drawViewport()            // offscreen texture + gizmo overlay + sim toolbar
-///   drawSceneInfos()          // render settings, camera, lighting, grid
+///   drawSettings()            // render settings, camera, lighting, grid
 ///   drawSceneHierarchy()      // entity list + spawn / remove buttons
 ///   drawEntityProperties()    // transform / texture / physics / gizmo controls
 ///   drawAudioControl()        // per-source playback controls
@@ -230,6 +230,8 @@ private:
     /// Saves the original @c std::cout buffer into @c m_oldCout, then installs
     /// a new @c ImGuiConsoleBuffer that tees output into @c m_consoleItems.
     void initConsole();
+
+    /// @brief Sets the Editor dark theme.
     void setDarkTheme();
 
     // Shutdown
@@ -266,7 +268,7 @@ private:
     /// (ambient, diffuse color, shininess, direction), infinite grid options
     /// (cell size, thick interval, fade distance, line width), and FPS / viewport
     /// size readouts.
-    void drawSceneInfos();
+    void drawSettings();
 
     /// @brief Renders the "Scene Hierarchy" panel.
     ///
@@ -318,7 +320,6 @@ private:
     glm::vec3 ambientColor    = { 0.2f, 0.2f, 0.2f };
     glm::vec3 lightColor      = { 0.5f, 0.5f, 0.5f };
     glm::vec3 lightDirection  = { 1.0f, 1.0f, 0.0f };
-    float     shininess       = 64.0f;
 
     /// @brief Camera movement speed exposed to the UI for real-time tweaking.
     float     camSpeed        = 5.0f;
