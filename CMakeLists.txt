@@ -27,7 +27,8 @@ file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.in
 file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 
 # Adding the executable
-add_executable(GCEngine)
+add_executable(GCEngine
+        Engine/Core/Scripting/ScriptModel.cpp)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
 
 # Vulkan
@@ -60,6 +61,8 @@ add_library(GCEngineScripting STATIC
         Engine/Core/Scripting/SharedLibrary.cpp
         Engine/Core/Scripting/ScriptHost.cpp
 )
+
+add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 target_include_directories(GCEngineScripting PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

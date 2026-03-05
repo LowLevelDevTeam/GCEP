@@ -1,10 +1,14 @@
-﻿file(GLOB_RECURSE GCENGINE_CORE_SOURCES
+﻿file(GLOB_RECURSE GCENGINE_SCRIPTS_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+)
+
+file(GLOB_RECURSE GCENGINE_CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/*.cpp
 )
 
 add_library(GCEngineScripts SHARED
-    SampleScript.cpp
+    ${GCENGINE_SCRIPTS_SOURCES}
     ${GCENGINE_CORE_SOURCES}
 )
 
@@ -31,5 +35,4 @@ set_target_properties(GCEngineScripts PROPERTIES
 
 add_custom_command(TARGET GCEngineScripts POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:GCEngine>/Scripts
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GCEngineScripts> $<TARGET_FILE_DIR:GCEngine>/Scripts
-)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GCEngineScripts> $<TARGET_FILE_DIR:GCEngine>/Scripts)

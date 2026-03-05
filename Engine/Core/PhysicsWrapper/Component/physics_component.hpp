@@ -52,12 +52,18 @@ namespace gcep
     struct PhysicsComponent
     {
         friend class PhysicsSystem; ///< PhysicsSystem can access private members.
+        friend class PhysicsWorld; ///< PhysicsWorld can access private members.
 
         /// Linear velocity of the physics body.
         Vector3<float> linearVelocity = Vector3<float>(0.f, 0.f, 0.f);
 
         /// Angular velocity of the physics body.
         Vector3<float> angularVelocity = Vector3<float>(0.f, 0.f, 0.f);
+
+        Vector3<float> force = Vector3<float>(0.f, 0.f, 0.f);
+        Vector3<float> impulse = Vector3<float>(0.f, 0.f, 0.f);
+        Vector3<float> torque = Vector3<float>(0.f, 0.f, 0.f);
+        Vector3<float> angularImpulse = Vector3<float>(0.f, 0.f, 0.f);
 
         // ======================
         // Physics properties (editable in IMGUI)
@@ -72,7 +78,7 @@ namespace gcep
         /// Collision layer of the physics body.
         ELayers layers = ELayers::NON_MOVING;
 
-        const JPH::BodyID getBodyID() const {return m_bodyIDRef;}
+        const JPH::BodyID* getBodyID() const {return &m_bodyIDRef;}
 
     private:
         /// Reference to the internal Jolt BodyID for this entity.

@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <tinyfiledialogs.h>
+#include <fstream>
 
 // STL
 #include <cmath>
@@ -681,6 +682,35 @@ void UiManager::drawEntityProperties()
         if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
         {
             // TODO: Add script
+            std::string modelPath = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
+            std::string outputDir = std::string(PROJECT_ROOT) + "/Scripts";
+            std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
+
+            // Créer le répertoire Scripts s'il n'existe pas
+            std::filesystem::create_directories(outputDir);
+
+            std::ifstream scriptFileModel(modelPath, std::ios::binary);
+            if (!scriptFileModel.is_open())
+            {
+                std::cerr << "Failed to open script model: " << modelPath
+                          << " (cwd: " << std::filesystem::current_path() << ")" << std::endl;
+            }
+            else
+            {
+                std::ofstream scriptFile(outputPath, std::ios::binary);
+                if (!scriptFile.is_open())
+                {
+                    std::cerr << "Failed to create script file: " << outputPath << std::endl;
+                }
+                else
+                {
+                    scriptFile << scriptFileModel.rdbuf();
+                    if (scriptFile.good())
+                        std::cout << "Script created: " << outputPath << std::endl;
+                    else
+                        std::cerr << "Error writing script file: " << outputPath << std::endl;
+                }
+            }
         }
         ImGui::PopFont();
 
