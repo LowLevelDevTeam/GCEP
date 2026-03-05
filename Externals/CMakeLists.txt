@@ -37,6 +37,9 @@ add_subdirectory(KTX-Software/lib)
 target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
 add_lib_dependencies(GCEngine ktx)
 
+# TinyGLTF
+target_include_directories(GCEngine PRIVATE TinyGLTF)
+
 # stb image
 target_include_directories(GCEngine PRIVATE stb)
 

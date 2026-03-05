@@ -7,6 +7,11 @@
 // STL
 #include <unordered_map>
 
+// Externals
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <tiny_gltf.h>
+
 namespace gcep::rhi::vulkan
 {
 
@@ -26,10 +31,39 @@ void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, cons
         m_texture.loadTexture(pRhi, textureFilepath);
     }
 
-    static constexpr bool deduplication = false;
+    std::unordered_map<Vertex, uint32_t> uniqueVertices;
+
+    if (filepath.extension().string() == ".obj") {
+        loadObj(filepath);
+    }
+    else if (filepath.extension().string() == ".gltf")
+    {
+        loadGLTF(filepath);
+    }
+    else
+    {
+        return;
+    }
+
+    m_numVertices = static_cast<int32_t>(m_vertices.size());
+    m_numIndices  = static_cast<int32_t>(m_indices.size());
+
+    m_aabbMin = glm::vec3( std::numeric_limits<float>::max());
+    m_aabbMax = glm::vec3(-std::numeric_limits<float>::max());
+
+    for (const auto& vertex : m_vertices)
+    {
+        m_aabbMin = glm::min(m_aabbMin, vertex.pos);
+        m_aabbMax = glm::max(m_aabbMax, vertex.pos);
+    }
+
+    Log::info("Loaded mesh " + filepath.filename().string());
+}
+
+void Mesh::loadObj(const std::filesystem::path& filepath) {
     auto [attrib, modelIndices] = objParser::ObjLoader::loadObj(filepath);
 
-    std::unordered_map<Vertex, uint32_t> uniqueVertices;
+    static constexpr bool deduplication = false;
 
     m_vertices.reserve(modelIndices.size());
     m_indices.reserve(modelIndices.size());
@@ -38,6 +72,7 @@ void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, cons
     const float* texcoords = attrib.texcoords.data();
     const float* normals   = attrib.normals.data();
 
+    std::unordered_map<Vertex, uint32_t> uniqueVertices;
     for (const auto& idx : modelIndices)
     {
         Vertex vertex{};
@@ -82,27 +117,110 @@ void Mesh::load(VulkanRHI* instance, const std::filesystem::path& filepath, cons
         }
     }
 
-    m_numVertices = static_cast<int32_t>(m_vertices.size());
-    m_numIndices  = static_cast<int32_t>(m_indices.size());
-
     attrib.vertices.clear();  attrib.vertices.shrink_to_fit();
     attrib.texcoords.clear(); attrib.texcoords.shrink_to_fit();
     attrib.normals.clear();   attrib.normals.shrink_to_fit();
 
     modelIndices.clear(); modelIndices.shrink_to_fit();
+}
 
-    uniqueVertices.clear();
+void Mesh::loadGLTF(const std::filesystem::path& objPath)
+{
+    tinygltf::Model model;
+    tinygltf::TinyGLTF loader;
+    std::string err;
+    std::string warn;
 
-    m_aabbMin = glm::vec3( std::numeric_limits<float>::max());
-    m_aabbMax = glm::vec3(-std::numeric_limits<float>::max());
+    bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, objPath.string());
 
-    for (const auto& vertex : m_vertices)
-    {
-        m_aabbMin = glm::min(m_aabbMin, vertex.pos);
-        m_aabbMax = glm::max(m_aabbMax, vertex.pos);
+    if (!warn.empty()) {
+        std::cout << "glTF warning: " << warn << std::endl;
     }
 
-    Log::info("Loaded mesh " + filepath.filename().string());
+    if (!err.empty()) {
+        std::cout << "glTF error: " << err << std::endl;
+    }
+
+    if (!ret) {
+        throw std::runtime_error("Failed to load glTF model");
+    }
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices;
+    for (const auto& mesh : model.meshes) {
+        for (const auto& primitive : mesh.primitives) {
+            // Get indices
+            const tinygltf::Accessor& indexAccessor = model.accessors[primitive.indices];
+            const tinygltf::BufferView& indexBufferView = model.bufferViews[indexAccessor.bufferView];
+            const tinygltf::Buffer& indexBuffer = model.buffers[indexBufferView.buffer];
+
+            // Get vertex positions
+            const tinygltf::Accessor& posAccessor = model.accessors[primitive.attributes.at("POSITION")];
+            const tinygltf::BufferView& posBufferView = model.bufferViews[posAccessor.bufferView];
+            const tinygltf::Buffer& posBuffer = model.buffers[posBufferView.buffer];
+
+            // Get texture coordinates if available
+            bool hasTexCoords = primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end();
+            const tinygltf::Accessor* texCoordAccessor = nullptr;
+            const tinygltf::BufferView* texCoordBufferView = nullptr;
+            const tinygltf::Buffer* texCoordBuffer = nullptr;
+
+            if (hasTexCoords) {
+                texCoordAccessor = &model.accessors[primitive.attributes.at("TEXCOORD_0")];
+                texCoordBufferView = &model.bufferViews[texCoordAccessor->bufferView];
+                texCoordBuffer = &model.buffers[texCoordBufferView->buffer];
+            }
+
+            // Process vertices
+            for (size_t i = 0; i < posAccessor.count; i++) {
+                Vertex vertex{};
+
+                // Get position
+                const float* pos = reinterpret_cast<const float*>(&posBuffer.data[posBufferView.byteOffset + posAccessor.byteOffset + i * 12]);
+                vertex.pos = {pos[0], pos[1], pos[2]};
+
+                // Get texture coordinates if available
+                if (hasTexCoords) {
+                    const float* texCoord = reinterpret_cast<const float*>(&texCoordBuffer->data[texCoordBufferView->byteOffset + texCoordAccessor->byteOffset + i * 8]);
+                    vertex.texCoord = {texCoord[0], 1.0f - texCoord[1]};
+                } else {
+                    vertex.texCoord = {0.0f, 0.0f};
+                }
+
+                // Set default color
+                vertex.normal = {1.0f, 1.0f, 1.0f};
+
+                // Add vertex if unique
+                if (!uniqueVertices.contains(vertex)) {
+                    uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
+                    m_vertices.push_back(vertex);
+                }
+            }
+
+            // Process indices
+            const unsigned char* indexData = &indexBuffer.data[indexBufferView.byteOffset + indexAccessor.byteOffset];
+
+            // Handle different index component types
+            if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                const uint16_t* indices16 = reinterpret_cast<const uint16_t*>(indexData);
+                for (size_t i = 0; i < indexAccessor.count; i++) {
+                    Vertex vertex = m_vertices[indices16[i]];
+                    m_indices.push_back(uniqueVertices[vertex]);
+                }
+            } else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+                const uint32_t* indices32 = reinterpret_cast<const uint32_t*>(indexData);
+                for (size_t i = 0; i < indexAccessor.count; i++) {
+                    Vertex vertex = m_vertices[indices32[i]];
+                    m_indices.push_back(uniqueVertices[vertex]);
+                }
+            } else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+                const uint8_t* indices8 = reinterpret_cast<const uint8_t*>(indexData);
+                for (size_t i = 0; i < indexAccessor.count; i++) {
+                    Vertex vertex = m_vertices[indices8[i]];
+                    m_indices.push_back(uniqueVertices[vertex]);
+                }
+            }
+        }
+    }
 }
 
 glm::mat4& Mesh::getTransform()

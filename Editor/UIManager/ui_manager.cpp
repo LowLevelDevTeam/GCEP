@@ -547,8 +547,8 @@ void UiManager::drawSceneHierarchy()
 
         if (ImGui::Button("Add asset"))
         {
-            const char *filters[] = { "*.obj" };
-            if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 1, filters, "3D Object files", 0); path != nullptr)
+            const char *filters[] = { "*.obj", "*.gltf" };
+            if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0); path != nullptr)
             {
                 pRHI->spawnAsset(path, cameraRef->position + cameraRef->front * 4.0f);
             }
