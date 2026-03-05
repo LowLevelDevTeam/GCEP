@@ -127,7 +127,6 @@ struct SceneInfos
     glm::vec3 ambientColor   = {0.2f, 0.2f, 0.2f};
     glm::vec3 lightColor     = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
-    float     shininess      = 64.0f;
 };
 
 struct InitInfos
@@ -138,7 +137,7 @@ struct InitInfos
     VkDescriptorSet* ds;
 };
 
-// TODO: Fit in 128 bytes
+// TODO: Fit in 128 bytes - Maybe invViewProjMatrix + viewMatrix and drop grid options = 128 bytes
 struct GridPushConstant
 {
     glm::mat4 invView;

@@ -2,18 +2,19 @@
 
 // Externals
 #include <font_awesome.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <tinyfiledialogs.h>
 
 // STL
 #include <cmath>
 
+#include <config.hpp>
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Log/Log.hpp>
 #include <Maths/quaternion.hpp>
-
-#include "glm/gtx/matrix_decompose.hpp"
 
 namespace gcep
 {
@@ -59,6 +60,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo) : p
     ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_Init(&m_initInfo);
     initConsole();
+    setDarkTheme();
     Log::info("UiManager initialized successfully");
 }
 
@@ -176,7 +178,7 @@ ImGuiID UiManager::getDockspaceID() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("DockSpaceHost", nullptr, hostFlags);
     ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
+    ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
     drawMainMenuBar();
     ImGui::End();
     ImGui::PopStyleVar();
@@ -210,8 +212,9 @@ void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* 
     ImGui::DockBuilderDockWindow("Entity properties", dock_id_properties);
     ImGui::DockBuilderDockWindow("Audio control", dock_id_properties);
     ImGui::DockBuilderDockWindow("Viewport", dock_id_viewport);
-    ImGui::DockBuilderDockWindow("Scene infos", dock_id_right);
     ImGui::DockBuilderDockWindow("Console", dock_id_console);
+
+    ImGui::DockBuilderGetNode(dock_id_viewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
 
     ImGui::DockBuilderFinish(dockspace_id);
 }
@@ -221,6 +224,112 @@ void UiManager::initConsole() {
     m_consoleBuffer = std::make_unique<ImGuiConsoleBuffer>(m_oldCout, m_consoleItems);
     std::cout.rdbuf(m_consoleBuffer.get());
     std::cerr.rdbuf(m_consoleBuffer.get());
+}
+
+void UiManager::setDarkTheme()
+{
+    auto &style = ImGui::GetStyle();
+    auto &colors = style.Colors;
+
+    // geometry & spacing
+    style.FramePadding = ImVec2(6, 4);
+    style.CellPadding = ImVec2(4, 2);
+    style.ItemSpacing = ImVec2(8, 6);
+    style.ItemInnerSpacing = ImVec2(6, 4);
+    style.IndentSpacing = 20.0f;
+    style.ScrollbarSize = 14.0f;
+    style.GrabMinSize = 10.0f;
+
+    // borders & rounding
+    style.WindowRounding = 6.0f;
+    style.ChildRounding = 4.0f;
+    style.FrameRounding = 4.0f;
+    style.PopupRounding = 4.0f;
+    style.ScrollbarRounding = 9.0f;
+    style.GrabRounding = 3.0f;
+    style.TabRounding = 4.0f;
+
+    style.WindowBorderSize = 1.0f;
+    style.ChildBorderSize = 1.0f;
+    style.PopupBorderSize = 1.0f;
+    style.FrameBorderSize = 0.0f;
+
+    // core palette (complete)
+    colors[ImGuiCol_Text] = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+    colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
+    colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.12f, 0.12f, 0.96f);
+    colors[ImGuiCol_Border] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
+    colors[ImGuiCol_FrameBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_FrameBgActive] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+
+    colors[ImGuiCol_TitleBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
+
+    colors[ImGuiCol_MenuBarBg] = ImVec4(0.09f, 0.09f, 0.07f, 1.00f);
+
+    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+
+    colors[ImGuiCol_CheckMark] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
+    colors[ImGuiCol_SliderGrab] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+
+    colors[ImGuiCol_Button] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+
+    colors[ImGuiCol_Header] = ImVec4(0.22f, 0.32f, 0.45f, 1.00f);
+    colors[ImGuiCol_HeaderHovered] = ImVec4(0.28f, 0.38f, 0.55f, 1.00f);
+    colors[ImGuiCol_HeaderActive] = ImVec4(0.35f, 0.45f, 0.65f, 1.00f);
+
+    colors[ImGuiCol_Separator] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+
+    colors[ImGuiCol_ResizeGrip] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+
+    colors[ImGuiCol_Tab] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+    colors[ImGuiCol_TabHovered] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_TabActive] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+
+    // docking
+    colors[ImGuiCol_DockingPreview] = ImVec4(0.26f, 0.40f, 0.60f, 0.40f);
+    colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+
+    // plots
+    colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
+    colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.60f, 0.76f, 0.92f, 1.00f);
+    colors[ImGuiCol_PlotHistogram] = ImVec4(0.35f, 0.55f, 0.75f, 1.00f);
+    colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.55f, 0.72f, 0.90f, 1.00f);
+
+    // tables
+    colors[ImGuiCol_TableHeaderBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+    colors[ImGuiCol_TableBorderLight] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+
+    // selection & drag/drop
+    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.40f, 0.60f, 0.35f);
+    colors[ImGuiCol_DragDropTarget] = ImVec4(0.40f, 0.60f, 0.80f, 0.90f);
+
+    // navigation & modal
+    colors[ImGuiCol_NavHighlight] = ImVec4(0.40f, 0.60f, 0.80f, 0.30f);
+    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.40f, 0.60f, 0.80f, 0.25f);
+    colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.50f);
+    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.55f);
 }
 
 void UiManager::shutdownConsole()
@@ -264,6 +373,10 @@ void UiManager::drawMainMenuBar()
         {
             ImGui::EndMenu();
         }
+        if(ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
+        {
+            showSettings = !showSettings;
+        }
         ImGui::EndMainMenuBar();
     }
     ImGui::PopFont();
@@ -281,6 +394,7 @@ void UiManager::drawViewport()
             if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
             {
                 simulationPaused = false;
+                pRHI->setSimulationStarted(true);
                 if(!simulationStarted)
                 {
                     simulationStarted = true;
@@ -292,17 +406,22 @@ void UiManager::drawViewport()
             if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
             {
                 simulationPaused = !simulationPaused;
+                if(simulationPaused)
+                {
+                    pRHI->setSimulationStarted(false);
+                }
             }
             ImGui::SameLine();
             if (ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str()) && simulationStarted)
             {
                 simulationStarted = false;
+                pRHI->setSimulationStarted(false);
                 physicsSystem.stopSimulation();
             }
             ImGui::SameLine();
             std::string simStatus = "Simulation status: ";
             if (simulationStarted)
-                simStatus += "Started";
+                simStatus += "Playing";
             else
                 simStatus += "Stopped";
 
@@ -366,16 +485,15 @@ void UiManager::drawViewport()
     ImGui::End();
 }
 
-void UiManager::drawSceneInfos()
+void UiManager::drawSettings()
 {
-    ImGui::Begin("Scene infos");
+    ImGui::Begin("Settings");
     {
         bool vsyncState = pRHI->isVSync();
         if(ImGui::Checkbox("V-Sync", &vsyncState))
         {
             pRHI->setVSync(!pRHI->isVSync());
         }
-        ImGui::Checkbox("Demo Window", &showDemoWindow);
         ImGui::SeparatorText("Scene infos");
         ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::Text("Total entities : %d", meshData->size());
@@ -383,15 +501,10 @@ void UiManager::drawSceneInfos()
 
         ImGui::SeparatorText("Camera");
         ImGui::SliderFloat("Camera Speed", &camSpeed, 1.0f, 20.0f);
-        ImGui::DragFloat3("Camera position", glm::value_ptr(cameraRef->position));
-        ImGui::DragFloat3("Camera front vector", glm::value_ptr(cameraRef->front), 0.1f, -1.0f, 1.0f);
-        ImGui::DragFloat("Camera yaw", &cameraRef->yaw);
-        ImGui::DragFloat("Camera pitch", &cameraRef->pitch);
 
-        ImGui::SeparatorText("Lights & normals");
+        ImGui::SeparatorText("Scene light");
         ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
         ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        ImGui::DragFloat("Shininess", &shininess, 0.5f, 0.0f, 64.0f, "%.2f");
         ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
 
         ImGui::SeparatorText("Grid options");
@@ -399,6 +512,13 @@ void UiManager::drawSceneInfos()
         ImGui::InputFloat("Thick every", &gridPC.thickEvery);
         ImGui::InputFloat("Fade distance", &gridPC.fadeDistance);
         ImGui::InputFloat("Line width", &gridPC.lineWidth);
+
+        ImGui::SeparatorText("Temporal Anti-Aliasing");
+        static float blendAlpha = 0.10f;
+        if(ImGui::InputFloat("Blend alpha", &blendAlpha, 0.01f, 0.10f))
+        {
+            pRHI->setTAABlendAlpha(blendAlpha);
+        }
 
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
@@ -468,7 +588,8 @@ void UiManager::drawSceneHierarchy()
 
 void UiManager::drawEntityProperties()
 {
-    for (auto& entity : *meshData) {
+    for (auto& entity : *meshData)
+    {
         entity.transform = m_registry->getComponent<TransformComponent>(entity.id);
         entity.transform.rotation.Normalize();
         entity.physics   = m_registry->getComponent<PhysicsComponent>(entity.id);
@@ -553,6 +674,15 @@ void UiManager::drawEntityProperties()
         {
             physics.layers = static_cast<ELayers>(currentLayer);
         }
+
+        ImGui::SeparatorText("Scripting");
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::PushFont(io.Fonts->Fonts[0]);
+        if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
+        {
+            // TODO: Add script
+        }
+        ImGui::PopFont();
 
         if(!simulationStarted || simulationPaused)
         {
@@ -664,7 +794,7 @@ void UiManager::drawConsole()
 
         // Command-line
         bool reclaimFocus = false;
-        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll;
         if (ImGui::InputText("Input", inputBuffer, IM_COUNTOF(inputBuffer), inputTextFlags))
         {
             m_consoleItems.emplace_back(inputBuffer);
@@ -679,6 +809,45 @@ void UiManager::drawConsole()
         }
     }
     ImGui::End();
+}
+
+void UiManager::drawBottomBar()
+{
+    constexpr ImGuiWindowFlags window_flags =
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_MenuBar;
+
+    const float height = ImGui::GetFrameHeight();
+
+    // Position the status bar at the bottom of the main viewport
+    if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(), ImGuiDir_Down, height, window_flags))
+    {
+        if (ImGui::BeginMenuBar())
+        {
+            // --- Left Side: Engine Info ---
+            ImGui::Text(config::engineName.data());
+            ImGui::SameLine();
+            ImGui::Text(config::engineVersion.data());
+            ImGui::SameLine();
+
+            // --- Right Side: All those texts ---
+            constexpr float internPadding = 8.0f;
+            std::string rightText = std::string(config::buildType) +
+                                    " [" + config::architecture.data() + "] | " +
+                                    config::platform.data();
+
+            float rightTextWidth = ImGui::CalcTextSize(rightText.c_str()).x;
+            float avail = ImGui::GetContentRegionAvail().x;
+            float align_pos = ImGui::GetCursorPosX() + avail - rightTextWidth - internPadding;
+
+            ImGui::SameLine(align_pos);
+            ImGui::Text("%s", rightText.c_str());
+
+            ImGui::EndMenuBar();
+        }
+        ImGui::End();
+    }
 }
 
 void UiManager::uiUpdate()
@@ -699,11 +868,15 @@ void UiManager::uiUpdate()
     }
 
     drawViewport();
-    drawSceneInfos();
+    if(showSettings)
+    {
+        drawSettings();
+    }
     drawSceneHierarchy();
     drawEntityProperties();
     drawAudioControl();
     drawConsole();
+    drawBottomBar();
 
     if (showDemoWindow)
     {
@@ -713,7 +886,6 @@ void UiManager::uiUpdate()
     sceneInfos.ambientColor = ambientColor;
     sceneInfos.lightColor = lightColor;
     sceneInfos.lightDirection = lightDirection;
-    sceneInfos.shininess = shininess;
     pRHI->updateSceneUBO(&sceneInfos, cameraRef->position);
     if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
     {

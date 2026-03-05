@@ -50,7 +50,7 @@ bool aabbInFrustum(float3 min, float3 max)
 
 [shader("compute")]
 [numthreads(256, 1, 1)]
-void cullMain(uint3 dispatchID : SV_DispatchThreadID)
+void compMain(uint3 dispatchID : SV_DispatchThreadID)
 {
     uint idx = dispatchID.x;
     if (idx >= frustum.objectCount) return;

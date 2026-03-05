@@ -229,6 +229,8 @@ public:
     /// @param gridPC  Grid rendering parameters (invViewProj, viewProj, cell size, etc.).
     void setGridPC(GridPushConstant* gridPC);
 
+    void setSimulationStarted(bool started);
+
     // Queries
 
     /// @brief Returns a pointer to the mesh whose @c id field matches @p id,
@@ -255,6 +257,17 @@ public:
 
     /// @brief Returns a const reference to the @c VulkanDevice.
     [[nodiscard]] const VulkanDevice& device() const noexcept { return m_device; }
+
+    // TAA control
+
+    /// @brief Sets the TAA blend alpha (weight of the current frame).
+    ///
+    /// Typical range: 0.05 – 0.15.  Higher values reduce ghosting but
+    /// increase aliasing; lower values give smoother output at the cost of
+    /// more ghosting on fast-moving geometry.
+    ///
+    /// @param alpha  Current-frame weight in [0, 1].
+    void setTAABlendAlpha(float alpha) noexcept { m_taaBlendAlpha = std::clamp(alpha, 0.0f, 1.0f); }
 
     // ImGui integration
 
@@ -478,6 +491,28 @@ private:
     /// set, and issues @c vkCmdDraw(3, 1, 0, 0). Must be called inside an active
     /// @c beginRendering() block, after the opaque scene pass.
     void recordGridPass();
+
+    // TAA (Temporal Anti-Aliasing)
+
+    /// @brief Creates all TAA resources: motion-vector RT, history buffer,
+    ///        resolved buffer, sampler, descriptor set layout/pool/set, and
+    ///        the TAA resolve compute pipeline. Called from createOffscreenResources().
+    /// @param width   Render target width in pixels.
+    /// @param height  Render target height in pixels.
+    void createTAAResources(uint32_t width, uint32_t height);
+
+    /// @brief Destroys all TAA GPU resources. Called on resize or shutdown.
+    void destroyTAAResources();
+
+    /// @brief Records the TAA resolve compute pass, including barriers and the
+    ///        history copy-back, into the current frame command buffer.
+    void recordTAAPass();
+
+    /// @brief Returns a Halton(2,3) jitter offset (NDC) for the given frame.
+    ///
+    /// The sequence has 16 entries and repeats. @p width / @p height convert
+    /// from sub-pixel fractions to NDC magnitudes.
+    [[nodiscard]] static glm::vec2 haltonJitter(uint32_t frameIndex, uint32_t width, uint32_t height);
 
     // Offscreen render target
 
@@ -708,6 +743,7 @@ private:
     GridPushConstant    m_gridPC;
     InitInfos           m_initInfos;
     ECS::Registry       m_ECSRegistry;
+    bool                simulationStarted = false;
 
     std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now();
 
@@ -805,6 +841,42 @@ private:
     bool     m_offscreenResizePending = false;
     uint32_t m_pendingOffscreenWidth  = 0;
     uint32_t m_pendingOffscreenHeight = 0;
+
+    // TAA (Temporal Anti-Aliasing)
+
+    float   m_taaBlendAlpha = 0.10f; ///< Current-frame blend weight.
+    uint32_t m_taaFrameIndex = 0;    ///< Monotonically increasing frame counter for jitter.
+
+    /// @brief Motion-vector render target.
+    ///        Written by the scene pass as a second colour attachment.
+    vk::raii::Image        m_motionImage            = nullptr;
+    vk::raii::DeviceMemory m_motionImageMemory      = nullptr;
+    vk::raii::ImageView    m_motionImageView        = nullptr;
+    vk::Format             m_motionVectorsFormat    = vk::Format::eR16G16Sfloat;
+
+    /// @brief History buffer: accumulates the previous resolved frame.
+    vk::raii::Image        m_taaHistoryImage        = nullptr;
+    vk::raii::DeviceMemory m_taaHistoryImageMemory  = nullptr;
+    vk::raii::ImageView    m_taaHistoryImageView    = nullptr;
+
+    /// @brief Resolved output written by the TAA compute shader.
+    ///        Copied back to historyImage and bound as the ImGui texture.
+    vk::raii::Image        m_taaResolvedImage       = nullptr;
+    vk::raii::DeviceMemory m_taaResolvedImageMemory = nullptr;
+    vk::raii::ImageView    m_taaResolvedImageView   = nullptr;
+
+    /// @brief Bilinear sampler shared by the TAA resolve shader.
+    vk::raii::Sampler      m_taaSampler             = nullptr;
+
+    // TAA descriptor set / pipeline
+    vk::raii::DescriptorSetLayout m_taaSetLayout  = nullptr;
+    vk::raii::DescriptorPool      m_taaPool       = nullptr;
+    vk::raii::DescriptorSet       m_taaSet        = nullptr;
+    vk::raii::PipelineLayout      m_taaPipelineLayout = nullptr;
+    vk::raii::Pipeline            m_taaPipeline       = nullptr;
+
+    /// @brief Previous-frame (unjittered) view-projection matrix for motion vectors.
+    glm::mat4 m_prevViewProj = glm::mat4(1.0f);
 
     // CPU-side scene mirrors
 
