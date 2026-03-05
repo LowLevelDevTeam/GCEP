@@ -36,6 +36,9 @@ namespace gcep::ECS
          */
         [[nodiscard]] EntityID createEntity();
 
+
+        void createEntityWithID(EntityID entity);
+
         /**
          * @brief Marks an entity for deferred destruction.
          * @details The entity is queued for removal and its ID is invalidated through version
@@ -61,7 +64,7 @@ namespace gcep::ECS
         * @param entityID Target entity ID.
         * @param args Arguments for perfect forwarding.
         */
-        template<typename T, typename... Args>
+        template<ComponentConcept T, typename... Args>
         [[nodiscard]] T& addComponent(EntityID entityID, Args&&... args);
 
         /**
@@ -69,7 +72,7 @@ namespace gcep::ECS
          * @tparam T The type of component to remove.
          * @param entity The target entity ID.
          */
-        template<typename T>
+        template<ComponentConcept T>
         void removeComponent(EntityID entity);
 
         /**
@@ -78,7 +81,7 @@ namespace gcep::ECS
          * @param entity The target entity ID.
          * @return T& Reference to the stored component data.
          */
-        template<typename T>
+        template<ComponentConcept T>
         [[nodiscard]] T& getComponent(EntityID entity);
 
         /**
@@ -87,7 +90,7 @@ namespace gcep::ECS
          * @param entity The target entity ID.
          * @return true if the component is present, false otherwise.
          */
-        template<class T>
+        template<ComponentConcept T>
         [[nodiscard]] bool hasComponent(EntityID entity) ;
 
         /**
@@ -96,7 +99,7 @@ namespace gcep::ECS
          * @tparam Args List of required component types.
          * @return View<Args...> An iterable object containing matching entities.
          */
-        template<typename... Args>
+        template<ComponentConcept... Args>
         [[nodiscard]] View<Args...> view();
 
         /**
@@ -104,13 +107,18 @@ namespace gcep::ECS
          * @tparam T The component type.
          * @return ComponentPool<T>& Reference to the specialized component pool.
          */
-        template<typename T>
+        template<ComponentConcept T>
         [[nodiscard]] ComponentPool<T>& getPool();
 
+        [[nodiscard]] const std::vector<std::unique_ptr<IPool>>& getPools() const;
+
+        [[nodiscard]] const std::vector<uint32_t>& getTypeList() const;
+
     private:
-        EntityIDGenerator m_idGenerator; ///< Generator for entity ID allocation, validation, and recycling with versioning support.
+        EntityIDGenerator m_idGenerator; ///< Generator for entity ID allocation, validation, and recycling with versioning support (provides generateID(), isValid(), destroyEntity()).
         std::vector<std::unique_ptr<IPool>> m_pools; ///< List of type-erased component m_pools.
         std::vector<EntityID> m_entitiesToDestroy;   ///< Queue for deferred destruction.
+        std::vector<uint32_t> m_componentTypeList;
 
         /** @brief Internal logic for removing an entity and its associated data. */
         void removeEntity(EntityID toRemove);

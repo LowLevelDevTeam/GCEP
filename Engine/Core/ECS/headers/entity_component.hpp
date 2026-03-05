@@ -55,10 +55,15 @@ namespace gcep::ECS
 		 * @return bool True if the entity is valid and active, false otherwise. */
 		bool isValid(EntityID id);
 
+		EntityID forceID(EntityID id);
+
 	private:
 		/** @brief Expands the entity pool to accommodate more entities.
 		 * @param newSize The new capacity for the entity pool. */
 		void grow(std::size_t newSize);
+
+
+
 
 		/** @brief Pool of entity metadata elements. */
 		std::vector<entityElement> elements;

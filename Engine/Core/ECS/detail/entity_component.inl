@@ -1,3 +1,4 @@
+#pragma once
 #include <Engine/Core/ECS/headers/entity_component.hpp>
 
 
@@ -55,5 +56,34 @@ namespace gcep::ECS
 
         nextAvailable = static_cast<std::uint32_t>(oldSize);
     }
+
+    inline EntityID EntityIDGenerator::forceID(EntityID id)
+    {
+        std::uint32_t index = id & 0xFFFFFF;
+        std::uint8_t version = static_cast<std::uint8_t>(id >> 24);
+
+        if (index >= elements.size())
+            grow(index + 1);
+
+        auto& element = elements[index];
+        if (element.active)
+            return id;
+
+        element.active = true;
+        element.version = version;
+
+        if (nextAvailable == index) {
+            nextAvailable = element.nextfreeID;
+        } else {
+            EntityID curr = nextAvailable;
+            while (curr != INVALID_VALUE && elements[curr].nextfreeID != index)
+                curr = elements[curr].nextfreeID;
+            if (curr != INVALID_VALUE)
+                elements[curr].nextfreeID = element.nextfreeID;
+        }
+
+        return id;
+    }
+
 }
 

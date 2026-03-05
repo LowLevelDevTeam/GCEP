@@ -1,5 +1,4 @@
 #pragma once
-#include <Engine/Core/ECS/headers/paged_allocator.hpp>
 
 namespace gcep::ECS
 {
