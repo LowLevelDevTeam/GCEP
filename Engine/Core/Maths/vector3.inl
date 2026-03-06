@@ -1,3 +1,5 @@
+#include <cmath>
+
 namespace gcep
 {
     // Constructors
@@ -216,7 +218,7 @@ namespace gcep
             return static_cast<T>(0);
 
         T cosTheta = dot / mag;
-        cosTheta = std::max(static_cast<T>(-1), std::min(static_cast<T>(1), cosTheta));
+        cosTheta = max(static_cast<T>(-1), min(static_cast<T>(1), cosTheta));
         return std::acos(cosTheta) * static_cast<T>(180.0 / std::numbers::pi_v<float>);
     }
 } // gcep

@@ -595,7 +595,7 @@ void UiManager::drawSceneHierarchy()
         }
 
         // Delete selected entity
-        if (m_selectedEntityID != std::numeric_limits<uint32_t>::max())
+        if (m_selectedEntityID != UINT32_MAX)
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
@@ -605,14 +605,14 @@ void UiManager::drawSceneHierarchy()
                 {
                     uint32_t idx = static_cast<uint32_t>(std::distance(meshData->begin(), it));
                     pRHI->removeMesh(idx);
-                    m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+                    m_selectedEntityID = UINT32_MAX;
                 }
             }
         }
 
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
         {
-            m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+            m_selectedEntityID = UINT32_MAX;
         }
 
     }
@@ -629,7 +629,7 @@ void UiManager::drawEntityProperties()
     }
     ImGui::Begin("Entity properties");
     {
-        if (m_selectedEntityID == std::numeric_limits<uint32_t>::max())
+        if (m_selectedEntityID == UINT32_MAX)
         {
             ImGui::TextDisabled("No entity selected");
             ImGui::End();
@@ -640,7 +640,7 @@ void UiManager::drawEntityProperties()
         rhi::vulkan::Mesh *mesh = pRHI->findMesh(m_selectedEntityID);
         if (!mesh)
         {
-            m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+            m_selectedEntityID = UINT32_MAX;
             ImGui::End();
             return;
         }
@@ -1086,14 +1086,14 @@ void UiManager::handleGizmoInput()
 
 void UiManager::drawGizmo()
 {
-    if (m_selectedEntityID == std::numeric_limits<uint32_t>::max())
+    if (m_selectedEntityID == UINT32_MAX)
         return;
 
     auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
 
     if (it == meshData->end())
     {
-        m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+        m_selectedEntityID = UINT32_MAX;
         return;
     }
 

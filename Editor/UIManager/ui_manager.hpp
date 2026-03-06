@@ -317,7 +317,7 @@ private:
 
     /// @brief ECS ID of the entity currently selected in the hierarchy.
     ///        Set to @c numeric_limits<EntityID>::max() when nothing is selected.
-    ECS::EntityID             m_selectedEntityID = std::numeric_limits<ECS::EntityID>::max();
+    ECS::EntityID             m_selectedEntityID = UINT32_MAX;
 
     glm::vec4 m_clearColor    = { 0.1f, 0.1f, 0.1f, 1.0f };
     glm::vec3 ambientColor    = { 0.2f, 0.2f, 0.2f };

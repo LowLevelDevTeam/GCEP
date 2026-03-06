@@ -784,8 +784,8 @@ private:
     void* m_meshDataSSBOMapped = nullptr;
 
     // Global geometry buffers
-    static constexpr vk::DeviceSize MAX_VERTEX_BUFFER_BYTES = 512 * 1024 * 1024; ///< 512 MB vertex budget.
-    static constexpr vk::DeviceSize MAX_INDEX_BUFFER_BYTES  = 256 * 1024 * 1024; ///< 256 MB index budget.
+    static constexpr vk::DeviceSize MAX_VERTEX_BUFFER_BYTES = 128 * 1024 * 1024; ///< 512 MB vertex budget.
+    static constexpr vk::DeviceSize MAX_INDEX_BUFFER_BYTES  = 64 * 1024 * 1024; ///< 256 MB index budget.
 
     vk::raii::Buffer       m_globalVertexBuffer       = nullptr;
     vk::raii::DeviceMemory m_globalVertexBufferMemory = nullptr;
