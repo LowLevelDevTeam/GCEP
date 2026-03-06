@@ -39,6 +39,7 @@ set(KTX_GIT_VERSION_FULL 4.4.2)
 set(LIBKTX_VERSION_FULL ON)
 add_subdirectory(KTX-Software/lib)
 target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
+target_include_directories(GCEngine PRIVATE KTX-Software/external/dfutils)
 add_lib_dependencies(GCEngine ktx)
 
 # TinyGLTF
