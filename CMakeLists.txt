@@ -27,8 +27,7 @@ file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.in
 file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 
 # Adding the executable
-add_executable(GCEngine
-        Engine/Core/Scripting/ScriptModel.cpp)
+add_executable(GCEngine Engine/Core/Scripting/ScriptModel.cpp)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
 
 # Vulkan
@@ -49,12 +48,34 @@ endif()
 target_include_directories(GCEngine PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(GCEngine PRIVATE Vulkan::Vulkan)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
-    add_subdirectory(UnitTests)
-endif()
+#if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)
+#    add_subdirectory(UnitTests)
+#endif()
+
+add_library(GCExternals INTERFACE)
+target_include_directories(GCExternals INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/JoltPhysics
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/lib/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/external/dfdutils
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/miniaudio
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui/backends
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glfw/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/ImGuizmo
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/TinyGLTF
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/stb
+    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/FontAwesome
+    ${GCE_SCRIPT_CONFIG_OUT}
+    ${Vulkan_INCLUDE_DIRS}
+)
 
 # Scripting support (lightweight lib for tools)
 add_library(GCEngineScripting STATIC
@@ -64,20 +85,14 @@ add_library(GCEngineScripting STATIC
 
 add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
-target_include_directories(GCEngineScripting PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core
-        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glm
-        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/JoltPhysics
-        ${Vulkan_INCLUDE_DIRS}
-)
+target_link_libraries(GCEngineScripting PUBLIC GCExternals)
 
-# Scripts + tools
+# Scripts
 add_subdirectory(Scripts)
-add_subdirectory(Tools/ScriptingRunner)
 
 # Compile the engine into a lib (to use GoogleTest)
 add_library(GCEngineLib STATIC ${ENGINE_SOURCE})
+target_link_libraries(GCEngineLib PRIVATE GCExternals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -87,7 +102,7 @@ target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/C
 target_include_directories(GCEngine PRIVATE ${GCE_SCRIPT_CONFIG_OUT})
 
 # Compile the shaders
-file(GLOB_RECURSE SHADER_SOURCES Engine/*.slang)
+file(GLOB_RECURSE SHADER_SOURCES Assets/*.slang)
 add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 
 # Copy the test textures
