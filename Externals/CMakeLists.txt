@@ -1,4 +1,8 @@
 # GLFW
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_OSMESA OFF CACHE BOOL "" FORCE)
 add_subdirectory(glfw)
 target_include_directories(GCEngine PRIVATE glfw/include)
 
@@ -35,6 +39,7 @@ set(KTX_GIT_VERSION_FULL 4.4.2)
 set(LIBKTX_VERSION_FULL ON)
 add_subdirectory(KTX-Software/lib)
 target_include_directories(GCEngine PRIVATE KTX-Software/lib/include)
+target_include_directories(GCEngine PRIVATE KTX-Software/external/dfutils)
 add_lib_dependencies(GCEngine ktx)
 
 # TinyGLTF

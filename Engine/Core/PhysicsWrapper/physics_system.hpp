@@ -110,6 +110,10 @@ namespace gcep
          */
         void syncTransformsToPhysics(ECS::Registry& reg);
 
+        void syncComponentsVelocitiesToPhysics(ECS::Registry& reg);
+        void syncPhysicsVelocitiesToComponents(ECS::Registry& reg);
+        void applyForces(ECS::Registry& reg);
+
         /**
          * @brief Performs a raycast query in the physics world.
          *
@@ -119,6 +123,9 @@ namespace gcep
          * @return RaycastHit structure containing hit information.
          */
         RaycastHit raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance);
+
+        //void addImpulse(const JPH::BodyID* bodyID, const Vector3<float> impulse) const;
+        //void addForce(const JPH::BodyID* bodyID, const Vector3<float> force) const;
 
         /**
          * @brief Entity-Component-System registry.

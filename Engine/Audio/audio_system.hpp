@@ -28,6 +28,7 @@ namespace gcep
 
         void stopAll();
 
+        [[nodiscard]] AudioListener* getListener();
         [[nodiscard]] static AudioSystem* getInstance();
 
     private:

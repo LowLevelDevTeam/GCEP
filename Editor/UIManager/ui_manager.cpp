@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <tinyfiledialogs.h>
+#include <fstream>
 
 // STL
 #include <cmath>
@@ -19,7 +20,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close) : physicsSystem(PhysicsSystem::getInstance()), reloadApp(reload), closeApp(close)
+UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close) : physicsSystem(PhysicsSystem::getInstance()), scriptSystem(scripting::ScriptSystem::getInstance()), reloadApp(reload), closeApp(close)
 {
     m_window = window;
     m_initInfo = initInfo;
@@ -35,6 +36,7 @@ UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, boo
     // Get variables references
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // setup ImGui style
@@ -436,8 +438,15 @@ void UiManager::drawViewport()
         ImGui::PopFont();
         if(simulationStarted && !simulationPaused)
         {
+            // Run script
+            if (m_registry)
+                scriptSystem.update(m_registry, io.DeltaTime);
+            else
+                std::cout << "no registry !" << std::endl;
+
             physicsSystem.update(io.DeltaTime);
         }
+
         ImVec2 availSize = ImGui::GetContentRegionAvail();
 
         // Check if viewport size changed (with a small threshold to avoid floating point issues)
@@ -586,7 +595,7 @@ void UiManager::drawSceneHierarchy()
         }
 
         // Delete selected entity
-        if (m_selectedEntityID != std::numeric_limits<uint32_t>::max())
+        if (m_selectedEntityID != UINT32_MAX)
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
@@ -596,14 +605,14 @@ void UiManager::drawSceneHierarchy()
                 {
                     uint32_t idx = static_cast<uint32_t>(std::distance(meshData->begin(), it));
                     pRHI->removeMesh(idx);
-                    m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+                    m_selectedEntityID = UINT32_MAX;
                 }
             }
         }
 
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
         {
-            m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+            m_selectedEntityID = UINT32_MAX;
         }
 
     }
@@ -620,7 +629,7 @@ void UiManager::drawEntityProperties()
     }
     ImGui::Begin("Entity properties");
     {
-        if (m_selectedEntityID == std::numeric_limits<uint32_t>::max())
+        if (m_selectedEntityID == UINT32_MAX)
         {
             ImGui::TextDisabled("No entity selected");
             ImGui::End();
@@ -631,7 +640,7 @@ void UiManager::drawEntityProperties()
         rhi::vulkan::Mesh *mesh = pRHI->findMesh(m_selectedEntityID);
         if (!mesh)
         {
-            m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+            m_selectedEntityID = UINT32_MAX;
             ImGui::End();
             return;
         }
@@ -648,7 +657,7 @@ void UiManager::drawEntityProperties()
 
         // Transform
         DrawVec3Control("Position", tc.position);
-        if(DrawVec3Control("Rotation", tc.eulerRadians))
+        if(DrawVec3Control("Rotation", tc.eulerRadians) && (!simulationStarted || simulationPaused))
         {
             glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
             tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
@@ -718,7 +727,48 @@ void UiManager::drawEntityProperties()
         ImGui::PushFont(io.Fonts->Fonts[0]);
         if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
         {
-            // TODO: Add script
+            std::string modelPath = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
+            std::string outputDir = std::string(PROJECT_ROOT) + "/Scripts";
+            std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
+
+            // Créer le répertoire Scripts s'il n'existe pas
+            std::filesystem::create_directories(outputDir);
+
+            std::ifstream scriptFileModel(modelPath, std::ios::binary);
+            if (!scriptFileModel.is_open())
+            {
+                std::cerr << "Failed to open script model: " << modelPath
+                          << " (cwd: " << std::filesystem::current_path() << ")" << std::endl;
+            }
+            else
+            {
+                // Read the model content as a string
+                std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
+                                          std::istreambuf_iterator<char>());
+
+                // Replace the placeholder with the actual script name
+                const std::string scriptName = "Script" + std::to_string(mesh->id);
+                const std::string placeholder = "SCRIPT_NAME";
+                auto pos = modelContent.find(placeholder);
+                if (pos != std::string::npos)
+                {
+                    modelContent.replace(pos, placeholder.size(), scriptName);
+                }
+
+                std::ofstream scriptFile(outputPath, std::ios::binary);
+                if (!scriptFile.is_open())
+                {
+                    std::cerr << "Failed to create script file: " << outputPath << std::endl;
+                }
+                else
+                {
+                    scriptFile << modelContent;
+                    if (scriptFile.good())
+                        std::cout << "Script created: " << outputPath << std::endl;
+                    else
+                        std::cerr << "Error writing script file: " << outputPath << std::endl;
+                }
+            }
         }
         ImGui::PopFont();
 
@@ -743,7 +793,7 @@ void UiManager::drawAudioControl()
             bool isPlaying = source->isPlaying();
             bool isLooping = source->isLooping();
             bool isSpatialized = source->isSpatialized();
-            ImGui::DragFloat3(std::string("Audio source " + std::to_string(i)).c_str(), glm::value_ptr(const_cast<glm::vec3&>(source->getPosition())));
+            DrawVec3Control(std::string("Audio source " + std::to_string(i)).c_str(), source->getPosition());
             if(ImGui::Checkbox("Play", &isPlaying))
             {
                 if(source->isPlaying())
@@ -1036,14 +1086,14 @@ void UiManager::handleGizmoInput()
 
 void UiManager::drawGizmo()
 {
-    if (m_selectedEntityID == std::numeric_limits<uint32_t>::max())
+    if (m_selectedEntityID == UINT32_MAX)
         return;
 
     auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
 
     if (it == meshData->end())
     {
-        m_selectedEntityID = std::numeric_limits<uint32_t>::max();
+        m_selectedEntityID = UINT32_MAX;
         return;
     }
 

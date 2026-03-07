@@ -42,7 +42,7 @@ namespace gcep
 		// Register all physics types with the factory and install their collision handlers with the CollisionDispatch class.
 		JPH::RegisterTypes();
 
-    	constexpr size_t cTempAllocatorSize = 16 * 1024 * 1024; // 16 Mo
+    	constexpr size_t cTempAllocatorSize = 128 * 1024 * 1024; // 128 Mo
     	m_tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(cTempAllocatorSize);
 
     	m_broadPhaseLayerInterface = std::make_unique<BPlayerInterfaceImpl>();
@@ -65,8 +65,8 @@ namespace gcep
 		// number then these contacts will be ignored and bodies will start interpenetrating / fall through the world.
 		constexpr glm::uint cMaxContactConstraints = 10240;
 
-    	constexpr glm::uint cMaxJobs = 65536;
-    	constexpr glm::uint cMaxBarriers = 65536;
+    	constexpr glm::uint cMaxJobs = 4096;
+    	constexpr glm::uint cMaxBarriers = 16;
 
     	glm::uint numThreads = std::max(1u, std::thread::hardware_concurrency() - 1);
 
