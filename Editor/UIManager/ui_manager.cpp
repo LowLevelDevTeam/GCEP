@@ -513,10 +513,10 @@ void UiManager::drawSettings()
         ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
 
         ImGui::SeparatorText("Grid options");
-        ImGui::InputFloat("Cell size", &gridPC.cellSize);
-        ImGui::InputFloat("Thick every", &gridPC.thickEvery);
-        ImGui::InputFloat("Fade distance", &gridPC.fadeDistance);
-        ImGui::InputFloat("Line width", &gridPC.lineWidth);
+        ImGui::InputFloat("Cell size",     &sceneInfos.cellSize);
+        ImGui::InputFloat("Thick every",   &sceneInfos.thickEvery);
+        ImGui::InputFloat("Fade distance", &sceneInfos.fadeDistance);
+        ImGui::InputFloat("Line width",    &sceneInfos.lineWidth);
 
         ImGui::SeparatorText("Temporal Anti-Aliasing");
         static float blendAlpha = 0.10f;
@@ -979,9 +979,8 @@ void UiManager::uiUpdate()
     {
         pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
     }
-    gridPC.invView      = glm::inverse(cameraRef->getViewMatrix());
-    gridPC.invProj      = glm::inverse(cameraRef->getProjectionMatrix());
-    gridPC.viewProj     = cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix();
+    gridPC.invViewProj = glm::inverse(cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix());
+    gridPC.viewProj    = cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix();
     pRHI->setGridPC(&gridPC);
 }
 

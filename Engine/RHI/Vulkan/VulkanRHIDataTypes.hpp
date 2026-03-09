@@ -102,6 +102,10 @@ struct SceneUBO
     float     _pad2;       ///< Padding to satisfy std430 vec3 alignment.
     glm::vec3 cameraPos;   ///< World-space camera position used to compute the view vector V.
     float     _pad3;       ///< Padding to satisfy std430 vec3 alignment.
+    float cellSize     = 1.0f;
+    float thickEvery   = 10.0f;
+    float fadeDistance = 100.0f;
+    float lineWidth    = 1.0f;
 };
 
 /// @brief Frustum plane data passed as a push constant to the culling compute shader.
@@ -127,6 +131,10 @@ struct SceneInfos
     glm::vec3 ambientColor   = {0.2f, 0.2f, 0.2f};
     glm::vec3 lightColor     = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
+    float cellSize     = 1.0f;
+    float thickEvery   = 10.0f;
+    float fadeDistance = 100.0f;
+    float lineWidth    = 1.0f;
 };
 
 struct InitInfos
@@ -137,17 +145,10 @@ struct InitInfos
     VkDescriptorSet* ds;
 };
 
-// TODO: Fit in 128 bytes - Maybe invViewProjMatrix + viewMatrix and drop grid options = 128 bytes
 struct GridPushConstant
 {
-    glm::mat4 invView;
-    glm::mat4 invProj;
+    glm::mat4 invViewProj;
     glm::mat4 viewProj;
-
-    float cellSize     = 1.0f;
-    float thickEvery   = 10.0f;
-    float fadeDistance = 100.0f;
-    float lineWidth    = 1.0f;
 };
 
 } // Namespace gcep::rhi::vulkan

@@ -4,6 +4,7 @@
 #include <vulkan/vulkan_raii.hpp>
 
 // STL
+#include <utility>
 #include <vector>
 
 namespace gcep::rhi
@@ -76,7 +77,7 @@ public:
     ///   - @c eSuccess          - image acquired normally; @c value is the image index.
     ///   - @c eSuboptimalKHR    - still usable; caller may recreate swapchain after present.
     ///   - @c eErrorOutOfDateKHR - swapchain is stale; caller must recreate before presenting.
-    [[nodiscard]] vk::ResultValue<uint32_t>
+    [[nodiscard]] std::pair<vk::Result, uint32_t>
     acquireNextImage(const vk::raii::Semaphore& signalSemaphore) const;
 
     /// @brief Returns a reference to the underlying @c vk::raii::SwapchainKHR.

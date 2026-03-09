@@ -130,6 +130,10 @@ void VulkanRHI::updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraP
     m_sceneUBO.lightDir     = upstr->lightDirection;
     m_sceneUBO.lightColor   = upstr->lightColor;
     m_sceneUBO.ambientColor = upstr->ambientColor;
+    m_sceneUBO.cellSize     = upstr->cellSize;
+    m_sceneUBO.fadeDistance = upstr->fadeDistance;
+    m_sceneUBO.thickEvery   = upstr->thickEvery;
+    m_sceneUBO.lineWidth    = upstr->lineWidth;
     m_sceneUBO.cameraPos    = cameraPos;
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -1345,10 +1349,6 @@ void VulkanRHI::recordGridPass()
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_gridPipeline);
     cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_gridPipelineLayout, 0, { *m_UBOSets[0] }, {});
-
-    m_gridPC.invView  = glm::inverse(m_cameraUBO.view);
-    m_gridPC.invProj  = glm::inverse(m_cameraUBO.proj);
-    m_gridPC.viewProj = m_cameraUBO.proj * m_cameraUBO.view;
 
     cmd.pushConstants<GridPushConstant>(*m_gridPipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, m_gridPC);
 

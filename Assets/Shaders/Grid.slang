@@ -8,6 +8,10 @@ struct SceneUBO
     float  _pad2;
     float3 cameraPos;
     float  _pad3;
+    float  cellSize;      // default: 1.0
+    float  thickEvery;    // default: 10.0
+    float  fadeDistance;  // default: 100.0
+    float  lineWidth;     // default: 1.0
 };
 
 [[vk::binding(0, 0)]]
@@ -15,13 +19,8 @@ ConstantBuffer<SceneUBO> scene;
 
 struct GridPC
 {
-    float4x4 invView;
-    float4x4 invProj;
+    float4x4 invViewProj;
     float4x4 viewProj;
-    float    cellSize;      // default: 1.0
-    float    thickEvery;    // default: 10.0
-    float    fadeDistance;  // default: 100.0
-    float    lineWidth;     // default: 1.0
 };
 
 [[vk::push_constant]]
@@ -41,10 +40,8 @@ struct VSOutput
 
 float3 unproject(float2 ndc, float z)
 {
-    float4 view  = mul(pc.invProj, float4(ndc.x, ndc.y, z, 1.0));
-    view        /= view.w;
-    float4 world = mul(pc.invView, view);
-    return world.xyz;
+    float4 world  = mul(pc.invViewProj, float4(ndc.x, ndc.y, z, 1.0));
+    return world.xyz / world.w;
 }
 
 [shader("vertex")]
@@ -76,7 +73,7 @@ float gridLine(float2 worldXZ, float cellSz)
     float2 uv   = worldXZ / cellSz;
     float2 fw   = max(fwidth(uv), 1e-4);
     float2 edge = abs(frac(uv - 0.5) - 0.5) / fw;
-    float2 line2 = 1.0 - clamp(edge - pc.lineWidth, 0.0, 1.0);
+    float2 line2 = 1.0 - clamp(edge - scene.lineWidth, 0.0, 1.0);
     return max(line2.x, line2.y);
 }
 
@@ -91,8 +88,8 @@ FSOutput fragMain(VSOutput i)
 
     float3 worldPos = i.nearPoint + t * (i.farPoint - i.nearPoint);
 
-    float thin  = gridLine(worldPos.xy, pc.cellSize);
-    float thick = gridLine(worldPos.xy, pc.cellSize * pc.thickEvery);
+    float thin  = gridLine(worldPos.xy, scene.cellSize);
+    float thick = gridLine(worldPos.xy, scene.cellSize * scene.thickEvery);
 
     float4 color = lerp(
         kThinColor  * thin,
@@ -101,15 +98,15 @@ FSOutput fragMain(VSOutput i)
     );
 
     float2 fw    = max(fwidth(worldPos.xy), 1e-4);
-    float  xAxis = 1.0 - clamp(abs(worldPos.y) / (fw.y * pc.lineWidth * 3.0), 0.0, 1.0);
-    float  zAxis = 1.0 - clamp(abs(worldPos.x) / (fw.x * pc.lineWidth * 3.0), 0.0, 1.0);
+    float  xAxis = 1.0 - clamp(abs(worldPos.y) / (fw.y * scene.lineWidth * 3.0), 0.0, 1.0);
+    float  zAxis = 1.0 - clamp(abs(worldPos.x) / (fw.x * scene.lineWidth * 3.0), 0.0, 1.0);
 
     float dist = length(worldPos.xy - scene.cameraPos.xy);
 
     color = lerp(color, kXAxisColor, xAxis * kXAxisColor.a);
     color = lerp(color, kYAxisColor, zAxis * kYAxisColor.a);
 
-    float fade = 1.0 - clamp(dist / pc.fadeDistance, 0.0, 1.0);
+    float fade = 1.0 - clamp(dist / scene.fadeDistance, 0.0, 1.0);
     fade      *= fade;
     color.a   *= fade;
 
