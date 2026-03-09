@@ -439,7 +439,11 @@ ImGui_ImplVulkan_InitInfo VulkanRHI::getUIInitInfo()
     poolCI.pPoolSizes    = poolSizes;
 
     if (vkCreateDescriptorPool(*m_device.rawDevice(), &poolCI, nullptr, &m_descriptorPoolImGui) != VK_SUCCESS)
-        throw std::runtime_error("[VulkanRHI] Failed to create ImGui descriptor pool");
+    {
+        auto err = std::runtime_error("[VulkanRHI] Failed to create ImGui descriptor pool");
+        Log::handleException(err);
+        throw err;
+    }
 
     ImGui_ImplVulkan_InitInfo initInfo{};
     initInfo.Instance       = *m_device.rawInstance();
@@ -1915,7 +1919,9 @@ uint32_t VulkanRHI::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags 
         if ((typeFilter & (1u << i)) && (memProps.memoryTypes[i].propertyFlags & props) == props)
             return i;
     }
-    throw std::runtime_error("[VulkanRHI] findMemoryType: no suitable type found");
+    auto err = std::runtime_error("[VulkanRHI] findMemoryType: no suitable type found");
+    Log::handleException(err);
+    throw err;
 }
 
 vk::Format VulkanRHI::findDepthFormat() const
@@ -1936,7 +1942,9 @@ vk::Format VulkanRHI::findSupportedFormat(const std::vector<vk::Format>& candida
         if (tiling == vk::ImageTiling::eLinear  && (fmtProps.linearTilingFeatures  & features) == features) return fmt;
         if (tiling == vk::ImageTiling::eOptimal && (fmtProps.optimalTilingFeatures & features) == features) return fmt;
     }
-    throw std::runtime_error("[VulkanRHI] findSupportedFormat: no suitable format found");
+    auto err = std::runtime_error("[VulkanRHI] findSupportedFormat: no suitable format found");
+    Log::handleException(err);
+    throw err;
 }
 
 std::vector<char> VulkanRHI::readShader(const std::string& fileName)
@@ -1945,7 +1953,9 @@ std::vector<char> VulkanRHI::readShader(const std::string& fileName)
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open())
     {
-        throw std::runtime_error("[VulkanRHI] Cannot open shader: " + path.string());
+        auto err = std::runtime_error("[VulkanRHI] Cannot open shader: " + path.string());
+        Log::handleException(err);
+        throw err;
     }
 
     std::vector<char> buffer(file.tellg());
