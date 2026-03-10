@@ -1,4 +1,4 @@
-﻿#include "Inputs.hpp"
+#include "Inputs.hpp"
 
 namespace gcep
 {

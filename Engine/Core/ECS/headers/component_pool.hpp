@@ -134,7 +134,7 @@ namespace gcep::ECS
          * @return T& A reference to the newly created component.
          */
         template<typename... Args>
-        [[nodiscard]] T& add(EntityID entity, Args&&... args);
+        T& add(EntityID entity, Args&&... args);
 
         /**
          * @brief Removes the component of type T from the entity.

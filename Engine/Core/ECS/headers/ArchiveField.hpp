@@ -41,6 +41,19 @@ namespace gcep::SER
         ar.writeName(str);
     }
 
+    template<typename T>
+    std::enable_if_t<std::is_enum_v<T>>
+    archiveWrite(IArchive& ar, T& v)
+    {
+        ar.writeInt32(static_cast<int32_t>(v));
+    }
+
+    template<typename T>
+    std::enable_if_t<!std::is_enum_v<T>>
+    archiveWrite(IArchive& ar, const T& v) {}
+
+
+
     // ── Lecture ───────────────────────────────────────────────────────────────
     inline void archiveRead(IArchive& ar, uint8_t&  v) { v = ar.readUint8();  }
     inline void archiveRead(IArchive& ar, uint16_t& v) { v = ar.readUint16(); }
@@ -77,5 +90,16 @@ namespace gcep::SER
     {
         str = ar.readName();
     }
+
+    template<typename T>
+    std::enable_if_t<std::is_enum_v<T>>
+    archiveRead(IArchive& ar, T& v)
+    {
+        v = static_cast<T>(ar.readInt32());
+    }
+
+    template<typename T>
+    std::enable_if_t<!std::is_enum_v<T>>
+    archiveRead(IArchive& ar, T& v) {}
 
 }

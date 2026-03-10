@@ -1,7 +1,10 @@
 #pragma once
 #include <stdexcept>
 #include <algorithm>
+#include <filesystem>
 #include <Engine/Core/Scene/header/scene_manager.hpp>
+
+#include "Engine/RHI/Vulkan/VulkanRHI.hpp"
 
 namespace gcep::SLS
 {
@@ -18,10 +21,25 @@ namespace gcep::SLS
         return *m_currentScene;
     }
 
-    inline void SceneManager::loadScene(const std::string& path)
+    inline void SceneManager::saveScene(const std::string& path)
+    {
+        m_currentScene->save(path);
+    }
+
+    inline void SceneManager::loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
         m_currentScene = std::make_unique<Scene>();
-        m_currentScene->load(path);
+        std::cerr << "InLoading\n";
+
+        if (std::filesystem::exists(path))
+        {
+            std::cerr << "Loaded\n";
+
+            m_currentScene->load(path, rhi);
+        }
+
+
+        else{std::cerr << "NotLoaded\n";}
     }
 
     inline void SceneManager::registerScene(const std::string& path)

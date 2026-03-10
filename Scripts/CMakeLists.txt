@@ -3,8 +3,9 @@
 )
 
 file(GLOB_RECURSE GCENGINE_CORE_SOURCES CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/Layers/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/physics_shape.cpp
 )
 
 add_library(GCEngineScripts SHARED
@@ -24,6 +25,7 @@ target_include_directories(GCEngineScripts PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/JoltPhysics
     ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/KTX-Software/lib/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/boost_pfr/include
     ${Vulkan_INCLUDE_DIRS}
 )
 

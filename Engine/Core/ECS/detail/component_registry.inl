@@ -5,9 +5,10 @@
 #endif
 
 // IMPORTANT: Ces includes doivent être AVANT le code pour que ComponentIDGenerator soit connu
-#include <ECS/headers/entity_component.hpp>
-#include <ECS/headers/json_archive.hpp>
-#include <ECS/headers/json_component_serializer.hpp>
+#include <Engine/Core/ECS/headers/entity_component.hpp>
+#include <Engine/Core/ECS/headers/json_archive.hpp>
+#include <Engine/Core/ECS/headers/json_component_serializer.hpp>
+#include <ECS/headers/registry.hpp>
 
 namespace gcep::ECS
 {
@@ -50,12 +51,12 @@ namespace gcep::ECS
         Entry entry;
         entry.typeID      = id;
         entry.name        = demangle(typeid(T).name());
-        entry.ensurePool  = [](Registry& r) { (void)r.getPool<T>(); };
-        entry.deserialize = [](Registry& r, EntityID e, ::gcep::SER::IArchive& a) { r.getPool<T>().deserializeEntity(e, a); };
+        entry.ensurePool  = [](Registry& r) { (void)r.template getPool<T>(); };
+        entry.deserialize = [](Registry& r, EntityID e, ::gcep::SER::IArchive& a) { r.template getPool<T>().deserializeEntity(e, a); };
 
         entry.serializeJson = [](Registry& r, ::gcep::SER::JsonWriteArchive& ar)
         {
-            auto& pool = r.getPool<T>();
+            auto& pool = r.template getPool<T>();
             if (pool.getEntities().empty()) return;
             ar.beginPool(demangle(typeid(T).name()));
             for (auto entity : pool.getEntities())
@@ -70,10 +71,10 @@ namespace gcep::ECS
         entry.deserializeJson = [](Registry& r, EntityID id, const ::gcep::SER::JsonReadArchive::EntityData& ed)
         {
             T component = ::gcep::SER::JsonComponentSerializer<T>::deserialize(ed);
-            (void)r.getPool<T>().add(id, std::move(component));
+            (void)r.template getPool<T>().add(id, std::move(component));
         };
 
-        m_entries.push_back(std::move(entry));  // ← tout est rempli, on push à la fin
+        m_entries.push_back(std::move(entry));
         return true;
     }
 

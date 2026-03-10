@@ -1,6 +1,7 @@
 #pragma once
 #include <ECS/headers/archive.hpp>
 #include <Scene/header/scene.hpp>
+#include <Log/Log.hpp>
 
 namespace gcep::SLS
 {

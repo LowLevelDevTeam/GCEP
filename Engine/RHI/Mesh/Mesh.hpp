@@ -3,8 +3,8 @@
 #include <Engine/Core/ECS/headers/entity_component.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <Engine/RHI/Vulkan/VulkanTexture.hpp>
-#include <PhysicsWrapper/Component/physics_component.hpp>
-#include <PhysicsWrapper/Component/transform_component.hpp>
+#include <ECS/Components/physics_component.hpp>
+#include <ECS/Components/transform.hpp>
 #include <PhysicsWrapper/physics_shape.hpp>
 
 // Externals
@@ -82,7 +82,7 @@ public:
     // Transform
 
     /// @brief Rebuilds and returns the model-to-world matrix from the ECS
-    ///        @c TransformComponent (position, rotation quaternion, scale).
+    ///        @c ECS::Transform (position, rotation quaternion, scale).
     [[nodiscard]] glm::mat4& getTransform();
 
     /// @brief Overwrites the world-space position column of @c m_transform.
@@ -138,8 +138,8 @@ public:
 
     // ECS / editor state
 
-    TransformComponent transform; ///< ECS transform component (position, rotation, scale).
-    PhysicsComponent   physics;   ///< ECS physics component (motion type, layers, body).
+    ECS::Transform transform; ///< ECS transform component (position, rotation, scale).
+    ECS::PhysicsComponent   physics;   ///< ECS physics component (motion type, layers, body).
     std::string        name = "Unknown"; ///< Name shown in the scene hierarchy.
     ECS::EntityID      id   = std::numeric_limits<ECS::EntityID>::max(); ///< ECS entity ID.
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <Log/Log.hpp>
 #include "component_pool.hpp"
 #include "entity_component.hpp"
 #include "view_finder.hpp"
@@ -34,7 +35,7 @@ namespace gcep::ECS
          * Otherwise, a new slot is allocated from the entity pool.
          * @return EntityID The unique identifier of the new entity.
          */
-        [[nodiscard]] EntityID createEntity();
+        EntityID createEntity();
 
 
         void createEntityWithID(EntityID entity);
@@ -65,7 +66,7 @@ namespace gcep::ECS
         * @param args Arguments for perfect forwarding.
         */
         template<ComponentConcept T, typename... Args>
-        [[nodiscard]] T& addComponent(EntityID entityID, Args&&... args);
+        T& addComponent(EntityID entityID, Args&&... args);
 
         /**
          * @brief Removes a component of type T from an entity.
@@ -82,7 +83,7 @@ namespace gcep::ECS
          * @return T& Reference to the stored component data.
          */
         template<ComponentConcept T>
-        [[nodiscard]] T& getComponent(EntityID entity);
+        T& getComponent(EntityID entity);
 
         /**
          * @brief Checks if an entity possesses a component of type T.

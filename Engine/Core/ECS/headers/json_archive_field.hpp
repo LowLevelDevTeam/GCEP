@@ -36,6 +36,18 @@ namespace gcep::SER
     }
 
 
+    template<typename T>
+    std::enable_if_t<std::is_enum_v<T>>
+    archiveWriteJson(JsonWriteArchive& ar, const std::string& key, T& v)
+    {
+        ar.writeInt32(key, static_cast<int32_t>(v));
+    }
+
+    template<typename T>
+    std::enable_if_t<!std::is_enum_v<T>>
+    archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const T& v) {}
+
+
     template <typename T>
     void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const Mat3<T>& m)
     {
@@ -71,6 +83,8 @@ namespace gcep::SER
     }
 
 
+
+
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, float&    v) { v = ed.readFloat (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, double&   v) { v = ed.readDouble(key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, uint8_t&  v) { v = ed.readUint8 (key); }
@@ -101,4 +115,15 @@ namespace gcep::SER
     {
         v = ed.readString(key);
     }
+
+    template<typename T>
+    std::enable_if_t<std::is_enum_v<T>>
+    archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T& v)
+    {
+        v = static_cast<T>(ed.readInt32(key));
+    }
+
+    template<typename T>
+    std::enable_if_t<!std::is_enum_v<T>>
+    archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T& v) {}
 }

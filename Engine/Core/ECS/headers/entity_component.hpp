@@ -88,12 +88,18 @@ namespace gcep::ECS
 		 * @return uint32_t The unique identifier for the component type.
 		 */
 		template<typename T>
-		[[nodiscard]] static std::uint32_t get()
+		static std::uint32_t get()
 		{
-			static std::uint32_t id = m_nextID++;
+			static std::uint32_t id = nextID(); // initialisé lazily
 			return id;
 		}
 	private:
+		static std::uint32_t nextID()
+		{
+			static std::uint32_t counter = 0; // garanti initialisé AVANT toute utilisation
+			return counter++;
+		}
+
 		/** @brief Global counter incremented each time a new component type is encountered. */
 		static inline std::uint32_t m_nextID = 0;
 	};

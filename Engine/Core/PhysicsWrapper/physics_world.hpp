@@ -14,8 +14,9 @@
 #include "Layers/object_layer_pair_filter_impl.hpp"
 #include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
 
-#include "Component/physics_component.hpp"
-#include "Component/transform_component.hpp"
+#include <Engine/Core/ECS/Components/physics_component.hpp>
+#include <Engine/Core/ECS/Components/Transform.hpp>
+#include <Engine/Core/PhysicsWrapper/physics_shape.hpp>
 #include "raycast_hit.hpp"
 
 namespace gcep
@@ -62,11 +63,11 @@ namespace gcep
         /**
          * @brief Creates a physics body from ECS components and registers it in the simulation.
          *
-         * @param transform Reference to the entity's TransformComponent.
+         * @param transform Reference to the entity's ECS::Transform.
          * @param data Reference to the entity's PhysicsComponent.
          * @param dataId Output parameter receiving the Jolt BodyID of the created body.
          */
-        void createBody(TransformComponent& transform, PhysicsComponent& data, JPH::BodyID& dataId);
+        void createBody(ECS::Transform& transform, ECS::PhysicsComponent& data, JPH::BodyID& dataId);
 
         /**
          * @brief Destroys a physics body.

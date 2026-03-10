@@ -54,3 +54,4 @@ namespace gcep::ECS
 
 }
 
+#include <ECS/detail/component_registry.inl>

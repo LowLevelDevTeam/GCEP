@@ -42,6 +42,8 @@ inline void binarySnapShot::serializeAll(SER::FileArchive& archive)
             archive.seek(sizePos);
             archive.writeUint32(byteCount);
             archive.seek(dataEnd);
+
+            Log::info(std::format("Pool Name : {} | Entity : {} | Saved"  , pool->getName(), entity));
         }
     }
 }

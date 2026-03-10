@@ -1,4 +1,4 @@
-﻿#pragma once
+/*#pragma once
 
 #include "ScriptAPI.hpp"
 #include "SharedLibrary.hpp"
@@ -88,3 +88,4 @@ namespace gcep::scripting
         std::chrono::milliseconds m_copyRetryDelay{50};
     };
 }
+*/

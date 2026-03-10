@@ -4,7 +4,9 @@ namespace gcep::ECS
 {
     inline EntityID Registry::createEntity()
     {
-        return m_idGenerator.generateID();
+        auto id = m_idGenerator.generateID();
+        Log::info(std::format("Entity created : id = {}",id));
+        return id;
     }
 
     inline void Registry::createEntityWithID(EntityID entity)
@@ -36,7 +38,7 @@ T& Registry::addComponent(EntityID entityID, Args&&... args)
     {
         uint32_t id = ComponentIDGenerator::get<T>();
 
-        if (std::find(m_componentTypeList.begin(), m_componentTypeList.end(), id) == m_componentTypeList.end())
+        if (std::ranges::find(m_componentTypeList, id) == m_componentTypeList.end())
         {
             m_componentTypeList.push_back(id);
         }
