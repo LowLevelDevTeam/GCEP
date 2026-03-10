@@ -70,8 +70,7 @@ void LightSystem::onResize(uint32_t      width,
 // Public - updateLights
 // ============================================================================
 
-void LightSystem::updateLights(const std::vector<PointLight>& pointLights,
-                                const std::vector<SpotLight>&  spotLights)
+void LightSystem::updateLights()
 {
     assert(m_lightSSBOMapped  && "LightSystem not initialised");
     assert(m_lightMetaMapped  && "LightSystem not initialised");
@@ -80,9 +79,9 @@ void LightSystem::updateLights(const std::vector<PointLight>& pointLights,
     // ---- Pack CPU descriptors into GPULight entries -------------------------
 
     std::vector<GPULight> gpuLights;
-    gpuLights.reserve(pointLights.size() + spotLights.size());
+    gpuLights.reserve(m_pointLights.size() + m_spotLights.size());
 
-    for (const auto& pl : pointLights)
+    for (const auto& pl : m_pointLights)
     {
         if (gpuLights.size() >= MAX_LIGHTS) break;
 
@@ -98,7 +97,7 @@ void LightSystem::updateLights(const std::vector<PointLight>& pointLights,
         gpuLights.push_back(g);
     }
 
-    for (const auto& sl : spotLights)
+    for (const auto& sl : m_spotLights)
     {
         if (gpuLights.size() >= MAX_LIGHTS) break;
 
@@ -135,6 +134,30 @@ void LightSystem::updateLights(const std::vector<PointLight>& pointLights,
     LightMetaUBO meta{};
     meta.lightCount = m_activeLightCount;
     std::memcpy(m_lightMetaMapped, &meta, sizeof(LightMetaUBO));
+}
+
+void LightSystem::addPointLight(glm::vec3 pos)
+{
+    m_pointLights.push_back({
+        .position  = pos,
+        .color     = { 1.0f, 1.0f, 1.0f },
+        .intensity = 5.0f,
+        .radius    = 2.0f
+    });
+}
+
+void LightSystem::addSpotLight(glm::vec3 pos)
+{
+    m_spotLights.push_back({
+        .position       = pos,
+        .direction      = { 0.0f, -1.0f, 0.0f },
+        .color          = { 1.0f,  1.0f, 1.0f },
+        .intensity      = 1.0f,
+        .radius         = 20.0f,
+        .innerCutoffDeg = 15.0f,
+        .outerCutoffDeg = 30.0f,
+        .showGizmo      = true
+    });
 }
 
 // ============================================================================

@@ -238,11 +238,13 @@ public:
     /// first, then spot lights), clamps the total to @c MAX_LIGHTS, and
     /// memcpys into the persistently-mapped device-visible buffers.
     /// Call once per frame before @c recordLightingPass().
-    ///
-    /// @param pointLights  All active point lights this frame.
-    /// @param spotLights   All active spot lights this frame.
-    void updateLights(const std::vector<PointLight>& pointLights,
-                      const std::vector<SpotLight>&  spotLights);
+    void updateLights();
+
+    void addPointLight(glm::vec3 pos);
+    void addSpotLight(glm::vec3 pos);
+
+    std::vector<PointLight>& getPointLights() { return m_pointLights; }
+    std::vector<SpotLight>& getSpotLights()   { return m_spotLights; }
 
     /// @brief Records the lighting compute pass into @p cmd.
     ///
@@ -352,6 +354,9 @@ private:
     [[nodiscard]] static std::vector<char> readShader(const std::string& fileName);
 
     // Members
+
+    std::vector<PointLight> m_pointLights;
+    std::vector<SpotLight>  m_spotLights;
 
     VulkanDevice*          m_device     = nullptr;  ///< Non-owning pointer to the engine device.
     vk::raii::CommandPool* m_uploadPool = nullptr;  ///< Non-owning pointer to the upload pool.

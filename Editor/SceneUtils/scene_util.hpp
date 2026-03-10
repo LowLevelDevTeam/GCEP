@@ -8,12 +8,15 @@
 
 namespace gcep::editor
 {
-    ECS::EntityID spawnAsset   (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, const std::string& path, glm::vec3 pos);
-    ECS::EntityID spawnCube    (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnCone    (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnCylinder(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnIcosphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnSphere  (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnSuzanne (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnTorus   (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnAsset     (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, const std::string& path, glm::vec3 pos);
+    ECS::EntityID spawnCube      (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnCone      (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnCylinder  (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnIcosphere (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnSphere    (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnSuzanne   (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnTorus     (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    // Lights
+    ECS::EntityID spawnPointLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+    ECS::EntityID spawnSpotlight (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
 }

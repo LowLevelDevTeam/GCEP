@@ -473,6 +473,13 @@ void UiManager::drawSceneHierarchy()
             }
         }
 
+        if (ImGui::BeginMenu("Add light"))
+        {
+            if (ImGui::MenuItem("Spot light"))  editor::spawnSpotlight (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Point light")) editor::spawnPointLight(scene, pRHI, frontOfCam);
+            ImGui::EndMenu();
+        }
+
         if (m_selectedEntityID != UINT32_MAX)
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))

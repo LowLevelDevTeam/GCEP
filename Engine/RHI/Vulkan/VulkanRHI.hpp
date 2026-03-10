@@ -171,6 +171,8 @@ public:
     /// @param pos       Initial world-space position. Defaults to the origin.
     void spawnAsset(char* filepath, ECS::EntityID id, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
 
+    void spawnLight(LightType type, ECS::EntityID id, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+
     /// @brief Destroys the mesh at @p meshIndex and compacts the GPU buffers.
     ///
     /// Releases the geometry reference in @c m_meshCache. If this was the last

@@ -19,24 +19,9 @@ static struct PushConstant {
 
 void VulkanRHI::perFrameUpdate()
 {
-    std::vector<PointLight> points = {{
-        .position  = { 0.0f, 0.0f, 10.0f },
-        .color     = { 1.0f, 0.8f, 0.5f },
-        .intensity = 5.0f,
-        .radius    = 15.0f
-    }};
-    std::vector<SpotLight> spots = {{
-        .position       = { 0, 8, 5 },
-        .direction      = { 0, 0,-1 },
-        .color          = { 1, 1, 1 },
-        .intensity      = 16.f,
-        .radius         = 20.f,
-        .innerCutoffDeg = 12.5f,
-        .outerCutoffDeg = 20.0f,
-    }};
-    m_lightSystem.updateLights(points, spots);
-    m_lastPointLights = points;
-    m_lastSpotLights  = spots;
+    m_lightSystem.updateLights();
+    m_lastPointLights = m_lightSystem.getPointLights();
+    m_lastSpotLights  = m_lightSystem.getSpotLights();
     refreshMeshData();
 }
 

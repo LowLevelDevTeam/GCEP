@@ -217,6 +217,19 @@ void VulkanRHI::spawnAsset(char* filepath, ECS::EntityID id, glm::vec3 pos)
     mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
 }
 
+void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID /*id*/, glm::vec3 pos)
+{
+    // TODO: ECS compatibility
+    if(type == LightType::Point)
+    {
+        m_lightSystem.addPointLight(pos);
+    }
+    else
+    {
+        m_lightSystem.addSpotLight(pos);
+    }
+}
+
 void VulkanRHI::removeMesh(ECS::EntityID id)
 {
     auto it = std::ranges::find_if(meshes, [id](const Mesh& m){ return m.id == id; });

@@ -27,6 +27,19 @@ ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
     return id;
 }
 
+ECS::EntityID spawnLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, rhi::vulkan::LightType type, glm::vec3 pos)
+{
+    // Temp to get unique name
+    std::string name = (type == rhi::vulkan::LightType::Point) ? "Point light " : "Spot light ";
+    name += std::to_string(std::time(nullptr));
+
+    const ECS::EntityID id = scene.createEntity(name);
+
+    rhi->spawnLight(type, id, pos);
+
+    return id;
+}
+
 // ============================================================================
 // Primitives
 // ============================================================================
@@ -87,6 +100,16 @@ ECS::EntityID spawnSuzanne(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::
 ECS::EntityID spawnTorus(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
     return spawnAsset(scene, rhi, "Assets/Models/torus.obj", pos);
+}
+
+ECS::EntityID spawnPointLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
+{
+    return spawnLight(scene, rhi, rhi::vulkan::LightType::Point, pos);
+}
+
+ECS::EntityID spawnSpotlight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
+{
+    return spawnLight(scene, rhi, rhi::vulkan::LightType::Spot, pos);
 }
 
 } // namespace gcep::editor
