@@ -439,6 +439,8 @@ void VulkanRHI::initSceneResources()
         m_device.swapchainFormat(),
         m_uploadCommandPool
     );
+    createTAAResources(m_offscreenExtent.width,
+        m_offscreenExtent.height);
 }
 
 void VulkanRHI::recreateSwapchain(bool forVSync)

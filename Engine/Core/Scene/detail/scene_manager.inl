@@ -29,6 +29,7 @@ namespace gcep::SLS
     inline void SceneManager::loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
         m_currentScene = std::make_unique<Scene>();
+        std::cout << "Path : " << path << std::endl;
         std::cerr << "InLoading\n";
 
         if (std::filesystem::exists(path))
