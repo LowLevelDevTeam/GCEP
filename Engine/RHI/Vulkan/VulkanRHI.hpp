@@ -84,7 +84,7 @@ public:
 
     /// @brief Default destructor. All Vulkan resources are destroyed by their
     ///        RAII wrappers in reverse declaration order.
-    ~VulkanRHI() override = default;
+    ~VulkanRHI() override;
 
     VulkanRHI(const VulkanRHI&)            = delete;
     VulkanRHI& operator=(const VulkanRHI&) = delete;
@@ -181,7 +181,7 @@ public:
 
     /// @brief Spawns a unit cube at @p pos and uploads it to the GPU.
     ///
-    /// Creates an ECS entity, adds @c TransformComponent and @c PhysicsComponent,
+    /// Creates an ECS entity, adds @c ECS::Transform and @c PhysicsComponent,
     /// loads a built-in cube OBJ, and calls @c uploadSingleMesh(). The cube is
     /// registered as a static non-moving body.
     ///
@@ -203,7 +203,11 @@ public:
     ///
     /// @param filepath  Path to the OBJ file. Must exist on disk.
     /// @param pos       Initial world-space position. Defaults to the origin.
-    void spawnAsset(char* filepath, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+    void spawnAsset(char* filepath, ECS::EntityID id, glm::vec3 pos = {0.0f, 0.0f, 0.0f});
+
+
+    void removeMesh(ECS::EntityID id);
+
 
     /// @brief Destroys the mesh at @p meshIndex and compacts the GPU buffers.
     ///
@@ -214,7 +218,6 @@ public:
     /// SSBO and indirect buffer for all surviving slots.
     ///
     /// @param meshIndex  0-based index into @c meshes. Must be < @c meshes.size().
-    void removeMesh(uint32_t meshIndex);
 
     /// @brief Loads or replaces the texture of the mesh identified by @p id.
     ///
@@ -227,6 +230,12 @@ public:
     /// @param mipmaps When @c true, generates a full mip chain.
     void addTexture(ECS::EntityID id, char* path, bool mipmaps = true);
 
+    void uploadTexture(ECS::EntityID id, const char* texPath, bool mipmaps);
+
+    void uploadMesh(ECS::EntityID id, const char* objPath);
+
+
+
     /// @brief Writes the grid push constant for the current frame.
     ///
     /// Stores @p gridPC for use in @c recordGridPass() during the same frame.
@@ -236,6 +245,8 @@ public:
     void setGridPC(GridPushConstant* gridPC);
 
     void setSimulationStarted(bool started);
+
+    void setRegistry(ECS::Registry* registry);
 
     // Queries
 
@@ -748,7 +759,7 @@ private:
     float               m_shininess = 32.0f;
     GridPushConstant    m_gridPC;
     InitInfos           m_initInfos;
-    ECS::Registry       m_ECSRegistry;
+    ECS::Registry*       m_ECSRegistry = nullptr;
     bool                simulationStarted = false;
 
     std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now();

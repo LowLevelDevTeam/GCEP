@@ -1,5 +1,4 @@
 #pragma once
-#include <Engine/Core/ECS/headers/view_finder.hpp>
 
 namespace gcep::ECS
 {

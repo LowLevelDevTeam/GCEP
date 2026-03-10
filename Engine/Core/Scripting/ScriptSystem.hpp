@@ -1,4 +1,4 @@
-﻿#pragma once
+/*#pragma once
 
 #include <filesystem>
 #include <vector>
@@ -51,3 +51,4 @@ namespace gcep::scripting
         ECS::Registry* m_registry = nullptr;
     };
 }
+*/

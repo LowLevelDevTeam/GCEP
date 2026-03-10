@@ -1,12 +1,12 @@
 #include "physics_system.hpp"
+#include "physics_world.hpp"
+#include <Engine/Core/ECS/Components/physics_component.hpp>
+#include <Engine/Core/ECS/Components/Transform.hpp>
+#include "Maths/Utils/vector3_convertor.hpp"
+#include "Maths/Utils/quaternion_convertor.hpp"
 
 #include <memory>
 #include <iostream>
-
-#include "physics_world.hpp"
-#include "Component/transform_component.hpp"
-#include "Maths/Utils/vector3_convertor.hpp"
-#include "Maths/Utils/quaternion_convertor.hpp"
 
 namespace gcep
 {
@@ -39,13 +39,17 @@ namespace gcep
 
     void PhysicsSystem::startSimulation()
     {
-        auto view = registry->view<TransformComponent, PhysicsComponent>();
+        auto view = registry->view<ECS::Transform, ECS::PhysicsComponent>();
 
-        for (auto entity : view) {
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& physics = view.get<PhysicsComponent>(entity);
+        for (auto entity : view)
+        {
+            auto& transform = view.get<ECS::Transform>(entity);
+            auto& physics   = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime   = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
 
-            m_world->createBody(transform, physics, physics.m_bodyIDRef);
+            JPH::BodyID bodyID;
+            m_world->createBody(transform, physics, bodyID);
+            runtime.bodyID = bodyID.GetIndexAndSequenceNumber();
         }
         m_world->m_physicsSystem->OptimizeBroadPhase();
     }
@@ -64,11 +68,15 @@ namespace gcep
 
     void PhysicsSystem::stopSimulation()
     {
-        auto view = registry->view<PhysicsComponent>();
+        auto view = registry->view<ECS::PhysicsRuntimeData>();
 
-        for (ECS::EntityID id : view) {
-            auto& pc = view.get<PhysicsComponent>(id); // getter
-            m_world->destroyBody(pc.m_bodyIDRef);
+        for (ECS::EntityID id : view)
+        {
+            auto& runtime = view.get<ECS::PhysicsRuntimeData>(id);
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (!bodyID.IsInvalid())
+                m_world->destroyBody(bodyID);
+            registry->removeComponent<ECS::PhysicsRuntimeData>(id);
         }
     }
 
@@ -79,23 +87,22 @@ namespace gcep
 
     void PhysicsSystem::syncPhysicsToTransforms(ECS::Registry& reg)
     {
-        auto view = reg.view<TransformComponent, PhysicsComponent>();
-
+        auto view = reg.view<ECS::Transform, ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
         for (auto entity : view)
         {
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& physics = view.get<PhysicsComponent>(entity);
+            auto& transform = view.get<ECS::Transform>(entity);
+            auto& physics   = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime   = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != EMotionType::DYNAMIC)
-                continue;
+            if (physics.motionType != ECS::EMotionType::DYNAMIC) continue;
 
-            if (physics.m_bodyIDRef.IsInvalid())
-                continue;
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (bodyID.IsInvalid()) continue;
 
-            JPH::RVec3 pos = bodyInterface.GetPosition(physics.m_bodyIDRef);
-            JPH::Quat rot = bodyInterface.GetRotation(physics.m_bodyIDRef);
+            JPH::RVec3 pos = bodyInterface.GetPosition(bodyID);
+            JPH::Quat  rot = bodyInterface.GetRotation(bodyID);
 
             transform.position = Vector3Convertor::FromJolt(pos);
             transform.rotation = QuaternionConvertor::FromJolt(rot);
@@ -104,25 +111,24 @@ namespace gcep
 
     void PhysicsSystem::syncTransformsToPhysics(ECS::Registry& reg)
     {
-        auto view = reg.view<TransformComponent, PhysicsComponent>();
-
+        auto view = reg.view<ECS::Transform, ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
         for (auto entity : view)
         {
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& physics = view.get<PhysicsComponent>(entity);
+            auto& transform = view.get<ECS::Transform>(entity);
+            auto& physics   = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime   = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != EMotionType::KINEMATIC)
-                continue;
+            if (physics.motionType != ECS::EMotionType::KINEMATIC) continue;
 
-            if (physics.m_bodyIDRef.IsInvalid())
-                continue;
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (bodyID.IsInvalid()) continue;
 
             bodyInterface.SetPositionAndRotation(
-                physics.m_bodyIDRef,
+                bodyID,
                 Vector3Convertor::ToJolt(transform.position),
-                  QuaternionConvertor::ToJolt(transform.rotation),
+                QuaternionConvertor::ToJolt(transform.rotation),
                 JPH::EActivation::Activate
             );
         }
@@ -130,154 +136,80 @@ namespace gcep
 
     void PhysicsSystem::syncPhysicsVelocitiesToComponents(ECS::Registry& reg)
     {
-        auto view = reg.view<PhysicsComponent>();
-
+        auto view = reg.view<ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
         for (auto entity : view)
         {
-            auto& physics = view.get<PhysicsComponent>(entity);
+            auto& physics = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != EMotionType::DYNAMIC)
-                continue;
+            if (physics.motionType != ECS::EMotionType::DYNAMIC) continue;
 
-            if (physics.m_bodyIDRef.IsInvalid())
-                continue;
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (bodyID.IsInvalid()) continue;
 
-            JPH::Vec3 linear = bodyInterface.GetLinearVelocity(physics.m_bodyIDRef);
-            JPH::Vec3 angular = bodyInterface.GetAngularVelocity(physics.m_bodyIDRef);
+            JPH::Vec3 linear  = bodyInterface.GetLinearVelocity(bodyID);
+            JPH::Vec3 angular = bodyInterface.GetAngularVelocity(bodyID);
 
-            physics.linearVelocity = Vector3Convertor::FromJolt(linear);
-            physics.angularVelocity = Vector3Convertor::FromJolt(angular);
+            runtime.linearVelocity  = Vector3Convertor::FromJolt(linear);
+            runtime.angularVelocity = Vector3Convertor::FromJolt(angular);
         }
     }
 
     void PhysicsSystem::syncComponentsVelocitiesToPhysics(ECS::Registry& reg)
     {
-        auto view = reg.view<PhysicsComponent>();
-
+        auto view = reg.view<ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
         for (auto entity : view)
         {
-            auto& physics = view.get<PhysicsComponent>(entity);
+            auto& physics = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != EMotionType::DYNAMIC)
-                continue;
+            if (physics.motionType != ECS::EMotionType::DYNAMIC) continue;
 
-            if (physics.m_bodyIDRef.IsInvalid())
-                continue;
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (bodyID.IsInvalid()) continue;
 
-            bodyInterface.SetLinearVelocity(
-                physics.m_bodyIDRef,
-                Vector3Convertor::ToJolt(physics.linearVelocity)
-            );
-
-            bodyInterface.SetAngularVelocity(
-                physics.m_bodyIDRef,
-                Vector3Convertor::ToJolt(physics.angularVelocity)
-            );
+            bodyInterface.SetLinearVelocity(bodyID,
+                Vector3Convertor::ToJolt(runtime.linearVelocity));
+            bodyInterface.SetAngularVelocity(bodyID,
+                Vector3Convertor::ToJolt(runtime.angularVelocity));
         }
     }
 
     void PhysicsSystem::applyForces(ECS::Registry& reg)
     {
-        auto view = reg.view<PhysicsComponent>();
-
+        auto view = reg.view<ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
         for (auto entity : view)
         {
-            auto& physics = view.get<PhysicsComponent>(entity);
+            auto& physics = view.get<ECS::PhysicsComponent>(entity);
+            auto& runtime = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != EMotionType::DYNAMIC)
-                continue;
+            if (physics.motionType != ECS::EMotionType::DYNAMIC) continue;
 
-            if (physics.m_bodyIDRef.IsInvalid())
-                continue;
+            JPH::BodyID bodyID(runtime.bodyID);
+            if (bodyID.IsInvalid()) continue;
 
-            bodyInterface.ActivateBody(physics.m_bodyIDRef);
+            bodyInterface.ActivateBody(bodyID);
+            bodyInterface.AddForce(bodyID,          Vector3Convertor::ToJolt(runtime.force));
+            bodyInterface.AddImpulse(bodyID,        Vector3Convertor::ToJolt(runtime.impulse));
+            bodyInterface.AddTorque(bodyID,         Vector3Convertor::ToJolt(runtime.torque));
+            bodyInterface.AddAngularImpulse(bodyID, Vector3Convertor::ToJolt(runtime.angularImpulse));
 
-            // Force continue
-            bodyInterface.AddForce(physics.m_bodyIDRef,Vector3Convertor::ToJolt(physics.force));
-
-            // Impulse instantané
-            bodyInterface.AddImpulse(physics.m_bodyIDRef,Vector3Convertor::ToJolt(physics.impulse));
-
-            // Torque
-            bodyInterface.AddTorque(physics.m_bodyIDRef,Vector3Convertor::ToJolt(physics.torque));
-
-            // Angular impulse
-            bodyInterface.AddAngularImpulse(physics.m_bodyIDRef,Vector3Convertor::ToJolt(physics.angularImpulse));
-
-            // Reset impulses (one frame)
-            physics.impulse = {0,0,0};
-            physics.angularImpulse = {0,0,0};
+            runtime.impulse        = { 0.f, 0.f, 0.f };
+            runtime.angularImpulse = { 0.f, 0.f, 0.f };
         }
     }
 
-    RaycastHit PhysicsSystem::raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance)
+    RaycastHit PhysicsSystem::raycast(const Vector3<float>& origin,
+                                       const Vector3<float>& direction,
+                                       float maxDistance)
     {
         return m_world->raycast(origin, direction, maxDistance);
     }
-/*
-    void PhysicsSystem::addImpulse(const JPH::BodyID* bodyID, const Vector3<float> impulse) const
-    {
-        std::cout << "[Physics System] Calling addImpulse\n";
 
-        std::cout << "[Physics System] addImpulse: BodyID index="
-          << bodyID->GetIndex()
-          << " seq=" << (int)bodyID->GetSequenceNumber()
-          << "\n";
-
-        if (bodyID->IsInvalid())
-        {
-            std::cout << "[Physics System] addImpulse: invalid BodyID\n";
-            return;
-        }
-
-        //const JPH::BodyLockWrite lock(m_world->m_physicsSystem->GetBodyLockInterface(), bodyID);
-        //if (!lock.Succeeded()) { std::cout << "Failed\n"; return;};
-
-        std::cout << "[Physics System] Adding Impulse\n";
-
-        JPH::BodyInterface& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
-
-        if (!bodyInterface.IsAdded(*bodyID))
-        {
-            std::cout << "[Physics System] Body not added to physics world\n";
-            return;
-        }
-
-        bodyInterface.ActivateBody(*bodyID);
-        bodyInterface.AddImpulse(*bodyID, Vector3Convertor::ToJolt(impulse));
-    }
-
-    void PhysicsSystem::addForce(const JPH::BodyID* bodyID, const Vector3<float> force) const
-    {
-        std::cout << "[Physics System] Calling addForce\n";
-
-        if (bodyID->IsInvalid())
-        {
-            std::cout << "[Physics System] addImpulse: invalid BodyID\n";
-            return;
-        }
-
-        //const JPH::BodyLockWrite lock(m_world->m_physicsSystem->GetBodyLockInterface(), bodyID);
-        //if (!lock.Succeeded()) { std::cout << "Failed\n"; return;}
-
-        std::cout << "[Physics System] Adding Force\n";
-
-        JPH::BodyInterface& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
-
-        if (!bodyInterface.IsAdded(*bodyID))
-        {
-            std::cout << "[Physics System] Body not added to physics world\n";
-            return;
-        }
-
-        bodyInterface.ActivateBody(*bodyID);
-        bodyInterface.AddForce(*bodyID, Vector3Convertor::ToJolt(force));
-    }
-    */
 } // gcep

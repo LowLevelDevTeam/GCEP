@@ -57,24 +57,26 @@ add_subdirectory(Externals)
 #    add_subdirectory(UnitTests)
 #endif()
 
+
+
 add_library(GCExternals INTERFACE)
 target_include_directories(GCExternals INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glm
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/JoltPhysics
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/lib/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/external/dfdutils
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/miniaudio
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui/backends
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glfw/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/ImGuizmo
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/TinyGLTF
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/stb
-    ${CMAKE_CURRENT_SOURCE_DIR}/Externals/FontAwesome
-    ${GCE_SCRIPT_CONFIG_OUT}
-    ${Vulkan_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/JoltPhysics
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/lib/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/KTX-Software/external/dfdutils
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/miniaudio
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/imgui/backends
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/glfw/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/ImGuizmo
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/TinyGLTF
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/stb
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/FontAwesome
+        ${GCE_SCRIPT_CONFIG_OUT}
+        ${Vulkan_INCLUDE_DIRS}
 )
 
 # Scripting support (lightweight lib for tools)
@@ -109,4 +111,5 @@ add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 copy_textures(Textures)
 
 add_dependencies(GCEngine Shaders Textures)
+add_dependencies(GCEngine GCEngineScripts)
 add_dependencies(GCEngine GCEngineScripts)

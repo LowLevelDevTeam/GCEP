@@ -1,4 +1,4 @@
-﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
+﻿/*#include <Engine/Core/Scripting/ScriptAPI.hpp>
 
 #include <cmath>
 #include <string>
@@ -21,7 +21,7 @@ namespace
 
     void onUpdate(gcep::scripting::ScriptContext* context, void* state)
     {
-        // execute every tick — rotate around X axis at 1 rad/s
+        // execute every tick � rotate around X axis at 1 rad/s
         if (auto* tc = gcep::scripting::getTransform(context))
         {
             const float angle = 1.f * static_cast<float>(context->deltaSeconds);
@@ -65,6 +65,6 @@ namespace
     };
 }
 
-// Register this script — DO NOT DELETE
+// Register this script � DO NOT DELETE
 GCE_REGISTER_SCRIPT("Script0", g_plugin);
-
+*/

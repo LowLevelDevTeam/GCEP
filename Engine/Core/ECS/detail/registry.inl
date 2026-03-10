@@ -1,11 +1,17 @@
 #pragma once
-#include <Engine/Core/ECS/headers/registry.hpp>
 
 namespace gcep::ECS
 {
     inline EntityID Registry::createEntity()
     {
-        return m_idGenerator.generateID();
+        auto id = m_idGenerator.generateID();
+        Log::info(std::format("Entity created : id = {}",id));
+        return id;
+    }
+
+    inline void Registry::createEntityWithID(EntityID entity)
+    {
+        m_idGenerator.forceID(entity);
     }
 
     inline void Registry::destroyEntity(EntityID entity)
@@ -27,36 +33,43 @@ namespace gcep::ECS
         m_entitiesToDestroy.clear();
     }
 
-    template<typename T, typename... Args>
-    T& Registry::addComponent(EntityID entityID, Args&&... args)
+    template<ComponentConcept T, typename... Args>
+T& Registry::addComponent(EntityID entityID, Args&&... args)
     {
+        uint32_t id = ComponentIDGenerator::get<T>();
+
+        if (std::ranges::find(m_componentTypeList, id) == m_componentTypeList.end())
+        {
+            m_componentTypeList.push_back(id);
+        }
+
         return getPool<T>().add(entityID, std::forward<Args>(args)...);
     }
 
-    template<typename T>
+    template<ComponentConcept T>
     void Registry::removeComponent(EntityID entityID)
     {
         getPool<T>().removeComponent(entityID);
     }
 
-    template<typename T>
+    template<ComponentConcept T>
     T &Registry::getComponent(EntityID entity_id)
     {
         return getPool<T>().get(entity_id);
     }
 
-    template<typename T>
+    template<ComponentConcept T>
     bool Registry::hasComponent(EntityID entity)  {
         return getPool<T>().hasComponent(entity);
     }
 
-    template<typename... Args>
+    template<ComponentConcept... Args>
     View<Args...> Registry::view()
     {
         return View<Args...>(*this);
     }
 
-    template<typename T>
+    template<ComponentConcept T>
     ComponentPool<T>& Registry::getPool()
     {
         uint32_t id = ComponentIDGenerator::get<T>();
@@ -71,6 +84,16 @@ namespace gcep::ECS
         }
 
         return static_cast<ComponentPool<T>&>(*m_pools[id]);
+    }
+
+    inline const std::vector<std::unique_ptr<IPool>> & Registry::getPools() const
+    {
+        return m_pools;
+    }
+
+    inline const std::vector<uint32_t> & Registry::getTypeList() const
+    {
+        return m_componentTypeList;
     }
 
     inline void Registry::removeEntity(EntityID toRemove)

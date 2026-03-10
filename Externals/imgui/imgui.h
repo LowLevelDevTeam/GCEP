@@ -1785,8 +1785,8 @@ enum ImGuiConfigFlags_
     ImGuiConfigFlags_ViewportsEnable        = 1 << 10,  // Viewport enable flags (require both ImGuiBackendFlags_PlatformHasViewports + ImGuiBackendFlags_RendererHasViewports set by the respective backends)
 
     // User storage (to allow your backend/engine to communicate to code that may be shared between multiple projects. Those flags are NOT used by core Dear ImGui)
-    ImGuiConfigFlags_IsSRGB                 = 1 << 20,  // Application is SRGB-aware.
-    ImGuiConfigFlags_IsTouchScreen          = 1 << 21,  // Application is using a touch screen instead of a mouse.
+    ImGuiConfigFlags_IsSRGB                 = 1 << 20,  // application is SRGB-aware.
+    ImGuiConfigFlags_IsTouchScreen          = 1 << 21,  // application is using a touch screen instead of a mouse.
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     ImGuiConfigFlags_NavEnableSetMousePos   = 1 << 2,   // [moved/renamed in 1.91.4] -> use bool io.ConfigNavMoveSetMousePos
@@ -4131,23 +4131,23 @@ struct ImGuiViewport
 // - If you want to position windows relative to your main application viewport, use ImGui::GetMainViewport()->Pos as a base position.
 //
 // Steps to use multi-viewports in your application, when using a default backend from the examples/ folder:
-// - Application:  Enable feature with 'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable'.
+// - application:  Enable feature with 'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable'.
 // - Backend:      The backend initialization will setup all necessary ImGuiPlatformIO's functions and update monitors info every frame.
-// - Application:  In your main loop, call ImGui::UpdatePlatformWindows(), ImGui::RenderPlatformWindowsDefault() after EndFrame() or Render().
-// - Application:  Fix absolute coordinates used in ImGui::SetWindowPos() or ImGui::SetNextWindowPos() calls.
+// - application:  In your main loop, call ImGui::UpdatePlatformWindows(), ImGui::RenderPlatformWindowsDefault() after EndFrame() or Render().
+// - application:  Fix absolute coordinates used in ImGui::SetWindowPos() or ImGui::SetNextWindowPos() calls.
 //
 // Steps to use multi-viewports in your application, when using a custom backend:
 // - Important:    THIS IS NOT EASY TO DO and comes with many subtleties not described here!
 //                 It's also an experimental feature, so some of the requirements may evolve.
 //                 Consider using default backends if you can. Either way, carefully follow and refer to examples/ backends for details.
-// - Application:  Enable feature with 'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable'.
+// - application:  Enable feature with 'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable'.
 // - Backend:      Hook ImGuiPlatformIO's Platform_* and Renderer_* callbacks (see below).
 //                 Set 'io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports' and 'io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports'.
 //                 Update ImGuiPlatformIO's Monitors list every frame.
 //                 Update MousePos every frame, in absolute coordinates.
-// - Application:  In your main loop, call ImGui::UpdatePlatformWindows(), ImGui::RenderPlatformWindowsDefault() after EndFrame() or Render().
+// - application:  In your main loop, call ImGui::UpdatePlatformWindows(), ImGui::RenderPlatformWindowsDefault() after EndFrame() or Render().
 //                 You may skip calling RenderPlatformWindowsDefault() if its API is not convenient for your needs. Read comments below.
-// - Application:  Fix absolute coordinates used in ImGui::SetWindowPos() or ImGui::SetNextWindowPos() calls.
+// - application:  Fix absolute coordinates used in ImGui::SetWindowPos() or ImGui::SetNextWindowPos() calls.
 //
 // About ImGui::RenderPlatformWindowsDefault():
 // - This function is a mostly a _helper_ for the common-most cases, and to facilitate using default backends.

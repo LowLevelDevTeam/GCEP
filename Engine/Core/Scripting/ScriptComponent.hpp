@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿/*#pragma once
 
 #include "ScriptHost.hpp"
 
@@ -32,4 +32,4 @@ namespace gcep::scripting
         {
         }
     };
-}
+}*/

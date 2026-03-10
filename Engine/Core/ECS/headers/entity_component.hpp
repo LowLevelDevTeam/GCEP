@@ -55,10 +55,15 @@ namespace gcep::ECS
 		 * @return bool True if the entity is valid and active, false otherwise. */
 		bool isValid(EntityID id);
 
+		EntityID forceID(EntityID id);
+
 	private:
 		/** @brief Expands the entity pool to accommodate more entities.
 		 * @param newSize The new capacity for the entity pool. */
 		void grow(std::size_t newSize);
+
+
+
 
 		/** @brief Pool of entity metadata elements. */
 		std::vector<entityElement> elements;
@@ -83,12 +88,18 @@ namespace gcep::ECS
 		 * @return uint32_t The unique identifier for the component type.
 		 */
 		template<typename T>
-		[[nodiscard]] static std::uint32_t get()
+		static std::uint32_t get()
 		{
-			static std::uint32_t id = m_nextID++;
+			static std::uint32_t id = nextID(); // initialisé lazily
 			return id;
 		}
 	private:
+		static std::uint32_t nextID()
+		{
+			static std::uint32_t counter = 0; // garanti initialisé AVANT toute utilisation
+			return counter++;
+		}
+
 		/** @brief Global counter incremented each time a new component type is encountered. */
 		static inline std::uint32_t m_nextID = 0;
 	};

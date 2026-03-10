@@ -17,7 +17,7 @@ protected:
 
 TEST_F(PhysicsWorldFixture, CreateStaticBody)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     PhysicsComponent physics;
 
     physics.motionType = EMotionType::STATIC;
@@ -32,7 +32,7 @@ TEST_F(PhysicsWorldFixture, CreateStaticBody)
 /*
 TEST_F(PhysicsWorldFixture, DynamicBodyFalls)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 10.f, 0.f};
 
     PhysicsComponent physics;
@@ -53,7 +53,7 @@ TEST_F(PhysicsWorldFixture, DynamicBodyFalls)
 
 TEST_F(PhysicsWorldFixture, DestroyBody)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     PhysicsComponent physics;
 
     JPH::BodyID id;
@@ -120,7 +120,7 @@ TEST_F(PhysicsWorldFixture, RaycastMiss)
 
 TEST_F(PhysicsWorldFixture, RaycastHitsStaticCube)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 0.f, 0.f};
 
     PhysicsComponent physics;
@@ -145,7 +145,7 @@ TEST_F(PhysicsWorldFixture, RaycastHitsStaticCube)
 
 TEST_F(PhysicsWorldFixture, RaycastRespectsMaxDistance)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 0.f, 0.f};
 
     PhysicsComponent physics;
@@ -167,10 +167,10 @@ TEST_F(PhysicsWorldFixture, RaycastRespectsMaxDistance)
 
 TEST_F(PhysicsWorldFixture, RaycastReturnsClosestBody)
 {
-    TransformComponent t1;
+    ECS::Transform t1;
     t1.position = {0.f, 0.f, 0.f};
 
-    TransformComponent t2;
+    ECS::Transform t2;
     t2.position = {0.f, -200.f, 0.f};
 
     PhysicsComponent p1;
@@ -195,7 +195,7 @@ TEST_F(PhysicsWorldFixture, RaycastReturnsClosestBody)
 
 TEST_F(PhysicsWorldFixture, RaycastReturnsCorrectNormal)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 0.f, 0.f};
 
     PhysicsComponent physics;
@@ -219,7 +219,7 @@ TEST_F(PhysicsWorldFixture, RaycastReturnsCorrectNormal)
 
 TEST_F(PhysicsWorldFixture, RaycastWithNonNormalizedDirection)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     PhysicsComponent physics;
 
     JPH::BodyID id;
@@ -238,7 +238,7 @@ TEST_F(PhysicsWorldFixture, RaycastWithNonNormalizedDirection)
 
 TEST_F(PhysicsWorldFixture, RaycastFromInsideObject)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 0.f, 0.f};
 
     PhysicsComponent physics;
@@ -259,7 +259,7 @@ TEST_F(PhysicsWorldFixture, RaycastFromInsideObject)
 }
 TEST_F(PhysicsWorldFixture, HorizontalRaycast)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 0.f, 0.f};
 
     PhysicsComponent physics;
@@ -280,7 +280,7 @@ TEST_F(PhysicsWorldFixture, HorizontalRaycast)
 
 TEST_F(PhysicsWorldFixture, RaycastOnDynamicBody)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 100.f, 0.f};
 
     PhysicsComponent physics;
@@ -302,7 +302,7 @@ TEST_F(PhysicsWorldFixture, RaycastOnDynamicBody)
 
 TEST_F(PhysicsWorldFixture, RaycastAfterBodyDestroyed)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     PhysicsComponent physics;
 
     JPH::BodyID id;
@@ -321,7 +321,7 @@ TEST_F(PhysicsWorldFixture, RaycastAfterBodyDestroyed)
 
 TEST_F(PhysicsWorldFixture, RaycastScaledObject)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.scale = {3.f, 3.f, 3.f};
 
     PhysicsComponent physics;
@@ -342,7 +342,7 @@ TEST_F(PhysicsWorldFixture, RaycastScaledObject)
 
 TEST_F(PhysicsWorldFixture, MultipleRaycastsStability)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.scale = {100.f, 100.f, 100.f};
 
     PhysicsComponent physics;
@@ -371,7 +371,7 @@ TEST_F(PhysicsWorldFixture, ManyBodiesSimulation)
 
     for (int i = 0; i < count; ++i)
     {
-        TransformComponent transform;
+        ECS::Transform transform;
         transform.position = {0.f, float(i * 10), 0.f};
 
         PhysicsComponent physics;
@@ -389,7 +389,7 @@ TEST_F(PhysicsWorldFixture, ManyBodiesSimulation)
 // Zero scale
 TEST_F(PhysicsWorldFixture, ZeroScaleBody)
 {
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.scale = {0.f,0.f,0.f};
 
     PhysicsComponent physics;
@@ -408,7 +408,7 @@ TEST(PhysicsSystemTest, StartSimulationCreatesBodies)
 
     EntityID entity = system.reg.createEntity();
 
-    auto& transform = system.reg.addComponent<TransformComponent>(entity);
+    auto& transform = system.reg.addComponent<ECS::Transform>(entity);
     auto& physicsComponent = system.reg.addComponent<PhysicsComponent>(entity);
 
     system.startSimulation();
@@ -422,13 +422,13 @@ TEST(PhysicsSystemTest, SyncPhysicsToTransform)
 
     EntityID entity = system.reg.createEntity();
 
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {0.f, 10.f, 0.f};
 
     PhysicsComponent physics;
     physics.motionType = EMotionType::DYNAMIC;
 
-    auto& tc = system.reg.addComponent<TransformComponent>(entity, transform);
+    auto& tc = system.reg.addComponent<ECS::Transform>(entity, transform);
     auto& pc = system.reg.addComponent<PhysicsComponent>(entity, physics);
 
     system.startSimulation();
@@ -436,7 +436,7 @@ TEST(PhysicsSystemTest, SyncPhysicsToTransform)
     system.update(1.0f);
 
     auto& updatedTransform =
-        system.reg.getComponent<TransformComponent>(entity);
+        system.reg.getComponent<ECS::Transform>(entity);
 
     EXPECT_LT(updatedTransform.position.y, 10.f);
 }
@@ -447,13 +447,13 @@ TEST(PhysicsSystemTest, SyncTransformToPhysicsKinematic)
 
     EntityID entity = system.reg.createEntity();
 
-    TransformComponent transform;
+    ECS::Transform transform;
     transform.position = {5.f, 5.f, 5.f};
 
     PhysicsComponent physics;
     physics.motionType = EMotionType::KINEMATIC;
 
-    auto& tc = system.reg.addComponent<TransformComponent>(entity, transform);
+    auto& tc = system.reg.addComponent<ECS::Transform>(entity, transform);
     auto& pc = system.reg.addComponent<PhysicsComponent>(entity, physics);
 
     system.startSimulation();

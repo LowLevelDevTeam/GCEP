@@ -3,7 +3,8 @@
 #include <memory>
 
 #include "physics_world.hpp"
-#include "Engine/Core/ECS/headers/registry.hpp"
+#include <Engine/Core/ECS/Components/physics_component.hpp>
+#include <ECS/headers/registry.hpp>
 #include "raycast_hit.hpp"
 
 namespace gcep
@@ -96,7 +97,7 @@ namespace gcep
          * Copies updated positions and rotations from the physics bodies
          * into the ECS Registry transforms.
          *
-         * @param reg Reference to the entity Registry containing PhysicsComponents and TransformComponents.
+         * @param reg Reference to the entity Registry containing PhysicsComponents and ECS::Transforms.
          */
         void syncPhysicsToTransforms(ECS::Registry& reg);
 
@@ -106,7 +107,7 @@ namespace gcep
          * Updates physics bodies to match the ECS transforms, useful for
          * kinematic objects or editor manipulation.
          *
-         * @param reg Reference to the entity Registry containing PhysicsComponents and TransformComponents.
+         * @param reg Reference to the entity Registry containing PhysicsComponents and ECS::Transforms.
          */
         void syncTransformsToPhysics(ECS::Registry& reg);
 
@@ -130,7 +131,7 @@ namespace gcep
         /**
          * @brief Entity-Component-System registry.
          *
-         * Holds all entities, including those with PhysicsComponents and TransformComponents.
+         * Holds all entities, including those with PhysicsComponents and ECS::Transforms.
          * Typically this would be private, but exposed here for testing.
          */
         ECS::Registry* registry;

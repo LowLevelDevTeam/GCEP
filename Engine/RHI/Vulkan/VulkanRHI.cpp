@@ -16,6 +16,8 @@
 #include <Log/Log.hpp>
 #include <Maths/Utils/vector3_convertor.hpp>
 
+#include "ECS/Components/mesh_components.hpp"
+
 namespace gcep::rhi::vulkan
 {
 
@@ -24,6 +26,16 @@ namespace gcep::rhi::vulkan
 // ============================================================================
 
 VulkanRHI::VulkanRHI(const SwapchainDesc& desc) : m_swapchainDesc(desc) {}
+
+VulkanRHI::~VulkanRHI()
+{
+    if (m_descriptorPoolImGui != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(*m_device.rawDevice(), m_descriptorPoolImGui, nullptr);
+        m_descriptorPoolImGui = VK_NULL_HANDLE;
+    }
+    Log::info("Renderer cleaned up");
+}
 
 // ============================================================================
 // gcep::RHI - public interface
@@ -92,17 +104,6 @@ void VulkanRHI::cleanup()
         ImGui_ImplVulkan_RemoveTexture(m_imguiTextureDescriptor);
         m_imguiTextureDescriptor = VK_NULL_HANDLE;
     }
-
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    if (m_descriptorPoolImGui != VK_NULL_HANDLE)
-    {
-        vkDestroyDescriptorPool(*m_device.rawDevice(), m_descriptorPoolImGui, nullptr);
-        m_descriptorPoolImGui = VK_NULL_HANDLE;
-    }
-    Log::info("Renderer cleaned up");
 }
 
 // ============================================================================
@@ -162,128 +163,8 @@ bool VulkanRHI::isVSync()
 // Scene management
 // ============================================================================
 
-void VulkanRHI::spawnCone(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
 
-    char* path    = (char*)"Assets/Models/cone.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-    // Aliases
-    auto& mesh = meshes.back();
-    auto& id   = mesh.id;
-    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
-    // Values
-    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
-    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
-    // Save values
-    mesh.transform = tc;
-}
-
-void VulkanRHI::spawnCube(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/cube.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-}
-
-void VulkanRHI::spawnCylinder(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/cylinder.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-    // Aliases
-    auto& mesh = meshes.back();
-    auto& id   = mesh.id;
-    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
-    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
-    // Values
-    pc.motionType = EMotionType::STATIC;
-    pc.layers     = ELayers::NON_MOVING;
-    pc.shapeType  = EShapeType::CYLINDER;
-    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
-    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
-    // Save values
-    mesh.transform = tc;
-    mesh.physics   = pc;
-}
-
-void VulkanRHI::spawnIcosphere(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/icosphere.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-    // Aliases
-    auto& mesh = meshes.back();
-    auto& id   = mesh.id;
-    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
-    // Values
-    pc.shapeType = EShapeType::SPHERE;
-    // Save values
-    mesh.physics   = pc;
-}
-
-void VulkanRHI::spawnSphere(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/sphere.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-    // Aliases
-    auto& mesh = meshes.back();
-    auto& id   = mesh.id;
-    auto& pc = m_ECSRegistry.getComponent<PhysicsComponent>(id);
-    // Values
-    pc.shapeType  = EShapeType::SPHERE;
-    // Save values
-    mesh.physics   = pc;
-}
-
-void VulkanRHI::spawnSuzanne(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/suzanne.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-    // Aliases
-    auto& mesh = meshes.back();
-    auto& id   = mesh.id;
-    auto& tc = m_ECSRegistry.getComponent<TransformComponent>(id);
-    // Values
-    tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, glm::pi<float>() / 2.0f};
-    glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
-    // Save values
-    mesh.transform = tc;
-}
-
-void VulkanRHI::spawnTorus(glm::vec3 pos)
-{
-    assert(meshes.size() < MAX_MESHES && "Too many meshes");
-
-    char* path    = (char*)"Assets/Models/torus.obj";
-    char* texPath = (char*)"Assets/Textures/white.png";
-    spawnAsset(path, pos);
-    addTexture(meshes.size() - 1, texPath, false);
-}
-
-void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
+void VulkanRHI::spawnAsset(char* filepath, ECS::EntityID id, glm::vec3 pos)
 {
     if (!std::filesystem::exists(filepath))
     {
@@ -291,13 +172,12 @@ void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
     }
     assert(meshes.size() < MAX_MESHES && "Too many meshes");
 
-    const auto id    = m_ECSRegistry.createEntity();
     const auto index = static_cast<ECS::EntityID>(meshes.size());
 
     meshes.emplace_back();
     auto& mesh     = meshes.back();
-    mesh.transform = m_ECSRegistry.addComponent<TransformComponent>(id);
-    mesh.physics   = m_ECSRegistry.addComponent<PhysicsComponent>(id);
+    mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+    mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
     mesh.id        = id;
     mesh.name      = std::filesystem::path(filepath).filename().string() + " / id = " + std::to_string(id);
 
@@ -305,31 +185,38 @@ void VulkanRHI::spawnAsset(char* filepath, glm::vec3 pos)
     if(uploadSingleMesh(index) != 0)
     {
         meshes.pop_back();
-        m_ECSRegistry.removeComponent<TransformComponent>(id);
-        m_ECSRegistry.removeComponent<PhysicsComponent>(id);
-        m_ECSRegistry.update();
+        m_ECSRegistry->removeComponent<ECS::Transform>(id);
+        m_ECSRegistry->removeComponent<ECS::PhysicsComponent>(id);
+        m_ECSRegistry->update();
         return;
     }
 
     Vector3<float> halfExtents = { 1.0f, 1.0f, 1.0f };
 
-    m_ECSRegistry.getComponent<TransformComponent>(id).position = { pos.x, pos.y, pos.z };
-    m_ECSRegistry.getComponent<TransformComponent>(id).scale    = halfExtents;
-    m_ECSRegistry.getComponent<PhysicsComponent>(id).motionType = EMotionType::STATIC;
-    m_ECSRegistry.getComponent<PhysicsComponent>(id).layers     = ELayers::NON_MOVING;
-    m_ECSRegistry.getComponent<PhysicsComponent>(id).shapeType  = EShapeType::CUBE;
+    if (!m_ECSRegistry->hasComponent<ECS::MeshComponent>(id))
+    {
+        m_ECSRegistry->addComponent<ECS::MeshComponent>(id, filepath);
+        m_ECSRegistry->getComponent<ECS::Transform>(id).position = { pos.x, pos.y, pos.z };
+        m_ECSRegistry->getComponent<ECS::Transform>(id).scale    = halfExtents;
+    }
+    else
+    {
+        m_ECSRegistry->getComponent<ECS::MeshComponent>(id).filePath = filepath;
+    }
 
-    mesh.transform = m_ECSRegistry.getComponent<TransformComponent>(id);
-    mesh.physics   = m_ECSRegistry.getComponent<PhysicsComponent>(id);
+    mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+    mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
 }
 
-void VulkanRHI::removeMesh(uint32_t meshIndex)
+void VulkanRHI::removeMesh(ECS::EntityID id)
 {
-    assert(meshIndex < meshes.size() && "meshIndex out of range");
+    auto it = std::ranges::find_if(meshes, [id](const Mesh& m){ return m.id == id; });
+    if (it == meshes.end()) return;
 
+    const uint32_t meshIndex = static_cast<uint32_t>(std::distance(meshes.begin(), it));
     auto& dying = meshes[meshIndex];
-    bool shouldCompact = m_meshCache.release(dying.objPath());
 
+    bool shouldCompact = m_meshCache.release(dying.objPath());
     if (shouldCompact)
     {
         auto& deadCmd = m_indirectCommands[meshIndex];
@@ -341,15 +228,11 @@ void VulkanRHI::removeMesh(uint32_t meshIndex)
         );
     }
 
-    m_ECSRegistry.destroyEntity(dying.id);
-    m_ECSRegistry.update();
-
     meshes.erase(meshes.begin() + meshIndex);
     m_meshData.erase(m_meshData.begin() + meshIndex);
     m_indirectCommands.erase(m_indirectCommands.begin() + meshIndex);
 
     const uint32_t remaining = static_cast<uint32_t>(meshes.size());
-
     for (uint32_t i = meshIndex; i < remaining; ++i)
     {
         m_indirectCommands[i].firstInstance = i;
@@ -373,6 +256,46 @@ void VulkanRHI::addTexture(ECS::EntityID id, char* path, bool mipmaps)
     Log::info(std::format("Loaded texture {}, mipmaps = {}", std::string(path), mipmaps));
 }
 
+    void VulkanRHI::uploadMesh(ECS::EntityID id, const char* objPath)
+{
+    if (!std::filesystem::exists(objPath)) return;
+    assert(meshes.size() < MAX_MESHES && "Too many meshes");
+
+    const auto index = static_cast<uint32_t>(meshes.size());
+
+    meshes.emplace_back();
+    auto& mesh = meshes.back();
+    mesh.id    = id;
+    mesh.name  = std::filesystem::path(objPath).filename().string()
+               + " / id = " + std::to_string(id);
+
+    mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+    mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+
+    mesh.load(this, objPath);
+
+    if (uploadSingleMesh(index) != 0)
+    {
+        meshes.pop_back();
+        return;
+    }
+
+    mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+    mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+}
+
+    void VulkanRHI::uploadTexture(ECS::EntityID id, const char* texPath, bool mipmaps)
+{
+    if (!std::filesystem::exists(texPath)) return;
+
+    auto* mesh = findMesh(id);
+    if (!mesh) return;
+
+    mesh->texture()->loadTexture(this, texPath, mipmaps);
+    Log::info(std::format("Loaded texture {}, mipmaps = {}", texPath, mipmaps));
+}
+
+
 void VulkanRHI::setGridPC(GridPushConstant* gridPC)
 {
     m_gridPC = *gridPC;
@@ -381,6 +304,11 @@ void VulkanRHI::setGridPC(GridPushConstant* gridPC)
 void VulkanRHI::setSimulationStarted(bool started)
 {
     simulationStarted = started;
+}
+
+void VulkanRHI::setRegistry(ECS::Registry *registry)
+{
+    m_ECSRegistry = registry;
 }
 
 // ============================================================================
@@ -397,7 +325,7 @@ InitInfos* VulkanRHI::getInitInfos()
 {
     m_initInfos.instance = this;
     m_initInfos.meshData = &meshes;
-    m_initInfos.registry = &m_ECSRegistry;
+    m_initInfos.registry = m_ECSRegistry;
     m_initInfos.ds       = &m_imguiTextureDescriptor;
     return &m_initInfos;
 }
@@ -489,11 +417,6 @@ void VulkanRHI::initSceneResources()
     createGraphicsPipeline(); // Vertex / Fragment shader - general purpose
     createCullPipeline();     // Compute shader - Frustum culling
     createGridPipeline();     // Vertex / Fragment shader - editor grid
-    // Base scene - TEST -- TODO: Move that
-    spawnCube({0, 0, 10});
-    spawnCube({0, 0, 0});
-    meshes.at(1).setScale({10.0f, 10.0f, 1.0f});
-    m_ECSRegistry.getComponent<TransformComponent>(1).scale = Vector3<float>(10.0f, 10.0f, 1.0f);
 }
 
 void VulkanRHI::recreateSwapchain(bool forVSync)
