@@ -1,4 +1,4 @@
-﻿#include "camera.hpp"
+#include "camera.hpp"
 
 #include <Editor/Helpers.hpp>
 

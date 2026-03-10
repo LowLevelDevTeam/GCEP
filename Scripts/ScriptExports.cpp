@@ -1,7 +1,7 @@
-﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
+﻿/*#include <Engine/Core/Scripting/ScriptAPI.hpp>
 #include <cstring>
 
-// ── Single export point for the entire DLL ─────────────────────────────
+// -- Single export point for the entire DLL -----------------------------
 // All script files auto-register via GCE_REGISTER_SCRIPT().
 // These three functions let the engine query the registry at runtime.
 
@@ -35,4 +35,4 @@ GCE_SCRIPT_API gcep::scripting::ScriptRegistryEntry* GCE_GetScriptEntryByName(co
     }
     return nullptr;
 }
-
+*/

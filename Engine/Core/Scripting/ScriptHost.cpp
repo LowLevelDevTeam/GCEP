@@ -1,4 +1,4 @@
-﻿#include "ScriptHost.hpp"
+﻿/*#include "ScriptHost.hpp"
 
 #include <chrono>
 #include <filesystem>
@@ -474,3 +474,4 @@ namespace gcep::scripting
         }
     }
 }
+*/

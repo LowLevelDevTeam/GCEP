@@ -1,7 +1,7 @@
-﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
+﻿/*#include <Engine/Core/Scripting/ScriptAPI.hpp>
 
 #include <string>
-#include <Engine/Core/PhysicsWrapper/Component/physics_component.hpp>
+#include <ECS/Components/physics_component.hpp>
 #include <Engine/Core/PhysicsWrapper/physics_system.hpp>
 
 namespace
@@ -36,7 +36,7 @@ namespace
         if (context && context->log)
         {
             /*std::string message = "tick YAY: " + std::to_string(counter->value);
-            context->log(message.c_str());*/
+            context->log(message.c_str());
         }
 
         //gcep::Quaternion quat;
@@ -44,9 +44,9 @@ namespace
         if (foo)
         {
             auto& physicsSystem = context->physicsSystem;
-            auto& physicsComp = context->registry->getComponent<gcep::PhysicsComponent>(0);
+            auto& physicsComp = context->registry->getComponent<gcep::ECS::PhysicsComponent>(0);
 
-            // z = 0 -> crêpe
+            // z = 0 -> cr�pe
             //physicsComp.force = gcep::Vector3<float>{1.0f, 1.0f, 0.0f};
             // modifie la scale
             //physicsComp.force += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
@@ -72,5 +72,6 @@ namespace
     };
 }
 
-// Register this script — DO NOT DELETE
+// Register this script � DO NOT DELETE
 GCE_REGISTER_SCRIPT("SampleScript", g_plugin);
+*/

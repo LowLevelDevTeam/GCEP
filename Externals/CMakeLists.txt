@@ -50,3 +50,6 @@ target_include_directories(GCEngine PRIVATE stb)
 
 # Final libraries linking
 target_link_libraries(GCEngine PRIVATE ImGui ImGuizmo glfw miniaudio Jolt ktx)
+
+#boost_pfr
+target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/boost_pfr/include)

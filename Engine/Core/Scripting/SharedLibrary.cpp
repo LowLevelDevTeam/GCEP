@@ -1,4 +1,4 @@
-﻿#include "SharedLibrary.hpp"
+﻿/*#include "SharedLibrary.hpp"
 
 #include <utility>
 
@@ -113,4 +113,4 @@ namespace gcep::scripting
         return m_handle != nullptr;
     }
 }
-
+*/

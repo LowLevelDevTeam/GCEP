@@ -15,53 +15,20 @@
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Log/Log.hpp>
-#include <Maths/quaternion.hpp>
+#include <Engine/Core/Maths/quaternion.hpp>
 
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close) : physicsSystem(PhysicsSystem::getInstance()), scriptSystem(scripting::ScriptSystem::getInstance()), reloadApp(reload), closeApp(close)
+UiManager::UiManager(GLFWwindow* window, bool& reload, bool& close)
+    : physicsSystem(PhysicsSystem::getInstance()),
+      reloadApp(reload),
+      closeApp(close)
 {
-    m_window = window;
-    m_initInfo = initInfo;
+    m_window    = window;
     audioSystem = gcep::AudioSystem::getInstance();
-
-    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-
-    IMGUI_CHECKVERSION();
-
-    // Create context
-    ImGui::CreateContext();
-
-    // Get variables references
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-    // setup ImGui style
-    ImGui::StyleColorsDark();
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale);
-    style.FontScaleDpi = main_scale;
-    style.WindowPadding = ImVec2(0.0f, 0.0f);
-
-    constexpr float baseFontSize = 18.0f;
-    constexpr float iconFontSize = baseFontSize * 2.0f / 3.0f;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Nunito-Regular.ttf", baseFontSize);
-    ImFontConfig icons_config;
-    icons_config.MergeMode = true;
-    icons_config.PixelSnapH = true;
-    icons_config.GlyphMinAdvanceX = iconFontSize;
-    static constexpr ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
-    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, iconFontSize, &icons_config, icons_ranges);
-
-    // Setup Platfrom/renderer backend
-    ImGui_ImplGlfw_InitForVulkan(window, true);
-    ImGui_ImplVulkan_Init(&m_initInfo);
+    // ImGui déjà initialisé par ImGuiManager — on ne touche à rien ici
     initConsole();
-    setDarkTheme();
     Log::info("UiManager initialized successfully");
 }
 
@@ -76,11 +43,24 @@ void UiManager::setCamera(Camera *pCamera)
     cameraRef = pCamera;
 }
 
+void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
+{
+    m_sceneManager = sceneManager;
+
+}
+
+
+void UiManager::setCurrentScenePath(const std::string& path)
+{
+    m_currentScenePath = path;
+}
+
+
+
 void UiManager::setInfos(rhi::vulkan::InitInfos* infos)
 {
     pRHI = infos->instance;
     meshData = infos->meshData;
-    m_registry = infos->registry;
     viewportTexture = infos->ds;
 }
 
@@ -227,119 +207,17 @@ void UiManager::initConsole() {
     std::cerr.rdbuf(m_consoleBuffer.get());
 }
 
-void UiManager::setDarkTheme()
-{
-    auto &style = ImGui::GetStyle();
-    auto &colors = style.Colors;
 
-    // geometry & spacing
-    style.FramePadding = ImVec2(6, 4);
-    style.CellPadding = ImVec2(4, 2);
-    style.ItemSpacing = ImVec2(8, 6);
-    style.ItemInnerSpacing = ImVec2(6, 4);
-    style.IndentSpacing = 20.0f;
-    style.ScrollbarSize = 14.0f;
-    style.GrabMinSize = 10.0f;
-
-    // borders & rounding
-    style.WindowRounding = 6.0f;
-    style.ChildRounding = 4.0f;
-    style.FrameRounding = 4.0f;
-    style.PopupRounding = 4.0f;
-    style.ScrollbarRounding = 9.0f;
-    style.GrabRounding = 3.0f;
-    style.TabRounding = 4.0f;
-
-    style.WindowBorderSize = 1.0f;
-    style.ChildBorderSize = 1.0f;
-    style.PopupBorderSize = 1.0f;
-    style.FrameBorderSize = 0.0f;
-
-    // core palette (complete)
-    colors[ImGuiCol_Text] = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
-    colors[ImGuiCol_TextDisabled] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-    colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
-    colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.12f, 0.12f, 0.96f);
-    colors[ImGuiCol_Border] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-
-    colors[ImGuiCol_FrameBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_FrameBgActive] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-
-    colors[ImGuiCol_TitleBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
-    colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
-
-    colors[ImGuiCol_MenuBarBg] = ImVec4(0.09f, 0.09f, 0.07f, 1.00f);
-
-    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-
-    colors[ImGuiCol_CheckMark] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
-    colors[ImGuiCol_SliderGrab] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-
-    colors[ImGuiCol_Button] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-    colors[ImGuiCol_ButtonActive] = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
-
-    colors[ImGuiCol_Header] = ImVec4(0.22f, 0.32f, 0.45f, 1.00f);
-    colors[ImGuiCol_HeaderHovered] = ImVec4(0.28f, 0.38f, 0.55f, 1.00f);
-    colors[ImGuiCol_HeaderActive] = ImVec4(0.35f, 0.45f, 0.65f, 1.00f);
-
-    colors[ImGuiCol_Separator] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-    colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-
-    colors[ImGuiCol_ResizeGrip] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-    colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-
-    colors[ImGuiCol_Tab] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-    colors[ImGuiCol_TabHovered] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_TabActive] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-
-    // docking
-    colors[ImGuiCol_DockingPreview] = ImVec4(0.26f, 0.40f, 0.60f, 0.40f);
-    colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-
-    // plots
-    colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.60f, 0.76f, 0.92f, 1.00f);
-    colors[ImGuiCol_PlotHistogram] = ImVec4(0.35f, 0.55f, 0.75f, 1.00f);
-    colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.55f, 0.72f, 0.90f, 1.00f);
-
-    // tables
-    colors[ImGuiCol_TableHeaderBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-    colors[ImGuiCol_TableBorderLight] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-
-    // selection & drag/drop
-    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.40f, 0.60f, 0.35f);
-    colors[ImGuiCol_DragDropTarget] = ImVec4(0.40f, 0.60f, 0.80f, 0.90f);
-
-    // navigation & modal
-    colors[ImGuiCol_NavHighlight] = ImVec4(0.40f, 0.60f, 0.80f, 0.30f);
-    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.40f, 0.60f, 0.80f, 0.25f);
-    colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.50f);
-    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.55f);
-}
 
 void UiManager::shutdownConsole()
 {
     if (m_oldCout)
     {
+        std::cout << "Avant\n";
         std::cout.rdbuf(m_oldCout);
         std::cerr.rdbuf(m_oldCout);
         m_oldCout = nullptr;
+        std::cout <<  "Apres\n";
     }
 
     m_consoleBuffer.reset();
@@ -347,10 +225,7 @@ void UiManager::shutdownConsole()
 
 void UiManager::beginFrame()
 {
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    // Configurer ImGuizmo pour la frame courante
+    // NewFrame déjà appelé par ImGuiManager — on configure juste ImGuizmo
     ImGuizmo::BeginFrame();
     handleGizmoInput();
 }
@@ -364,6 +239,14 @@ void UiManager::drawMainMenuBar()
     {
         if (ImGui::BeginMenu((std::string(ICON_FA_FILE) + " File").c_str()))
         {
+            if (ImGui::MenuItem((std::string(ICON_FA_FLOPPY_O) + " Save scene").c_str(), "Ctrl+S"))
+            {
+                if (m_sceneManager && !m_currentScenePath.empty())
+                {
+                    m_sceneManager->current().save(m_currentScenePath);
+                }
+            }
+
             if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
             {
                 closeApp = true;
@@ -378,6 +261,7 @@ void UiManager::drawMainMenuBar()
         {
             showSettings = !showSettings;
         }
+
         if(ImGui::Button("Reload engine"))
         {
             reloadApp = true;
@@ -387,6 +271,8 @@ void UiManager::drawMainMenuBar()
     ImGui::PopFont();
     ImGui::PopStyleVar();
 }
+
+
 
 void UiManager::drawViewport()
 {
@@ -398,52 +284,49 @@ void UiManager::drawViewport()
         {
             if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
             {
-                simulationPaused = false;
+                m_simulationState = SimulationState::PLAYING;
                 pRHI->setSimulationStarted(true);
-                if(!simulationStarted)
-                {
-                    simulationStarted = true;
-                    physicsSystem.setRegistry(m_registry);
-                    physicsSystem.startSimulation();
-                }
+                physicsSystem.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
+                physicsSystem.startSimulation();
             }
             ImGui::SameLine();
             if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
             {
-                simulationPaused = !simulationPaused;
-                if(simulationPaused)
+                if (m_simulationState == SimulationState::PLAYING)
                 {
+                    m_simulationState = SimulationState::PAUSED;
                     pRHI->setSimulationStarted(false);
+                }
+                else if (m_simulationState == SimulationState::PAUSED)
+                {
+                    m_simulationState = SimulationState::PLAYING;
+                    pRHI->setSimulationStarted(true);
                 }
             }
             ImGui::SameLine();
-            if (ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str()) && simulationStarted)
+            if (ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str())
+                && m_simulationState != SimulationState::STOPPED)
             {
-                simulationStarted = false;
+                m_simulationState = SimulationState::STOPPED;
                 pRHI->setSimulationStarted(false);
                 physicsSystem.stopSimulation();
             }
             ImGui::SameLine();
             std::string simStatus = "Simulation status: ";
-            if (simulationStarted)
-                simStatus += "Playing";
-            else
-                simStatus += "Stopped";
-
-            if (simulationPaused && simulationStarted)
-                simStatus = "Simulation status: Paused";
+            switch (m_simulationState)
+            {
+                case SimulationState::PLAYING: simStatus += "Playing"; break;
+                case SimulationState::PAUSED:  simStatus += "Paused";  break;
+                case SimulationState::STOPPED: simStatus += "Stopped"; break;
+            }
             ImGui::Text(simStatus.c_str());
         }
         ImGui::EndMenuBar();
         ImGui::PopFont();
-        if(simulationStarted && !simulationPaused)
+        if (m_simulationState == SimulationState::PLAYING)
         {
-            // Run script
-            if (m_registry)
-                scriptSystem.update(m_registry, io.DeltaTime);
-            else
-                std::cout << "no registry !" << std::endl;
-
+            auto& registry = SLS::SceneManager::instance().current().getRegistry();
+           //scriptSystem.update(&registry, io.DeltaTime);
             physicsSystem.update(io.DeltaTime);
         }
 
@@ -482,7 +365,7 @@ void UiManager::drawViewport()
                 availSize.y
         );
 
-        if(!simulationStarted || simulationPaused)
+        if (m_simulationState != SimulationState::PLAYING)
         {
             drawGizmo();
         }
@@ -494,13 +377,18 @@ void UiManager::drawSettings()
 {
     ImGui::Begin("Settings");
     {
+        auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
+
         bool vsyncState = pRHI->isVSync();
-        if(ImGui::Checkbox("V-Sync", &vsyncState))
-        {
+        if (ImGui::Checkbox("V-Sync", &vsyncState))
             pRHI->setVSync(!pRHI->isVSync());
-        }
+
         ImGui::SeparatorText("Scene infos");
-        ImGui::ColorEdit4("ClearColor", (float*)&m_clearColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
+        float cc[4] = { settings.clearColor.x, settings.clearColor.y, settings.clearColor.z, settings.clearColor.w };
+        if (ImGui::ColorEdit4("ClearColor", cc, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+            settings.clearColor = { cc[0], cc[1], cc[2], cc[3] };
+
+
         ImGui::Text("Total entities : %d", meshData->size());
         ImGui::Text("Entities drawn : %d", pRHI->getDrawCount());
 
@@ -508,9 +396,17 @@ void UiManager::drawSettings()
         ImGui::SliderFloat("Camera Speed", &camSpeed, 1.0f, 20.0f);
 
         ImGui::SeparatorText("Scene light");
-        ImGui::ColorEdit3("Ambient color", glm::value_ptr(ambientColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        ImGui::ColorEdit3("Light color", glm::value_ptr(lightColor), ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel);
-        ImGui::DragFloat3("Light direction", glm::value_ptr(lightDirection));
+        float ac[3] = { settings.ambientColor.x, settings.ambientColor.y, settings.ambientColor.z };
+        if (ImGui::ColorEdit3("Ambient color", ac, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+            settings.ambientColor = { ac[0], ac[1], ac[2] };
+
+        float lc[3] = { settings.lightColor.x, settings.lightColor.y, settings.lightColor.z };
+        if (ImGui::ColorEdit3("Light color", lc, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+            settings.lightColor = { lc[0], lc[1], lc[2] };
+
+        float ld[3] = { settings.lightDirection.x, settings.lightDirection.y, settings.lightDirection.z };
+        if (ImGui::DragFloat3("Light direction", ld))
+            settings.lightDirection = { ld[0], ld[1], ld[2] };
 
         ImGui::SeparatorText("Grid options");
         ImGui::InputFloat("Cell size",     &sceneInfos.cellSize);
@@ -520,14 +416,13 @@ void UiManager::drawSettings()
 
         ImGui::SeparatorText("Temporal Anti-Aliasing");
         static float blendAlpha = 0.10f;
-        if(ImGui::InputFloat("Blend alpha", &blendAlpha, 0.01f, 0.10f))
-        {
+        if (ImGui::InputFloat("Blend alpha", &blendAlpha, 0.01f, 0.10f))
             pRHI->setTAABlendAlpha(blendAlpha);
-        }
 
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+            1000.0f / io.Framerate, io.Framerate);
         ImGui::Text("Viewport size: %.0f x %.0f", m_viewportSize.x, m_viewportSize.y);
     }
     ImGui::End();
@@ -539,7 +434,7 @@ void UiManager::drawSceneHierarchy()
     {
         if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            for (const auto &entity: *meshData)
+            for (const auto& entity : *meshData)
             {
                 const bool selected = (m_selectedEntityID == entity.id);
                 std::string label = std::string(ICON_FA_CUBE) + " " + entity.name;
@@ -551,62 +446,40 @@ void UiManager::drawSceneHierarchy()
             }
             ImGui::TreePop();
         }
+
+        auto& scene = SLS::SceneManager::instance().current();
         glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
+
         if (ImGui::BeginMenu("Add shape"))
         {
-            if(ImGui::MenuItem("Cone"))
-            {
-                pRHI->spawnCone(frontOfCam);
-            }
-            if(ImGui::MenuItem("Cube"))
-            {
-                pRHI->spawnCube(frontOfCam);
-            }
-            if(ImGui::MenuItem("Cylinder"))
-            {
-                pRHI->spawnCylinder(frontOfCam);
-            }
-            if(ImGui::MenuItem("Icosphere"))
-            {
-                pRHI->spawnIcosphere(frontOfCam);
-            }
-            if(ImGui::MenuItem("Sphere"))
-            {
-                pRHI->spawnSphere(frontOfCam);
-            }
-            if(ImGui::MenuItem("Suzanne"))
-            {
-                pRHI->spawnSuzanne(frontOfCam);
-            }
-            if(ImGui::MenuItem("Torus"))
-            {
-                pRHI->spawnTorus(frontOfCam);
-            }
+            if (ImGui::MenuItem("Cone"))      editor::spawnCone     (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cube"))      editor::spawnCube     (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cylinder"))  editor::spawnCylinder (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Icosphere")) editor::spawnIcosphere(scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Sphere"))    editor::spawnSphere   (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Suzanne"))   editor::spawnSuzanne  (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Torus"))     editor::spawnTorus    (scene, pRHI, frontOfCam);
             ImGui::EndMenu();
         }
 
         if (ImGui::Button("Add asset"))
         {
-            const char *filters[] = { "*.obj", "*.gltf" };
-            if (auto path = tinyfd_openFileDialog("Choose an asset", std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0); path != nullptr)
+            const char* filters[] = { "*.obj", "*.gltf" };
+            if (auto path = tinyfd_openFileDialog("Choose an asset",
+                std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0);
+                path != nullptr)
             {
-                pRHI->spawnAsset(path, frontOfCam);
+                editor::spawnAsset(scene, pRHI, path, frontOfCam);
             }
         }
 
-        // Delete selected entity
         if (m_selectedEntityID != UINT32_MAX)
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
-                auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
-
-                if (it != meshData->end())
-                {
-                    uint32_t idx = static_cast<uint32_t>(std::distance(meshData->begin(), it));
-                    pRHI->removeMesh(idx);
-                    m_selectedEntityID = UINT32_MAX;
-                }
+                pRHI->removeMesh(m_selectedEntityID);
+                scene.destroyEntity(m_selectedEntityID);
+                m_selectedEntityID = UINT32_MAX;
             }
         }
 
@@ -614,19 +487,22 @@ void UiManager::drawSceneHierarchy()
         {
             m_selectedEntityID = UINT32_MAX;
         }
-
     }
     ImGui::End();
 }
 
 void UiManager::drawEntityProperties()
 {
+    auto& scene    = SLS::SceneManager::instance().current();
+    auto& registry = scene.getRegistry();
+
     for (auto& entity : *meshData)
     {
-        entity.transform = m_registry->getComponent<TransformComponent>(entity.id);
+        entity.transform = registry.getComponent<ECS::Transform>(entity.id);
         entity.transform.rotation.Normalize();
-        entity.physics   = m_registry->getComponent<PhysicsComponent>(entity.id);
+        entity.physics   = registry.getComponent<ECS::PhysicsComponent>(entity.id);
     }
+
     ImGui::Begin("Entity properties");
     {
         if (m_selectedEntityID == UINT32_MAX)
@@ -636,8 +512,7 @@ void UiManager::drawEntityProperties()
             return;
         }
 
-        // Always find by ID — never index meshData with a packed EntityID
-        rhi::vulkan::Mesh *mesh = pRHI->findMesh(m_selectedEntityID);
+        rhi::vulkan::Mesh* mesh = pRHI->findMesh(m_selectedEntityID);
         if (!mesh)
         {
             m_selectedEntityID = UINT32_MAX;
@@ -645,7 +520,8 @@ void UiManager::drawEntityProperties()
             return;
         }
 
-        auto &tc = m_registry->getComponent<TransformComponent>(m_selectedEntityID);
+        auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
+        auto& physics = registry.getComponent<ECS::PhysicsComponent>(m_selectedEntityID);
 
         // Name
         char buffer[256];
@@ -655,9 +531,9 @@ void UiManager::drawEntityProperties()
 
         ImGui::SeparatorText("Transform");
 
-        // Transform
         DrawVec3Control("Position", tc.position);
-        if(DrawVec3Control("Rotation", tc.eulerRadians) && (!simulationStarted || simulationPaused))
+        if (DrawVec3Control("Rotation", tc.eulerRadians)
+            && m_simulationState != SimulationState::PLAYING)
         {
             glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
             tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
@@ -666,16 +542,15 @@ void UiManager::drawEntityProperties()
 
         ImGui::SeparatorText("Texture");
 
-        // Texture
         if (ImGui::Button("Add texture"))
         {
-            const char *filters[] = {"*.png", "*.jpg", "*.jpeg"};
-            char *path = tinyfd_openFileDialog("Choose a texture", std::filesystem::current_path().string().c_str(), 3, filters, "Image files", 0);
+            const char* filters[] = { "*.png", "*.jpg", "*.jpeg" };
+            char* path = tinyfd_openFileDialog("Choose a texture",
+                std::filesystem::current_path().string().c_str(), 3, filters, "Image files", 0);
             if (path)
-                pRHI->addTexture(m_selectedEntityID, path);
+                pRHI->uploadTexture(m_selectedEntityID, path, false);
         }
 
-        // LOD
         if (mesh->hasTexture() && mesh->hasMipmaps())
         {
             static float lodLevel = 0.0f;
@@ -685,53 +560,32 @@ void UiManager::drawEntityProperties()
 
         ImGui::SeparatorText("Physics");
 
-        auto& physics = m_registry->getComponent<PhysicsComponent>(m_selectedEntityID);
-        const char* motionTypeLabels[] =
-        {
-            "Static",
-            "Dynamic",
-            "Kinematic"
-        };
-        const char* layerLabels[] =
-        {
-            "Non moving",
-            "Moving"
-        };
-        const char* bodyShapes[] =
-        {
-            "Cube",
-            "Sphere",
-            "Cylinder",
-            "Capsule"
-        };
+        const char* motionTypeLabels[] = { "Static", "Dynamic", "Kinematic" };
+        const char* layerLabels[]      = { "Non moving", "Moving" };
+        const char* bodyShapes[]       = { "Cube", "Sphere", "Cylinder", "Capsule" };
+
         int currentMotion = static_cast<int>(physics.motionType);
-        int currentLayer = static_cast<int>(physics.layers);
-        int currentShape = static_cast<int>(physics.shapeType);
+        int currentLayer  = static_cast<int>(physics.layers);
+        int currentShape  = static_cast<int>(physics.shapeType);
+
         ImGuiIO& io = ImGui::GetIO();
         ImGui::PushFont(io.Fonts->Fonts[0]);
         if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
-        {
-            physics.motionType = static_cast<EMotionType>(currentMotion);
-        }
+            physics.motionType = static_cast<ECS::EMotionType>(currentMotion);
         if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
-        {
-            physics.layers = static_cast<ELayers>(currentLayer);
-        }
+            physics.layers = static_cast<ECS::ELayers>(currentLayer);
         if (ImGui::Combo("Shape type", &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
-        {
-            physics.shapeType = static_cast<EShapeType>(currentShape);
-        }
+            physics.shapeType = static_cast<ECS::EShapeType>(currentShape);
         ImGui::PopFont();
 
         ImGui::SeparatorText("Scripting");
         ImGui::PushFont(io.Fonts->Fonts[0]);
-        if(ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
+        if (ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
         {
-            std::string modelPath = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
-            std::string outputDir = std::string(PROJECT_ROOT) + "/Scripts";
+            std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
+            std::string outputDir  = std::string(PROJECT_ROOT) + "/Scripts";
             std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
 
-            // Créer le répertoire Scripts s'il n'existe pas
             std::filesystem::create_directories(outputDir);
 
             std::ifstream scriptFileModel(modelPath, std::ios::binary);
@@ -742,24 +596,18 @@ void UiManager::drawEntityProperties()
             }
             else
             {
-                // Read the model content as a string
                 std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
                                           std::istreambuf_iterator<char>());
 
-                // Replace the placeholder with the actual script name
-                const std::string scriptName = "Script" + std::to_string(mesh->id);
-                const std::string placeholder = "SCRIPT_NAME";
+                const std::string scriptName    = "Script" + std::to_string(mesh->id);
+                const std::string placeholder   = "SCRIPT_NAME";
                 auto pos = modelContent.find(placeholder);
                 if (pos != std::string::npos)
-                {
                     modelContent.replace(pos, placeholder.size(), scriptName);
-                }
 
                 std::ofstream scriptFile(outputPath, std::ios::binary);
                 if (!scriptFile.is_open())
-                {
                     std::cerr << "Failed to create script file: " << outputPath << std::endl;
-                }
                 else
                 {
                     scriptFile << modelContent;
@@ -772,12 +620,11 @@ void UiManager::drawEntityProperties()
         }
         ImGui::PopFont();
 
-        if(!simulationStarted || simulationPaused)
+        if (m_simulationState != SimulationState::PLAYING)
         {
             ImGui::SeparatorText("Gizmo controls");
             drawGizmoControls();
         }
-
     }
     ImGui::End();
 }
@@ -818,7 +665,7 @@ void UiManager::drawAudioControl()
         ImGui::SeparatorText("Options");
         if(ImGui::Button("Add audio source"))
         {
-            const char* filters[] = { "*.mp3", "*.ogg", "*.wav", "*.flac", "*.midi" };
+            const char* filters[] = { "*.mp3", "*.wav", "*.flac"};
             auto path = tinyfd_openFileDialog("Add an audio source", std::filesystem::current_path().string().c_str(), 5, filters, "Audio files", 0);
             if(path != nullptr)
             {
@@ -970,14 +817,23 @@ void UiManager::uiUpdate()
     {
         ImGui::ShowDemoWindow(&showDemoWindow);
     }
-    sceneInfos.clearColor = m_clearColor;
-    sceneInfos.ambientColor = ambientColor;
-    sceneInfos.lightColor = lightColor;
-    sceneInfos.lightDirection = lightDirection;
+    auto& settings            = SLS::SceneManager::instance().current().getSceneSettings();
+    sceneInfos.clearColor     = { settings.clearColor.x,     settings.clearColor.y,     settings.clearColor.z,     settings.clearColor.w };
+    sceneInfos.ambientColor   = { settings.ambientColor.x,   settings.ambientColor.y,   settings.ambientColor.z   };
+    sceneInfos.lightColor     = { settings.lightColor.x,     settings.lightColor.y,     settings.lightColor.z     };
+    sceneInfos.lightDirection = { settings.lightDirection.x, settings.lightDirection.y, settings.lightDirection.z };
+
     pRHI->updateSceneUBO(&sceneInfos, cameraRef->position);
     if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
     {
         pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
+    }
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+    {
+        if (m_sceneManager && !m_currentScenePath.empty())
+        {
+            m_sceneManager->current().save(m_currentScenePath);
+        }
     }
 }
 
@@ -1069,7 +925,7 @@ void UiManager::handleGizmoInput()
 {
     if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) || ImGuizmo::IsUsing())
         return;
-    if(simulationStarted && !simulationPaused)
+    if(m_simulationState == SimulationState::PLAYING)
         return;
 
     if (ImGui::IsKeyPressed(ImGuiKey_W))
@@ -1123,7 +979,7 @@ void UiManager::drawGizmo()
         snapPtr = snapValues;
     }
 
-    auto& tc = m_registry->getComponent<TransformComponent>(m_selectedEntityID);
+    auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
 
     glm::vec3 oldRotation = { tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z };
     glm::vec3 oldScale    = { tc.scale.x,        tc.scale.y,        tc.scale.z        };

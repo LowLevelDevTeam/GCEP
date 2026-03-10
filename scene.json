@@ -1,0 +1,77 @@
+{
+    "magic": "GCEP_SCENE",
+    "version": 1,
+    "pools": [
+        {
+            "name": "Health",
+            "entities": [
+                {
+                    "id": 0,
+                    "current": 80.0,
+                    "max": 100.0
+                },
+                {
+                    "id": 1,
+                    "current": 30.0,
+                    "max": 50.0
+                },
+                {
+                    "id": 3,
+                    "current": 1.0,
+                    "max": 1.0
+                }
+            ]
+        },
+        {
+            "name": "Transform",
+            "entities": [
+                {
+                    "id": 0,
+                    "position.x": 1.0,
+                    "position.y": 2.0,
+                    "position.z": 3.0,
+                    "rotation.x": 0.0,
+                    "rotation.y": 0.0,
+                    "rotation.z": 90.0,
+                    "scale.x": 1.0,
+                    "scale.y": 1.0,
+                    "scale.z": 1.0
+                },
+                {
+                    "id": 1,
+                    "position.x": 10.0,
+                    "position.y": 0.0,
+                    "position.z": 5.0,
+                    "rotation.x": 0.0,
+                    "rotation.y": 0.0,
+                    "rotation.z": 0.0,
+                    "scale.x": 1.0,
+                    "scale.y": 1.0,
+                    "scale.z": 1.0
+                },
+                {
+                    "id": 2,
+                    "position.x": 5.0,
+                    "position.y": 0.0,
+                    "position.z": 0.0,
+                    "rotation.x": 0.0,
+                    "rotation.y": 0.0,
+                    "rotation.z": 0.0,
+                    "scale.x": 1.0,
+                    "scale.y": 1.0,
+                    "scale.z": 1.0
+                }
+            ]
+        },
+        {
+            "name": "UV",
+            "entities": [
+                {
+                    "id": 2,
+                    "coord.x": 0.25,
+                    "coord.y": 0.5
+                }
+            ]
+        }
+    ]
+}

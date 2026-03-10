@@ -24,7 +24,8 @@
 
 // Core
 #include "physics_shape.hpp"
-#include "Component/transform_component.hpp"
+#include <Engine/Core/ECS/Components/physics_component.hpp>
+#include <Engine/Core/ECS/Components/Transform.hpp>
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 #include "Maths/Utils/vector3_convertor.hpp"
 
@@ -114,23 +115,23 @@ namespace gcep
     }
 
 
-    void PhysicsWorld::createBody(TransformComponent& transform, PhysicsComponent& data, JPH::BodyID& dataId)
+	void PhysicsWorld::createBody(ECS::Transform& transform, ECS::PhysicsComponent& data, JPH::BodyID& dataId)
     {
     	std::shared_ptr<PhysicsShape> shape;
 
     	// Shape
     	switch (data.shapeType)
     	{
-    		case EShapeType::CUBE:
+    		case ECS::EShapeType::CUBE:
     			shape = getOrCreateBox({1.f, 1.f, 1.f});
     			break;
-    		case EShapeType::CYLINDER:
+    		case ECS::EShapeType::CYLINDER:
     			shape = getOrCreateCylinder(0.5f, 0.5f);
     			break;
-    		case EShapeType::SPHERE:
+    		case ECS::EShapeType::SPHERE:
     			shape = getOrCreateSphere(0.5f);
     			break;
-    		case EShapeType::CAPSULE:
+    		case ECS::EShapeType::CAPSULE:
     			shape = getOrCreateCapsule(0.5f, 0.5f);
     			break;
     		default:
@@ -150,17 +151,17 @@ namespace gcep
     	JPH::EMotionType motionType = JPH::EMotionType::Static;
     	switch (data.motionType)
     	{
-    		case EMotionType::STATIC :
+    		case ECS::EMotionType::STATIC:
     		{
     			motionType = JPH::EMotionType::Static;
     			break;
     		}
-    		case EMotionType::KINEMATIC :
+    		case ECS::EMotionType::KINEMATIC:
     		{
     			motionType = JPH::EMotionType::Kinematic;
     			break;
     		}
-    		case EMotionType::DYNAMIC :
+    		case ECS::EMotionType::DYNAMIC:
     		{
     			motionType = JPH::EMotionType::Dynamic;
     			break;
@@ -185,11 +186,11 @@ namespace gcep
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	    JPH::Body* body = bodyInterface.CreateBody(bodySettings);
-    	if (data.motionType != EMotionType::STATIC)
+    	/*if (data.motionType != ECS::EMotionType::STATIC)
     	{
     		body->SetAngularVelocity(Vector3Convertor::ToJolt(data.angularVelocity));
     		body->SetLinearVelocity(Vector3Convertor::ToJolt(data.linearVelocity));
-    	}
+    	}*/
 	    JPH::EActivation activation = (motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate : JPH::EActivation::Activate;
 	    bodyInterface.AddBody(body->GetID(), activation);
 	    dataId = body->GetID();

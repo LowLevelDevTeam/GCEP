@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿/*#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -38,7 +38,7 @@ namespace gcep::scripting
         void (*onUnload)(ScriptContext* context, void* state) = nullptr;
     };
 
-    // ── Multi-plugin registry ──────────────────────────────────────────
+    // -- Multi-plugin registry ------------------------------------------
 
     struct ScriptRegistryEntry
     {
@@ -53,7 +53,7 @@ namespace gcep::scripting
         return s_registry;
     }
 
-    // RAII helper – its constructor pushes an entry into the registry
+    // RAII helper � its constructor pushes an entry into the registry
     struct ScriptAutoRegister
     {
         ScriptAutoRegister(const char* name, ScriptPlugin plugin)
@@ -62,7 +62,7 @@ namespace gcep::scripting
         }
     };
 
-    // ── DLL export symbols (resolved by ScriptHost) ────────────────────
+    // -- DLL export symbols (resolved by ScriptHost) --------------------
 
     using GetScriptCountFn  = std::size_t (*)();
     using GetScriptEntryFn  = ScriptRegistryEntry* (*)(std::size_t index);
@@ -80,23 +80,23 @@ namespace gcep::scripting
     inline constexpr const char* kSharedLibraryExtension = ".so";
     #endif
 
-    // ── Convenience helpers ────────────────────────────────────────────
+    // -- Convenience helpers --------------------------------------------
 
     inline rhi::vulkan::Mesh* getMesh(ScriptContext* context)
     {
         return context ? context->mesh : nullptr;
     }
 
-    /// Get the authoritative TransformComponent from the ECS for this script's mesh.
+    /// Get the authoritative ECS::Transform from the ECS for this script's mesh.
     /// All transform modifications MUST go through the ECS, because the renderer
     /// syncs mesh.transform FROM the ECS each frame.
-    inline TransformComponent* getTransform(ScriptContext* context)
+    inline ECS::Transform* getTransform(ScriptContext* context)
     {
         if (!context || !context->registry || !context->mesh)
             return nullptr;
-        if (!context->registry->hasComponent<TransformComponent>(context->mesh->id))
+        if (!context->registry->hasComponent<ECS::Transform>(context->mesh->id))
             return nullptr;
-        return &context->registry->getComponent<TransformComponent>(context->mesh->id);
+        return &context->registry->getComponent<ECS::Transform>(context->mesh->id);
     }
 
     inline void setMeshPosition(ScriptContext* context, const Vector3<float>& position)
@@ -124,10 +124,11 @@ namespace gcep::scripting
     }
 }
 
-// ── Macro that users put at the end of each script file ────────────────
+// -- Macro that users put at the end of each script file ----------------
 // Usage: GCE_REGISTER_SCRIPT("Script0", g_plugin)
 #define GCE_CONCAT_IMPL(a, b) a##b
 #define GCE_CONCAT(a, b) GCE_CONCAT_IMPL(a, b)
 #define GCE_REGISTER_SCRIPT(scriptName, pluginVar) \
     static gcep::scripting::ScriptAutoRegister GCE_CONCAT(_gce_auto_reg_, __COUNTER__)(scriptName, pluginVar)
 
+*/

@@ -1,4 +1,4 @@
-﻿#include <Engine/Core/Scripting/ScriptAPI.hpp>
+﻿/*#include <Engine/Core/Scripting/ScriptAPI.hpp>
 
 #include <string>
 
@@ -40,6 +40,8 @@ namespace
     };
 }
 
-// Register this script — DO NOT DELETE
+// Register this script � DO NOT DELETE
 GCE_REGISTER_SCRIPT("SCRIPT_NAME", g_plugin);
+*/
+
 

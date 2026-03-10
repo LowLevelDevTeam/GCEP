@@ -1,4 +1,4 @@
-﻿#include "ScriptSystem.hpp"
+/*#include "ScriptSystem.hpp"
 
 #include <iostream>
 
@@ -18,7 +18,7 @@ namespace gcep::scripting
 
     void ScriptSystem::init(ECS::Registry* registry, const std::vector<rhi::vulkan::Mesh>& meshDataVector)
     {
-        // Build Scripts — use the main project build directory (GCE_CMAKE_BINARY_DIR)
+        // Build Scripts � use the main project build directory (GCE_CMAKE_BINARY_DIR)
         // so that all parent targets (Jolt, etc.) are available.
         // CONFIGURE_DEPENDS in Scripts/CMakeLists.txt ensures cmake --build
         // auto-reconfigures when .cpp files are added or removed.
@@ -316,3 +316,4 @@ namespace gcep::scripting
         return nullptr;
     }
 }
+*/

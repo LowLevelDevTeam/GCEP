@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿/*#pragma once
 
 #include <filesystem>
 #include <string>
@@ -27,3 +27,4 @@ namespace gcep::scripting
     };
 }
 
+*/

@@ -13,12 +13,17 @@
 #include <iostream>
 #include <limits>
 
-#include <ECS/headers/registry.hpp>
 #include <Engine/Audio/audio_system.hpp>
 #include <Engine/RHI/Mesh/Mesh.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>
 #include <PhysicsWrapper/physics_system.hpp>
-#include <Scripting/ScriptSystem.hpp>
+#include <Engine/Core/Scene/header/scene_manager.hpp>
+#include <Editor/SceneUtils/scene_util.hpp>
+//#include <Scripting/ScriptSystem.hpp>
+#include <Editor/Helpers.hpp>
+#include <Editor/SceneUtils/scene_util.hpp>
+#include <Engine/Core/ECS/Components/components.hpp>
+
 
 namespace gcep
 {
@@ -135,7 +140,7 @@ public:
     ///
     /// @param window    The application GLFW window. Must outlive this object.
     /// @param initInfo  Vulkan backend initialisation info from @c VulkanRHI::getUIInitInfo().
-    UiManager(GLFWwindow* window, ImGui_ImplVulkan_InitInfo initInfo, bool& reload, bool& close);
+    UiManager(GLFWwindow* window, bool& reload, bool& close);
 
     /// @brief Calls @c shutdownConsole() to restore stream buffers.
     ~UiManager();
@@ -176,7 +181,7 @@ public:
     ///
     /// Early-returns if no entity is selected. Reads the selected mesh's current
     /// model matrix, calls @c ImGuizmo::Manipulate(), then decomposes the result
-    /// and writes back position / rotation / scale into the ECS @c TransformComponent.
+    /// and writes back position / rotation / scale into the ECS @c ECS::Transform.
     /// Scale operations are always performed in local space because ImGuizmo does
     /// not support world-space scaling.
     void drawGizmo();
@@ -189,6 +194,9 @@ public:
     /// @param pCamera  Editor camera instance. Must outlive this object.
     void setCamera(Camera* pCamera);
 
+    void setSceneManager(SLS::SceneManager* sceneManager);
+
+    void setCurrentScenePath(const std::string &path);
 private:
     // Init helpers
 
@@ -216,6 +224,8 @@ private:
     /// @c getDockspaceID(). Currently only the Exit item is wired up (no-op).
     void drawMainMenuBar();
 
+
+
     /// @brief Performs a one-time dockspace layout split on the first frame.
     ///
     /// Splits the dockspace into five regions: left (hierarchy + properties/audio),
@@ -231,9 +241,6 @@ private:
     /// Saves the original @c std::cout buffer into @c m_oldCout, then installs
     /// a new @c ImGuiConsoleBuffer that tees output into @c m_consoleItems.
     void initConsole();
-
-    /// @brief Sets the Editor dark theme.
-    void setDarkTheme();
 
     // Shutdown
 
@@ -281,7 +288,7 @@ private:
 
     /// @brief Renders the "Entity properties" panel for the selected entity.
     ///
-    /// Syncs @c TransformComponent and @c PhysicsComponent from the ECS registry
+    /// Syncs @c ECS::Transform and @c PhysicsComponent from the ECS registry
     /// each frame. Shows: editable name, position / rotation / scale via
     /// @c DrawVec3Control(), texture file dialog with LOD bias slider, physics
     /// motion type and layer combos, and gizmo controls when the simulation is
@@ -305,9 +312,10 @@ private:
 
     void drawBottomBar();
 
+
+
 private:
     GLFWwindow*               m_window;
-    ImGui_ImplVulkan_InitInfo m_initInfo;
     bool                      showDemoWindow  = false;
     ImVec2                    m_viewportSize  = { 800, 600 };
     bool&                     reloadApp;
@@ -319,10 +327,6 @@ private:
     ///        Set to @c numeric_limits<EntityID>::max() when nothing is selected.
     ECS::EntityID             m_selectedEntityID = UINT32_MAX;
 
-    glm::vec4 m_clearColor    = { 0.1f, 0.1f, 0.1f, 1.0f };
-    glm::vec3 ambientColor    = { 0.2f, 0.2f, 0.2f };
-    glm::vec3 lightColor      = { 0.5f, 0.5f, 0.5f };
-    glm::vec3 lightDirection  = { 1.0f, 1.0f, 0.0f };
 
     /// @brief Camera movement speed exposed to the UI for real-time tweaking.
     float     camSpeed        = 5.0f;
@@ -352,16 +356,20 @@ private:
     std::unique_ptr<ImGuiConsoleBuffer> m_consoleBuffer;
     std::streambuf*                     m_oldCout = nullptr;
 
+
+    // Scene
+    SimulationState           m_simulationState = SimulationState::STOPPED;
+    SLS::SceneManager*        m_sceneManager    = nullptr;
+    std::string                 m_currentScenePath = "";
+
     // Physics
     PhysicsSystem& physicsSystem;    ///< Reference to the singleton @c PhysicsSystem.
-    bool simulationStarted = false;
-    bool simulationPaused  = false;
 
     // Settings
     bool showSettings = false;
 
     // Scripts
-    scripting::ScriptSystem& scriptSystem;
+    //scripting::ScriptSystem& scriptSystem;
 };
 
 } // Namespace gcep
