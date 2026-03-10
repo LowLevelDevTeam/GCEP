@@ -979,9 +979,6 @@ void UiManager::uiUpdate()
     {
         pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
     }
-    gridPC.invViewProj = glm::inverse(cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix());
-    gridPC.viewProj    = cameraRef->getProjectionMatrix() * cameraRef->getViewMatrix();
-    pRHI->setGridPC(&gridPC);
 }
 
 void UiManager::drawGizmoControls()

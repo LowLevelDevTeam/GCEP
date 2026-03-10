@@ -328,7 +328,6 @@ private:
     float     camSpeed        = 5.0f;
 
     rhi::vulkan::SceneInfos       sceneInfos;
-    rhi::vulkan::GridPushConstant gridPC;
 
     ImGuizmo::OPERATION m_currentGizmoOperation = ImGuizmo::TRANSLATE;
 

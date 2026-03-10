@@ -95,16 +95,12 @@ struct GPUMeshData
 struct SceneUBO
 {
     glm::vec3 lightDir;    ///< Normalized world-space direction pointing TOWARD the light source.
-    float     _pad0;       ///< Padding to satisfy std430 vec3 alignment.
-    glm::vec3 lightColor;  ///< Linear RGB color and intensity of the directional light.
-    float     _pad1;       ///< Padding to satisfy std430 vec3 alignment.
-    glm::vec3 ambientColor;///< Linear RGB ambient term added to all fragments regardless of normal.
-    float     _pad2;       ///< Padding to satisfy std430 vec3 alignment.
-    glm::vec3 cameraPos;   ///< World-space camera position used to compute the view vector V.
-    float     _pad3;       ///< Padding to satisfy std430 vec3 alignment.
     float cellSize     = 1.0f;
+    glm::vec3 lightColor;  ///< Linear RGB color and intensity of the directional light.
     float thickEvery   = 10.0f;
+    glm::vec3 ambientColor;///< Linear RGB ambient term added to all fragments regardless of normal.
     float fadeDistance = 100.0f;
+    glm::vec3 cameraPos;   ///< World-space camera position used to compute the view vector V.
     float lineWidth    = 1.0f;
 };
 
@@ -145,10 +141,40 @@ struct InitInfos
     VkDescriptorSet* ds;
 };
 
-struct GridPushConstant
+struct GridPushConstant // mirrors Grid.slang
 {
     glm::mat4 invViewProj;
     glm::mat4 viewProj;
 };
+static_assert(sizeof(GridPushConstant) <= 128, "GridPushConstants exceeds push constant limit");
+
+struct SpritePushConstants  // mirrors Gizmo_LightSprite.slang
+{
+    glm::mat4 viewProj;
+    glm::vec3 worldPos;
+    float     halfSize;
+    glm::vec3 color;
+    float     _pad;
+    glm::vec3 cameraRight;
+    float     _pad2;
+    glm::vec3 cameraUp;
+    float     _pad3;
+};
+static_assert(sizeof(SpritePushConstants) <= 128, "SpritePushConstants exceeds push constant limit");
+
+struct ConePushConstants
+{
+    glm::mat4 viewProj;
+    glm::vec3 apex;
+    float     length;
+    glm::vec3 direction;
+    float     outerCos;
+    glm::vec3 color;
+    float     innerCos;
+    float     alpha;
+    uint32_t  visible;
+    float     _pad[2];
+};
+static_assert(sizeof(ConePushConstants) <= 128, "ConePushConstants exceeds push constant limit");
 
 } // Namespace gcep::rhi::vulkan
