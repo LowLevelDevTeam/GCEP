@@ -9,7 +9,6 @@ include(CMake/copy_textures.cmake)
 set(GCE_SCRIPT_CONFIG_OUT "${CMAKE_BINARY_DIR}/generated")
 file(MAKE_DIRECTORY "${GCE_SCRIPT_CONFIG_OUT}")
 configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core/Scripting/ScriptBuildConfig.hpp.in
         ${GCE_SCRIPT_CONFIG_OUT}/ScriptBuildConfig.hpp
         @ONLY
 )
@@ -27,7 +26,9 @@ file(GLOB_RECURSE CPP_SOURCES Editor/*.cpp Engine/*.cpp Editor/*.inl Engine/*.in
 file(GLOB_RECURSE ENGINE_SOURCE Engine/*.cpp Engine/*.inl)
 
 # Adding the executable
-add_executable(GCEngine Engine/Core/Scripting/ScriptModel.cpp)
+add_executable(GCEngine ${CPP_SOURCES}
+        Engine/Core/Scripting/ScriptHotReload.hpp
+        Engine/Core/Scripting/ScriptInterface.hpp)
 target_sources(GCEngine PRIVATE ${CPP_SOURCES})
 
 # Vulkan
@@ -79,15 +80,8 @@ target_include_directories(GCExternals INTERFACE
         ${Vulkan_INCLUDE_DIRS}
 )
 
-# Scripting support (lightweight lib for tools)
-add_library(GCEngineScripting STATIC
-        Engine/Core/Scripting/SharedLibrary.cpp
-        Engine/Core/Scripting/ScriptHost.cpp
-)
 
 add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-
-target_link_libraries(GCEngineScripting PUBLIC GCExternals)
 
 # Scripts
 add_subdirectory(Scripts)

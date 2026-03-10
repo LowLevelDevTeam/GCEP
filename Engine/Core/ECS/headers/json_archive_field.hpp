@@ -19,6 +19,7 @@ namespace gcep::SER
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, int16_t  v) { ar.writeInt16 (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, int32_t  v) { ar.writeInt32 (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, int64_t  v) { ar.writeInt64 (key, v); }
+    inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, bool     v) { ar.writeInt8(key, v);}
 
     template<typename T>
     void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const Vector2<T>& v)
@@ -82,6 +83,17 @@ namespace gcep::SER
         ar.writeString(key, str);
     }
 
+    template<typename T>
+    void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const T* ptr)
+    {
+        if (ptr == nullptr)
+        {
+            ar.writeInt8(key + ".__isNull", true);
+            return;
+        }
+        ar.writeInt8(key + ".__isNull", false);
+        archiveWriteJson(ar, key, *ptr); // délègue au cas T
+    }
 
 
 
@@ -95,6 +107,7 @@ namespace gcep::SER
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, int16_t&  v) { v = ed.readInt16 (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, int32_t&  v) { v = ed.readInt32 (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, int64_t&  v) { v = ed.readInt64 (key); }
+    inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, bool      v) { v = ed.readInt8 (key); }
 
     template<typename T>
     void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, Vector2<T>& v)
@@ -126,4 +139,10 @@ namespace gcep::SER
     template<typename T>
     std::enable_if_t<!std::is_enum_v<T>>
     archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T& v) {}
+
+    template<typename T>
+    void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T*& ptr)
+    {
+        ptr = nullptr;
+    }
 }
