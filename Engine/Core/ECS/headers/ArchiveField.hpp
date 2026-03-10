@@ -1,5 +1,6 @@
 #pragma once
 #include <ECS/headers/archive.hpp>
+#include <Maths/quaternion.hpp>
 
 namespace gcep::SER
 {
@@ -22,6 +23,12 @@ namespace gcep::SER
         archiveWrite(ar, v.x);
         archiveWrite(ar, v.y);
         archiveWrite(ar, v.z);
+    }
+    inline void archiveWrite(IArchive& ar, const Quaternion& q) {
+        archiveWrite(ar, q.w);
+        archiveWrite(ar, q.x);
+        archiveWrite(ar, q.y);
+        archiveWrite(ar, q.z);
     }
     template<typename T>
     void archiveWrite(IArchive& ar, const Mat3<T>& mat) {
@@ -72,6 +79,12 @@ namespace gcep::SER
         archiveRead(ar, v.x);
         archiveRead(ar, v.y);
         archiveRead(ar, v.z);
+    }
+    inline void archiveRead(IArchive& ar, Quaternion& q) {
+        archiveRead(ar, q.w);
+        archiveRead(ar, q.x);
+        archiveRead(ar, q.y);
+        archiveRead(ar, q.z);
     }
     template<typename T>
     void archiveRead(IArchive& ar, Mat3<T>& mat) {
