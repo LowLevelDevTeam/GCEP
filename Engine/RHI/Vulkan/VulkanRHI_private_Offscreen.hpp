@@ -1,5 +1,5 @@
 #pragma once
-// Private offscreen render target declarations — included only inside VulkanRHI.
+// Private offscreen render target declarations - included only inside VulkanRHI.
 
 // Methods
 void createOffscreenResources(uint32_t width, uint32_t height);
@@ -18,6 +18,6 @@ vk::raii::Sampler      m_offscreenSampler          = nullptr;
 /// Registered via ImGui_ImplVulkan_AddTexture; displayed by ImGui::Image().
 VkDescriptorSet        m_imguiTextureDescriptor    = VK_NULL_HANDLE;
 
-bool     m_offscreenResizePending = true;
+bool     m_offscreenResizePending = false;
 uint32_t m_pendingOffscreenWidth  = 0;
 uint32_t m_pendingOffscreenHeight = 0;
