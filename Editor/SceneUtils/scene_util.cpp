@@ -34,9 +34,7 @@ ECS::EntityID spawnLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, rhi::vu
     name += std::to_string(std::time(nullptr));
 
     const ECS::EntityID id = scene.createEntity(name);
-
     rhi->spawnLight(type, id, pos);
-
     return id;
 }
 

@@ -18,6 +18,8 @@
 
 #include "ECS/Components/mesh_components.hpp"
 
+#include <ECS/Components/components.hpp>
+
 namespace gcep::rhi::vulkan
 {
 
@@ -221,15 +223,67 @@ void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID id, 
 {
     if(type == LightType::Point)
     {
-        m_lightSystem.addPointLight({pos.x, pos.y, pos.z});
-        m_lightSystem.getPointLights().back().id = id;
-        m_lightSystem.getPointLights().back().name = "Point light / id = " + std::to_string(id);
+        if(m_ECSRegistry->hasComponent<ECS::PointLightComponent>(id))
+        {
+            auto savedPos  = m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).position;
+            auto color     = m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).color;
+            auto radius    = m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).radius;
+            auto intensity = m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).intensity;
+            auto name      = m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).name;
+
+            m_lightSystem.addPointLight(savedPos);
+            m_lightSystem.getPointLights().back().id = id;
+            m_lightSystem.getPointLights().back().position  = savedPos;
+            m_lightSystem.getPointLights().back().color     = color;
+            m_lightSystem.getPointLights().back().radius    = radius;
+            m_lightSystem.getPointLights().back().intensity = intensity;
+            m_lightSystem.getPointLights().back().name      = name;
+        }
+        else
+        {
+            m_ECSRegistry->addComponent<ECS::PointLightComponent>(id);
+            m_lightSystem.addPointLight({pos.x, pos.y, pos.z});
+            m_lightSystem.getPointLights().back().id = id;
+            m_lightSystem.getPointLights().back().name = "Point light / id = " + std::to_string(id);
+            m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).position = {pos.x, pos.y, pos.z};
+            m_ECSRegistry->getComponent<ECS::PointLightComponent>(id).name     = "Point light / id = " + std::to_string(id);
+        };
     }
     else
     {
-        m_lightSystem.addSpotLight({pos.x, pos.y, pos.z});
-        m_lightSystem.getSpotLights().back().id = id;
-        m_lightSystem.getSpotLights().back().name = "Spot light / id = " + std::to_string(id);;
+        if(m_ECSRegistry->hasComponent<ECS::SpotLightComponent>(id))
+        {
+            auto savedPos  = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).position;
+            auto color     = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).color;
+            auto dir       = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).direction;
+            auto radius    = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).radius;
+            auto innerDeg  = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).innerCutoffDeg;
+            auto outerDeg  = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).outerCutoffDeg;
+            auto showGizmo = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).showGizmo;
+            auto intensity = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).intensity;
+            auto name      = m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).name;
+
+            m_lightSystem.addSpotLight(savedPos);
+            m_lightSystem.getSpotLights().back().id = id;
+            m_lightSystem.getSpotLights().back().position       = savedPos;
+            m_lightSystem.getSpotLights().back().color          = color;
+            m_lightSystem.getSpotLights().back().direction      = dir;
+            m_lightSystem.getSpotLights().back().radius         = radius;
+            m_lightSystem.getSpotLights().back().innerCutoffDeg = innerDeg;
+            m_lightSystem.getSpotLights().back().outerCutoffDeg = outerDeg;
+            m_lightSystem.getSpotLights().back().showGizmo      = showGizmo;
+            m_lightSystem.getSpotLights().back().intensity      = intensity;
+            m_lightSystem.getSpotLights().back().name           = name;
+        }
+        else
+        {
+            m_ECSRegistry->addComponent<ECS::SpotLightComponent>(id);
+            m_lightSystem.addSpotLight({pos.x, pos.y, pos.z});
+            m_lightSystem.getSpotLights().back().id = id;
+            m_lightSystem.getSpotLights().back().name = "Spot light / id = " + std::to_string(id);
+            m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).position = {pos.x, pos.y, pos.z};
+            m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).name     = "Point light / id = " + std::to_string(id);
+        };
     }
 }
 

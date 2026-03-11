@@ -1,6 +1,5 @@
 #pragma once
 #include <Engine/Core/ECS/headers/component_registry.hpp>
-#include <glm/glm.hpp>
 
 namespace gcep::ECS
 {
@@ -14,6 +13,7 @@ namespace gcep::ECS
         float     innerCutoffDeg = 15.0f;                  ///< Full-brightness cone half-angle (degrees).
         float     outerCutoffDeg = 30.0f;                  ///< Zero-brightness cone half-angle (degrees).
         bool      showGizmo      = true;                   ///< When false the cone wireframe gizmo is hidden.
+        std::string name;
         static inline bool _gcep_registered =
                 ComponentRegistry::instance().reg<SpotLightComponent>();
     };

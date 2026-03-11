@@ -46,7 +46,7 @@ void UiManager::setCamera(Camera *pCamera)
 void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
 {
     m_sceneManager = sceneManager;
-
+    m_registry = &sceneManager->current().getRegistry();
 }
 
 void UiManager::setCurrentScenePath(const std::string& path)
@@ -431,6 +431,42 @@ void UiManager::drawSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
     {
+        ImGui::SeparatorText("Add objects");
+
+        auto& scene = SLS::SceneManager::instance().current();
+        glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
+
+        if (ImGui::BeginMenu("Add shape"))
+        {
+            if (ImGui::MenuItem("Cone"))      editor::spawnCone     (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cube"))      editor::spawnCube     (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cylinder"))  editor::spawnCylinder (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Icosphere")) editor::spawnIcosphere(scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Sphere"))    editor::spawnSphere   (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Suzanne"))   editor::spawnSuzanne  (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Torus"))     editor::spawnTorus    (scene, pRHI, frontOfCam);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Add light"))
+        {
+            if (ImGui::MenuItem("Spot light"))  editor::spawnSpotlight (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Point light")) editor::spawnPointLight(scene, pRHI, frontOfCam);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::Button("Add asset"))
+        {
+            const char* filters[] = { "*.obj", "*.gltf" };
+            if (auto path = tinyfd_openFileDialog("Choose an asset",
+                std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0);
+                path != nullptr)
+            {
+                editor::spawnAsset(scene, pRHI, path, frontOfCam);
+            }
+        }
+
+        ImGui::SeparatorText("Scene tree");
         if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
         {
             for (const auto& entity : *meshData)
@@ -466,40 +502,7 @@ void UiManager::drawSceneHierarchy()
             ImGui::TreePop();
         }
 
-        auto& scene = SLS::SceneManager::instance().current();
-        glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
-
-        if (ImGui::BeginMenu("Add shape"))
-        {
-            if (ImGui::MenuItem("Cone"))      editor::spawnCone     (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Cube"))      editor::spawnCube     (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Cylinder"))  editor::spawnCylinder (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Icosphere")) editor::spawnIcosphere(scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Sphere"))    editor::spawnSphere   (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Suzanne"))   editor::spawnSuzanne  (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Torus"))     editor::spawnTorus    (scene, pRHI, frontOfCam);
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::Button("Add asset"))
-        {
-            const char* filters[] = { "*.obj", "*.gltf" };
-            if (auto path = tinyfd_openFileDialog("Choose an asset",
-                std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0);
-                path != nullptr)
-            {
-                editor::spawnAsset(scene, pRHI, path, frontOfCam);
-            }
-        }
-
-        if (ImGui::BeginMenu("Add light"))
-        {
-            if (ImGui::MenuItem("Spot light"))  editor::spawnSpotlight (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Point light")) editor::spawnPointLight(scene, pRHI, frontOfCam);
-            ImGui::EndMenu();
-        }
-
-        if (m_selectedEntityID != UINT32_MAX)
+        if (m_selectedEntityID != ECS::INVALID_VALUE)
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
@@ -519,13 +522,13 @@ void UiManager::drawSceneHierarchy()
                     pRHI->getLightSystem().removePointLight(m_selectedEntityID);
                 }
                 scene.destroyEntity(m_selectedEntityID);
-                m_selectedEntityID = UINT32_MAX;
+                m_selectedEntityID = ECS::INVALID_VALUE;
             }
         }
 
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
         {
-            m_selectedEntityID = UINT32_MAX;
+            m_selectedEntityID = ECS::INVALID_VALUE;
         }
     }
     ImGui::End();
@@ -545,7 +548,7 @@ void UiManager::drawEntityProperties()
 
     ImGui::Begin("Entity properties");
     {
-        if (m_selectedEntityID == UINT32_MAX)
+        if (m_selectedEntityID == ECS::INVALID_VALUE)
         {
             ImGui::TextDisabled("No entity selected");
             ImGui::End();
@@ -557,7 +560,7 @@ void UiManager::drawEntityProperties()
         rhi::vulkan::PointLight* point = pRHI->getLightSystem().findPointLight(m_selectedEntityID);
         if (!mesh && !spot && !point)
         {
-            m_selectedEntityID = UINT32_MAX;
+            m_selectedEntityID = ECS::INVALID_VALUE;
             ImGui::End();
             return;
         }
@@ -697,14 +700,38 @@ void UiManager::showSpotLightInfos(rhi::vulkan::SpotLight *spot)
         spot->name = std::string(buffer);
 
     ImGui::SeparatorText("Transform");
-    DrawVec3Control("Position", spot->position);
-    DrawVec3Control("Direction", spot->direction);
-    DrawVec3Control("Color", spot->color);
-    ImGui::SliderFloat("Intensity", &spot->intensity, 0.0f, 5.0f);
-    ImGui::SliderFloat("Radius", &spot->radius, 0.0f, 100.0f);
-    ImGui::SliderFloat("Inner cut-off degrees", &spot->innerCutoffDeg, 0.0f, 89.0f);
-    ImGui::SliderFloat("Outer cut-off degrees", &spot->outerCutoffDeg, 0.0f, 90.0f);
-    ImGui::Checkbox("Show gizmo", &spot->showGizmo);
+    if(DrawVec3Control("Position", spot->position))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).position = spot->position;
+    }
+    if(DrawVec3Control("Direction", spot->direction))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).direction = spot->direction;
+    }
+    if(DrawVec3Control("Color", spot->color))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).color = spot->color;
+    }
+    if(ImGui::SliderFloat("Intensity", &spot->intensity, 0.0f, 5.0f))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).intensity = spot->intensity;
+    }
+    if(ImGui::SliderFloat("Radius", &spot->radius, 0.0f, 100.0f))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).radius = spot->radius;
+    }
+    if(ImGui::SliderFloat("Inner cut-off degrees", &spot->innerCutoffDeg, 0.0f, 89.0f))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).innerCutoffDeg = spot->innerCutoffDeg;
+    }
+    if(ImGui::SliderFloat("Outer cut-off degrees", &spot->outerCutoffDeg, 0.0f, 90.0f))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).outerCutoffDeg = spot->outerCutoffDeg;
+    }
+    if(ImGui::Checkbox("Show gizmo", &spot->showGizmo))
+    {
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).showGizmo = spot->showGizmo;
+    }
 }
 
 void UiManager::showPointLightInfos(rhi::vulkan::PointLight *point)
@@ -716,10 +743,22 @@ void UiManager::showPointLightInfos(rhi::vulkan::PointLight *point)
         point->name = std::string(buffer);
 
     ImGui::SeparatorText("Transform");
-    DrawVec3Control("Position", point->position);
-    DrawVec3Control("Color", point->color);
-    ImGui::SliderFloat("Intensity", &point->intensity, 0.0f, 5.0f);
-    ImGui::SliderFloat("Radius", &point->radius, 0.0f, 10.0f);
+    if(DrawVec3Control("Position", point->position))
+    {
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).position = point->position;
+    }
+    if(DrawVec3Control("Color", point->color))
+    {
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).color = point->color;
+    }
+    if(ImGui::SliderFloat("Intensity", &point->intensity, 0.0f, 5.0f))
+    {
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).intensity = point->intensity;
+    }
+    if(ImGui::SliderFloat("Radius", &point->radius, 0.0f, 100.0f))
+    {
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).radius = point->radius;
+    }
 }
 
 void UiManager::drawAudioControl()
@@ -1031,7 +1070,7 @@ void UiManager::handleGizmoInput()
 
 void UiManager::drawGizmo()
 {
-    if (m_selectedEntityID == UINT32_MAX)
+    if (m_selectedEntityID == ECS::INVALID_VALUE)
         return;
 
     auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
@@ -1040,7 +1079,7 @@ void UiManager::drawGizmo()
 
     if (it == meshData->end() && spotIt == spotLights->end() && pointIt == pointLights->end())
     {
-        m_selectedEntityID = UINT32_MAX;
+        m_selectedEntityID = ECS::INVALID_VALUE;
         return;
     }
     bool isLight = false;
@@ -1176,8 +1215,10 @@ void UiManager::drawGizmoPointLight(rhi::vulkan::PointLight& selectedLight)
     glm::mat4 projection = cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
+    auto& pos = m_registry->getComponent<ECS::PointLightComponent>(selectedLight.id).position;
+
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
-        glm::vec3(selectedLight.position.x, selectedLight.position.y, selectedLight.position.z));
+        glm::vec3(pos.x, pos.y, pos.z));
 
     float modelData[16];
     memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
@@ -1202,6 +1243,7 @@ void UiManager::drawGizmoPointLight(rhi::vulkan::PointLight& selectedLight)
     glm::mat4 newModel;
     memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
 
+    pos = { newModel[3].x, newModel[3].y, newModel[3].z };
     selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
 }
 
@@ -1211,7 +1253,9 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
     glm::mat4 projection = cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
-    glm::vec3 dir = glm::normalize(glm::vec3(selectedLight.direction.x, selectedLight.direction.y, selectedLight.direction.z));
+    auto& oldDir = m_registry->getComponent<ECS::SpotLightComponent>(selectedLight.id).direction;
+    auto& pos    = m_registry->getComponent<ECS::SpotLightComponent>(selectedLight.id).position;
+    glm::vec3 dir = glm::normalize(glm::vec3(oldDir.x, oldDir.y, oldDir.z));
     glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
 
     glm::quat orientQuat;
@@ -1221,7 +1265,7 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
         orientQuat = glm::quatLookAt(dir, glm::vec3(0.0f, 0.0f, 1.0f));
 
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
-        glm::vec3(selectedLight.position.x, selectedLight.position.y, selectedLight.position.z))
+        glm::vec3(pos.x, pos.y, pos.z))
         * glm::mat4_cast(orientQuat);
 
     float modelData[16];
@@ -1272,6 +1316,7 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
     {
     case ImGuizmo::TRANSLATE:
     {
+        pos = { newModel[3].x, newModel[3].y, newModel[3].z };
         selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
         break;
     }
@@ -1282,9 +1327,11 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
         glm::quat rotation;
         glm::decompose(newModel, scale, rotation, position, skew, perspective);
 
+        pos = { position.x, position.y, position.z };
         selectedLight.position = { position.x, position.y, position.z };
 
         glm::vec3 newDir = glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f));
+        oldDir = { newDir.x, newDir.y, newDir.z };
         selectedLight.direction = { newDir.x, newDir.y, newDir.z };
         break;
     }
