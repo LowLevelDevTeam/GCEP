@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <Externals/imgui/imgui_internal.h>
+#include <filesystem>
+#include "font_awesome.hpp"
 
 namespace gcep
 {
@@ -122,5 +124,16 @@ inline void setDarkTheme()
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.50f);
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.55f);
 }
+
+inline std::string getFileIcon(const std::filesystem::path& file) {
+    std::string ext = file.extension().string();
+    if (ext == ".png" || ext == ".jpg" || ext == ".jpeg")  return ICON_FA_FILE_IMAGE_O;
+    if (ext == ".mp3" || ext == ".wav")                    return ICON_FA_FILE_AUDIO_O;
+    if (ext == ".mp4" || ext == ".avi")                    return ICON_FA_FILE_VIDEO_O;
+    if (ext == ".cpp" || ext == ".hpp" || ext == ".h")     return ICON_FA_FILE_CODE_O;
+    if (ext == ".zip" || ext == ".rar")                    return ICON_FA_FILE_ARCHIVE_O;
+    return ICON_FA_FILE;
+}
+
 
 } // Namespace gcep

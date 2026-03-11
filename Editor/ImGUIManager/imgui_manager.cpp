@@ -44,6 +44,13 @@ namespace gcep {
             static constexpr ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
             io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, iconFontSize, &icons_config, icons_ranges);
 
+            constexpr float bigIconSize = 32.0f;
+            ImFontConfig big_icons_config;
+            big_icons_config.MergeMode = false;
+            big_icons_config.PixelSnapH = true;
+            big_icons_config.GlyphMinAdvanceX = bigIconSize;
+            io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, bigIconSize, &big_icons_config, icons_ranges);
+
             ImGui_ImplGlfw_InitForVulkan(window, true);
             ImGui_ImplVulkan_Init(&initInfo);
 

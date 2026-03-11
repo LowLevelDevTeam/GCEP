@@ -45,12 +45,12 @@ namespace gcep
         bool m_reloadRequested = false;
 
         Window* m_window = nullptr;
-        std::unique_ptr<UI::ImGUIManager> m_imguiManager;
-        std::unique_ptr<rhi::vulkan::VulkanRHI> m_rhi;
-        std::unique_ptr<InputSystem>         m_input;
-        std::unique_ptr<Camera>              m_camera;
-        std::unique_ptr<UiManager>           m_uiManager;
-        std::string m_currentScenePath;
+        std::unique_ptr<UI::ImGUIManager>  m_imguiManager;
+        std::unique_ptr<rhi::vulkan::VulkanRHI>     m_rhi;
+        std::unique_ptr<InputSystem>              m_input;
+        std::unique_ptr<Camera>                  m_camera;
+        std::unique_ptr<UiManager>            m_uiManager;
+        std::string                    m_currentScenePath;
 
         //scripting::ScriptSystem* m_scriptSystem = nullptr;
         PhysicsSystem*                m_physicsSystem = nullptr;
