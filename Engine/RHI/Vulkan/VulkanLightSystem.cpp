@@ -86,9 +86,9 @@ void LightSystem::updateLights()
         if (gpuLights.size() >= MAX_LIGHTS) break;
 
         GPULight g{};
-        g.position  = pl.position;
+        g.position  = { pl.position.x, pl.position.y, pl.position.z };
         g.type      = static_cast<uint32_t>(LightType::Point);
-        g.color     = pl.color;
+        g.color     = { pl.color.x, pl.color.y, pl.color.z };
         g.intensity = pl.intensity;
         g.direction = glm::vec3(0.0f);  // unused
         g.radius    = pl.radius;
@@ -102,13 +102,14 @@ void LightSystem::updateLights()
         if (gpuLights.size() >= MAX_LIGHTS) break;
 
         GPULight g{};
-        g.position  = sl.position;
+        g.position  = { sl.position.x, sl.position.y, sl.position.z };
         g.type      = static_cast<uint32_t>(LightType::Spot);
-        g.color     = sl.color;
+        g.color     = { sl.color.x, sl.color.y, sl.color.z };
         g.intensity = sl.intensity;
         // Normalise direction defensively; avoid NaN if caller passes zero-vector
-        g.direction = glm::length(sl.direction) > 1e-6f
-                        ? glm::normalize(sl.direction)
+        g.direction = { sl.direction.x, sl.direction.y, sl.direction.z };
+        g.direction = glm::length(g.direction) > 1e-6f
+                        ? glm::normalize(g.direction)
                         : glm::vec3(0.0f, -1.0f, 0.0f);
         g.radius    = sl.radius;
         g.innerCos  = std::cos(glm::radians(sl.innerCutoffDeg));
@@ -136,7 +137,7 @@ void LightSystem::updateLights()
     std::memcpy(m_lightMetaMapped, &meta, sizeof(LightMetaUBO));
 }
 
-void LightSystem::addPointLight(glm::vec3 pos)
+void LightSystem::addPointLight(Vector3<float> pos)
 {
     m_pointLights.push_back({
         .position  = pos,
@@ -146,7 +147,7 @@ void LightSystem::addPointLight(glm::vec3 pos)
     });
 }
 
-void LightSystem::addSpotLight(glm::vec3 pos)
+void LightSystem::addSpotLight(Vector3<float> pos)
 {
     m_spotLights.push_back({
         .position       = pos,
@@ -158,6 +159,20 @@ void LightSystem::addSpotLight(glm::vec3 pos)
         .outerCutoffDeg = 30.0f,
         .showGizmo      = true
     });
+}
+
+void LightSystem::removePointLight(ECS::EntityID id)
+{
+    auto it = std::ranges::find(m_pointLights, id, &PointLight::id);
+    if (it != m_pointLights.end())
+        m_pointLights.erase(it);
+}
+
+void LightSystem::removeSpotLight(ECS::EntityID id)
+{
+    auto it = std::ranges::find(m_spotLights, id, &SpotLight::id);
+    if (it != m_spotLights.end())
+        m_spotLights.erase(it);
 }
 
 // ============================================================================
@@ -264,6 +279,30 @@ void LightSystem::recordLightingPass(vk::CommandBuffer cmd,
     postBarrierInfo.imageMemoryBarrierCount = 1;
     postBarrierInfo.pImageMemoryBarriers    = &litToRead;
     cmd.pipelineBarrier2(postBarrierInfo);
+}
+
+PointLight* LightSystem::findPointLight(ECS::EntityID id)
+{
+    for(auto& point : m_pointLights)
+    {
+        if(id == point.id)
+        {
+            return &point;
+        }
+    }
+    return nullptr;
+}
+
+SpotLight* LightSystem::findSpotLight(ECS::EntityID id)
+{
+    for(auto& spot : m_spotLights)
+    {
+        if(id == spot.id)
+        {
+            return &spot;
+        }
+    }
+    return nullptr;
 }
 
 // Private - createBuffer

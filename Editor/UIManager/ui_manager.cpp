@@ -49,19 +49,18 @@ void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
 
 }
 
-
 void UiManager::setCurrentScenePath(const std::string& path)
 {
     m_currentScenePath = path;
 }
-
-
 
 void UiManager::setInfos(rhi::vulkan::InitInfos* infos)
 {
     pRHI = infos->instance;
     meshData = infos->meshData;
     viewportTexture = infos->ds;
+    spotLights = &(pRHI->getLightSystem().getSpotLights());
+    pointLights = &(pRHI->getLightSystem().getPointLights());
 }
 
 static bool DrawVec3Control(const std::string& label, Vector3<float>& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
@@ -444,6 +443,26 @@ void UiManager::drawSceneHierarchy()
                     m_selectedEntityID = entity.id;
                 }
             }
+            for(auto& point: *pointLights)
+            {
+                const bool selected = (m_selectedEntityID == point.id);
+                std::string label = std::string(ICON_FA_LIGHTBULB_O) + " " + point.name;
+
+                if (ImGui::Selectable(label.c_str(), selected))
+                {
+                    m_selectedEntityID = point.id;
+                }
+            }
+            for(auto& spot : *spotLights)
+            {
+                const bool selected = (m_selectedEntityID == spot.id);
+                std::string label = std::string(ICON_FA_LIGHTBULB_O) + " " + spot.name;
+
+                if (ImGui::Selectable(label.c_str(), selected))
+                {
+                    m_selectedEntityID = spot.id;
+                }
+            }
             ImGui::TreePop();
         }
 
@@ -484,7 +503,21 @@ void UiManager::drawSceneHierarchy()
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
-                pRHI->removeMesh(m_selectedEntityID);
+                bool isMesh  = (std::ranges::find_if(*meshData,    [&](const rhi::vulkan::Mesh& m)      { return m.id == m_selectedEntityID; })) != meshData->end();
+                bool isSpot  = (std::ranges::find_if(*spotLights,  [&](const rhi::vulkan::SpotLight& m) { return m.id == m_selectedEntityID; })) != spotLights->end();
+                bool isPoint = (std::ranges::find_if(*pointLights, [&](const rhi::vulkan::PointLight& m){ return m.id == m_selectedEntityID; })) != pointLights->end();
+                if(isMesh)
+                {
+                    pRHI->removeMesh(m_selectedEntityID);
+                }
+                else if(isSpot)
+                {
+                    pRHI->getLightSystem().removeSpotLight(m_selectedEntityID);
+                }
+                else if(isPoint)
+                {
+                    pRHI->getLightSystem().removePointLight(m_selectedEntityID);
+                }
                 scene.destroyEntity(m_selectedEntityID);
                 m_selectedEntityID = UINT32_MAX;
             }
@@ -520,113 +553,26 @@ void UiManager::drawEntityProperties()
         }
 
         rhi::vulkan::Mesh* mesh = pRHI->findMesh(m_selectedEntityID);
-        if (!mesh)
+        rhi::vulkan::SpotLight* spot = pRHI->getLightSystem().findSpotLight(m_selectedEntityID);
+        rhi::vulkan::PointLight* point = pRHI->getLightSystem().findPointLight(m_selectedEntityID);
+        if (!mesh && !spot && !point)
         {
             m_selectedEntityID = UINT32_MAX;
             ImGui::End();
             return;
         }
-
-        auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
-        auto& physics = registry.getComponent<ECS::PhysicsComponent>(m_selectedEntityID);
-
-        // Name
-        char buffer[256];
-        strncpy(buffer, mesh->name.c_str(), sizeof(buffer));
-        if (ImGui::InputText("Name", buffer, sizeof(buffer)))
-            mesh->name = std::string(buffer);
-
-        ImGui::SeparatorText("Transform");
-
-        DrawVec3Control("Position", tc.position);
-        if (DrawVec3Control("Rotation", tc.eulerRadians)
-            && m_simulationState != SimulationState::PLAYING)
+        else if(mesh != nullptr)
         {
-            glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-            tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+            showMeshInfos(mesh);
         }
-        DrawVec3Control("Scale", tc.scale);
-
-        ImGui::SeparatorText("Texture");
-
-        if (ImGui::Button("Add texture"))
+        else if(spot != nullptr)
         {
-            const char* filters[] = { "*.png", "*.jpg", "*.jpeg" };
-            char* path = tinyfd_openFileDialog("Choose a texture",
-                std::filesystem::current_path().string().c_str(), 3, filters, "Image files", 0);
-            if (path)
-                pRHI->uploadTexture(m_selectedEntityID, path, false);
+            showSpotLightInfos(spot);
         }
-
-        if (mesh->hasTexture() && mesh->hasMipmaps())
+        else if(point != nullptr)
         {
-            static float lodLevel = 0.0f;
-            if (ImGui::SliderFloat("LOD Bias", &lodLevel, 0.0f, mesh->texture()->getMipLevels()))
-                mesh->texture()->setLodLevel(lodLevel);
+            showPointLightInfos(point);
         }
-
-        ImGui::SeparatorText("Physics");
-
-        const char* motionTypeLabels[] = { "Static", "Dynamic", "Kinematic" };
-        const char* layerLabels[]      = { "Non moving", "Moving" };
-        const char* bodyShapes[]       = { "Cube", "Sphere", "Cylinder", "Capsule" };
-
-        int currentMotion = static_cast<int>(physics.motionType);
-        int currentLayer  = static_cast<int>(physics.layers);
-        int currentShape  = static_cast<int>(physics.shapeType);
-
-        ImGuiIO& io = ImGui::GetIO();
-        ImGui::PushFont(io.Fonts->Fonts[0]);
-        if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
-            physics.motionType = static_cast<ECS::EMotionType>(currentMotion);
-        if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
-            physics.layers = static_cast<ECS::ELayers>(currentLayer);
-        if (ImGui::Combo("Shape type", &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
-            physics.shapeType = static_cast<ECS::EShapeType>(currentShape);
-        ImGui::PopFont();
-
-        ImGui::SeparatorText("Scripting");
-        ImGui::PushFont(io.Fonts->Fonts[0]);
-        if (ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
-        {
-            std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
-            std::string outputDir  = std::string(PROJECT_ROOT) + "/Scripts";
-            std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
-
-            std::filesystem::create_directories(outputDir);
-
-            std::ifstream scriptFileModel(modelPath, std::ios::binary);
-            if (!scriptFileModel.is_open())
-            {
-                std::cerr << "Failed to open script model: " << modelPath
-                          << " (cwd: " << std::filesystem::current_path() << ")" << std::endl;
-            }
-            else
-            {
-                std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
-                                          std::istreambuf_iterator<char>());
-
-                const std::string scriptName    = "Script" + std::to_string(mesh->id);
-                const std::string placeholder   = "SCRIPT_NAME";
-                auto pos = modelContent.find(placeholder);
-                if (pos != std::string::npos)
-                    modelContent.replace(pos, placeholder.size(), scriptName);
-
-                std::ofstream scriptFile(outputPath, std::ios::binary);
-                if (!scriptFile.is_open())
-                    std::cerr << "Failed to create script file: " << outputPath << std::endl;
-                else
-                {
-                    scriptFile << modelContent;
-                    if (scriptFile.good())
-                        std::cout << "Script created: " << outputPath << std::endl;
-                    else
-                        std::cerr << "Error writing script file: " << outputPath << std::endl;
-                }
-            }
-        }
-        ImGui::PopFont();
-
         if (m_simulationState != SimulationState::PLAYING)
         {
             ImGui::SeparatorText("Gizmo controls");
@@ -634,6 +580,146 @@ void UiManager::drawEntityProperties()
         }
     }
     ImGui::End();
+}
+
+void UiManager::showMeshInfos(rhi::vulkan::Mesh* mesh)
+{
+    auto& scene    = SLS::SceneManager::instance().current();
+    auto& registry = scene.getRegistry();
+
+    auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
+    auto& physics = registry.getComponent<ECS::PhysicsComponent>(m_selectedEntityID);
+
+    // Name
+    char buffer[256];
+    strncpy(buffer, mesh->name.c_str(), sizeof(buffer));
+    if (ImGui::InputText("Name", buffer, sizeof(buffer)))
+        mesh->name = std::string(buffer);
+
+    ImGui::SeparatorText("Transform");
+
+    DrawVec3Control("Position", tc.position);
+    if (DrawVec3Control("Rotation", tc.eulerRadians)
+        && m_simulationState != SimulationState::PLAYING)
+    {
+        glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
+        tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+    }
+    DrawVec3Control("Scale", tc.scale);
+
+    ImGui::SeparatorText("Texture");
+
+    if (ImGui::Button("Add texture"))
+    {
+        const char* filters[] = { "*.png", "*.jpg", "*.jpeg" };
+        char* path = tinyfd_openFileDialog("Choose a texture",
+            std::filesystem::current_path().string().c_str(), 3, filters, "Image files", 0);
+        if (path)
+            pRHI->uploadTexture(m_selectedEntityID, path, false);
+    }
+
+    if (mesh->hasTexture() && mesh->hasMipmaps())
+    {
+        static float lodLevel = 0.0f;
+        if (ImGui::SliderFloat("LOD Bias", &lodLevel, 0.0f, mesh->texture()->getMipLevels()))
+            mesh->texture()->setLodLevel(lodLevel);
+    }
+
+    ImGui::SeparatorText("Physics");
+
+    const char* motionTypeLabels[] = { "Static", "Dynamic", "Kinematic" };
+    const char* layerLabels[]      = { "Non moving", "Moving" };
+    const char* bodyShapes[]       = { "Cube", "Sphere", "Cylinder", "Capsule" };
+
+    int currentMotion = static_cast<int>(physics.motionType);
+    int currentLayer  = static_cast<int>(physics.layers);
+    int currentShape  = static_cast<int>(physics.shapeType);
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::PushFont(io.Fonts->Fonts[0]);
+    if (ImGui::Combo("Motion Type", &currentMotion, motionTypeLabels, IM_ARRAYSIZE(motionTypeLabels)))
+        physics.motionType = static_cast<ECS::EMotionType>(currentMotion);
+    if (ImGui::Combo("Layer", &currentLayer, layerLabels, IM_ARRAYSIZE(layerLabels)))
+        physics.layers = static_cast<ECS::ELayers>(currentLayer);
+    if (ImGui::Combo("Shape type", &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
+        physics.shapeType = static_cast<ECS::EShapeType>(currentShape);
+    ImGui::PopFont();
+
+    ImGui::SeparatorText("Scripting");
+    ImGui::PushFont(io.Fonts->Fonts[0]);
+    if (ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
+    {
+        std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
+        std::string outputDir  = std::string(PROJECT_ROOT) + "/Scripts";
+        std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
+
+        std::filesystem::create_directories(outputDir);
+
+        std::ifstream scriptFileModel(modelPath, std::ios::binary);
+        if (!scriptFileModel.is_open())
+        {
+            std::cerr << "Failed to open script model: " << modelPath
+                      << " (cwd: " << std::filesystem::current_path() << ")" << std::endl;
+        }
+        else
+        {
+            std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
+                                      std::istreambuf_iterator<char>());
+
+            const std::string scriptName    = "Script" + std::to_string(mesh->id);
+            const std::string placeholder   = "SCRIPT_NAME";
+            auto pos = modelContent.find(placeholder);
+            if (pos != std::string::npos)
+                modelContent.replace(pos, placeholder.size(), scriptName);
+
+            std::ofstream scriptFile(outputPath, std::ios::binary);
+            if (!scriptFile.is_open())
+                std::cerr << "Failed to create script file: " << outputPath << std::endl;
+            else
+            {
+                scriptFile << modelContent;
+                if (scriptFile.good())
+                    std::cout << "Script created: " << outputPath << std::endl;
+                else
+                    std::cerr << "Error writing script file: " << outputPath << std::endl;
+            }
+        }
+    }
+    ImGui::PopFont();
+}
+
+void UiManager::showSpotLightInfos(rhi::vulkan::SpotLight *spot)
+{
+    // Name
+    char buffer[256];
+    strncpy(buffer, spot->name.c_str(), sizeof(buffer));
+    if (ImGui::InputText("Name", buffer, sizeof(buffer)))
+        spot->name = std::string(buffer);
+
+    ImGui::SeparatorText("Transform");
+    DrawVec3Control("Position", spot->position);
+    DrawVec3Control("Direction", spot->direction);
+    DrawVec3Control("Color", spot->color);
+    ImGui::SliderFloat("Intensity", &spot->intensity, 0.0f, 5.0f);
+    ImGui::SliderFloat("Radius", &spot->radius, 0.0f, 100.0f);
+    ImGui::SliderFloat("Inner cut-off degrees", &spot->innerCutoffDeg, 0.0f, 89.0f);
+    ImGui::SliderFloat("Outer cut-off degrees", &spot->outerCutoffDeg, 0.0f, 90.0f);
+    ImGui::Checkbox("Show gizmo", &spot->showGizmo);
+}
+
+void UiManager::showPointLightInfos(rhi::vulkan::PointLight *point)
+{
+    // Name
+    char buffer[256];
+    strncpy(buffer, point->name.c_str(), sizeof(buffer));
+    if (ImGui::InputText("Name", buffer, sizeof(buffer)))
+        point->name = std::string(buffer);
+
+    ImGui::SeparatorText("Transform");
+    DrawVec3Control("Position", point->position);
+    DrawVec3Control("Color", point->color);
+    ImGui::SliderFloat("Intensity", &point->intensity, 0.0f, 5.0f);
+    ImGui::SliderFloat("Radius", &point->radius, 0.0f, 10.0f);
 }
 
 void UiManager::drawAudioControl()
@@ -949,18 +1035,42 @@ void UiManager::drawGizmo()
         return;
 
     auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
+    auto spotIt = std::ranges::find_if(*spotLights, [&](const rhi::vulkan::SpotLight& m){ return m.id == m_selectedEntityID; });
+    auto pointIt = std::ranges::find_if(*pointLights, [&](const rhi::vulkan::PointLight& m){ return m.id == m_selectedEntityID; });
 
-    if (it == meshData->end())
+    if (it == meshData->end() && spotIt == spotLights->end() && pointIt == pointLights->end())
     {
         m_selectedEntityID = UINT32_MAX;
         return;
     }
+    bool isLight = false;
+    if(spotIt != spotLights->end() || pointIt != pointLights->end())
+    {
+        isLight = true;
+    }
+    if(!isLight)
+    {
+        drawGizmoMesh(*it);
+    }
+    else
+    {
+        if(spotIt != spotLights->end())
+        {
+            drawGizmoSpotLight(*spotIt);
+        }
+        if(pointIt != pointLights->end())
+        {
+            drawGizmoPointLight(*pointIt);
+        }
+    }
+}
 
+void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
+{
     glm::mat4 view = cameraRef->getViewMatrix();
     glm::mat4 projection = cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
-    auto& selectedMesh = *it;
     glm::mat4 modelMatrix = selectedMesh.getTransform();
 
     float modelData[16];
@@ -1057,6 +1167,128 @@ void UiManager::drawGizmo()
             break;
         }
         default: break;
+    }
+}
+
+void UiManager::drawGizmoPointLight(rhi::vulkan::PointLight& selectedLight)
+{
+    glm::mat4 view       = cameraRef->getViewMatrix();
+    glm::mat4 projection = cameraRef->getProjectionMatrix();
+    projection[1][1] *= -1.0f;
+
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
+        glm::vec3(selectedLight.position.x, selectedLight.position.y, selectedLight.position.z));
+
+    float modelData[16];
+    memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
+
+    float deltaData[16];
+    glm::mat4 identityDelta = glm::mat4(1.0f);
+    memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
+
+    ImGuizmo::Manipulate(
+        glm::value_ptr(view),
+        glm::value_ptr(projection),
+        ImGuizmo::TRANSLATE,
+        ImGuizmo::WORLD,
+        modelData,
+        deltaData,
+        nullptr
+    );
+
+    if (!ImGuizmo::IsUsing())
+        return;
+
+    glm::mat4 newModel;
+    memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
+
+    selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
+}
+
+void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
+{
+    glm::mat4 view       = cameraRef->getViewMatrix();
+    glm::mat4 projection = cameraRef->getProjectionMatrix();
+    projection[1][1] *= -1.0f;
+
+    glm::vec3 dir = glm::normalize(glm::vec3(selectedLight.direction.x, selectedLight.direction.y, selectedLight.direction.z));
+    glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
+
+    glm::quat orientQuat;
+    if (glm::abs(glm::dot(dir, glm::vec3(0.0f, 1.0f, 0.0f))) < 0.999f)
+        orientQuat = glm::quatLookAt(dir, glm::vec3(0.0f, 1.0f, 0.0f));
+    else
+        orientQuat = glm::quatLookAt(dir, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
+        glm::vec3(selectedLight.position.x, selectedLight.position.y, selectedLight.position.z))
+        * glm::mat4_cast(orientQuat);
+
+    float modelData[16];
+    memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
+
+    float deltaData[16];
+    glm::mat4 identityDelta = glm::mat4(1.0f);
+    memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
+
+    ImGuizmo::MODE activeMode = (m_currentGizmoOperation == ImGuizmo::SCALE)
+        ? ImGuizmo::LOCAL
+        : m_currentGizmoMode;
+
+    float* snapPtr = nullptr;
+    float snapValues[3] = {};
+    if (m_useSnap)
+    {
+        switch (m_currentGizmoOperation)
+        {
+        case ImGuizmo::TRANSLATE:
+            memcpy(snapValues, m_snapTranslation, sizeof(snapValues));
+            break;
+        case ImGuizmo::ROTATE:
+            snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation;
+            break;
+        default: break;
+        }
+        snapPtr = snapValues;
+    }
+
+    ImGuizmo::Manipulate(
+        glm::value_ptr(view),
+        glm::value_ptr(projection),
+        m_currentGizmoOperation == ImGuizmo::SCALE ? ImGuizmo::TRANSLATE : m_currentGizmoOperation,
+        activeMode,
+        modelData,
+        deltaData,
+        snapPtr
+    );
+
+    if (!ImGuizmo::IsUsing())
+        return;
+
+    glm::mat4 newModel;
+    memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
+
+    switch (m_currentGizmoOperation)
+    {
+    case ImGuizmo::TRANSLATE:
+    {
+        selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
+        break;
+    }
+    case ImGuizmo::ROTATE:
+    {
+        glm::vec3 position, scale, skew;
+        glm::vec4 perspective;
+        glm::quat rotation;
+        glm::decompose(newModel, scale, rotation, position, skew, perspective);
+
+        selectedLight.position = { position.x, position.y, position.z };
+
+        glm::vec3 newDir = glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f));
+        selectedLight.direction = { newDir.x, newDir.y, newDir.z };
+        break;
+    }
+    default: break;
     }
 }
 

@@ -242,9 +242,11 @@ void VulkanRHI::recordLightSpritePass(const std::vector<PointLight>& points,
 
         for (const auto& pl : points)
         {
-            spc.worldPos = pl.position;
+            glm::vec3 pos = {pl.position.x, pl.position.y, pl.position.z};
+            spc.worldPos = pos;
             spc.halfSize = 0.25f;
-            spc.color    = pl.color * pl.intensity * 0.15f;
+            glm::vec3 col = {pl.color.x, pl.color.y, pl.color.z};
+            spc.color    = col * pl.intensity * 0.15f;
             cmd.pushConstants<SpritePushConstants>(
                 *m_lightSpritePipelineLayout,
                 vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
@@ -254,9 +256,11 @@ void VulkanRHI::recordLightSpritePass(const std::vector<PointLight>& points,
 
         for (const auto& sl : spots)
         {
-            spc.worldPos = sl.position;
+            glm::vec3 pos = {sl.position.x, sl.position.y, sl.position.z};
+            spc.worldPos = pos;
             spc.halfSize = 0.30f;
-            spc.color    = sl.color * sl.intensity * 0.12f;
+            glm::vec3 col = {sl.color.x, sl.color.y, sl.color.z};
+            spc.color    = col * sl.intensity * 0.12f;
             cmd.pushConstants<SpritePushConstants>(
                 *m_lightSpritePipelineLayout,
                 vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
@@ -274,14 +278,17 @@ void VulkanRHI::recordLightSpritePass(const std::vector<PointLight>& points,
         {
             ConePushConstants cpc{};
             cpc.viewProj  = viewProj;
-            cpc.apex      = sl.position;
+            glm::vec3 pos = {sl.position.x, sl.position.y, sl.position.z};
+            cpc.apex      = pos;
             cpc.length    = sl.radius * 0.85f;
-            cpc.direction = glm::length(sl.direction) > 1e-6f
-                                ? glm::normalize(sl.direction)
+            glm::vec3 dir = {sl.direction.x, sl.direction.y, sl.direction.z};
+            cpc.direction = glm::length(dir) > 1e-6f
+                                ? glm::normalize(dir)
                                 : glm::vec3(0.0f, -1.0f, 0.0f);
             cpc.outerCos  = std::cos(glm::radians(sl.outerCutoffDeg));
             cpc.innerCos  = std::cos(glm::radians(sl.innerCutoffDeg));
-            cpc.color     = sl.color;
+            glm::vec3 col = {sl.color.x, sl.color.y, sl.color.z};
+            cpc.color     = col;
             cpc.alpha     = 0.75f;
             cpc.visible   = sl.showGizmo ? 1u : 0u;
 

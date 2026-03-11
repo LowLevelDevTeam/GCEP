@@ -217,16 +217,19 @@ void VulkanRHI::spawnAsset(char* filepath, ECS::EntityID id, glm::vec3 pos)
     mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
 }
 
-void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID /*id*/, glm::vec3 pos)
+void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID id, glm::vec3 pos)
 {
-    // TODO: ECS compatibility
     if(type == LightType::Point)
     {
-        m_lightSystem.addPointLight(pos);
+        m_lightSystem.addPointLight({pos.x, pos.y, pos.z});
+        m_lightSystem.getPointLights().back().id = id;
+        m_lightSystem.getPointLights().back().name = "Point light / id = " + std::to_string(id);
     }
     else
     {
-        m_lightSystem.addSpotLight(pos);
+        m_lightSystem.addSpotLight({pos.x, pos.y, pos.z});
+        m_lightSystem.getSpotLights().back().id = id;
+        m_lightSystem.getSpotLights().back().name = "Spot light / id = " + std::to_string(id);;
     }
 }
 
