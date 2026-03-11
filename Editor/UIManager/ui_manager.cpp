@@ -47,13 +47,14 @@ void UiManager::setCamera(Camera *pCamera)
 void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
 {
     m_sceneManager = sceneManager;
-
+    m_registry = &sceneManager->current().getRegistry();
 }
 
 
 void UiManager::setCurrentScenePath(const std::string& path)
 {
     m_currentScenePath = path;
+    m_registry = &m_sceneManager->current().getRegistry();
 }
 
 
