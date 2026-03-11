@@ -30,8 +30,7 @@ static const float4 kYAxisColor = float4(0.25, 0.90, 0.25, 1.00);
 struct VSOutput
 {
     float4 clipPos   : SV_Position;
-    float3 nearPoint : TEXCOORD0;
-    float3 farPoint  : TEXCOORD1;
+    float2 ndc : TEXCOORD0;
 };
 
 float3 unproject(float2 ndc, float z)
@@ -49,12 +48,9 @@ VSOutput vertMain(uint vid : SV_VertexID)
         float2(-1.0,  3.0)
     };
 
-    float2 p = pos[vid];
-
     VSOutput o;
-    o.clipPos   = float4(p, 0.0, 1.0);
-    o.nearPoint = unproject(p, 0.0);
-    o.farPoint  = unproject(p, 1.0);
+    o.clipPos = float4(pos[vid], 0.0, 1.0);
+    o.ndc     = pos[vid];
     return o;
 }
 
@@ -76,13 +72,18 @@ float gridLine(float2 worldXZ, float cellSz)
 [shader("fragment")]
 FSOutput fragMain(VSOutput i)
 {
-    float denom = i.farPoint.z - i.nearPoint.z;
+    float2 ndc = i.ndc;  // linearly interpolated NDC — this IS correct
+
+    float3 nearPoint = unproject(ndc, 0.0);
+    float3 farPoint  = unproject(ndc, 1.0);
+
+    float denom = farPoint.z - nearPoint.z;
     if (abs(denom) < 1e-5) discard;
 
-    float t = -i.nearPoint.z / denom;
+    float t = -nearPoint.z / denom;
     if (t < 0.0) discard;
 
-    float3 worldPos = i.nearPoint + t * (i.farPoint - i.nearPoint);
+    float3 worldPos = nearPoint + t * (farPoint - nearPoint);
 
     float thin  = gridLine(worldPos.xy, scene.cellSize);
     float thick = gridLine(worldPos.xy, scene.cellSize * scene.thickEvery);

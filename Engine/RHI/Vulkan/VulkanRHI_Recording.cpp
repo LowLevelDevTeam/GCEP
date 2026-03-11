@@ -139,8 +139,8 @@ void VulkanRHI::recordOffscreenCommandBuffer()
 
     if(!simulationStarted)
     {
-        m_gridPC.viewProj    = m_unjitteredViewProj;
-        m_gridPC.invViewProj = glm::inverse(m_unjitteredViewProj);
+        m_gridPC.viewProj    = pc.camViewProj; // has jitter
+        m_gridPC.invViewProj = glm::inverse(m_unjitteredViewProj); // well, read the name
         recordGridPass();
     }
 
