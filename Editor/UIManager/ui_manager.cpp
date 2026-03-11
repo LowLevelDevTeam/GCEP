@@ -23,7 +23,8 @@ namespace gcep
 UiManager::UiManager(GLFWwindow* window, bool& reload, bool& close)
     : physicsSystem(PhysicsSystem::getInstance()),
       reloadApp(reload),
-      closeApp(close)
+      closeApp(close),
+      m_contentBrowser(pl::project_loader::instance().getProjectInfo().contentPath)
 {
     m_window    = window;
     audioSystem = gcep::AudioSystem::getInstance();
@@ -180,8 +181,11 @@ void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* 
     ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Right, 0.25f, &dock_id_right, &dock_id_center);
 
     // "center" area: viewport on top, console on bottom
-    ImGuiID dock_id_viewport, dock_id_console;
-    ImGui::DockBuilderSplitNode(dock_id_center, ImGuiDir_Down, 0.25f, &dock_id_console, &dock_id_viewport);
+    ImGuiID dock_id_viewport, dock_id_bottom;
+    ImGui::DockBuilderSplitNode(dock_id_center, ImGuiDir_Down, 0.25f, &dock_id_bottom, &dock_id_viewport);
+
+    ImGuiID dock_id_console, dock_id_content;
+    ImGui::DockBuilderSplitNode(dock_id_bottom, ImGuiDir_Right, 0.6f, &dock_id_content, &dock_id_console);
 
     // Left panel: hierarchy on top, properties on bottom
     ImGuiID dock_id_hierarchy, dock_id_properties;
@@ -193,6 +197,7 @@ void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* 
     ImGui::DockBuilderDockWindow("Audio control", dock_id_properties);
     ImGui::DockBuilderDockWindow("Viewport", dock_id_viewport);
     ImGui::DockBuilderDockWindow("Console", dock_id_console);
+    ImGui::DockBuilderDockWindow("ContentDrawer", dock_id_content);
 
     ImGui::DockBuilderGetNode(dock_id_viewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
 
@@ -242,6 +247,7 @@ void UiManager::drawMainMenuBar()
             {
                 if (m_sceneManager && !m_currentScenePath.empty())
                 {
+                    pl::project_loader::instance().saveProject();
                     m_sceneManager->current().save(m_currentScenePath);
                 }
             }
@@ -377,46 +383,67 @@ void UiManager::drawSettings()
     ImGui::Begin("Settings");
     {
         auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
+        auto& ps                     = pl::project_loader::instance().getSettings();
 
         bool vsyncState = pRHI->isVSync();
-        if (ImGui::Checkbox("V-Sync", &vsyncState))
+        if (ImGui::Checkbox("V-Sync", &vsyncState)) {
             pRHI->setVSync(!pRHI->isVSync());
+            ps.vsync = !pRHI->isVSync();
+            pl::project_loader::instance().markDirty();
+        }
 
         ImGui::SeparatorText("Scene infos");
-        float cc[4] = { settings.clearColor.x, settings.clearColor.y, settings.clearColor.z, settings.clearColor.w };
-        if (ImGui::ColorEdit4("ClearColor", cc, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
-            settings.clearColor = { cc[0], cc[1], cc[2], cc[3] };
-
+        if (ImGui::ColorEdit4("ClearColor", ps.clearColor,
+            ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+        {
+            settings.clearColor = { ps.clearColor[0], ps.clearColor[1],
+                                    ps.clearColor[2], ps.clearColor[3] };
+            pl::project_loader::instance().markDirty();
+        }
 
         ImGui::Text("Total entities : %d", meshData->size());
         ImGui::Text("Entities drawn : %d", pRHI->getDrawCount());
 
         ImGui::SeparatorText("Camera");
-        ImGui::SliderFloat("Camera Speed", &camSpeed, 1.0f, 20.0f);
+        if (ImGui::SliderFloat("Camera Speed", &ps.cameraSpeed, 1.0f, 20.0f)) {
+            camSpeed = ps.cameraSpeed;                     // ← sync local
+            pl::project_loader::instance().markDirty();
+        }
 
         ImGui::SeparatorText("Scene light");
-        float ac[3] = { settings.ambientColor.x, settings.ambientColor.y, settings.ambientColor.z };
-        if (ImGui::ColorEdit3("Ambient color", ac, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
-            settings.ambientColor = { ac[0], ac[1], ac[2] };
+        if (ImGui::ColorEdit3("Ambient color", ps.ambientColor,
+            ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+        {
+            settings.ambientColor = { ps.ambientColor[0], ps.ambientColor[1],
+                                      ps.ambientColor[2] };
+            pl::project_loader::instance().markDirty();
+        }
 
-        float lc[3] = { settings.lightColor.x, settings.lightColor.y, settings.lightColor.z };
-        if (ImGui::ColorEdit3("Light color", lc, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
-            settings.lightColor = { lc[0], lc[1], lc[2] };
+        if (ImGui::ColorEdit3("Light color", ps.lightColor,
+            ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
+        {
+            settings.lightColor = { ps.lightColor[0], ps.lightColor[1],
+                                    ps.lightColor[2] };
+            pl::project_loader::instance().markDirty();
+        }
 
-        float ld[3] = { settings.lightDirection.x, settings.lightDirection.y, settings.lightDirection.z };
-        if (ImGui::DragFloat3("Light direction", ld))
-            settings.lightDirection = { ld[0], ld[1], ld[2] };
+        if (ImGui::DragFloat3("Light direction", ps.lightDirection)) {
+            settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1],
+                                        ps.lightDirection[2] };
+            pl::project_loader::instance().markDirty();
+        }
 
         ImGui::SeparatorText("Grid options");
-        ImGui::InputFloat("Cell size",     &sceneInfos.cellSize);
-        ImGui::InputFloat("Thick every",   &sceneInfos.thickEvery);
-        ImGui::InputFloat("Fade distance", &sceneInfos.fadeDistance);
-        ImGui::InputFloat("Line width",    &sceneInfos.lineWidth);
+        if (ImGui::InputFloat("Cell size",     &ps.gridCellSize))     { sceneInfos.cellSize     = ps.gridCellSize;     pl::project_loader::instance().markDirty(); }
+        if (ImGui::InputFloat("Thick every",   &ps.gridThickEvery))   { sceneInfos.thickEvery   = ps.gridThickEvery;   pl::project_loader::instance().markDirty(); }
+        if (ImGui::InputFloat("Fade distance", &ps.gridFadeDistance)) { sceneInfos.fadeDistance = ps.gridFadeDistance; pl::project_loader::instance().markDirty(); }
+        if (ImGui::InputFloat("Line width",    &ps.gridLineWidth))    { sceneInfos.lineWidth    = ps.gridLineWidth;    pl::project_loader::instance().markDirty(); }
 
         ImGui::SeparatorText("Temporal Anti-Aliasing");
-        static float blendAlpha = 0.10f;
-        if (ImGui::InputFloat("Blend alpha", &blendAlpha, 0.01f, 0.10f))
-            pRHI->setTAABlendAlpha(blendAlpha);
+        if (ImGui::InputFloat("Blend alpha", &ps.taaBlendAlpha, 0.01f, 0.10f)) {
+            pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
+            pl::project_loader::instance().markDirty();
+        }
 
         auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
@@ -944,6 +971,7 @@ void UiManager::uiUpdate()
     drawAudioControl();
     drawConsole();
     drawBottomBar();
+    m_contentBrowser.render();
 
     if (showDemoWindow)
     {
@@ -967,6 +995,31 @@ void UiManager::uiUpdate()
             m_sceneManager->current().save(m_currentScenePath);
         }
     }
+}
+
+
+void UiManager::applyLoadedSettings()
+{
+    auto& ps       = pl::project_loader::instance().getSettings();
+    auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
+
+    pRHI->setVSync(ps.vsync);
+    pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
+
+    settings.clearColor     = { ps.clearColor[0],     ps.clearColor[1],
+                                 ps.clearColor[2],     ps.clearColor[3] };
+    settings.ambientColor   = { ps.ambientColor[0],   ps.ambientColor[1],
+                                 ps.ambientColor[2]   };
+    settings.lightColor     = { ps.lightColor[0],     ps.lightColor[1],
+                                 ps.lightColor[2]     };
+    settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1],
+                                 ps.lightDirection[2] };
+
+    camSpeed                = ps.cameraSpeed;
+    sceneInfos.cellSize     = ps.gridCellSize;
+    sceneInfos.thickEvery   = ps.gridThickEvery;
+    sceneInfos.fadeDistance = ps.gridFadeDistance;
+    sceneInfos.lineWidth    = ps.gridLineWidth;
 }
 
 void UiManager::drawGizmoControls()
