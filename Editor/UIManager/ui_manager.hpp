@@ -23,7 +23,8 @@
 #include <Editor/Helpers.hpp>
 #include <Editor/SceneUtils/scene_util.hpp>
 #include <Engine/Core/ECS/Components/components.hpp>
-
+#include <Editor/ProjectLoader/project_loader.hpp>
+#include <Editor/ContentBrowser/ContentBrowser.hpp>
 
 namespace gcep
 {
@@ -162,6 +163,8 @@ public:
     /// returns immediately.
     void uiUpdate();
 
+    void applyLoadedSettings();
+
     /// @brief Draws the gizmo operation / mode / snapping controls inside the
     ///        Entity properties panel.
     ///
@@ -197,6 +200,9 @@ public:
     void setSceneManager(SLS::SceneManager* sceneManager);
 
     void setCurrentScenePath(const std::string &path);
+
+    void setProjectLoader(pl::project_loader* loader) { m_projectLoader = loader; }
+
 private:
     // Init helpers
 
@@ -314,6 +320,7 @@ private:
 
 
 
+
 private:
     GLFWwindow*               m_window;
     bool                      showDemoWindow  = false;
@@ -357,6 +364,9 @@ private:
     std::unique_ptr<ImGuiConsoleBuffer> m_consoleBuffer;
     std::streambuf*                     m_oldCout = nullptr;
 
+
+    pl::project_loader* m_projectLoader = nullptr;
+    gcep::editor::ContentBrowser   m_contentBrowser;
 
     // Scene
     SimulationState           m_simulationState = SimulationState::STOPPED;

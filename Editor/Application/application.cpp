@@ -28,10 +28,12 @@ int gcep::application::run()
         {
             float deltaTime = computeDeltaTime();
 
-            if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-            {
-                SLS::SceneManager::instance().saveScene(m_currentScenePath);
-            }
+            pl::project_loader::instance().update(deltaTime);
+
+            //if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+            //{
+            //    SLS::SceneManager::instance().saveScene(m_currentScenePath);
+            //}
 
             glfwPollEvents();
             m_input->update();
@@ -89,14 +91,16 @@ void gcep::application::init()
     m_imguiManager = std::make_unique<UI::ImGUIManager>();
     m_imguiManager->init(m_window->getGlfwWindow(), m_rhi->getUIInitInfo());
 
+
     // Project loader
     bool selecting = true;
-    pl::project_loader loader(m_window->getGlfwWindow());
+
+    pl::project_loader::instance().init(m_window->getGlfwWindow());
     while (selecting && !m_window->shouldClose())
     {
         glfwPollEvents();
         m_imguiManager->beginFrame();
-        loader.drawUI(selecting);
+        pl::project_loader::instance().drawUI(selecting);
         m_imguiManager->endFrame();
         m_rhi->drawFrame();
     }
@@ -104,7 +108,7 @@ void gcep::application::init()
 
 
     // Scène
-    SLS::SceneManager::instance().loadScene(loader.getProjectInfo().startScene.string(), m_rhi.get());
+    SLS::SceneManager::instance().loadScene(pl::project_loader::instance().getProjectInfo().startScene.string(), m_rhi.get());
     m_rhi->setRegistry(&SLS::SceneManager::instance().current().getRegistry());
 
     m_camera = std::make_unique<Camera>(m_input.get(), m_window);
@@ -118,8 +122,10 @@ void gcep::application::init()
 
     m_uiManager->setCamera(m_camera.get());
     m_uiManager->setInfos(m_rhi->getInitInfos());
+    m_uiManager->setProjectLoader(&pl::project_loader::instance());
+    m_uiManager->applyLoadedSettings();
 
-    m_currentScenePath = loader.getProjectInfo().startScene.string();
+    m_currentScenePath = pl::project_loader::instance().getProjectInfo().startScene.string();
     m_uiManager->setCurrentScenePath(m_currentScenePath);
     m_uiManager->setSceneManager(&SLS::SceneManager::instance());
 

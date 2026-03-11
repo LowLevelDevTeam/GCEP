@@ -45,9 +45,7 @@ namespace gcep::SLS
 
     inline void Scene::load(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
-        std::cerr << "Calling clear()..." << std::endl;
         clear();
-        std::cerr << "clear() done" << std::endl;
 
         clear();
         std::string basePath = path.substr(0, path.find_last_of('.'));
@@ -68,11 +66,8 @@ namespace gcep::SLS
         if (rhi)
         {
             rhi->setRegistry(&m_registry);
-            std::cerr << "Mesh Spawned\n";
             auto& registry = m_registry;
-            std::cerr << "Ensuring MeshComponent pool..." << std::endl;
             registry.getPool<ECS::MeshComponent>(); // force la création du pool
-            std::cerr << "Pool ready, creating view..." << std::endl;
             auto view = registry.view<ECS::MeshComponent>();
             int count = 0;
             for (auto entity : view)
@@ -83,9 +78,7 @@ namespace gcep::SLS
                 std::cerr << "About to spawn entity " << entity << " filepath: '" << mc.filePath << "'" << std::endl;
                 if (!mc.filePath.empty())
                 {
-                    std::cerr << "Calling spawnAsset..." << std::endl;
                     rhi->spawnAsset(mc.filePath.data(), entity, {0,0,0});
-                    std::cerr << "spawnAsset done" << std::endl;
                 }
             }
             std::cerr << "Total MeshComponents: " << count << std::endl;
