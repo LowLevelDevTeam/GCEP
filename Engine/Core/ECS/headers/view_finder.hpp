@@ -56,7 +56,15 @@ namespace gcep::ECS
              * @brief Advances to the next valid entity (pre-increment).
              * @return Iterator& Reference to the advanced iterator.
              */
-            Iterator& operator++();
+            Iterator& operator++()
+            {
+                do 
+                {
+                    m_currentEntity++;
+                } while (m_currentEntity != m_lastEntity && !m_view.match(*m_currentEntity));
+
+                return *this;
+            }
 
             /**
              * @brief Dereference operator to retrieve the current entity's ID.
