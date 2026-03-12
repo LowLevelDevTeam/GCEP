@@ -15,7 +15,7 @@
 #include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
 
 #include <Engine/Core/ECS/Components/physics_component.hpp>
-#include <Engine/Core/ECS/Components/Transform.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include <Engine/Core/PhysicsWrapper/physics_shape.hpp>
 #include "raycast_hit.hpp"
 

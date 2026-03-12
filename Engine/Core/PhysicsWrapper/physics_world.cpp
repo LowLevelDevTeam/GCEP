@@ -25,7 +25,7 @@
 // Core
 #include "physics_shape.hpp"
 #include <Engine/Core/ECS/Components/physics_component.hpp>
-#include <Engine/Core/ECS/Components/Transform.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 #include "Maths/Utils/vector3_convertor.hpp"
 
