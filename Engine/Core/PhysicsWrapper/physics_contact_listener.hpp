@@ -1,9 +1,7 @@
-Naji — 9:34 PM
 #pragma once
 
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Body/Body.h>
-#include <iostream>
 
 class PhysicsContactListener : public JPH::ContactListener
 {

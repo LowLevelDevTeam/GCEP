@@ -603,6 +603,7 @@ void UiManager::drawEntityProperties()
             physics.layers = static_cast<ECS::ELayers>(currentLayer);
         if (ImGui::Combo("Shape type", &currentShape, bodyShapes, IM_ARRAYSIZE(bodyShapes)))
             physics.shapeType = static_cast<ECS::EShapeType>(currentShape);
+        ImGui::Checkbox("Is Trigger", &physics.isTrigger);
         ImGui::PopFont();
 
         ImGui::SeparatorText("Scripting");

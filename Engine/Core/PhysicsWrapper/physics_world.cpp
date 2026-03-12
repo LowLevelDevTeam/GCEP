@@ -87,6 +87,7 @@ namespace gcep
 			*m_objectVsBroadPhaseLayerFilter,
 			*m_objectLayerPairFilter
 			);
+    	m_contactListener = std::make_unique<PhysicsContactListener>();
 		m_physicsSystem->SetContactListener(m_contactListener.get());
     	m_physicsSystem->SetGravity(JPH::Vec3(0, 0, -9.81f));
     }
@@ -182,7 +183,7 @@ namespace gcep
 			position,
 			rotation,
 			motionType,
-			static_cast<JPH:ObjectLayer>(data.layers)
+			static_cast<JPH::ObjectLayer>(data.layers)
     	);
     	bodySettings.mIsSensor = data.isTrigger;
 
