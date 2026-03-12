@@ -62,26 +62,29 @@ namespace gcep::SLS
             binarySnapShot snapshot(*this);
             snapshot.deserializeAll(ar);
         #endif
-        std::cerr << "Ensuring pool..." << std::endl;
         if (rhi)
         {
             rhi->setRegistry(&m_registry);
             auto& registry = m_registry;
-            registry.getPool<ECS::MeshComponent>(); // force la création du pool
             auto view = registry.view<ECS::MeshComponent>();
-            int count = 0;
             for (auto entity : view)
             {
-                count++;
                 auto& mc = view.get<ECS::MeshComponent>(entity);
-                std::cerr << "Entity " << entity << " filepath: '" << mc.filePath << "'" << std::endl;
-                std::cerr << "About to spawn entity " << entity << " filepath: '" << mc.filePath << "'" << std::endl;
                 if (!mc.filePath.empty())
                 {
                     rhi->spawnAsset(mc.filePath.data(), entity, {0,0,0});
                 }
             }
-            std::cerr << "Total MeshComponents: " << count << std::endl;
+            auto pointLightView = registry.view<ECS::PointLightComponent>();
+            auto spotLightView = registry.view<ECS::SpotLightComponent>();
+            for(auto entity : pointLightView)
+            {
+                rhi->spawnLight(rhi::vulkan::LightType::Point, entity, {0,0,0});
+            }
+            for(auto entity : spotLightView)
+            {
+                rhi->spawnLight(rhi::vulkan::LightType::Spot, entity, {0,0,0});
+            }
         }
     }
 

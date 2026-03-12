@@ -23,13 +23,13 @@ struct GPUMeshData
 struct SceneUBO
 {
     float3 lightDir;
-    float  _pad0;
+    float  cellSize;      // default: 1.0
     float3 lightColor;
-    float  _pad1;
+    float  thickEvery;    // default: 10.0
     float3 ambientColor;
-    float  _pad2;
+    float  fadeDistance;  // default: 100.0
     float3 cameraPos;
-    float  _pad3;
+    float  lineWidth;     // default: 1.0
 };
 
 [[vk::binding(0, 0)]]
@@ -110,9 +110,7 @@ FSOutput fragMain(VSOutput input)
 
     float2 ndcCurrent  = input.currentClip.xy / input.currentClip.w;
     float2 ndcPrevious = input.prevClip.xy    / input.prevClip.w;
-
-    float2 motion;
-    motion = (ndcCurrent - ndcPrevious) * 0.5f;
+    float2 motion      = (ndcCurrent - ndcPrevious) * 0.5f;
 
     FSOutput o;
     o.color        = float4(albedo.rgb * lighting, albedo.a);

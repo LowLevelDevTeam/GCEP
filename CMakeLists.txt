@@ -75,6 +75,7 @@ target_include_directories(GCExternals INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/Externals/TinyGLTF
         ${CMAKE_CURRENT_SOURCE_DIR}/Externals/stb
         ${CMAKE_CURRENT_SOURCE_DIR}/Externals/FontAwesome
+        ${CMAKE_CURRENT_SOURCE_DIR}/Externals/boost_pfr/include
         ${GCE_SCRIPT_CONFIG_OUT}
         ${Vulkan_INCLUDE_DIRS}
 )

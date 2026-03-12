@@ -318,7 +318,12 @@ private:
 
     void drawBottomBar();
 
-
+    void showMeshInfos(rhi::vulkan::Mesh* mesh);
+    void showPointLightInfos(rhi::vulkan::PointLight* point);
+    void showSpotLightInfos(rhi::vulkan::SpotLight* spot);
+    void drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh);
+    void drawGizmoPointLight(rhi::vulkan::PointLight& selectedLight);
+    void drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight);
 
 
 private:
@@ -329,6 +334,8 @@ private:
     bool&                     closeApp;
 
     std::vector<rhi::vulkan::Mesh>* meshData  = nullptr;
+    std::vector<rhi::vulkan::PointLight>* pointLights = nullptr;
+    std::vector<rhi::vulkan::SpotLight>* spotLights = nullptr;
 
     /// @brief ECS ID of the entity currently selected in the hierarchy.
     ///        Set to @c numeric_limits<EntityID>::max() when nothing is selected.
@@ -339,7 +346,6 @@ private:
     float     camSpeed        = 5.0f;
 
     rhi::vulkan::SceneInfos       sceneInfos;
-    rhi::vulkan::GridPushConstant gridPC;
 
     ImGuizmo::OPERATION m_currentGizmoOperation = ImGuizmo::TRANSLATE;
 
