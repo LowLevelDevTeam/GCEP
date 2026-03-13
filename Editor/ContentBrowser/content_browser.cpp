@@ -2,7 +2,7 @@
 // Created by leoam on 10/03/2026.
 //
 
-#include "ContentBrowser.hpp"
+#include "content_browser.hpp"
 
 #include <algorithm>
 
@@ -10,7 +10,7 @@
 #include "Editor/Helpers.hpp"
 #include "Log/Log.hpp"
 
-gcep::editor::ContentBrowser::ContentBrowser(const std::filesystem::path &defaultPath) : folderSize(64)
+gcep::editor::ContentBrowser::ContentBrowser(const std::filesystem::path &defaultPath) : m_folderSize(64)
 {
     m_rootPath = defaultPath;
     m_currentPath = defaultPath;
@@ -26,14 +26,14 @@ void gcep::editor::ContentBrowser::render()
 
 void gcep::editor::ContentBrowser::folderTable()
 {
-    int colNb = std::max(1, (int)(ImGui::GetContentRegionAvail().x / folderSize));
+    int colNb = std::max(1, (int)(ImGui::GetContentRegionAvail().x / m_folderSize));
 
     if (!ImGui::BeginTable("Folders", colNb)) return;
 
     bool needRefresh = false;
 
     renderBackButton();
-    for (auto& entry : directories)
+    for (auto& entry : m_directories)
     {
         ImGui::TableNextColumn();
         renderDirectoryEntry(entry);
@@ -43,7 +43,7 @@ void gcep::editor::ContentBrowser::folderTable()
 
     if (!needRefresh)
     {
-        for (auto& entry : files)
+        for (auto& entry : m_files)
         {
             ImGui::TableNextColumn();
             renderFileEntry(entry);
@@ -64,21 +64,25 @@ void gcep::editor::ContentBrowser::folderTable()
 
 void gcep::editor::ContentBrowser::refreshFolder()
 {
-    directories.clear();
-    files.clear();
+    if (!std::filesystem::is_directory(m_currentPath))
+    {
+        m_currentPath = m_rootPath;
+    }
+    m_directories.clear();
+    m_files.clear();
     for (auto& entry : std::filesystem::directory_iterator(m_currentPath))
     {
         if(entry.is_directory())
         {
-            directories.push_back(entry.path());
+            m_directories.push_back(entry.path());
         }
         else
         {
-           files.push_back(entry.path());
+           m_files.push_back(entry.path());
         }
     }
-    std::ranges::sort(directories, [](const std::filesystem::path& a, const std::filesystem::path& b){return a.filename().string() < b.filename().string();});
-    std::ranges::sort(files, [](const std::filesystem::path& a, const std::filesystem::path& b)
+    std::ranges::sort(m_directories, [](const std::filesystem::path& a, const std::filesystem::path& b){return a.filename().string() < b.filename().string();});
+    std::ranges::sort(m_files, [](const std::filesystem::path& a, const std::filesystem::path& b)
     {
         bool  isExt = (a.extension().string()  < b.extension().string());
         bool isName = (a.filename().string()  < b.filename().string());
@@ -137,21 +141,21 @@ bool gcep::editor::ContentBrowser::renderDropTarget(const std::filesystem::path&
 
 void gcep::editor::ContentBrowser::renderBackButton()
 {
-    if ( m_currentPath.string() == m_rootPath.string())
-    {
-        return ;
-    }
+    if (m_currentPath == m_rootPath)
+        return;
+
     ImGui::TableNextColumn();
     ImVec2 pos = ImGui::GetCursorPos();
-    if (ImGui::Selectable("##Back", false, 0, ImVec2(64, 80)))
+
+    ImGui::Selectable("##Back", false, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(64, 80));
+
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
-        m_selectedPath = m_currentPath.parent_path();;
-        if (ImGui::IsMouseDoubleClicked(0))
-        {
-            m_currentPath = m_currentPath.parent_path();
-            refreshFolder();
-        }
+        m_currentPath = m_currentPath.parent_path();
+        m_selectedPath.clear();
+        refreshFolder();
     }
+
     ImGui::SetCursorPos(pos);
     renderCenteredIcon(ICON_FA_BACKWARD);
     renderCenteredLabel("..");

@@ -20,16 +20,16 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager,bool& reload, bool& close)
-    : physicsSystem(PhysicsSystem::getInstance()),
-      reloadApp(reload),
-      closeApp(close),
-      m_contentBrowser(pl::project_loader::instance().getProjectInfo().contentPath)
+UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager, bool& reload, bool& close)
+    : m_physicsSystem(PhysicsSystem::getInstance()),
+      m_reloadApp(reload),
+      m_closeApp(close),
+      m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath)
 {
-    m_window    = window;
-    audioSystem = gcep::AudioSystem::getInstance();
+    m_window       = window;
+    m_audioSystem  = gcep::AudioSystem::getInstance();
     m_sceneManager = manager;
-    m_registry = &m_sceneManager->current().getRegistry();
+    m_registry     = &m_sceneManager->current().getRegistry();
     initConsole();
     Log::info("UiManager initialized successfully");
 }
@@ -40,40 +40,38 @@ UiManager::~UiManager()
     Log::info("UiManager destroyed");
 }
 
-void UiManager::setCamera(Camera *pCamera)
+void UiManager::setCamera(Camera* pCamera)
 {
-    cameraRef = pCamera;
+    m_cameraRef = pCamera;
 }
 
-void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
+void UiManager::setSceneManager(SLS::SceneManager* sceneManager)
 {
     m_sceneManager = sceneManager;
-    m_registry = &sceneManager->current().getRegistry();
-}
-
-void UiManager::setCurrentScenePath(const std::string& path)
-{
-    m_currentScenePath = path;
-
-    m_registry = &m_sceneManager->current().getRegistry();
+    m_registry     = &sceneManager->current().getRegistry();
 }
 
 void UiManager::setInfos(rhi::vulkan::InitInfos* infos)
 {
-    pRHI = infos->instance;
-    meshData = infos->meshData;
-    viewportTexture = infos->ds;
-    spotLights = &(pRHI->getLightSystem().getSpotLights());
-    pointLights = &(pRHI->getLightSystem().getPointLights());
+    m_pRHI          = infos->instance;
+    m_meshData      = infos->meshData;
+    m_viewportTexture = infos->ds;
+    m_spotLights    = &(m_pRHI->getLightSystem().getSpotLights());
+    m_pointLights   = &(m_pRHI->getLightSystem().getPointLights());
 }
 
-static bool DrawVec3Control(const std::string& label, Vector3<float>& values, float resetValue = 0.0f, float columnWidth = 100.0f) {
-    bool value_changed = false;
-    ImGuiIO& io = ImGui::GetIO();
-    auto boldFont = io.Fonts->Fonts[0];
+// ─────────────────────────────────────────────────────────────────────────────
+// Static helper — 3-component drag control
+// ─────────────────────────────────────────────────────────────────────────────
+
+static bool drawVec3Control(const std::string& label, Vector3<float>& values,
+                             float resetValue = 0.0f, float columnWidth = 100.0f)
+{
+    bool valueChanged = false;
+    ImGuiIO& io       = ImGui::GetIO();
+    auto boldFont     = io.Fonts->Fonts[0];
 
     ImGui::PushID(label.c_str());
-
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, columnWidth);
     ImGui::Text("%s", label.c_str());
@@ -86,66 +84,56 @@ static bool DrawVec3Control(const std::string& label, Vector3<float>& values, fl
     ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
     // X
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f,  1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
     ImGui::PushFont(boldFont);
-    if (ImGui::Button("X", buttonSize))
-    {
-        values.x = resetValue;
-        value_changed = true;
-    }
+    if (ImGui::Button("X", buttonSize)) { values.x = resetValue; valueChanged = true; }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
-
     ImGui::SameLine();
-    if(ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    if (ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f")) valueChanged = true;
     ImGui::PopItemWidth();
     ImGui::SameLine();
 
     // Y
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
     ImGui::PushFont(boldFont);
-    if (ImGui::Button("Y", buttonSize))
-    {
-        values.y = resetValue;
-        value_changed = true;
-    }
+    if (ImGui::Button("Y", buttonSize)) { values.y = resetValue; valueChanged = true; }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
-
     ImGui::SameLine();
-    if(ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    if (ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f")) valueChanged = true;
     ImGui::PopItemWidth();
     ImGui::SameLine();
 
     // Z
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
     ImGui::PushFont(boldFont);
-    if (ImGui::Button("Z", buttonSize))
-    {
-        values.z = resetValue;
-        value_changed = true;
-    }
+    if (ImGui::Button("Z", buttonSize)) { values.z = resetValue; valueChanged = true; }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
-
     ImGui::SameLine();
-    if(ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f")) value_changed = true;
+    if (ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f")) valueChanged = true;
     ImGui::PopItemWidth();
 
     ImGui::PopStyleVar();
     ImGui::Columns(1);
     ImGui::PopID();
 
-    return value_changed;
+    return valueChanged;
 }
 
-ImGuiViewport* UiManager::setupViewport() {
+// ─────────────────────────────────────────────────────────────────────────────
+// Init / shutdown helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+ImGuiViewport* UiManager::setupViewport()
+{
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -153,86 +141,81 @@ ImGuiViewport* UiManager::setupViewport() {
     return viewport;
 }
 
-ImGuiID UiManager::getDockspaceID() {
-    constexpr ImGuiWindowFlags hostFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-                                           ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                                           ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-                                           ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDocking;
+ImGuiID UiManager::getDockspaceID()
+{
+    constexpr ImGuiWindowFlags hostFlags =
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoMove     |
+        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDocking;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("DockSpaceHost", nullptr, hostFlags);
-    ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGuiID dockspaceId = ImGui::GetID("MainDockspace");
+    ImGui::DockSpace(dockspaceId, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
     drawMainMenuBar();
     ImGui::End();
     ImGui::PopStyleVar();
-    return dockspace_id;
+    return dockspaceId;
 }
 
-void UiManager::initDockspace(const ImGuiID& dockspace_id, const ImGuiViewport* viewport)
+void UiManager::initDockspace(const ImGuiID& dockspaceId, const ImGuiViewport* viewport)
 {
-    ImGui::DockBuilderRemoveNode(dockspace_id);
-    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
-    ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
+    ImGui::DockBuilderRemoveNode(dockspaceId);
+    ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->WorkSize);
 
-    // Main dockspace: left panel and a "main" area
-    ImGuiID dock_id_left, dock_id_main;
-    ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, &dock_id_left, &dock_id_main);
+    ImGuiID dockIdLeft, dockIdMain;
+    ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, &dockIdLeft, &dockIdMain);
 
-    // "main" area: right panel and a "center" area
-    ImGuiID dock_id_right, dock_id_center;
-    ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Right, 0.25f, &dock_id_right, &dock_id_center);
+    ImGuiID dockIdRight, dockIdCenter;
+    ImGui::DockBuilderSplitNode(dockIdMain, ImGuiDir_Right, 0.25f, &dockIdRight, &dockIdCenter);
 
-    // "center" area: viewport on top, console on bottom
-    ImGuiID dock_id_viewport, dock_id_bottom;
-    ImGui::DockBuilderSplitNode(dock_id_center, ImGuiDir_Down, 0.25f, &dock_id_bottom, &dock_id_viewport);
+    ImGuiID dockIdViewport, dockIdBottom;
+    ImGui::DockBuilderSplitNode(dockIdCenter, ImGuiDir_Down, 0.25f, &dockIdBottom, &dockIdViewport);
 
-    ImGuiID dock_id_console, dock_id_content;
-    ImGui::DockBuilderSplitNode(dock_id_bottom, ImGuiDir_Right, 0.6f, &dock_id_content, &dock_id_console);
+    ImGuiID dockIdConsole, dockIdContent;
+    ImGui::DockBuilderSplitNode(dockIdBottom, ImGuiDir_Right, 0.6f, &dockIdContent, &dockIdConsole);
 
-    // Left panel: hierarchy on top, properties on bottom
-    ImGuiID dock_id_hierarchy, dock_id_properties;
-    ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, &dock_id_properties, &dock_id_hierarchy);
+    ImGuiID dockIdHierarchy, dockIdProperties;
+    ImGui::DockBuilderSplitNode(dockIdLeft, ImGuiDir_Down, 0.5f, &dockIdProperties, &dockIdHierarchy);
 
-    // Dock windows
-    ImGui::DockBuilderDockWindow("Scene Hierarchy", dock_id_hierarchy);
-    ImGui::DockBuilderDockWindow("Entity properties", dock_id_properties);
-    ImGui::DockBuilderDockWindow("Audio control", dock_id_properties);
-    ImGui::DockBuilderDockWindow("Viewport", dock_id_viewport);
-    ImGui::DockBuilderDockWindow("Console", dock_id_console);
-    ImGui::DockBuilderDockWindow("ContentDrawer", dock_id_content);
+    ImGui::DockBuilderDockWindow("Scene Hierarchy",  dockIdHierarchy);
+    ImGui::DockBuilderDockWindow("Entity properties", dockIdProperties);
+    ImGui::DockBuilderDockWindow("Audio control",    dockIdProperties);
+    ImGui::DockBuilderDockWindow("Viewport",         dockIdViewport);
+    ImGui::DockBuilderDockWindow("Console",          dockIdConsole);
+    ImGui::DockBuilderDockWindow("ContentDrawer",    dockIdContent);
 
-    ImGui::DockBuilderGetNode(dock_id_viewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-
-    ImGui::DockBuilderFinish(dockspace_id);
+    ImGui::DockBuilderGetNode(dockIdViewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+    ImGui::DockBuilderFinish(dockspaceId);
 }
 
-void UiManager::initConsole() {
-    m_oldCout = std::cout.rdbuf();
+void UiManager::initConsole()
+{
+    m_oldCout       = std::cout.rdbuf();
     m_consoleBuffer = std::make_unique<ImGuiConsoleBuffer>(m_oldCout, m_consoleItems);
     std::cout.rdbuf(m_consoleBuffer.get());
     std::cerr.rdbuf(m_consoleBuffer.get());
 }
 
-
-
 void UiManager::shutdownConsole()
 {
     if (m_oldCout)
     {
-        std::cout << "Avant\n";
         std::cout.rdbuf(m_oldCout);
         std::cerr.rdbuf(m_oldCout);
         m_oldCout = nullptr;
-        std::cout <<  "Apres\n";
     }
-
     m_consoleBuffer.reset();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-frame
+// ─────────────────────────────────────────────────────────────────────────────
+
 void UiManager::beginFrame()
 {
-    // NewFrame déjà appelé par ImGuiManager — on configure juste ImGuizmo
     ImGuizmo::BeginFrame();
     handleGizmoInput();
 }
@@ -250,14 +233,13 @@ void UiManager::drawMainMenuBar()
             {
                 if (m_sceneManager && !m_currentScenePath.empty())
                 {
-                    pl::project_loader::instance().saveProject();
+                    pl::ProjectLoader::instance().saveProject();
                     m_sceneManager->current().save(m_currentScenePath);
                 }
             }
-
             if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
             {
-                closeApp = true;
+                m_closeApp = true;
             }
             ImGui::EndMenu();
         }
@@ -265,14 +247,13 @@ void UiManager::drawMainMenuBar()
         {
             ImGui::EndMenu();
         }
-        if(ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
+        if (ImGui::Button((std::string(ICON_FA_PLUS) + " Settings").c_str()))
         {
-            showSettings = !showSettings;
+            m_showSettings = !m_showSettings;
         }
-
-        if(ImGui::Button("Reload engine"))
+        if (ImGui::Button("Reload engine"))
         {
-            reloadApp = true;
+            m_reloadApp = true;
         }
         ImGui::EndMainMenuBar();
     }
@@ -280,11 +261,10 @@ void UiManager::drawMainMenuBar()
     ImGui::PopStyleVar();
 }
 
-
-
 void UiManager::drawViewport()
 {
-    ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
+    ImGui::Begin("Viewport", nullptr,
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
     {
         const ImGuiIO& io = ImGui::GetIO();
         ImGui::PushFont(io.Fonts->Fonts[0]);
@@ -293,9 +273,9 @@ void UiManager::drawViewport()
             if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
             {
                 m_simulationState = SimulationState::PLAYING;
-                pRHI->setSimulationStarted(true);
-                physicsSystem.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
-                physicsSystem.startSimulation();
+                m_pRHI->setSimulationStarted(true);
+                m_physicsSystem.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
+                m_physicsSystem.startSimulation();
             }
             ImGui::SameLine();
             if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
@@ -303,12 +283,12 @@ void UiManager::drawViewport()
                 if (m_simulationState == SimulationState::PLAYING)
                 {
                     m_simulationState = SimulationState::PAUSED;
-                    pRHI->setSimulationStarted(false);
+                    m_pRHI->setSimulationStarted(false);
                 }
                 else if (m_simulationState == SimulationState::PAUSED)
                 {
                     m_simulationState = SimulationState::PLAYING;
-                    pRHI->setSimulationStarted(true);
+                    m_pRHI->setSimulationStarted(true);
                 }
             }
             ImGui::SameLine();
@@ -316,8 +296,8 @@ void UiManager::drawViewport()
                 && m_simulationState != SimulationState::STOPPED)
             {
                 m_simulationState = SimulationState::STOPPED;
-                pRHI->setSimulationStarted(false);
-                physicsSystem.stopSimulation();
+                m_pRHI->setSimulationStarted(false);
+                m_physicsSystem.stopSimulation();
             }
             ImGui::SameLine();
             std::string simStatus = "Simulation status: ";
@@ -331,46 +311,45 @@ void UiManager::drawViewport()
         }
         ImGui::EndMenuBar();
         ImGui::PopFont();
+
         if (m_simulationState == SimulationState::PLAYING)
         {
             auto& registry = SLS::SceneManager::instance().current().getRegistry();
-           //scriptSystem.update(&registry, io.DeltaTime);
-            physicsSystem.update(io.DeltaTime);
+            m_physicsSystem.update(io.DeltaTime);
         }
 
         ImVec2 availSize = ImGui::GetContentRegionAvail();
 
-        // Check if viewport size changed (with a small threshold to avoid floating point issues)
         bool sizeChanged = std::abs(availSize.x - m_viewportSize.x) > 1.0f ||
                            std::abs(availSize.y - m_viewportSize.y) > 1.0f;
 
         if (sizeChanged && availSize.x > 0 && availSize.y > 0)
         {
             m_viewportSize = availSize;
-            pRHI->requestOffscreenResize(
+            m_pRHI->requestOffscreenResize(
                 static_cast<uint32_t>(availSize.x),
                 static_cast<uint32_t>(availSize.y)
             );
             goto loading;
         }
 
-        if (*viewportTexture != VK_NULL_HANDLE && availSize.x > 0 && availSize.y > 0)
+        if (*m_viewportTexture != VK_NULL_HANDLE && availSize.x > 0 && availSize.y > 0)
         {
-            ImGui::Image(reinterpret_cast<ImTextureID>(*viewportTexture), availSize);
+            ImGui::Image(reinterpret_cast<ImTextureID>(*m_viewportTexture), availSize);
         }
         else
         {
-            // Display placeholder text when no texture is available
             loading:
             ImGui::Text("Viewport loading...");
         }
-        ImVec2 windowPos = ImGui::GetWindowPos();
-        ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+
+        ImVec2 windowPos   = ImGui::GetWindowPos();
+        ImVec2 contentMin  = ImGui::GetWindowContentRegionMin();
         ImGuizmo::SetRect(
-                windowPos.x + contentMin.x,
-                windowPos.y + contentMin.y,
-                availSize.x,
-                availSize.y
+            windowPos.x + contentMin.x,
+            windowPos.y + contentMin.y,
+            availSize.x,
+            availSize.y
         );
 
         if (m_simulationState != SimulationState::PLAYING)
@@ -386,13 +365,14 @@ void UiManager::drawSettings()
     ImGui::Begin("Settings");
     {
         auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
-        auto& ps                     = pl::project_loader::instance().getSettings();
+        auto& ps       = pl::ProjectLoader::instance().getSettings();
 
-        bool vsyncState = pRHI->isVSync();
-        if (ImGui::Checkbox("V-Sync", &vsyncState)) {
-            pRHI->setVSync(!pRHI->isVSync());
-            ps.vsync = !pRHI->isVSync();
-            pl::project_loader::instance().markDirty();
+        bool vsyncState = m_pRHI->isVSync();
+        if (ImGui::Checkbox("V-Sync", &vsyncState))
+        {
+            m_pRHI->setVSync(!m_pRHI->isVSync());
+            ps.vsync = !m_pRHI->isVSync();
+            pl::ProjectLoader::instance().markDirty();
         }
 
         ImGui::SeparatorText("Scene infos");
@@ -401,54 +381,52 @@ void UiManager::drawSettings()
         {
             settings.clearColor = { ps.clearColor[0], ps.clearColor[1],
                                     ps.clearColor[2], ps.clearColor[3] };
-            pl::project_loader::instance().markDirty();
+            pl::ProjectLoader::instance().markDirty();
         }
 
-        ImGui::Text("Total entities : %d", meshData->size());
-        ImGui::Text("Entities drawn : %d", pRHI->getDrawCount());
+        ImGui::Text("Total entities : %d", m_meshData->size());
+        ImGui::Text("Entities drawn : %d", m_pRHI->getDrawCount());
 
         ImGui::SeparatorText("Camera");
-        if (ImGui::SliderFloat("Camera Speed", &ps.cameraSpeed, 1.0f, 20.0f)) {
-            camSpeed = ps.cameraSpeed;                     // ← sync local
-            pl::project_loader::instance().markDirty();
+        if (ImGui::SliderFloat("Camera Speed", &ps.cameraSpeed, 1.0f, 20.0f))
+        {
+            m_camSpeed = ps.cameraSpeed;
+            pl::ProjectLoader::instance().markDirty();
         }
 
         ImGui::SeparatorText("Scene light");
         if (ImGui::ColorEdit3("Ambient color", ps.ambientColor,
             ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
         {
-            settings.ambientColor = { ps.ambientColor[0], ps.ambientColor[1],
-                                      ps.ambientColor[2] };
-            pl::project_loader::instance().markDirty();
+            settings.ambientColor = { ps.ambientColor[0], ps.ambientColor[1], ps.ambientColor[2] };
+            pl::ProjectLoader::instance().markDirty();
         }
-
         if (ImGui::ColorEdit3("Light color", ps.lightColor,
             ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_PickerHueWheel))
         {
-            settings.lightColor = { ps.lightColor[0], ps.lightColor[1],
-                                    ps.lightColor[2] };
-            pl::project_loader::instance().markDirty();
+            settings.lightColor = { ps.lightColor[0], ps.lightColor[1], ps.lightColor[2] };
+            pl::ProjectLoader::instance().markDirty();
         }
-
-        if (ImGui::DragFloat3("Light direction", ps.lightDirection)) {
-            settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1],
-                                        ps.lightDirection[2] };
-            pl::project_loader::instance().markDirty();
+        if (ImGui::DragFloat3("Light direction", ps.lightDirection))
+        {
+            settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1], ps.lightDirection[2] };
+            pl::ProjectLoader::instance().markDirty();
         }
 
         ImGui::SeparatorText("Grid options");
-        if (ImGui::InputFloat("Cell size",     &ps.gridCellSize))     { sceneInfos.cellSize     = ps.gridCellSize;     pl::project_loader::instance().markDirty(); }
-        if (ImGui::InputFloat("Thick every",   &ps.gridThickEvery))   { sceneInfos.thickEvery   = ps.gridThickEvery;   pl::project_loader::instance().markDirty(); }
-        if (ImGui::InputFloat("Fade distance", &ps.gridFadeDistance)) { sceneInfos.fadeDistance = ps.gridFadeDistance; pl::project_loader::instance().markDirty(); }
-        if (ImGui::InputFloat("Line width",    &ps.gridLineWidth))    { sceneInfos.lineWidth    = ps.gridLineWidth;    pl::project_loader::instance().markDirty(); }
+        if (ImGui::InputFloat("Cell size",     &ps.gridCellSize))     { m_sceneInfos.cellSize     = ps.gridCellSize;     pl::ProjectLoader::instance().markDirty(); }
+        if (ImGui::InputFloat("Thick every",   &ps.gridThickEvery))   { m_sceneInfos.thickEvery   = ps.gridThickEvery;   pl::ProjectLoader::instance().markDirty(); }
+        if (ImGui::InputFloat("Fade distance", &ps.gridFadeDistance)) { m_sceneInfos.fadeDistance = ps.gridFadeDistance; pl::ProjectLoader::instance().markDirty(); }
+        if (ImGui::InputFloat("Line width",    &ps.gridLineWidth))    { m_sceneInfos.lineWidth    = ps.gridLineWidth;    pl::ProjectLoader::instance().markDirty(); }
 
         ImGui::SeparatorText("Temporal Anti-Aliasing");
-        if (ImGui::InputFloat("Blend alpha", &ps.taaBlendAlpha, 0.01f, 0.10f)) {
-            pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
-            pl::project_loader::instance().markDirty();
+        if (ImGui::InputFloat("Blend alpha", &ps.taaBlendAlpha, 0.01f, 0.10f))
+        {
+            m_pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
+            pl::ProjectLoader::instance().markDirty();
         }
 
-        auto& io = ImGui::GetIO();
+        const auto& io = ImGui::GetIO();
         ImGui::SeparatorText("Application infos");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
             1000.0f / io.Framerate, io.Framerate);
@@ -463,28 +441,26 @@ void UiManager::drawSceneHierarchy()
     {
         ImGui::SeparatorText("Add objects");
 
-        auto& scene = SLS::SceneManager::instance().current();
-        glm::vec3 frontOfCam = cameraRef->position + cameraRef->front * 4.0f;
+        auto& scene      = SLS::SceneManager::instance().current();
+        glm::vec3 frontOfCam = m_cameraRef->m_position + m_cameraRef->m_front * 4.0f;
 
         if (ImGui::BeginMenu("Add shape"))
         {
-            if (ImGui::MenuItem("Cone"))      editor::spawnCone     (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Cube"))      editor::spawnCube     (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Cylinder"))  editor::spawnCylinder (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Icosphere")) editor::spawnIcosphere(scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Sphere"))    editor::spawnSphere   (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Suzanne"))   editor::spawnSuzanne  (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Torus"))     editor::spawnTorus    (scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cone"))      editor::spawnCone     (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cube"))      editor::spawnCube     (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Cylinder"))  editor::spawnCylinder (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Icosphere")) editor::spawnIcosphere(scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Sphere"))    editor::spawnSphere   (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Suzanne"))   editor::spawnSuzanne  (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Torus"))     editor::spawnTorus    (scene, m_pRHI, frontOfCam);
             ImGui::EndMenu();
         }
-
         if (ImGui::BeginMenu("Add light"))
         {
-            if (ImGui::MenuItem("Spot light"))  editor::spawnSpotlight (scene, pRHI, frontOfCam);
-            if (ImGui::MenuItem("Point light")) editor::spawnPointLight(scene, pRHI, frontOfCam);
+            if (ImGui::MenuItem("Spot light"))  editor::spawnSpotLight (scene, m_pRHI, frontOfCam);
+            if (ImGui::MenuItem("Point light")) editor::spawnPointLight(scene, m_pRHI, frontOfCam);
             ImGui::EndMenu();
         }
-
         if (ImGui::Button("Add asset"))
         {
             const char* filters[] = { "*.obj", "*.gltf" };
@@ -492,42 +468,33 @@ void UiManager::drawSceneHierarchy()
                 std::filesystem::current_path().string().c_str(), 2, filters, "3D Object files", 0);
                 path != nullptr)
             {
-                editor::spawnAsset(scene, pRHI, path, frontOfCam);
+                editor::spawnAsset(scene, m_pRHI, path, frontOfCam);
             }
         }
 
         ImGui::SeparatorText("Scene tree");
         if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            for (const auto& entity : *meshData)
+            for (const auto& entity : *m_meshData)
             {
                 const bool selected = (m_selectedEntityID == entity.id);
-                std::string label = std::string(ICON_FA_CUBE) + " " + entity.name;
-
+                std::string label   = std::string(ICON_FA_CUBE) + " " + entity.name;
                 if (ImGui::Selectable(label.c_str(), selected))
-                {
                     m_selectedEntityID = entity.id;
-                }
             }
-            for(auto& point: *pointLights)
+            for (auto& point : *m_pointLights)
             {
                 const bool selected = (m_selectedEntityID == point.id);
-                std::string label = std::string(ICON_FA_LIGHTBULB_O) + " " + point.name;
-
+                std::string label   = std::string(ICON_FA_LIGHTBULB_O) + " " + point.name;
                 if (ImGui::Selectable(label.c_str(), selected))
-                {
                     m_selectedEntityID = point.id;
-                }
             }
-            for(auto& spot : *spotLights)
+            for (auto& spot : *m_spotLights)
             {
                 const bool selected = (m_selectedEntityID == spot.id);
-                std::string label = std::string(ICON_FA_LIGHTBULB_O) + " " + spot.name;
-
+                std::string label   = std::string(ICON_FA_LIGHTBULB_O) + " " + spot.name;
                 if (ImGui::Selectable(label.c_str(), selected))
-                {
                     m_selectedEntityID = spot.id;
-                }
             }
             ImGui::TreePop();
         }
@@ -536,21 +503,15 @@ void UiManager::drawSceneHierarchy()
         {
             if (ImGui::Button("Remove selected") || ImGui::IsKeyPressed(ImGuiKey_Delete))
             {
-                bool isMesh  = (std::ranges::find_if(*meshData,    [&](const rhi::vulkan::Mesh& m)      { return m.id == m_selectedEntityID; })) != meshData->end();
-                bool isSpot  = (std::ranges::find_if(*spotLights,  [&](const rhi::vulkan::SpotLight& m) { return m.id == m_selectedEntityID; })) != spotLights->end();
-                bool isPoint = (std::ranges::find_if(*pointLights, [&](const rhi::vulkan::PointLight& m){ return m.id == m_selectedEntityID; })) != pointLights->end();
-                if(isMesh)
-                {
-                    pRHI->removeMesh(m_selectedEntityID);
-                }
-                else if(isSpot)
-                {
-                    pRHI->getLightSystem().removeSpotLight(m_selectedEntityID);
-                }
-                else if(isPoint)
-                {
-                    pRHI->getLightSystem().removePointLight(m_selectedEntityID);
-                }
+                bool isMesh  = std::ranges::find_if(*m_meshData,    [&](const rhi::vulkan::Mesh& m)       { return m.id == m_selectedEntityID; }) != m_meshData->end();
+                bool isSpot  = std::ranges::find_if(*m_spotLights,  [&](const rhi::vulkan::SpotLight& m)  { return m.id == m_selectedEntityID; }) != m_spotLights->end();
+                bool isPoint = std::ranges::find_if(*m_pointLights, [&](const rhi::vulkan::PointLight& m) { return m.id == m_selectedEntityID; }) != m_pointLights->end();
+                if (isMesh)
+                    m_pRHI->removeMesh(m_selectedEntityID);
+                else if (isSpot)
+                    m_pRHI->getLightSystem().removeSpotLight(m_selectedEntityID);
+                else if (isPoint)
+                    m_pRHI->getLightSystem().removePointLight(m_selectedEntityID);
                 scene.destroyEntity(m_selectedEntityID);
                 m_selectedEntityID = ECS::INVALID_VALUE;
             }
@@ -569,7 +530,7 @@ void UiManager::drawEntityProperties()
     auto& scene    = SLS::SceneManager::instance().current();
     auto& registry = scene.getRegistry();
 
-    for (auto& entity : *meshData)
+    for (auto& entity : *m_meshData)
     {
         entity.transform = registry.getComponent<ECS::Transform>(entity.id);
         entity.transform.rotation.Normalize();
@@ -585,27 +546,20 @@ void UiManager::drawEntityProperties()
             return;
         }
 
-        rhi::vulkan::Mesh* mesh = pRHI->findMesh(m_selectedEntityID);
-        rhi::vulkan::SpotLight* spot = pRHI->getLightSystem().findSpotLight(m_selectedEntityID);
-        rhi::vulkan::PointLight* point = pRHI->getLightSystem().findPointLight(m_selectedEntityID);
+        rhi::vulkan::Mesh*       mesh  = m_pRHI->findMesh(m_selectedEntityID);
+        rhi::vulkan::SpotLight*  spot  = m_pRHI->getLightSystem().findSpotLight(m_selectedEntityID);
+        rhi::vulkan::PointLight* point = m_pRHI->getLightSystem().findPointLight(m_selectedEntityID);
+
         if (!mesh && !spot && !point)
         {
             m_selectedEntityID = ECS::INVALID_VALUE;
             ImGui::End();
             return;
         }
-        else if(mesh != nullptr)
-        {
-            showMeshInfos(mesh);
-        }
-        else if(spot != nullptr)
-        {
-            showSpotLightInfos(spot);
-        }
-        else if(point != nullptr)
-        {
-            showPointLightInfos(point);
-        }
+        else if (mesh  != nullptr) { showMeshInfos(mesh);        }
+        else if (spot  != nullptr) { showSpotLightInfos(spot);   }
+        else if (point != nullptr) { showPointLightInfos(point); }
+
         if (m_simulationState != SimulationState::PLAYING)
         {
             ImGui::SeparatorText("Gizmo controls");
@@ -619,38 +573,33 @@ void UiManager::showMeshInfos(rhi::vulkan::Mesh* mesh)
 {
     auto& scene    = SLS::SceneManager::instance().current();
     auto& registry = scene.getRegistry();
+    auto& tc       = registry.getComponent<ECS::Transform>(m_selectedEntityID);
+    auto& physics  = registry.getComponent<ECS::PhysicsComponent>(m_selectedEntityID);
 
-    auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
-    auto& physics = registry.getComponent<ECS::PhysicsComponent>(m_selectedEntityID);
-
-    // Name
     char buffer[256];
     strncpy(buffer, mesh->name.c_str(), sizeof(buffer));
     if (ImGui::InputText("Name", buffer, sizeof(buffer)))
         mesh->name = std::string(buffer);
 
     ImGui::SeparatorText("Transform");
-
-    DrawVec3Control("Position", tc.position);
-    if (DrawVec3Control("Rotation", tc.eulerRadians)
+    drawVec3Control("Position", tc.position);
+    if (drawVec3Control("Rotation", tc.eulerRadians)
         && m_simulationState != SimulationState::PLAYING)
     {
         glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
         tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
     }
-    DrawVec3Control("Scale", tc.scale);
+    drawVec3Control("Scale", tc.scale);
 
     ImGui::SeparatorText("Texture");
-
     if (ImGui::Button("Add texture"))
     {
         const char* filters[] = { "*.png", "*.jpg", "*.jpeg" };
         char* path = tinyfd_openFileDialog("Choose a texture",
             std::filesystem::current_path().string().c_str(), 3, filters, "Image files", 0);
         if (path)
-            pRHI->uploadTexture(m_selectedEntityID, path, false);
+            m_pRHI->uploadTexture(m_selectedEntityID, path, false);
     }
-
     if (mesh->hasTexture() && mesh->hasMipmaps())
     {
         static float lodLevel = 0.0f;
@@ -659,7 +608,6 @@ void UiManager::showMeshInfos(rhi::vulkan::Mesh* mesh)
     }
 
     ImGui::SeparatorText("Physics");
-
     const char* motionTypeLabels[] = { "Static", "Dynamic", "Kinematic" };
     const char* layerLabels[]      = { "Non moving", "Moving" };
     const char* bodyShapes[]       = { "Cube", "Sphere", "Cylinder", "Capsule" };
@@ -699,8 +647,8 @@ void UiManager::showMeshInfos(rhi::vulkan::Mesh* mesh)
             std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
                                       std::istreambuf_iterator<char>());
 
-            const std::string scriptName    = "Script" + std::to_string(mesh->id);
-            const std::string placeholder   = "SCRIPT_NAME";
+            const std::string scriptName  = "Script" + std::to_string(mesh->id);
+            const std::string placeholder = "SCRIPT_NAME";
             auto pos = modelContent.find(placeholder);
             if (pos != std::string::npos)
                 modelContent.replace(pos, placeholder.size(), scriptName);
@@ -721,120 +669,82 @@ void UiManager::showMeshInfos(rhi::vulkan::Mesh* mesh)
     ImGui::PopFont();
 }
 
-void UiManager::showSpotLightInfos(rhi::vulkan::SpotLight *spot)
+void UiManager::showSpotLightInfos(rhi::vulkan::SpotLight* spot)
 {
-    // Name
     char buffer[256];
     strncpy(buffer, spot->name.c_str(), sizeof(buffer));
     if (ImGui::InputText("Name", buffer, sizeof(buffer)))
         spot->name = std::string(buffer);
 
     ImGui::SeparatorText("Transform");
-    if(DrawVec3Control("Position", spot->position))
-    {
-        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).position = spot->position;
-    }
-    if(DrawVec3Control("Direction", spot->direction))
-    {
+    if (drawVec3Control("Position",  spot->position))
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).position  = spot->position;
+    if (drawVec3Control("Direction", spot->direction))
         m_registry->getComponent<ECS::SpotLightComponent>(spot->id).direction = spot->direction;
-    }
-    if(DrawVec3Control("Color", spot->color))
-    {
-        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).color = spot->color;
-    }
-    if(ImGui::SliderFloat("Intensity", &spot->intensity, 0.0f, 5.0f))
-    {
-        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).intensity = spot->intensity;
-    }
-    if(ImGui::SliderFloat("Radius", &spot->radius, 0.0f, 100.0f))
-    {
-        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).radius = spot->radius;
-    }
-    if(ImGui::SliderFloat("Inner cut-off degrees", &spot->innerCutoffDeg, 0.0f, 89.0f))
-    {
+    if (drawVec3Control("Color",     spot->color))
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).color     = spot->color;
+    if (ImGui::SliderFloat("Intensity",            &spot->intensity,     0.0f,  5.0f))
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).intensity     = spot->intensity;
+    if (ImGui::SliderFloat("Radius",               &spot->radius,        0.0f, 100.0f))
+        m_registry->getComponent<ECS::SpotLightComponent>(spot->id).radius        = spot->radius;
+    if (ImGui::SliderFloat("Inner cut-off degrees",&spot->innerCutoffDeg, 0.0f, 89.0f))
         m_registry->getComponent<ECS::SpotLightComponent>(spot->id).innerCutoffDeg = spot->innerCutoffDeg;
-    }
-    if(ImGui::SliderFloat("Outer cut-off degrees", &spot->outerCutoffDeg, 0.0f, 90.0f))
-    {
+    if (ImGui::SliderFloat("Outer cut-off degrees",&spot->outerCutoffDeg, 0.0f, 90.0f))
         m_registry->getComponent<ECS::SpotLightComponent>(spot->id).outerCutoffDeg = spot->outerCutoffDeg;
-    }
-    if(ImGui::Checkbox("Show gizmo", &spot->showGizmo))
-    {
+    if (ImGui::Checkbox("Show gizmo", &spot->showGizmo))
         m_registry->getComponent<ECS::SpotLightComponent>(spot->id).showGizmo = spot->showGizmo;
-    }
 }
 
-void UiManager::showPointLightInfos(rhi::vulkan::PointLight *point)
+void UiManager::showPointLightInfos(rhi::vulkan::PointLight* point)
 {
-    // Name
     char buffer[256];
     strncpy(buffer, point->name.c_str(), sizeof(buffer));
     if (ImGui::InputText("Name", buffer, sizeof(buffer)))
         point->name = std::string(buffer);
 
     ImGui::SeparatorText("Transform");
-    if(DrawVec3Control("Position", point->position))
-    {
+    if (drawVec3Control("Position", point->position))
         m_registry->getComponent<ECS::PointLightComponent>(point->id).position = point->position;
-    }
-    if(DrawVec3Control("Color", point->color))
-    {
-        m_registry->getComponent<ECS::PointLightComponent>(point->id).color = point->color;
-    }
-    if(ImGui::SliderFloat("Intensity", &point->intensity, 0.0f, 5.0f))
-    {
+    if (drawVec3Control("Color",    point->color))
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).color    = point->color;
+    if (ImGui::SliderFloat("Intensity", &point->intensity, 0.0f, 5.0f))
         m_registry->getComponent<ECS::PointLightComponent>(point->id).intensity = point->intensity;
-    }
-    if(ImGui::SliderFloat("Radius", &point->radius, 0.0f, 100.0f))
-    {
-        m_registry->getComponent<ECS::PointLightComponent>(point->id).radius = point->radius;
-    }
+    if (ImGui::SliderFloat("Radius",    &point->radius,    0.0f, 100.0f))
+        m_registry->getComponent<ECS::PointLightComponent>(point->id).radius    = point->radius;
 }
 
 void UiManager::drawAudioControl()
 {
     ImGui::Begin("Audio control");
     {
-        audioSystem->update();
+        m_audioSystem->update();
         int i = 0;
-        for(auto& source : audioSources)
+        for (auto& source : m_audioSources)
         {
-            bool isPlaying = source->isPlaying();
-            bool isLooping = source->isLooping();
+            bool isPlaying     = source->isPlaying();
+            bool isLooping     = source->isLooping();
             bool isSpatialized = source->isSpatialized();
-            DrawVec3Control(std::string("Audio source " + std::to_string(i)).c_str(), source->getPosition());
-            if(ImGui::Checkbox("Play", &isPlaying))
+            drawVec3Control(std::string("Audio source " + std::to_string(i)).c_str(), source->getPosition());
+            if (ImGui::Checkbox("Play", &isPlaying))
             {
-                if(source->isPlaying())
-                {
-                    source->pause();
-                }
-                else
-                {
-                    source->play();
-                }
+                if (source->isPlaying()) source->pause();
+                else                     source->play();
             }
-            if(ImGui::Checkbox("Loop", &isLooping))
-            {
-                source->setLooping(!source->isLooping());
-            }
-            if(ImGui::Checkbox("Spatialize", &isSpatialized))
-            {
-                source->setSpatialized(!source->isSpatialized());
-            }
+            if (ImGui::Checkbox("Loop",       &isLooping))     source->setLooping(!source->isLooping());
+            if (ImGui::Checkbox("Spatialize", &isSpatialized)) source->setSpatialized(!source->isSpatialized());
             i++;
         }
         ImGui::SeparatorText("Options");
-        if(ImGui::Button("Add audio source"))
+        if (ImGui::Button("Add audio source"))
         {
-            const char* filters[] = { "*.mp3", "*.wav", "*.flac"};
-
-            auto path = tinyfd_openFileDialog("Add an audio source", std::filesystem::current_path().string().c_str(), 3, filters, "Audio files", 0);
-            if(path != nullptr)
+            const char* filters[] = { "*.mp3", "*.wav", "*.flac" };
+            auto path = tinyfd_openFileDialog("Add an audio source",
+                std::filesystem::current_path().string().c_str(), 3, filters, "Audio files", 0);
+            if (path != nullptr)
             {
-                audioSources.push_back(audioSystem->loadAudio(path));
-                audioSources.back()->setVolume(1.f);
-                audioSources.back()->setPitch(1.f);
+                m_audioSources.push_back(m_audioSystem->loadAudio(path));
+                m_audioSources.back()->setVolume(1.f);
+                m_audioSources.back()->setPitch(1.f);
             }
         }
     }
@@ -844,104 +754,84 @@ void UiManager::drawAudioControl()
 void UiManager::drawConsole()
 {
     static char inputBuffer[256];
-    static bool autoScroll = true;
+    static bool autoScroll     = true;
     static bool scrollToBottom = false;
+
     ImGui::Begin("Console");
     {
-        if (ImGui::SmallButton("Clear"))
-        {
-            m_consoleItems.clear();
-        }
+        if (ImGui::SmallButton("Clear"))  m_consoleItems.clear();
         ImGui::SameLine();
         bool copyToClipboard = ImGui::SmallButton("Copy");
 
-        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
+        const float footerHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerHeight),
+            ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
         {
             if (ImGui::BeginPopupContextWindow())
             {
-                if (ImGui::Selectable("Clear"))
-                {
-                    m_consoleItems.clear();
-                }
+                if (ImGui::Selectable("Clear")) m_consoleItems.clear();
                 ImGui::EndPopup();
             }
 
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
-            if (copyToClipboard)
-            {
-                ImGui::LogToClipboard();
-            }
-            for (const auto& item : m_consoleItems)
-            {
-                ImGui::TextUnformatted(item.c_str());
-            }
-            if (copyToClipboard)
-            {
-                ImGui::LogFinish();
-            }
+            if (copyToClipboard) ImGui::LogToClipboard();
 
+            for (const auto& item : m_consoleItems)
+                ImGui::TextUnformatted(item.c_str());
+
+            if (copyToClipboard)    ImGui::LogFinish();
             if (scrollToBottom || (autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
                 ImGui::SetScrollHereY(1.0f);
             scrollToBottom = false;
-
             ImGui::PopStyleVar();
         }
         ImGui::EndChild();
         ImGui::Separator();
 
-        // Command-line
         bool reclaimFocus = false;
-        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll;
+        ImGuiInputTextFlags inputTextFlags =
+            ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll;
         if (ImGui::InputText("Input", inputBuffer, IM_COUNTOF(inputBuffer), inputTextFlags))
         {
             m_consoleItems.emplace_back(inputBuffer);
             inputBuffer[0] = '\0';
-            reclaimFocus = true;
+            reclaimFocus   = true;
         }
-
         ImGui::SetItemDefaultFocus();
-        if (reclaimFocus)
-        {
-            ImGui::SetKeyboardFocusHere(-1);
-        }
+        if (reclaimFocus) ImGui::SetKeyboardFocusHere(-1);
     }
     ImGui::End();
 }
 
 void UiManager::drawBottomBar()
 {
-    constexpr ImGuiWindowFlags window_flags =
+    constexpr ImGuiWindowFlags windowFlags =
         ImGuiWindowFlags_NoScrollbar |
         ImGuiWindowFlags_NoSavedSettings |
         ImGuiWindowFlags_MenuBar;
 
     const float height = ImGui::GetFrameHeight();
-
-    // Position the status bar at the bottom of the main viewport
-    if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(), ImGuiDir_Down, height, window_flags))
+    if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(),
+        ImGuiDir_Down, height, windowFlags))
     {
         if (ImGui::BeginMenuBar())
         {
-            // --- Left Side: Engine Info ---
             ImGui::Text(config::engineName.data());
             ImGui::SameLine();
             ImGui::Text(config::engineVersion.data());
             ImGui::SameLine();
 
-            // --- Right Side: All those texts ---
             constexpr float internPadding = 8.0f;
             std::string rightText = std::string(config::buildType) +
                                     " [" + config::architecture.data() + "] | " +
                                     config::platform.data();
 
             float rightTextWidth = ImGui::CalcTextSize(rightText.c_str()).x;
-            float avail = ImGui::GetContentRegionAvail().x;
-            float align_pos = ImGui::GetCursorPosX() + avail - rightTextWidth - internPadding;
+            float avail          = ImGui::GetContentRegionAvail().x;
+            float alignPos       = ImGui::GetCursorPosX() + avail - rightTextWidth - internPadding;
 
-            ImGui::SameLine(align_pos);
+            ImGui::SameLine(alignPos);
             ImGui::Text("%s", rightText.c_str());
-
             ImGui::EndMenuBar();
         }
         ImGui::End();
@@ -957,19 +847,17 @@ void UiManager::uiUpdate()
 
     beginFrame();
 
-    const ImGuiViewport* viewport = setupViewport();
-    const ImGuiID dockspace_id = getDockspaceID();
+    const ImGuiViewport* viewport   = setupViewport();
+    const ImGuiID        dockspaceId = getDockspaceID();
     static bool dockspaceInitialized = false;
-    if (!dockspaceInitialized) {
-        initDockspace(dockspace_id, viewport);
+    if (!dockspaceInitialized)
+    {
+        initDockspace(dockspaceId, viewport);
         dockspaceInitialized = true;
     }
 
     drawViewport();
-    if(showSettings)
-    {
-        drawSettings();
-    }
+    if (m_showSettings) drawSettings();
     drawSceneHierarchy();
     drawEntityProperties();
     drawAudioControl();
@@ -977,75 +865,57 @@ void UiManager::uiUpdate()
     drawBottomBar();
     m_contentBrowser.render();
 
-    if (showDemoWindow)
-    {
-        ImGui::ShowDemoWindow(&showDemoWindow);
-    }
-    auto& settings            = SLS::SceneManager::instance().current().getSceneSettings();
-    sceneInfos.clearColor     = { settings.clearColor.x,     settings.clearColor.y,     settings.clearColor.z,     settings.clearColor.w };
-    sceneInfos.ambientColor   = { settings.ambientColor.x,   settings.ambientColor.y,   settings.ambientColor.z   };
-    sceneInfos.lightColor     = { settings.lightColor.x,     settings.lightColor.y,     settings.lightColor.z     };
-    sceneInfos.lightDirection = { settings.lightDirection.x, settings.lightDirection.y, settings.lightDirection.z };
+    if (m_showDemoWindow)
+        ImGui::ShowDemoWindow(&m_showDemoWindow);
 
-    pRHI->updateSceneUBO(&sceneInfos, cameraRef->position);
-    if(m_viewportSize.x != 0 && m_viewportSize.y != 0)
+    auto& settings            = SLS::SceneManager::instance().current().getSceneSettings();
+    m_sceneInfos.clearColor     = { settings.clearColor.x,     settings.clearColor.y,     settings.clearColor.z,     settings.clearColor.w };
+    m_sceneInfos.ambientColor   = { settings.ambientColor.x,   settings.ambientColor.y,   settings.ambientColor.z   };
+    m_sceneInfos.lightColor     = { settings.lightColor.x,     settings.lightColor.y,     settings.lightColor.z     };
+    m_sceneInfos.lightDirection = { settings.lightDirection.x, settings.lightDirection.y, settings.lightDirection.z };
+
+    m_pRHI->updateSceneUBO(&m_sceneInfos, m_cameraRef->m_position);
+    if (m_viewportSize.x != 0 && m_viewportSize.y != 0)
     {
-        pRHI->updateCameraUBO(cameraRef->update(m_viewportSize.x / m_viewportSize.y, camSpeed));
+        m_pRHI->updateCameraUBO(m_cameraRef->update(m_viewportSize.x / m_viewportSize.y, m_camSpeed));
     }
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
     {
         if (m_sceneManager && !m_currentScenePath.empty())
-        {
             m_sceneManager->current().save(m_currentScenePath);
-        }
     }
 }
 
-
 void UiManager::applyLoadedSettings()
 {
-    auto& ps       = pl::project_loader::instance().getSettings();
+    auto& ps       = pl::ProjectLoader::instance().getSettings();
     auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
 
-    pRHI->setVSync(ps.vsync);
-    pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
+    m_pRHI->setVSync(ps.vsync);
+    m_pRHI->setTAABlendAlpha(ps.taaBlendAlpha);
 
-    settings.clearColor     = { ps.clearColor[0],     ps.clearColor[1],
-                                 ps.clearColor[2],     ps.clearColor[3] };
-    settings.ambientColor   = { ps.ambientColor[0],   ps.ambientColor[1],
-                                 ps.ambientColor[2]   };
-    settings.lightColor     = { ps.lightColor[0],     ps.lightColor[1],
-                                 ps.lightColor[2]     };
-    settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1],
-                                 ps.lightDirection[2] };
+    settings.clearColor     = { ps.clearColor[0],     ps.clearColor[1],     ps.clearColor[2],     ps.clearColor[3] };
+    settings.ambientColor   = { ps.ambientColor[0],   ps.ambientColor[1],   ps.ambientColor[2]   };
+    settings.lightColor     = { ps.lightColor[0],     ps.lightColor[1],     ps.lightColor[2]     };
+    settings.lightDirection = { ps.lightDirection[0], ps.lightDirection[1], ps.lightDirection[2] };
 
-    camSpeed                = ps.cameraSpeed;
-    sceneInfos.cellSize     = ps.gridCellSize;
-    sceneInfos.thickEvery   = ps.gridThickEvery;
-    sceneInfos.fadeDistance = ps.gridFadeDistance;
-    sceneInfos.lineWidth    = ps.gridLineWidth;
+    m_camSpeed              = ps.cameraSpeed;
+    m_sceneInfos.cellSize     = ps.gridCellSize;
+    m_sceneInfos.thickEvery   = ps.gridThickEvery;
+    m_sceneInfos.fadeDistance = ps.gridFadeDistance;
+    m_sceneInfos.lineWidth    = ps.gridLineWidth;
 }
 
 void UiManager::drawGizmoControls()
 {
     ImGui::Text("Gizmo");
 
-    const char* gizmoOpLabels[] =
-    {
-        "Translate (W)",
-        "Rotate (E)",
-        "Scale (R)"
-    };
-    const char* gizmoModeLabels[] =
-    {
-        "Local",
-        "World"
-    };
+    const char* gizmoOpLabels[]   = { "Translate (W)", "Rotate (E)", "Scale (R)" };
+    const char* gizmoModeLabels[] = { "Local", "World" };
 
     int currentMode = 0;
-    switch(m_currentGizmoMode)
+    switch (m_currentGizmoMode)
     {
-
         case ImGuizmo::LOCAL: currentMode = 0; break;
         case ImGuizmo::WORLD: currentMode = 1; break;
         default:                               break;
@@ -1070,42 +940,29 @@ void UiManager::drawGizmoControls()
             default:                                               break;
         }
     }
-    if(m_currentGizmoOperation != ImGuizmo::SCALE)
+
+    if (m_currentGizmoOperation != ImGuizmo::SCALE)
     {
         if (ImGui::Combo("Mode", &currentMode, gizmoModeLabels, IM_ARRAYSIZE(gizmoModeLabels)))
         {
             switch (currentMode)
             {
-                case 0:
-                    m_currentGizmoMode = ImGuizmo::LOCAL;
-                    break;
-                case 1:
-                    m_currentGizmoMode = ImGuizmo::WORLD;
-                    break;
-                default:
-                    break;
+                case 0: m_currentGizmoMode = ImGuizmo::LOCAL; break;
+                case 1: m_currentGizmoMode = ImGuizmo::WORLD; break;
+                default:                                      break;
             }
         }
     }
 
     ImGui::Checkbox("Snap", &m_useSnap);
-
-    // Afficher les contrôles de snapping selon l'opération courante
     if (m_useSnap)
     {
         switch (m_currentGizmoOperation)
         {
-        case ImGuizmo::TRANSLATE:
-            ImGui::DragFloat3("Snapping", m_snapTranslation);
-            break;
-        case ImGuizmo::ROTATE:
-            ImGui::DragFloat("Snap Rotation", &m_snapRotation, 1.0f, 0.0f, 360.0f);
-            break;
-        case ImGuizmo::SCALE:
-            ImGui::DragFloat("Snap Scale", &m_snapScale, 0.01f, 0.0f, 1.0f);
-            break;
-        default:
-            break;
+            case ImGuizmo::TRANSLATE: ImGui::DragFloat3("Snapping",    m_snapTranslation);                       break;
+            case ImGuizmo::ROTATE:    ImGui::DragFloat("Snap Rotation",&m_snapRotation, 1.0f, 0.0f, 360.0f);    break;
+            case ImGuizmo::SCALE:     ImGui::DragFloat("Snap Scale",   &m_snapScale,    0.01f, 0.0f, 1.0f);     break;
+            default:                                                                                              break;
         }
     }
 }
@@ -1114,15 +971,12 @@ void UiManager::handleGizmoInput()
 {
     if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) || ImGuizmo::IsUsing())
         return;
-    if(m_simulationState == SimulationState::PLAYING)
+    if (m_simulationState == SimulationState::PLAYING)
         return;
 
-    if (ImGui::IsKeyPressed(ImGuiKey_W))
-        m_currentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E))
-        m_currentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R))
-        m_currentGizmoOperation = ImGuizmo::SCALE;
+    if (ImGui::IsKeyPressed(ImGuiKey_W)) m_currentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_E)) m_currentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_R)) m_currentGizmoOperation = ImGuizmo::SCALE;
 }
 
 void UiManager::drawGizmo()
@@ -1130,78 +984,53 @@ void UiManager::drawGizmo()
     if (m_selectedEntityID == ECS::INVALID_VALUE)
         return;
 
-    auto it = std::ranges::find_if(*meshData, [&](const rhi::vulkan::Mesh& m){ return m.id == m_selectedEntityID; });
-    auto spotIt = std::ranges::find_if(*spotLights, [&](const rhi::vulkan::SpotLight& m){ return m.id == m_selectedEntityID; });
-    auto pointIt = std::ranges::find_if(*pointLights, [&](const rhi::vulkan::PointLight& m){ return m.id == m_selectedEntityID; });
+    auto it       = std::ranges::find_if(*m_meshData,    [&](const rhi::vulkan::Mesh& m)       { return m.id == m_selectedEntityID; });
+    auto spotIt   = std::ranges::find_if(*m_spotLights,  [&](const rhi::vulkan::SpotLight& m)  { return m.id == m_selectedEntityID; });
+    auto pointIt  = std::ranges::find_if(*m_pointLights, [&](const rhi::vulkan::PointLight& m) { return m.id == m_selectedEntityID; });
 
-    if (it == meshData->end() && spotIt == spotLights->end() && pointIt == pointLights->end())
+    if (it == m_meshData->end() && spotIt == m_spotLights->end() && pointIt == m_pointLights->end())
     {
         m_selectedEntityID = ECS::INVALID_VALUE;
         return;
     }
-    bool isLight = false;
-    if(spotIt != spotLights->end() || pointIt != pointLights->end())
-    {
-        isLight = true;
-    }
-    if(!isLight)
-    {
-        drawGizmoMesh(*it);
-    }
-    else
-    {
-        if(spotIt != spotLights->end())
-        {
-            drawGizmoSpotLight(*spotIt);
-        }
-        if(pointIt != pointLights->end())
-        {
-            drawGizmoPointLight(*pointIt);
-        }
-    }
+
+    if (spotIt != m_spotLights->end())   { drawGizmoSpotLight(*spotIt);   return; }
+    if (pointIt != m_pointLights->end()) { drawGizmoPointLight(*pointIt); return; }
+    drawGizmoMesh(*it);
 }
 
 void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
 {
-    glm::mat4 view = cameraRef->getViewMatrix();
-    glm::mat4 projection = cameraRef->getProjectionMatrix();
+    glm::mat4 view       = m_cameraRef->getViewMatrix();
+    glm::mat4 projection = m_cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
     glm::mat4 modelMatrix = selectedMesh.getTransform();
-
     float modelData[16];
     memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
 
-    float* snapPtr = nullptr;
-    float snapValues[3] = {};
+    float* snapPtr      = nullptr;
+    float  snapValues[3] = {};
     if (m_useSnap)
     {
         switch (m_currentGizmoOperation)
         {
-        case ImGuizmo::TRANSLATE:
-            memcpy(snapValues, m_snapTranslation, sizeof(snapValues));
-            break;
-        case ImGuizmo::ROTATE:
-            snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation;
-            break;
-        case ImGuizmo::SCALE:
-            snapValues[0] = snapValues[1] = snapValues[2] = m_snapScale;
-            break;
-        default: break;
+            case ImGuizmo::TRANSLATE: memcpy(snapValues, m_snapTranslation, sizeof(snapValues)); break;
+            case ImGuizmo::ROTATE:    snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation; break;
+            case ImGuizmo::SCALE:     snapValues[0] = snapValues[1] = snapValues[2] = m_snapScale;    break;
+            default: break;
         }
         snapPtr = snapValues;
     }
 
     auto& tc = SLS::SceneManager::instance().current().getRegistry().getComponent<ECS::Transform>(m_selectedEntityID);
-
     glm::vec3 oldRotation = { tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z };
     glm::vec3 oldScale    = { tc.scale.x,        tc.scale.y,        tc.scale.z        };
 
-    float deltaData[16];
+    float     deltaData[16];
     glm::mat4 identityDelta = glm::mat4(1.0f);
     memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
 
-    // Forcer LOCAL pour SCALE — le scale world n'est pas supporté par ImGuizmo
     ImGuizmo::MODE activeMode = (m_currentGizmoOperation == ImGuizmo::SCALE)
         ? ImGuizmo::LOCAL
         : m_currentGizmoMode;
@@ -1211,9 +1040,7 @@ void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
         glm::value_ptr(projection),
         m_currentGizmoOperation,
         activeMode,
-        modelData,
-        deltaData,
-        snapPtr
+        modelData, deltaData, snapPtr
     );
 
     if (!ImGuizmo::IsUsing())
@@ -1223,8 +1050,8 @@ void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
     memcpy(glm::value_ptr(newModel), modelData,  sizeof(float) * 16);
     memcpy(glm::value_ptr(delta),    deltaData,   sizeof(float) * 16);
 
-        switch (m_currentGizmoOperation)
-        {
+    switch (m_currentGizmoOperation)
+    {
         case ImGuizmo::TRANSLATE:
         {
             tc.position = { newModel[3].x, newModel[3].y, newModel[3].z };
@@ -1236,12 +1063,9 @@ void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
             glm::vec4 perspective;
             glm::quat rotation;
             glm::decompose(newModel, scale, rotation, position, skew, perspective);
-
-            tc.position = { position.x, position.y, position.z };
-            tc.rotation = Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
+            tc.position     = { position.x, position.y, position.z };
+            tc.rotation     = Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
             tc.rotation.Normalize();
-
-            // Optional editor display
             tc.eulerRadians = {
                 glm::eulerAngles(rotation).x,
                 glm::eulerAngles(rotation).y,
@@ -1251,13 +1075,12 @@ void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
         }
         case ImGuizmo::SCALE:
         {
-            glm::vec3 deltaScale =
-            {
+            glm::vec3 deltaScale = {
                 glm::length(glm::vec3(delta[0])),
                 glm::length(glm::vec3(delta[1])),
                 glm::length(glm::vec3(delta[2]))
             };
-            glm::vec3 newScale = oldScale * deltaScale;
+            glm::vec3 newScale  = oldScale * deltaScale;
             tc.scale        = { newScale.x,    newScale.y,    newScale.z    };
             tc.eulerRadians = { oldRotation.x, oldRotation.y, oldRotation.z };
             break;
@@ -1268,52 +1091,42 @@ void UiManager::drawGizmoMesh(rhi::vulkan::Mesh& selectedMesh)
 
 void UiManager::drawGizmoPointLight(rhi::vulkan::PointLight& selectedLight)
 {
-    glm::mat4 view       = cameraRef->getViewMatrix();
-    glm::mat4 projection = cameraRef->getProjectionMatrix();
+    glm::mat4 view       = m_cameraRef->getViewMatrix();
+    glm::mat4 projection = m_cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
     auto& pos = m_registry->getComponent<ECS::PointLightComponent>(selectedLight.id).position;
-
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
-        glm::vec3(pos.x, pos.y, pos.z));
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z));
 
     float modelData[16];
     memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
-
-    float deltaData[16];
+    float     deltaData[16];
     glm::mat4 identityDelta = glm::mat4(1.0f);
     memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
 
     ImGuizmo::Manipulate(
-        glm::value_ptr(view),
-        glm::value_ptr(projection),
-        ImGuizmo::TRANSLATE,
-        ImGuizmo::WORLD,
-        modelData,
-        deltaData,
-        nullptr
+        glm::value_ptr(view), glm::value_ptr(projection),
+        ImGuizmo::TRANSLATE, ImGuizmo::WORLD,
+        modelData, deltaData, nullptr
     );
 
-    if (!ImGuizmo::IsUsing())
-        return;
+    if (!ImGuizmo::IsUsing()) return;
 
     glm::mat4 newModel;
     memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
-
-    pos = { newModel[3].x, newModel[3].y, newModel[3].z };
+    pos                    = { newModel[3].x, newModel[3].y, newModel[3].z };
     selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
 }
 
 void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
 {
-    glm::mat4 view       = cameraRef->getViewMatrix();
-    glm::mat4 projection = cameraRef->getProjectionMatrix();
+    glm::mat4 view       = m_cameraRef->getViewMatrix();
+    glm::mat4 projection = m_cameraRef->getProjectionMatrix();
     projection[1][1] *= -1.0f;
 
     auto& oldDir = m_registry->getComponent<ECS::SpotLightComponent>(selectedLight.id).direction;
     auto& pos    = m_registry->getComponent<ECS::SpotLightComponent>(selectedLight.id).position;
     glm::vec3 dir = glm::normalize(glm::vec3(oldDir.x, oldDir.y, oldDir.z));
-    glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
 
     glm::quat orientQuat;
     if (glm::abs(glm::dot(dir, glm::vec3(0.0f, 1.0f, 0.0f))) < 0.999f)
@@ -1321,14 +1134,12 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
     else
         orientQuat = glm::quatLookAt(dir, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f),
-        glm::vec3(pos.x, pos.y, pos.z))
-        * glm::mat4_cast(orientQuat);
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z))
+                          * glm::mat4_cast(orientQuat);
 
     float modelData[16];
     memcpy(modelData, glm::value_ptr(modelMatrix), sizeof(float) * 16);
-
-    float deltaData[16];
+    float     deltaData[16];
     glm::mat4 identityDelta = glm::mat4(1.0f);
     memcpy(deltaData, glm::value_ptr(identityDelta), sizeof(float) * 16);
 
@@ -1336,64 +1147,53 @@ void UiManager::drawGizmoSpotLight(rhi::vulkan::SpotLight& selectedLight)
         ? ImGuizmo::LOCAL
         : m_currentGizmoMode;
 
-    float* snapPtr = nullptr;
-    float snapValues[3] = {};
+    float* snapPtr      = nullptr;
+    float  snapValues[3] = {};
     if (m_useSnap)
     {
         switch (m_currentGizmoOperation)
         {
-        case ImGuizmo::TRANSLATE:
-            memcpy(snapValues, m_snapTranslation, sizeof(snapValues));
-            break;
-        case ImGuizmo::ROTATE:
-            snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation;
-            break;
-        default: break;
+            case ImGuizmo::TRANSLATE: memcpy(snapValues, m_snapTranslation, sizeof(snapValues)); break;
+            case ImGuizmo::ROTATE:    snapValues[0] = snapValues[1] = snapValues[2] = m_snapRotation; break;
+            default: break;
         }
         snapPtr = snapValues;
     }
 
     ImGuizmo::Manipulate(
-        glm::value_ptr(view),
-        glm::value_ptr(projection),
+        glm::value_ptr(view), glm::value_ptr(projection),
         m_currentGizmoOperation == ImGuizmo::SCALE ? ImGuizmo::TRANSLATE : m_currentGizmoOperation,
-        activeMode,
-        modelData,
-        deltaData,
-        snapPtr
+        activeMode, modelData, deltaData, snapPtr
     );
 
-    if (!ImGuizmo::IsUsing())
-        return;
+    if (!ImGuizmo::IsUsing()) return;
 
     glm::mat4 newModel;
     memcpy(glm::value_ptr(newModel), modelData, sizeof(float) * 16);
 
     switch (m_currentGizmoOperation)
     {
-    case ImGuizmo::TRANSLATE:
-    {
-        pos = { newModel[3].x, newModel[3].y, newModel[3].z };
-        selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
-        break;
-    }
-    case ImGuizmo::ROTATE:
-    {
-        glm::vec3 position, scale, skew;
-        glm::vec4 perspective;
-        glm::quat rotation;
-        glm::decompose(newModel, scale, rotation, position, skew, perspective);
-
-        pos = { position.x, position.y, position.z };
-        selectedLight.position = { position.x, position.y, position.z };
-
-        glm::vec3 newDir = glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f));
-        oldDir = { newDir.x, newDir.y, newDir.z };
-        selectedLight.direction = { newDir.x, newDir.y, newDir.z };
-        break;
-    }
-    default: break;
+        case ImGuizmo::TRANSLATE:
+        {
+            pos                    = { newModel[3].x, newModel[3].y, newModel[3].z };
+            selectedLight.position = { newModel[3].x, newModel[3].y, newModel[3].z };
+            break;
+        }
+        case ImGuizmo::ROTATE:
+        {
+            glm::vec3 position, scale, skew;
+            glm::vec4 perspective;
+            glm::quat rotation;
+            glm::decompose(newModel, scale, rotation, position, skew, perspective);
+            pos                    = { position.x, position.y, position.z };
+            selectedLight.position = { position.x, position.y, position.z };
+            glm::vec3 newDir       = glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f));
+            oldDir                 = { newDir.x, newDir.y, newDir.z };
+            selectedLight.direction = { newDir.x, newDir.y, newDir.z };
+            break;
+        }
+        default: break;
     }
 }
 
-}
+} // namespace gcep

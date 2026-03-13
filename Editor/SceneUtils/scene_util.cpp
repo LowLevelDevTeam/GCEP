@@ -6,9 +6,24 @@
 namespace gcep::editor
 {
 
-// ============================================================================
-// spawnAsset — base commune
-// ============================================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Internal helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+static ECS::EntityID spawnLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
+                                rhi::vulkan::LightType type, glm::vec3 pos)
+{
+    std::string name = (type == rhi::vulkan::LightType::Point) ? "Point light " : "Spot light ";
+    name += std::to_string(std::time(nullptr));
+
+    const ECS::EntityID id = scene.createEntity(name);
+    rhi->spawnLight(type, id, pos);
+    return id;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Public — asset
+// ─────────────────────────────────────────────────────────────────────────────
 
 ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
                          const std::string& path, glm::vec3 pos)
@@ -27,20 +42,9 @@ ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
     return id;
 }
 
-ECS::EntityID spawnLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, rhi::vulkan::LightType type, glm::vec3 pos)
-{
-    // Temp to get unique name
-    std::string name = (type == rhi::vulkan::LightType::Point) ? "Point light " : "Spot light ";
-    name += std::to_string(std::time(nullptr));
-
-    const ECS::EntityID id = scene.createEntity(name);
-    rhi->spawnLight(type, id, pos);
-    return id;
-}
-
-// ============================================================================
-// Primitives
-// ============================================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Public — primitives
+// ─────────────────────────────────────────────────────────────────────────────
 
 ECS::EntityID spawnCube(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
@@ -49,29 +53,29 @@ ECS::EntityID spawnCube(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec
 
 ECS::EntityID spawnCone(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
-    auto id  = spawnAsset(scene, rhi, "Assets/Models/cone.obj", pos);
+    auto  id = spawnAsset(scene, rhi, "Assets/Models/cone.obj", pos);
     auto& tc = scene.getRegistry().getComponent<ECS::Transform>(id);
     tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
     glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation     = Quaternion(q.w, q.x, q.y, q.z);
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
     return id;
 }
 
 ECS::EntityID spawnCylinder(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
-    auto id  = spawnAsset(scene, rhi, "Assets/Models/cylinder.obj", pos);
+    auto  id = spawnAsset(scene, rhi, "Assets/Models/cylinder.obj", pos);
     auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
     pc.shapeType    = ECS::EShapeType::CYLINDER;
     auto& tc        = scene.getRegistry().getComponent<ECS::Transform>(id);
     tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
     glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation     = Quaternion(q.w, q.x, q.y, q.z);
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
     return id;
 }
 
 ECS::EntityID spawnIcosphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
-    auto id  = spawnAsset(scene, rhi, "Assets/Models/icosphere.obj", pos);
+    auto  id = spawnAsset(scene, rhi, "Assets/Models/icosphere.obj", pos);
     auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
     pc.shapeType = ECS::EShapeType::SPHERE;
     return id;
@@ -79,7 +83,7 @@ ECS::EntityID spawnIcosphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm
 
 ECS::EntityID spawnSphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
-    auto id  = spawnAsset(scene, rhi, "Assets/Models/sphere.obj", pos);
+    auto  id = spawnAsset(scene, rhi, "Assets/Models/sphere.obj", pos);
     auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
     pc.shapeType = ECS::EShapeType::SPHERE;
     return id;
@@ -87,11 +91,11 @@ ECS::EntityID spawnSphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::v
 
 ECS::EntityID spawnSuzanne(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
-    auto id  = spawnAsset(scene, rhi, "Assets/Models/suzanne.obj", pos);
+    auto  id = spawnAsset(scene, rhi, "Assets/Models/suzanne.obj", pos);
     auto& tc = scene.getRegistry().getComponent<ECS::Transform>(id);
     tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, glm::pi<float>() / 2.0f };
     glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-    tc.rotation     = Quaternion(q.w, q.x, q.y, q.z);
+    tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
     return id;
 }
 
@@ -100,13 +104,16 @@ ECS::EntityID spawnTorus(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::ve
     return spawnAsset(scene, rhi, "Assets/Models/torus.obj", pos);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Public — lights
+// ─────────────────────────────────────────────────────────────────────────────
 
 ECS::EntityID spawnPointLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
     return spawnLight(scene, rhi, rhi::vulkan::LightType::Point, pos);
 }
 
-ECS::EntityID spawnSpotlight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
+ECS::EntityID spawnSpotLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
 {
     return spawnLight(scene, rhi, rhi::vulkan::LightType::Spot, pos);
 }

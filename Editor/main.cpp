@@ -2,6 +2,6 @@
 
 int main()
 {
-    gcep::application app;
+    gcep::Application app;
     return app.run();
 }
