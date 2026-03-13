@@ -1,11 +1,11 @@
-#include "Inputs.hpp"
+#include "inputs.hpp"
 
 namespace gcep
 {
 
-InputSystem::InputSystem(GLFWwindow *window)
+InputSystem::InputSystem(GLFWwindow* window)
 {
-    windowRef = window;
+    m_windowRef = window;
 }
 
 void InputSystem::addTrackedKey(int key, std::function<void()> callback)
@@ -17,8 +17,8 @@ void InputSystem::update()
 {
     for (auto& [key, function] : m_trackedKeys)
     {
-        int state = glfwGetKey(windowRef, key);
-        int mouseState = glfwGetMouseButton(windowRef, key);
+        int state      = glfwGetKey(m_windowRef, key);
+        int mouseState = glfwGetMouseButton(m_windowRef, key);
         if (state == GLFW_PRESS)
         {
             function();
@@ -30,4 +30,4 @@ void InputSystem::update()
     }
 }
 
-} // Namespace gcep
+} // namespace gcep

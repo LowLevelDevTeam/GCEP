@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "window.hpp"
 #include <Log/Log.hpp>
 
 #define GLFW_INCLUDE_VULKAN
@@ -10,13 +10,12 @@ namespace gcep
 void Window::initWindow()
 {
     glfwInit();
-
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    const auto monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    const auto monitor          = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode     = glfwGetVideoMode(monitor);
 
-    const int WINDOW_WIDTH = mode->width / 2;
+    const int WINDOW_WIDTH  = mode->width  / 2;
     const int WINDOW_HEIGHT = mode->height / 2;
 
     m_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "GC Engine", nullptr, nullptr);
@@ -31,7 +30,7 @@ void Window::centerWindow()
     if (!monitor)
         return;
 
-    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     if (!mode)
         return;
 
@@ -40,8 +39,9 @@ void Window::centerWindow()
 
     int windowWidth, windowHeight;
     glfwGetWindowSize(m_window, &windowWidth, &windowHeight);
-    glfwSetWindowPos(m_window,
-        monitorX + (mode->width - windowWidth) / 2,
+    glfwSetWindowPos(
+        m_window,
+        monitorX + (mode->width  - windowWidth)  / 2,
         monitorY + (mode->height - windowHeight) / 2
     );
 }
@@ -68,4 +68,4 @@ Window::~Window()
     destroy();
 }
 
-} // Namespace gcep
+} // namespace gcep

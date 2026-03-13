@@ -1,22 +1,93 @@
 #pragma once
+
+/// @file scene_util.hpp
+/// @brief Helper functions for spawning primitive and asset entities into a scene.
+/// @authors Morgane Prevost, Dylan Hollemaert, Clément Bobeda, Najim Bakkali, Leo Grognet
+/// @version 1.4
+/// @date 2026-02-17
+
 #include <Engine/Core/Scene/header/scene.hpp>
 #include <Engine/RHI/Vulkan/VulkanRHI.hpp>
-#include <Externals/glm/glm/vec3.hpp>
 #include <Engine/Core/ECS/Components/components.hpp>
+#include <Engine/RHI/Mesh/Mesh.hpp>
 
-#include "Engine/RHI/Mesh/Mesh.hpp"
+#include <Externals/glm/glm/vec3.hpp>
 
 namespace gcep::editor
 {
-    ECS::EntityID spawnAsset     (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, const std::string& path, glm::vec3 pos);
-    ECS::EntityID spawnCube      (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnCone      (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnCylinder  (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnIcosphere (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnSphere    (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnSuzanne   (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnTorus     (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    // Lights
-    ECS::EntityID spawnPointLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-    ECS::EntityID spawnSpotlight (SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
-}
+
+/// @brief Spawns an external OBJ asset into @p scene at position @p pos.
+///
+/// Loads the mesh from @p path through the RHI, creates an ECS entity with
+/// a @c MeshComponent and a @c Transform initialised to @p pos, and registers
+/// the entity with the scene manager.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI used to upload the mesh data.
+/// @param path   Filesystem path to the OBJ (or supported mesh) file.
+/// @param pos    World-space position at which the asset is spawned.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
+                         const std::string& path, glm::vec3 pos);
+
+/// @brief Spawns a unit cube primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnCube(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns a cone primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnCone(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns a cylinder primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnCylinder(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns an icosphere primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnIcosphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns a UV sphere primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnSphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns the Suzanne (Blender monkey) mesh into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnSuzanne(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+/// @brief Spawns a torus primitive into @p scene at position @p pos.
+///
+/// @param scene  Target scene that will own the new entity.
+/// @param rhi    Pointer to the active Vulkan RHI.
+/// @param pos    World-space spawn position.
+/// @returns      The ECS entity ID of the newly created entity.
+ECS::EntityID spawnTorus(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+ECS::EntityID spawnPointLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+ECS::EntityID spawnSpotLight(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos);
+
+} // namespace gcep::editor

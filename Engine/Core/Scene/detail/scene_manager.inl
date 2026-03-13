@@ -17,7 +17,10 @@ namespace gcep::SLS
     inline Scene& SceneManager::current()
     {
         if (!m_currentScene)
-            throw std::runtime_error("SceneManager: no active Scene");
+        {
+            throw std::runtime_error("No current scene");
+        }
+
         return *m_currentScene;
     }
 
@@ -29,24 +32,20 @@ namespace gcep::SLS
     inline void SceneManager::loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
         m_currentScene = std::make_unique<Scene>();
-        std::cerr << "InLoading\n";
 
         if (std::filesystem::exists(path))
         {
-            std::cerr << "Loaded\n";
-
             m_currentScene->load(path, rhi);
         }
-
-
-        else{std::cerr << "NotLoaded\n";}
     }
 
     inline void SceneManager::registerScene(const std::string& path)
     {
         auto it = std::find(m_sceneList.begin(), m_sceneList.end(), path);
         if (it == m_sceneList.end())
+        {
             m_sceneList.push_back(path);
+        }
     }
 
     inline const std::vector<std::string>& SceneManager::getSceneList() const

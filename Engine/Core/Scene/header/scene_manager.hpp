@@ -11,19 +11,15 @@ namespace gcep::SLS
     public:
         static SceneManager& instance();
 
-        // ── Scène courante ────────────────────────────────────────────────
         Scene& current();
 
         void saveScene(const std::string &path);
 
-        // ── Chargement ────────────────────────────────────────────────────
         void loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi);
 
-        // ── Gestion des scènes connues ────────────────────────────────────
         void registerScene(const std::string& path);
         const std::vector<std::string>& getSceneList() const;
 
-        // ── Lifecycle ─────────────────────────────────────────────────────
         void update(float deltaTime);
 
 
