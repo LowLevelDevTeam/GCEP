@@ -1,0 +1,55 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Scene\+UBO Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o}{}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o}\index{gcep::rhi::vulkan::SceneUBO@{gcep::rhi::vulkan::SceneUBO}}
+
+
+Per-\/frame scene lighting and camera data uploaded to the scene UBO (set 2, binding 0).  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHIData\+Types.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_aa03972e957b699e56302290d8ea1988c}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_aa03972e957b699e56302290d8ea1988c} 
+glm::\+vec3 {\bfseries light\+Dir}
+\begin{DoxyCompactList}\small\item\em Normalized world-\/space direction pointing TOWARD the light source. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a9cea77acbbc8f728b4ffc07fc160a2f6}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a9cea77acbbc8f728b4ffc07fc160a2f6} 
+float {\bfseries cell\+Size} = 1.\+0f
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a67346eb68b4d29c9f1c372df6b5b61e3}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a67346eb68b4d29c9f1c372df6b5b61e3} 
+glm::\+vec3 {\bfseries light\+Color}
+\begin{DoxyCompactList}\small\item\em Linear RGB color and intensity of the directional light. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_ad747826de2f723dd5a46023945331cc9}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_ad747826de2f723dd5a46023945331cc9} 
+float {\bfseries thick\+Every} = 10.\+0f
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_aa5665a581d03ebad4e16b3560bbd8956}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_aa5665a581d03ebad4e16b3560bbd8956} 
+glm::\+vec3 {\bfseries ambient\+Color}
+\begin{DoxyCompactList}\small\item\em Linear RGB ambient term added to all fragments regardless of normal. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_abe98f6a28c74f969c9abe226c7f0223b}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_abe98f6a28c74f969c9abe226c7f0223b} 
+float {\bfseries fade\+Distance} = 100.\+0f
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a7ff0a6c8f3ed43ce56149c78e22b6112}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a7ff0a6c8f3ed43ce56149c78e22b6112} 
+glm::\+vec3 {\bfseries camera\+Pos}
+\begin{DoxyCompactList}\small\item\em World-\/space camera position used to compute the view vector V. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a4439614e74354989b1a79252335eafc0}\label{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o_a4439614e74354989b1a79252335eafc0} 
+float {\bfseries line\+Width} = 1.\+0f
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Per-\/frame scene lighting and camera data uploaded to the scene UBO (set 2, binding 0). 
+
+Consumed by the fragment shader for Blinn-\/\+Phong lighting:\+ ambient, diffuse, and specular contributions. {\ttfamily camera\+Pos} is used to compute the view vector for specular highlights.
+
+Must be kept byte-\/for-\/byte identical to the {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o}{Scene\+UBO}} struct in {\ttfamily Base\+\_\+\+Shader.\+slang}.
+
+\begin{DoxyNote}{Note}
+The four {\ttfamily float} padding fields are required to satisfy the std430/\+std140 alignment rule that {\ttfamily vec3} members must be padded to {\ttfamily vec4} boundaries inside a uniform or storage buffer. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHIData\+Types.\+hpp\end{DoxyCompactItemize}

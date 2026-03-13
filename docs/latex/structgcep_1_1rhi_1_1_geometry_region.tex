@@ -1,0 +1,37 @@
+\doxysection{gcep::\+rhi::\+Geometry\+Region Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1_geometry_region}{}\label{structgcep_1_1rhi_1_1_geometry_region}\index{gcep::rhi::GeometryRegion@{gcep::rhi::GeometryRegion}}
+
+
+Describes a single contiguous geometry region inside the global vertex and index buffers, shared by all mesh entities that loaded the same OBJ file.  
+
+
+
+
+{\ttfamily \+\#include $<$Mesh\+Cache.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1_geometry_region_acb23730489ae089a0749a14b35c66ca5}\label{structgcep_1_1rhi_1_1_geometry_region_acb23730489ae089a0749a14b35c66ca5} 
+uint32\+\_\+t {\bfseries vertex\+Offset} = 0
+\begin{DoxyCompactList}\small\item\em First vertex index inside the global vertex buffer. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1_geometry_region_a36bad128a51b64ac5b294aa9e11bf0bd}\label{structgcep_1_1rhi_1_1_geometry_region_a36bad128a51b64ac5b294aa9e11bf0bd} 
+uint32\+\_\+t {\bfseries first\+Index} = 0
+\begin{DoxyCompactList}\small\item\em First index inside the global index buffer. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1_geometry_region_acbf6022ba8f1121437cd38503ff9370a}\label{structgcep_1_1rhi_1_1_geometry_region_acbf6022ba8f1121437cd38503ff9370a} 
+uint32\+\_\+t {\bfseries vertex\+Count} = 0
+\begin{DoxyCompactList}\small\item\em Number of vertices in this region. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1_geometry_region_af08c01de6bd7a4322037ac32ee9b3471}\label{structgcep_1_1rhi_1_1_geometry_region_af08c01de6bd7a4322037ac32ee9b3471} 
+uint32\+\_\+t {\bfseries index\+Count} = 0
+\begin{DoxyCompactList}\small\item\em Number of indices in this region. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1_geometry_region_a053cb2bafd323de377f27ce935e4cf78}\label{structgcep_1_1rhi_1_1_geometry_region_a053cb2bafd323de377f27ce935e4cf78} 
+uint32\+\_\+t {\bfseries ref\+Count} = 0
+\begin{DoxyCompactList}\small\item\em Number of mesh entities currently sharing this region. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Describes a single contiguous geometry region inside the global vertex and index buffers, shared by all mesh entities that loaded the same OBJ file. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Mesh/\+Mesh\+Cache.\+hpp\end{DoxyCompactItemize}

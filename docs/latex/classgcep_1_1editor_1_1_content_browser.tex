@@ -1,0 +1,80 @@
+\doxysection{gcep::\+editor::\+Content\+Browser Class Reference}
+\hypertarget{classgcep_1_1editor_1_1_content_browser}{}\label{classgcep_1_1editor_1_1_content_browser}\index{gcep::editor::ContentBrowser@{gcep::editor::ContentBrowser}}
+
+
+Dear Im\+Gui panel that lets the user navigate the project\textquotesingle{}s content directory.  
+
+
+
+
+{\ttfamily \+\#include $<$content\+\_\+browser.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1editor_1_1_content_browser_a7212f9e71e1eb782098370353fec1b4b}{Content\+Browser}} (const std::\+filesystem::\+path \&default\+Path)
+\begin{DoxyCompactList}\small\item\em Constructs the browser rooted at {\ttfamily default\+Path}. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1editor_1_1_content_browser_adca49a0cae424f724509276862d17312}{render}} ()
+\begin{DoxyCompactList}\small\item\em Renders the complete content browser panel for the current frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Dear Im\+Gui panel that lets the user navigate the project\textquotesingle{}s content directory. 
+
+{\ttfamily \doxylink{classgcep_1_1editor_1_1_content_browser}{Content\+Browser}} renders a two-\/column table:\+ the left column shows sub-\/directories and the right column shows files. Each entry is drawn as a centred icon with a truncated label underneath. The user can:\+
+\begin{DoxyItemize}
+\item Double-\/click a directory to descend into it.
+\item Click the back button to ascend to the parent directory.
+\item Drag a file entry onto a drop target (e.\+g. the material slot of an entity).
+\item Receive a dropped path via {\ttfamily render\+Drop\+Target()}.
+\end{DoxyItemize}
+
+\begin{DoxyParagraph}{Root /\+ current path}
+The browser starts at {\ttfamily default\+Path} (passed to the constructor) and never ascends above it. {\ttfamily m\+\_\+root\+Path} is fixed at construction; {\ttfamily m\+\_\+current\+Path} changes as the user navigates.
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Ownership}
+{\ttfamily \doxylink{classgcep_1_1editor_1_1_content_browser}{Content\+Browser}} holds no heap resources beyond the {\ttfamily std::\+vector} caches that are refreshed on directory change. 
+\end{DoxyParagraph}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1editor_1_1_content_browser_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1editor_1_1_content_browser_a7212f9e71e1eb782098370353fec1b4b}\index{gcep::editor::ContentBrowser@{gcep::editor::ContentBrowser}!ContentBrowser@{ContentBrowser}}
+\index{ContentBrowser@{ContentBrowser}!gcep::editor::ContentBrowser@{gcep::editor::ContentBrowser}}
+\doxysubsubsection{\texorpdfstring{ContentBrowser()}{ContentBrowser()}}
+{\footnotesize\ttfamily \label{classgcep_1_1editor_1_1_content_browser_a7212f9e71e1eb782098370353fec1b4b} 
+gcep::\+editor::\+\+Content\+Browser::\+\+Content\+Browser (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{default\+Path}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Constructs the browser rooted at {\ttfamily default\+Path}. 
+
+Sets both {\ttfamily m\+\_\+root\+Path} and {\ttfamily m\+\_\+current\+Path} to {\ttfamily default\+Path}, then calls {\ttfamily refresh\+Folder()} to populate {\ttfamily directories} and {\ttfamily files}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em default\+Path} & Absolute path to the project\textquotesingle{}s content directory. Must exist and be readable. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1editor_1_1_content_browser_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1editor_1_1_content_browser_adca49a0cae424f724509276862d17312}\index{gcep::editor::ContentBrowser@{gcep::editor::ContentBrowser}!render@{render}}
+\index{render@{render}!gcep::editor::ContentBrowser@{gcep::editor::ContentBrowser}}
+\doxysubsubsection{\texorpdfstring{render()}{render()}}
+{\footnotesize\ttfamily \label{classgcep_1_1editor_1_1_content_browser_adca49a0cae424f724509276862d17312} 
+void gcep::\+editor::\+\+Content\+Browser::\+render (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Renders the complete content browser panel for the current frame. 
+
+Calls {\ttfamily render\+Back\+Button()}, then {\ttfamily folder\+Table()}. Must be called from within an active Dear Im\+Gui window. 
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Content\+Browser/\+\doxymbox{\hyperlink{content__browser_8hpp}{content\+\_\+browser.\+hpp}}\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Content\+Browser/\+content\+\_\+browser.\+cpp\end{DoxyCompactItemize}

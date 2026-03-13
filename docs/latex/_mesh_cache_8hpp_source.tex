@@ -1,0 +1,49 @@
+\doxysection{Mesh\+Cache.\+hpp}
+\hypertarget{_mesh_cache_8hpp_source}{}\label{_mesh_cache_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Mesh/MeshCache.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Mesh/MeshCache.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <filesystem>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }gcep::rhi}
+\DoxyCodeLine{00010\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00015\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{GeometryRegion}}}
+\DoxyCodeLine{00016\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ uint32\_t\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region_acb23730489ae089a0749a14b35c66ca5}{vertexOffset}}\ =\ 0;\ }
+\DoxyCodeLine{00018\ \ \ \ \ uint32\_t\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region_a36bad128a51b64ac5b294aa9e11bf0bd}{firstIndex}}\ \ \ =\ 0;\ }
+\DoxyCodeLine{00019\ \ \ \ \ uint32\_t\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region_acbf6022ba8f1121437cd38503ff9370a}{vertexCount}}\ \ =\ 0;\ }
+\DoxyCodeLine{00020\ \ \ \ \ uint32\_t\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region_af08c01de6bd7a4322037ac32ee9b3471}{indexCount}}\ \ \ =\ 0;\ }
+\DoxyCodeLine{00021\ \ \ \ \ uint32\_t\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region_a053cb2bafd323de377f27ce935e4cf78}{refCount}}\ \ \ \ \ =\ 0;\ }
+\DoxyCodeLine{00022\ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache}{MeshCache}}}
+\DoxyCodeLine{00029\ \{}
+\DoxyCodeLine{00030\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00033\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{GeometryRegion}}*\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_a172d44c67be45bef2e81fc5eb7e33be7}{find}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00040\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{GeometryRegion}}\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ac220ae6394250cb003c1b2086f5fc570}{insert}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path,\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{GeometryRegion}}\ region);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00044\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{GeometryRegion}}\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_a43ad71aff0d3247cc545325b6d30e560}{addRef}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ad215df694df45de74e51ee149edd62be}{release}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ac734e1de7bda25a287a54372745d4219}{patchAfterCompaction}}(uint32\_t\ removedVertexOffset,\ uint32\_t\ removedFirstIndex,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ removedVertexCount,\ \ uint32\_t\ removedIndexCount);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00058\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::unordered\_map<std::string,\ GeometryRegion>\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_a7a7bd3a13ff3e1056a4494b2c60975b4}{all}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00061\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{static}\ std::string\ canonical(\textcolor{keyword}{const}\ std::filesystem::path\&\ p);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ std::unordered\_map<std::string,\ GeometryRegion>\ m\_cache;}
+\DoxyCodeLine{00064\ \};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi}}
+
+\end{DoxyCode}

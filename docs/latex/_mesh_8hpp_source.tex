@@ -1,0 +1,115 @@
+\doxysection{Mesh.\+hpp}
+\hypertarget{_mesh_8hpp_source}{}\label{_mesh_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Mesh/Mesh.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Mesh/Mesh.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/headers/entity\_component.hpp>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanTexture.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <ECS/Components/physics\_component.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <ECS/Components/transform.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <PhysicsWrapper/physics\_shape.hpp>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <filesystem>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00020\ \{}
+\DoxyCodeLine{00021\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{VulkanRHI}};}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00037\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{Mesh}}}
+\DoxyCodeLine{00038\ \{}
+\DoxyCodeLine{00039\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ Loading}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2bf3d95f550bc1ac09990835751e1856}{load}}(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{VulkanRHI}}*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ instance,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::filesystem::path\&\ filepath,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::filesystem::path\&\ textureFilepath\ =\ L\textcolor{stringliteral}{"{}"{}},}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ glm::mat4\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}}\ \ \ \ \ \ \ =\ glm::mat4(1.0f));}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{void}\ loadObj(\textcolor{keyword}{const}\ std::filesystem::path\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}{objPath}});}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{void}\ loadGLTF(\textcolor{keyword}{const}\ std::filesystem::path\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}{objPath}});}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ Texture}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2e8dbc9327b773bb29e2c9912c6afda1}{setTexture}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ filepath,\ \textcolor{keywordtype}{bool}\ mipmaps\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\ hasTexture()\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{\ \textcolor{keywordflow}{return}\ m\_texture.hasTexture();\ \}}
+\DoxyCodeLine{00077\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\ hasMipmaps()\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{\ \textcolor{keywordflow}{return}\ m\_texture.hasMipmaps();\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00080\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{VulkanTexture}}*\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a3ceeea8e1b2afccfd640b76e55558adf}{texture}}()\ noexcept\ \{\ \textcolor{keywordflow}{return}\ \&m\_texture;\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ Transform}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00086\ \ \ \ \ [[nodiscard]]\ glm::mat4\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a54c6cef1b196f8b4537bd97b8eb3dcfb}{getTransform}}();}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab71ddcd3b05936e3c4d7c8aa13b75602}{setPosition}}(glm::vec3\ position);}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a0518945f33d188415b1500d8562063df}{setRotation}}(glm::vec3\ eulerDegrees);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aaabf953ea1aaa9788b9c942cad061a33}{setScale}}(glm::vec3\ scale);}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a03920814749788f9a043075a1ba6d886}{setTransform}}(glm::mat4\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}});}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{comment}{//\ Geometry\ accessors}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ [[nodiscard]]\ int32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac6cad8d0844d7d27341410b41e5a768f}{getNumIndices}}()\ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_numIndices;\ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00108\ \ \ \ \ [[nodiscard]]\ int32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a58a81b7ee83669f61db0df27164ae735}{getNumVertices}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_numVertices;\ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00111\ \ \ \ \ [[nodiscard]]\ vk::DeviceSize\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a01462a424662fa4a4e4d72beb2a4cf51}{getVertexBufferSize}}()\ const\ noexcept}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}vk::DeviceSize\textcolor{keyword}{>}(m\_numVertices)\ *\ \textcolor{keyword}{sizeof}(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vertex}{Vertex}});\ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00115\ \ \ \ \ [[nodiscard]]\ vk::DeviceSize\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a933399044277f90c958b5883e909b58a}{getIndexBufferSize}}()\ const\ noexcept}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}vk::DeviceSize\textcolor{keyword}{>}(m\_numIndices)\ *\ \textcolor{keyword}{sizeof}(uint32\_t);\ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00119\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<Vertex>\&\ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a72eb74507f497937f180520b872849b0}{getVertices}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_vertices;\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00122\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<uint32\_t>\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aa76d98d09567fe08646fafe58218eaea}{getIndices}}()\ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_indices;\ \ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00125\ \ \ \ \ [[nodiscard]]\ glm::vec3\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a68b3ee3b072e44dc1b68cdf6b93a6dec}{getAABBMin}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_aabbMin;\ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00128\ \ \ \ \ [[nodiscard]]\ glm::vec3\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_afe18e8d17d556b4d1501678ac0c067af}{getAABBMax}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_aabbMax;\ \}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00131\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::filesystem::path\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}{objPath}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_objPath;\ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}{clearVertices}}()\ \{\ m\_vertices.clear();\ m\_vertices.shrink\_to\_fit();\ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}{clearIndices}}()\ \ \{\ m\_indices.clear();\ \ m\_indices.shrink\_to\_fit();\ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{comment}{//\ ECS\ /\ editor\ state}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_transform}{ECS::Transform}}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}};\ }
+\DoxyCodeLine{00142\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_physics_component}{ECS::PhysicsComponent}}\ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a316e4da371ffe4498bb5be5dbd74c113}{physics}};\ \ \ }
+\DoxyCodeLine{00143\ \ \ \ \ std::string\ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a091dc34b2232683b6b34be3a3abc22bb}{name}}\ =\ \textcolor{stringliteral}{"{}Unknown"{}};\ }
+\DoxyCodeLine{00144\ \ \ \ \ ECS::EntityID\ \ \ \ \ \ \textcolor{keywordtype}{id}\ \ \ =\ std::numeric\_limits<ECS::EntityID>::max();\ }
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00147\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{VulkanRHI}}*\ pRhi\ =\ \textcolor{keyword}{nullptr};\ }
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ std::vector<Vertex>\ \ \ m\_vertices;\ }
+\DoxyCodeLine{00150\ \ \ \ \ std::vector<uint32\_t>\ m\_indices;\ \ }
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ glm::vec3\ m\_aabbMin\{\};\ }
+\DoxyCodeLine{00153\ \ \ \ \ glm::vec3\ m\_aabbMax\{\};\ }
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ int32\_t\ m\_numIndices\ \ =\ 0;\ }
+\DoxyCodeLine{00156\ \ \ \ \ int32\_t\ m\_numVertices\ =\ 0;\ }
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ glm::mat4\ \ \ \ \ \ \ \ \ \ \ \ \ m\_transform\{\};\ }
+\DoxyCodeLine{00159\ \ \ \ \ std::filesystem::path\ m\_objPath;\ \ \ \ \ }
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ VulkanTexture\ m\_texture;\ }
+\DoxyCodeLine{00162\ \};}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+
+\end{DoxyCode}

@@ -1,0 +1,45 @@
+\doxysection{C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Helpers.hpp File Reference}
+\hypertarget{_helpers_8hpp}{}\label{_helpers_8hpp}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/Helpers.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/Helpers.hpp}}
+
+
+Editor-\/wide utility types, free functions, and the Im\+Gui dark theme.  
+
+
+{\ttfamily \+\#include $<$Externals/\+imgui/\+imgui\+\_\+internal.\+h$>$}\newline
+{\ttfamily \+\#include $<$filesystem$>$}\newline
+{\ttfamily \+\#include $<$fstream$>$}\newline
+{\ttfamily \+\#include "{}font\+\_\+awesome.\+hpp"{}}\newline
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \doxymbox{\hyperlink{namespacegcep}{gcep}}
+\begin{DoxyCompactList}\small\item\em Namespace for the Gaming Campus Engine Paris. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum class \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5a}{gcep::\+\+Simulation\+State}} \{ \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa09d4d696b4e935115b9313e3c412509a}{gcep::\+\+STOPPED}}
+, \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa50366a49630a416ab3ccaa004196027e}{gcep::\+\+PLAYING}}
+, \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa99b2439e63f73ad515f7ab2447a80673}{gcep::\+\+PAUSED}}
+ \}
+\begin{DoxyCompactList}\small\item\em Tracks the lifecycle state of the in-\/editor game simulation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{namespacegcep_a416b28db75590c2d078c75b81cca5487}{gcep::\+set\+Dark\+Theme}} ()
+\begin{DoxyCompactList}\small\item\em Applies the GCEP dark colour theme to the active Im\+Gui context. \end{DoxyCompactList}\item 
+std::\+string \doxymbox{\hyperlink{namespacegcep_ac2ef903f1a06e903b948525dfc261b0e}{gcep::\+get\+File\+Icon}} (const std::\+filesystem::\+path \&file)
+\begin{DoxyCompactList}\small\item\em Returns the Font Awesome icon glyph that best represents a file type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Editor-\/wide utility types, free functions, and the Im\+Gui dark theme. 
+
+\begin{DoxyAuthor}{Authors}
+Morgane Prevost, Dylan Hollemaert, Clément Bobeda, Najim Bakkali, Leo Grognet 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2026-\/02-\/17 
+\end{DoxyDate}

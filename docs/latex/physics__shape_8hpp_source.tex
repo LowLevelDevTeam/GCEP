@@ -1,0 +1,63 @@
+\doxysection{physics\+\_\+shape.\+hpp}
+\hypertarget{physics__shape_8hpp_source}{}\label{physics__shape_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/PhysicsWrapper/physics\_shape.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/PhysicsWrapper/physics\_shape.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Libs}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ External}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Jolt/Jolt.h>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}Jolt/Core/Reference.h"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ Core}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}Engine/Core/Maths/vector3.hpp"{}}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{namespace\ }JPH}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{class\ }Shape;}
+\DoxyCodeLine{00016\ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{enum\ class}\ \doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysicsShapeType}}}
+\DoxyCodeLine{00029\ \ \ \ \ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ BOX,}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ SPHERE,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ CAPSULE,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ CYLINDER,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ MESH}
+\DoxyCodeLine{00035\ \ \ \ \ \};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{PhysicsShape}}}
+\DoxyCodeLine{00050\ \ \ \ \ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{PhysicsShape}}(\doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysicsShapeType}}\ type,\ JPH::RefConst<JPH::Shape>\ shape);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::shared\_ptr<PhysicsShape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_acbb70af3d3523e90272126c3b8103bff}{createBox}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ halfExtents);}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::shared\_ptr<PhysicsShape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a96959c9de0ee2f5487d6d281418fc649}{createSphere}}(\textcolor{keywordtype}{float}\ radius);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::shared\_ptr<PhysicsShape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a8592e864ca2e2794f5dbf05af184bbfc}{createCylinder}}(\textcolor{keywordtype}{float}\ halfHeight,\ \textcolor{keywordtype}{float}\ radius);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::shared\_ptr<PhysicsShape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_ab82c7a6a8bb6d98a1f00119c9e4ea416}{createCapsule}}(\textcolor{keywordtype}{float}\ halfHeight,\ \textcolor{keywordtype}{float}\ radius);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ std::shared\_ptr<PhysicsShape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a4f5539f1443a6b68915a9c4748f0ffa3}{createScaled}}(}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::shared\_ptr<PhysicsShape>\&\ baseShape,}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ scale}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysicsShapeType}}\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a1e8e0f29a48c67686c6acba84d96a5c5}{getType}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ JPH::RefConst<JPH::Shape>\ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a1dfa27d04da89f2df8aff86cbb60486d}{getJoltShape}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysicsShapeType}}\ m\_type;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ JPH::RefConst<JPH::Shape>\ m\_shape;\ \ \ \ \ \ }
+\DoxyCodeLine{00130\ \ \ \ \ \};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \}\ \textcolor{comment}{//\ namespace\ gcep}}
+
+\end{DoxyCode}

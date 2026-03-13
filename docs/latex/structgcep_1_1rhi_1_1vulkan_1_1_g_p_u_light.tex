@@ -1,0 +1,51 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+GPULight Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light}{}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light}\index{gcep::rhi::vulkan::GPULight@{gcep::rhi::vulkan::GPULight}}
+
+
+Tightly-\/packed GPU light entry. Laid out as std430 so the Slang {\ttfamily Structured\+Buffer} can address it with {\ttfamily sizeof} == 64 bytes.  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHIData\+Types.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a205d1c3287425157e21795491e0971f8}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a205d1c3287425157e21795491e0971f8} 
+glm::\+vec3 {\bfseries position}
+\begin{DoxyCompactList}\small\item\em World-\/space position. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a1ed57e4aa6ab0c99c953f45aca158a44}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a1ed57e4aa6ab0c99c953f45aca158a44} 
+uint32\+\_\+t {\bfseries type}
+\begin{DoxyCompactList}\small\item\em {\ttfamily \doxylink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97}{Light\+Type}} cast to uint. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a56e2fea0bd202a673a3d1b99f53d1414}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a56e2fea0bd202a673a3d1b99f53d1414} 
+glm::\+vec3 {\bfseries color}
+\begin{DoxyCompactList}\small\item\em Linear-\/space RGB, pre-\/multiplied by intensity. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_abb0bf01c64e208bb3af3d2f001075988}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_abb0bf01c64e208bb3af3d2f001075988} 
+float {\bfseries intensity}
+\begin{DoxyCompactList}\small\item\em Raw intensity; used separately for HDR bloom budgeting. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a8c5a7c58e30e0ea99122f1c8294151b9}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a8c5a7c58e30e0ea99122f1c8294151b9} 
+glm::\+vec3 {\bfseries direction}
+\begin{DoxyCompactList}\small\item\em Normalized cone axis (spot lights only; zero for point). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a39d80761ef70bc109217654a75614e0c}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a39d80761ef70bc109217654a75614e0c} 
+float {\bfseries radius}
+\begin{DoxyCompactList}\small\item\em Influence radius; fragment discards light beyond this. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a7b746938e2dc8e60c237fce3fc89a7af}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_a7b746938e2dc8e60c237fce3fc89a7af} 
+float {\bfseries inner\+Cos}
+\begin{DoxyCompactList}\small\item\em cos(inner\+Cutoff\+Deg) -\/ full-\/brightness threshold. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_aa9ac34878bb1d3e80ed98739d1080a92}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_aa9ac34878bb1d3e80ed98739d1080a92} 
+float {\bfseries outer\+Cos}
+\begin{DoxyCompactList}\small\item\em cos(outer\+Cutoff\+Deg) -\/ zero-\/brightness threshold. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_ac8962836cf8db0101eafaa93fd9b3524}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light_ac8962836cf8db0101eafaa93fd9b3524} 
+float {\bfseries \+\_\+pad} \+[2]\+
+\begin{DoxyCompactList}\small\item\em Explicit padding to 64 bytes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Tightly-\/packed GPU light entry. Laid out as std430 so the Slang {\ttfamily Structured\+Buffer} can address it with {\ttfamily sizeof} == 64 bytes. 
+
+Both {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_point_light}{Point\+Light}} and {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_spot_light}{Spot\+Light}} are packed into a single union-\/like structure. Fields unused by a given light type are zeroed on upload. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHIData\+Types.\+hpp\end{DoxyCompactItemize}

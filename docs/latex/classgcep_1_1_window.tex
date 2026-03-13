@@ -1,0 +1,139 @@
+\doxysection{gcep::\+Window Class Reference}
+\hypertarget{classgcep_1_1_window}{}\label{classgcep_1_1_window}\index{gcep::Window@{gcep::Window}}
+
+
+Singleton that owns the GLFW window for the entire editor process.  
+
+
+
+
+{\ttfamily \+\#include $<$window.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_window_ac3b54f13b47b0b133a5f632d15043e04}\label{classgcep_1_1_window_ac3b54f13b47b0b133a5f632d15043e04} 
+{\bfseries Window} (const Window \&)=delete
+\item 
+\Hypertarget{classgcep_1_1_window_a07e558f2fc512254761dc35cad37653e}\label{classgcep_1_1_window_a07e558f2fc512254761dc35cad37653e} 
+Window \& {\bfseries operator=} (const Window \&)=delete
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1_window_a2f2e4880ca42388b41af1e6146c0eba4}{init\+Window}} ()
+\begin{DoxyCompactList}\small\item\em Creates and displays the GLFW window. \end{DoxyCompactList}\item 
+GLFWwindow \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{classgcep_1_1_window_a2e29758cb0aaa78edeb5e7dd884bbe4c}{get\+Glfw\+Window}} ()
+\begin{DoxyCompactList}\small\item\em Returns the underlying GLFW window handle. \end{DoxyCompactList}\item 
+bool \doxymbox{\hyperlink{classgcep_1_1_window_abc34745725d5bd021163ab165605680c}{should\+Close}} ()
+\begin{DoxyCompactList}\small\item\em Queries whether the user has requested the window to close. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_window_a8f4ba6eddea91f48b70ec3c76b4dedf5}{destroy}} ()
+\begin{DoxyCompactList}\small\item\em Destroys the GLFW window and terminates the GLFW library. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static Window \& \doxymbox{\hyperlink{classgcep_1_1_window_ad720021e4ddfae574fdb4278620eb1c2}{get\+Instance}} ()
+\begin{DoxyCompactList}\small\item\em Returns the process-\/wide singleton instance. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Singleton that owns the GLFW window for the entire editor process. 
+
+{\ttfamily \doxylink{classgcep_1_1_window}{Window}} wraps a {\ttfamily GLFWwindow\texorpdfstring{$\ast$}{*}} and exposes the minimal interface needed by the rest of the editor:\+ initialisation, the native handle, close-\/request polling, and destruction.
+
+The class is a Meyer\textquotesingle{}s singleton:\+ the unique instance is created on the first call to {\ttfamily \doxylink{classgcep_1_1_window_ad720021e4ddfae574fdb4278620eb1c2}{get\+Instance()}} and lives until program exit.
+
+\begin{DoxyParagraph}{Typical usage}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Window\&\ win\ =\ \doxymbox{\hyperlink{classgcep_1_1_window_ad720021e4ddfae574fdb4278620eb1c2}{Window::getInstance}}();}
+\DoxyCodeLine{win.initWindow();}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{while}\ (!win.shouldClose())}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{\ \ \ \ glfwPollEvents();}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ render\ frame\ ...}}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{win.destroy();}
+
+\end{DoxyCode}
+
+\end{DoxyParagraph}
+\begin{DoxyNote}{Note}
+The copy constructor and copy-\/assignment operator are deleted to enforce the singleton invariant. 
+\end{DoxyNote}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_window_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_window_a8f4ba6eddea91f48b70ec3c76b4dedf5}\index{gcep::Window@{gcep::Window}!destroy@{destroy}}
+\index{destroy@{destroy}!gcep::Window@{gcep::Window}}
+\doxysubsubsection{\texorpdfstring{destroy()}{destroy()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_window_a8f4ba6eddea91f48b70ec3c76b4dedf5} 
+void gcep::\+\+Window::\+destroy (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Destroys the GLFW window and terminates the GLFW library. 
+
+Safe to call multiple times; subsequent calls after the first are no-\/ops. \Hypertarget{classgcep_1_1_window_a2e29758cb0aaa78edeb5e7dd884bbe4c}\index{gcep::Window@{gcep::Window}!getGlfwWindow@{getGlfwWindow}}
+\index{getGlfwWindow@{getGlfwWindow}!gcep::Window@{gcep::Window}}
+\doxysubsubsection{\texorpdfstring{getGlfwWindow()}{getGlfwWindow()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_window_a2e29758cb0aaa78edeb5e7dd884bbe4c} 
+GLFWwindow \texorpdfstring{$\ast$}{*} gcep::\+\+Window::\+get\+Glfw\+Window (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the underlying GLFW window handle. 
+
+\begin{DoxyReturn}{Returns}
+Non-\/null {\ttfamily GLFWwindow\texorpdfstring{$\ast$}{*}} once {\ttfamily \doxylink{classgcep_1_1_window_a2f2e4880ca42388b41af1e6146c0eba4}{init\+Window()}} has been called. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_window_ad720021e4ddfae574fdb4278620eb1c2}\index{gcep::Window@{gcep::Window}!getInstance@{getInstance}}
+\index{getInstance@{getInstance}!gcep::Window@{gcep::Window}}
+\doxysubsubsection{\texorpdfstring{getInstance()}{getInstance()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_window_ad720021e4ddfae574fdb4278620eb1c2} 
+Window \& gcep::\+\+Window::\+get\+Instance (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Returns the process-\/wide singleton instance. 
+
+\begin{DoxyReturn}{Returns}
+Reference to the unique {\ttfamily \doxylink{classgcep_1_1_window}{Window}} instance. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_window_a2f2e4880ca42388b41af1e6146c0eba4}\index{gcep::Window@{gcep::Window}!initWindow@{initWindow}}
+\index{initWindow@{initWindow}!gcep::Window@{gcep::Window}}
+\doxysubsubsection{\texorpdfstring{initWindow()}{initWindow()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_window_a2f2e4880ca42388b41af1e6146c0eba4} 
+void gcep::\+\+Window::\+init\+Window (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Creates and displays the GLFW window. 
+
+Initialises GLFW, sets Vulkan-\/specific window hints (no Open\+GL context), creates the window with a hard-\/coded default resolution, sets the window icon, and centres it on the primary monitor via {\ttfamily center\+Window()}.
+
+\begin{DoxyNote}{Note}
+Must be called exactly once before any other method. 
+\end{DoxyNote}
+\Hypertarget{classgcep_1_1_window_abc34745725d5bd021163ab165605680c}\index{gcep::Window@{gcep::Window}!shouldClose@{shouldClose}}
+\index{shouldClose@{shouldClose}!gcep::Window@{gcep::Window}}
+\doxysubsubsection{\texorpdfstring{shouldClose()}{shouldClose()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_window_abc34745725d5bd021163ab165605680c} 
+bool gcep::\+\+Window::\+should\+Close (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Queries whether the user has requested the window to close. 
+
+Delegates to {\ttfamily glfw\+Window\+Should\+Close()}.
+
+\begin{DoxyReturn}{Returns}
+{\ttfamily true} if the close button has been pressed or {\ttfamily glfw\+Set\+Window\+Should\+Close()} was called with {\ttfamily true}. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Window/\+\doxymbox{\hyperlink{window_8hpp}{window.\+hpp}}\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Window/\+window.\+cpp\end{DoxyCompactItemize}

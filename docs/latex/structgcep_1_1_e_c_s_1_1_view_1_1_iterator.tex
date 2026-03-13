@@ -1,0 +1,82 @@
+\doxysection{gcep::\+ECS::\+View\texorpdfstring{$<$}{<} Args \texorpdfstring{$>$}{>}::\+Iterator Struct Reference}
+\hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}\index{gcep::ECS::View$<$ Args $>$::Iterator@{gcep::ECS::View$<$ Args $>$::Iterator}}
+
+
+Custom iterator for traversing entities validated by the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View}.  
+
+
+
+
+{\ttfamily \+\#include $<$view\+\_\+finder.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d} 
+{\bfseries Iterator} (const Entity\+ID \texorpdfstring{$\ast$}{*}current, const Entity\+ID \texorpdfstring{$\ast$}{*}last, \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}} \&v)
+\begin{DoxyCompactList}\small\item\em Initializes the iterator and advances to the first valid entity. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}} \& \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_ac9bf174a244d804cefc39c1198601bfa}{operator++}} ()
+\begin{DoxyCompactList}\small\item\em Advances to the next valid entity (pre-\/increment). \end{DoxyCompactList}\item 
+Entity\+ID \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_aafd202ef083b6d70f5a3fcae43ba1bf7}{operator\texorpdfstring{$\ast$}{*}}} () const
+\begin{DoxyCompactList}\small\item\em Dereference operator to retrieve the current entity\textquotesingle{}s ID. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f4016343202817686f918c24d3d20b7}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f4016343202817686f918c24d3d20b7} 
+bool {\bfseries operator!=} (const \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}} \&other) const
+\begin{DoxyCompactList}\small\item\em Comparison operator for loop termination. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d} 
+const Entity\+ID \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+current\+Entity}
+\begin{DoxyCompactList}\small\item\em Pointer to the current entity in the dense array. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f299e8f15cfa333d6fea69005508a84}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f299e8f15cfa333d6fea69005508a84} 
+const Entity\+ID \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+last\+Entity}
+\begin{DoxyCompactList}\small\item\em Array boundary for end-\/of-\/iteration detection. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a6261cb2fb3e78055226cd4b2442183c3}\label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a6261cb2fb3e78055226cd4b2442183c3} 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}} \& {\bfseries m\+\_\+view}
+\begin{DoxyCompactList}\small\item\em Reference to the parent m\+\_\+view for \doxylink{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04}{match()} calls. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename... Args$>$\newline
+struct gcep::\+\+ECS::\+\+View$<$ Args $>$::\+\+Iterator}
+Custom iterator for traversing entities validated by the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View}. 
+
+This iterator traverses the dense array of the smallest pool contiguously and automatically skips entities that fail the \doxylink{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04}{match()} test. 
+
+\label{doc-func-members}
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_aafd202ef083b6d70f5a3fcae43ba1bf7}\index{gcep::ECS::View$<$ Args $>$::Iterator@{gcep::ECS::View$<$ Args $>$::Iterator}!operator\texorpdfstring{$\ast$}{*}@{operator\texorpdfstring{$\ast$}{*}}}
+\index{operator\texorpdfstring{$\ast$}{*}@{operator\texorpdfstring{$\ast$}{*}}!gcep::ECS::View$<$ Args $>$::Iterator@{gcep::ECS::View$<$ Args $>$::Iterator}}
+\doxysubsubsection{\texorpdfstring{operator\texorpdfstring{$\ast$}{*}()}{operator*()}}
+{\footnotesize\ttfamily \label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_aafd202ef083b6d70f5a3fcae43ba1bf7} 
+template$<$typename... Args$>$ \\
+Entity\+ID \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{gcep::\+\+ECS::\+\+View}}$<$ Args $>$::\+\+Iterator::\+operator\texorpdfstring{$\ast$}{*} (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+
+
+Dereference operator to retrieve the current entity\textquotesingle{}s ID. 
+
+\begin{DoxyReturn}{Returns}
+Entity\+ID The identifier of the entity. 
+\end{DoxyReturn}
+\Hypertarget{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_ac9bf174a244d804cefc39c1198601bfa}\index{gcep::ECS::View$<$ Args $>$::Iterator@{gcep::ECS::View$<$ Args $>$::Iterator}!operator++@{operator++}}
+\index{operator++@{operator++}!gcep::ECS::View$<$ Args $>$::Iterator@{gcep::ECS::View$<$ Args $>$::Iterator}}
+\doxysubsubsection{\texorpdfstring{operator++()}{operator++()}}
+{\footnotesize\ttfamily \label{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_ac9bf174a244d804cefc39c1198601bfa} 
+template$<$typename... Args$>$ \\
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}} \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{gcep::\+\+ECS::\+\+View}}$<$ Args $>$::\+\+Iterator::\+operator++ (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Advances to the next valid entity (pre-\/increment). 
+
+\begin{DoxyReturn}{Returns}
+\doxylink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{Iterator}\& Reference to the advanced iterator. 
+\end{DoxyReturn}
+
+
+The documentation for this struct was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+view\+\_\+finder.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+detail/\+view\+\_\+finder.\+inl\end{DoxyCompactItemize}

@@ -1,0 +1,125 @@
+\doxysection{json\+\_\+archive.\+hpp}
+\hypertarget{json__archive_8hpp_source}{}\label{json__archive_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_archive.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_archive.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <fstream>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <Externals/rapidjson/document.h>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <Externals/rapidjson/prettywriter.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <Externals/rapidjson/stringbuffer.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <Externals/rapidjson/istreamwrapper.h>}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{namespace\ }gcep::SER}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{class\ }JsonWriteArchive}
+\DoxyCodeLine{00017\ \ \ \ \ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ JsonWriteArchive(\textcolor{keyword}{const}\ std::string\&\ filename);}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \string~JsonWriteArchive();}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ save();}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Scene}}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ beginScene(\textcolor{keyword}{const}\ std::string\&\ magic,\ uint64\_t\ version);}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pool}}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ beginPool(\textcolor{keyword}{const}\ std::string\&\ name);}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ endPool();}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Entity}}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ beginEntity(uint32\_t\ \textcolor{keywordtype}{id});}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ endEntity();}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Scalaires}}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeFloat\ (\textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{float}\ \ \ \ val);}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeDouble(\textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{double}\ \ \ val);}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint8\ (\textcolor{keyword}{const}\ std::string\&\ key,\ uint8\_t\ \ val);}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint16(\textcolor{keyword}{const}\ std::string\&\ key,\ uint16\_t\ val);}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint32(\textcolor{keyword}{const}\ std::string\&\ key,\ uint32\_t\ val);}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint64(\textcolor{keyword}{const}\ std::string\&\ key,\ uint64\_t\ val);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt8\ \ (\textcolor{keyword}{const}\ std::string\&\ key,\ int8\_t\ \ \ val);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt16\ (\textcolor{keyword}{const}\ std::string\&\ key,\ int16\_t\ \ val);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt32\ (\textcolor{keyword}{const}\ std::string\&\ key,\ int32\_t\ \ val);}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt64\ (\textcolor{keyword}{const}\ std::string\&\ key,\ int64\_t\ \ val);}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeString\ (\textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ std::string\&\ val);}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeSceneName(\textcolor{keyword}{const}\ std::string\ \&name);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ std::string\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_filename;}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ rapidjson::Document\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_doc;}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ rapidjson::Document::AllocatorType\&\ m\_alloc;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pointeurs\ vers\ les\ objets\ courants\ (non-\/owning)}}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ rapidjson::Value*\ m\_poolsArray\ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ rapidjson::Value*\ m\_currentPool\ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ rapidjson::Value*\ m\_entitiesArray\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ rapidjson::Value*\ m\_currentEntity\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_saved\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00061\ \ \ \ \ \};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keyword}{class\ }JsonReadArchive}
+\DoxyCodeLine{00068\ \ \ \ \ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ JsonReadArchive(\textcolor{keyword}{const}\ std::string\&\ filename);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ magic()\textcolor{keyword}{\ \ \ const\ }\{\ \textcolor{keywordflow}{return}\ m\_magic;\ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ uint64\_t\ \ \ \ \ \ \ \ \ \ \ version()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ m\_version;\ \}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ std::string\ readSceneName()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ──\ Entité\ parsée\ ─────────────────────────────────────────────────────}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{EntityData}}}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ \textcolor{keywordtype}{id}\ =\ 0;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ rapidjson::Value*\ obj\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \ \ \ readFloat\ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ \ \ readDouble(\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ \ readUint8\ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ uint16\_t\ readUint16(\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ readUint32(\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ uint64\_t\ readUint64(\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ int8\_t\ \ \ readInt8\ \ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ int16\_t\ \ readInt16\ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ \ readInt32\ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ int64\_t\ \ readInt64\ (\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ readString(\textcolor{keyword}{const}\ std::string\&\ key)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ readSceneName()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ──\ Pool\ parsé\ ────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_pool_data}{PoolData}}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ \ \ \ \ \ \ \ \ \ \ \ \ name;}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<EntityData>\ entities;}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<PoolData>\&\ pools()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ m\_pools;\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ rapidjson::Document\ \ m\_doc;}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ std::string\ \ \ \ \ \ \ \ \ \ m\_magic;}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ uint64\_t\ \ \ \ \ \ \ \ \ \ \ \ \ m\_version\ =\ 0;}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ std::vector<PoolData>\ m\_pools;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ parse();}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ \};}
+\DoxyCodeLine{00116\ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/detail/json\_archive.inl>}}
+
+\end{DoxyCode}

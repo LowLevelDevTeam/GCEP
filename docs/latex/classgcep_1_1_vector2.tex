@@ -1,0 +1,192 @@
+\doxysection{gcep::\+Vector2\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{classgcep_1_1_vector2}{}\label{classgcep_1_1_vector2}\index{gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}}
+
+
+Represents a 2D mathematical vector with common arithmetic operations.  
+
+
+
+
+{\ttfamily \+\#include $<$vector2.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}\label{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55} 
+constexpr {\bfseries Vector2} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. Initializes components to zero. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_ad28323c3adb1ba53b2b1074fd57687f3}\label{classgcep_1_1_vector2_ad28323c3adb1ba53b2b1074fd57687f3} 
+constexpr {\bfseries Vector2} (T x\+\_\+, T y\+\_\+)
+\begin{DoxyCompactList}\small\item\em Constructs a vector from given components. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a443495ff0cab787cd84e2f7d667dd142}\label{classgcep_1_1_vector2_a443495ff0cab787cd84e2f7d667dd142} 
+{\footnotesize template$<$typename U$>$ }\\constexpr {\bfseries Vector2} (const Vector2$<$ U $>$ \&other)
+\begin{DoxyCompactList}\small\item\em Copy constructor with type conversion. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a20e136d6b514d180f503346a0c1bf5dc}\label{classgcep_1_1_vector2_a20e136d6b514d180f503346a0c1bf5dc} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries operator+} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Adds two vectors component-\/wise. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a693fb701e5823a89d58d69455a05fc14}\label{classgcep_1_1_vector2_a693fb701e5823a89d58d69455a05fc14} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries operator-\/} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Subtracts two vectors component-\/wise. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_ad8a7fd28376735598fe092b54a7ebaa7}\label{classgcep_1_1_vector2_ad8a7fd28376735598fe092b54a7ebaa7} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \& {\bfseries operator+=} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Adds another vector to this one. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a67003bf021828179f2aced5b67c58772}\label{classgcep_1_1_vector2_a67003bf021828179f2aced5b67c58772} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \& {\bfseries operator-\/=} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Subtracts another vector from this one. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_abd2ad37bbed18cc887306122364b8ed0}\label{classgcep_1_1_vector2_abd2ad37bbed18cc887306122364b8ed0} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries operator\texorpdfstring{$\ast$}{*}} (T scalar) const
+\begin{DoxyCompactList}\small\item\em Multiplies this vector by a scalar. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a29772ce5f4340ab451fefefca67d3cda}\label{classgcep_1_1_vector2_a29772ce5f4340ab451fefefca67d3cda} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries operator/\+} (T scalar) const
+\begin{DoxyCompactList}\small\item\em Divides this vector by a scalar. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a4af527e0d2d1fd740d59cbdc0eaa4f97}\label{classgcep_1_1_vector2_a4af527e0d2d1fd740d59cbdc0eaa4f97} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \& {\bfseries operator\texorpdfstring{$\ast$}{*}=} (T scalar)
+\begin{DoxyCompactList}\small\item\em Multiplies this vector by a scalar (in-\/place). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a54a736b39d20790d40a0586b16bb3c3d}\label{classgcep_1_1_vector2_a54a736b39d20790d40a0586b16bb3c3d} 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \& {\bfseries operator/\+=} (T scalar)
+\begin{DoxyCompactList}\small\item\em Divides this vector by a scalar (in-\/place). \end{DoxyCompactList}\item 
+constexpr bool \doxymbox{\hyperlink{classgcep_1_1_vector2_a326f57dec57eb26fbe68a804866beb61}{Equals}} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs, T epsilon=static\+\_\+cast$<$ T $>$(1e-\/6)) const
+\begin{DoxyCompactList}\small\item\em Checks approximate equality between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a32b3babd4588d2b7665a0597ac2ad768}\label{classgcep_1_1_vector2_a32b3babd4588d2b7665a0597ac2ad768} 
+constexpr bool {\bfseries operator==} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Checks for exact equality between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a1aab96fb0e03bc710a7fe0d66a07206f}\label{classgcep_1_1_vector2_a1aab96fb0e03bc710a7fe0d66a07206f} 
+constexpr bool {\bfseries operator!=} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Checks for inequality between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a873035a4830fa799823b96681c74dba1}\label{classgcep_1_1_vector2_a873035a4830fa799823b96681c74dba1} 
+constexpr T {\bfseries Dot} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Computes the dot product between this and another vector. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a279f5bbac273905af45c656ef8cb0fba}\label{classgcep_1_1_vector2_a279f5bbac273905af45c656ef8cb0fba} 
+T {\bfseries Length} () const
+\begin{DoxyCompactList}\small\item\em Returns the Euclidean length (magnitude) of this vector. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a670783e41aa66525d50ba1b47f8539fa}\label{classgcep_1_1_vector2_a670783e41aa66525d50ba1b47f8539fa} 
+T {\bfseries Length\+Squared} () const
+\begin{DoxyCompactList}\small\item\em Returns the squared length of this vector (avoids sqrt). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_ac87b5c7d55434359b35b66aa55afd83f}\label{classgcep_1_1_vector2_ac87b5c7d55434359b35b66aa55afd83f} 
+\doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Normalized} () const
+\begin{DoxyCompactList}\small\item\em Returns a normalized copy of this vector. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a89fd962209479fafcd4a97f39c28a5f0}\label{classgcep_1_1_vector2_a89fd962209479fafcd4a97f39c28a5f0} 
+void {\bfseries Normalize} ()
+\begin{DoxyCompactList}\small\item\em Normalizes this vector in-\/place. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_aedfffb231b35783f8c5c2701f1dcaaa8}\label{classgcep_1_1_vector2_aedfffb231b35783f8c5c2701f1dcaaa8} 
+\doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Perpendicular} () const
+\begin{DoxyCompactList}\small\item\em Returns a perpendicular vector rotated 90 degrees counter-\/clockwise. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_vector2_a6a128a83483774aa4718c4da7fb3f845}\label{classgcep_1_1_vector2_a6a128a83483774aa4718c4da7fb3f845} 
+static T {\bfseries Distance} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b)
+\begin{DoxyCompactList}\small\item\em Computes the distance between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a5c37912a7c829fbeeea3dbfebd6f3ca7}\label{classgcep_1_1_vector2_a5c37912a7c829fbeeea3dbfebd6f3ca7} 
+static \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Lerp} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b, T t)
+\begin{DoxyCompactList}\small\item\em Linearly interpolates between two vectors. \end{DoxyCompactList}\item 
+static T \doxymbox{\hyperlink{classgcep_1_1_vector2_a43a02701e89dc4e37e295640cc790af0}{Angle}} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b)
+\begin{DoxyCompactList}\small\item\em Computes the angle (in degrees) between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a47fa209a9a1eef592f89ba2ec057bd1c}\label{classgcep_1_1_vector2_a47fa209a9a1eef592f89ba2ec057bd1c} 
+static \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Scale} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b)
+\begin{DoxyCompactList}\small\item\em Performs component-\/wise scaling between two vectors. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a7ede4bfd57001b4c6d854191f35556b5}\label{classgcep_1_1_vector2_a7ede4bfd57001b4c6d854191f35556b5} 
+static \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Min} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b)
+\begin{DoxyCompactList}\small\item\em Returns a vector containing the component-\/wise minima. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a810e85ce95ec3b76ffc316a570f333f0}\label{classgcep_1_1_vector2_a810e85ce95ec3b76ffc316a570f333f0} 
+static \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} {\bfseries Max} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&b)
+\begin{DoxyCompactList}\small\item\em Returns a vector containing the component-\/wise maxima. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \doxymbox{\hyperlink{classgcep_1_1_vector2_adda7b6ca16fcb0ad7b026f90498f9594}{Move\+Towards}} (const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&current, const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}} \&target, T max\+Distance\+Delta)
+\begin{DoxyCompactList}\small\item\em Moves a point towards a target by a fixed distance delta. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_vector2_a442a1408dd7a0173c5509a6ee708d253}\label{classgcep_1_1_vector2_a442a1408dd7a0173c5509a6ee708d253} 
+T {\bfseries x}
+\begin{DoxyCompactList}\small\item\em X component of the vector. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_vector2_a4bc99fe341d98f593dc3d5cf13a64fc7}\label{classgcep_1_1_vector2_a4bc99fe341d98f593dc3d5cf13a64fc7} 
+T {\bfseries y}
+\begin{DoxyCompactList}\small\item\em Y component of the vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+class gcep::\+\+Vector2$<$ T $>$}
+Represents a 2D mathematical vector with common arithmetic operations. 
+
+This class provides a complete set of vector math operations such as addition, subtraction, normalization, dot product, distance computation, and interpolation.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Numeric type (float, double, int, etc.)\\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{math::Vector2<float>\ a(3.0f,\ 4.0f);}
+\DoxyCodeLine{math::Vector2<float>\ b(1.0f,\ 2.0f);}
+\DoxyCodeLine{\textcolor{keywordtype}{float}\ distance\ =\ math::Vector2<float>::Distance(a,\ b);}
+\DoxyCodeLine{math::Vector2<float>\ normalized\ =\ a.Normalized();}
+
+\end{DoxyCode}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_vector2_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_vector2_a43a02701e89dc4e37e295640cc790af0}\index{gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}!Angle@{Angle}}
+\index{Angle@{Angle}!gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{Angle()}{Angle()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_vector2_a43a02701e89dc4e37e295640cc790af0} 
+template$<$typename T$>$ \\
+T \doxymbox{\hyperlink{classgcep_1_1_vector2}{gcep::\+\+Vector2}}$<$ T $>$::\+\+Angle (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \&}]{b}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Computes the angle (in degrees) between two vectors. 
+
+\begin{DoxyNote}{Note}
+The result is always between 0 degree and 180 degrees. 
+\end{DoxyNote}
+\Hypertarget{classgcep_1_1_vector2_a326f57dec57eb26fbe68a804866beb61}\index{gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}!Equals@{Equals}}
+\index{Equals@{Equals}!gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{Equals()}{Equals()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_vector2_a326f57dec57eb26fbe68a804866beb61} 
+template$<$typename T$>$ \\
+bool \doxymbox{\hyperlink{classgcep_1_1_vector2}{gcep::\+\+Vector2}}$<$ T $>$::\+\+Equals (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \&}]{rhs}{, }\item[{T}]{epsilon}{ = {\ttfamily static\+\_\+cast$<$T$>$(1e-\/6)}}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [constexpr]}}
+
+
+
+Checks approximate equality between two vectors. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em rhs} & The vector to compare against. \\
+\hline
+{\em epsilon} & Tolerance threshold for comparison. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_vector2_adda7b6ca16fcb0ad7b026f90498f9594}\index{gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}!MoveTowards@{MoveTowards}}
+\index{MoveTowards@{MoveTowards}!gcep::Vector2$<$ T $>$@{gcep::Vector2$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{MoveTowards()}{MoveTowards()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_vector2_adda7b6ca16fcb0ad7b026f90498f9594} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_vector2}{gcep::\+\+Vector2}}$<$ T $>$::\+\+Move\+Towards (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \&}]{current}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector2_a8f637964e0042e950806333c3b9c2a55}{Vector2}}$<$ T $>$ \&}]{target}{, }\item[{T}]{max\+Distance\+Delta}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Moves a point towards a target by a fixed distance delta. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em current} & The current vector position. \\
+\hline
+{\em target} & The destination vector. \\
+\hline
+{\em max\+Distance\+Delta} & The maximum movement allowed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The new position vector. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+vector2.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+vector2.\+inl\end{DoxyCompactItemize}

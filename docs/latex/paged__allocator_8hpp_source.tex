@@ -1,0 +1,41 @@
+\doxysection{paged\+\_\+allocator.\+hpp}
+\hypertarget{paged__allocator_8hpp_source}{}\label{paged__allocator_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/paged\_allocator.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/paged\_allocator.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <bit>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{namespace\ }gcep::ECS}
+\DoxyCodeLine{00006\ \{}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_aa45e8b97a8b9350945621793ff74d994}{PagedAllocator}}}
+\DoxyCodeLine{00015\ \ \ \ \ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_aa45e8b97a8b9350945621793ff74d994}{PagedAllocator}}(T\ defaultValue)\ :\ m\_defaultValue(defaultValue)}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_a00eb54253938b8ecb9c43207179a25aa}{\string~PagedAllocator}}();}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_ad836a6fb962b3fdacb50e2de811bf3f9}{reserve}}(std::size\_t\ entityCount);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ [[nodiscard]]\ T\&\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_a2b703be32548e8867d73d2892abc3058}{get}}(std::size\_t\ index);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ [[nodiscard]]\ T\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_a96393c53a70900bcfdf6959faf9c89e1}{get}}(std::size\_t\ index)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::size\_t\ PAGE\_SIZE\ =\ 1024;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::size\_t\ PAGE\_SHIFT\ =\ std::countr\_zero(PAGE\_SIZE);}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::size\_t\ PAGE\_MASK\ =\ PAGE\_SIZE\ -\/\ 1;}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ std::vector<T*>\ m\_pages;\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ T\ m\_defaultValue;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ allocatePages(std::size\_t\ pageNumber);}
+\DoxyCodeLine{00076\ \ \ \ \ \};}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/detail/paged\_allocator.inl>}}
+
+\end{DoxyCode}

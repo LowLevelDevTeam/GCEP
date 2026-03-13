@@ -1,0 +1,208 @@
+\doxysection{gcep Namespace Reference}
+\hypertarget{namespacegcep}{}\label{namespacegcep}\index{gcep@{gcep}}
+
+
+Namespace for the Gaming Campus Engine Paris.  
+
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_application}{Application}}
+\begin{DoxyCompactList}\small\item\em Top-\/level application class that owns and orchestrates all editor subsystems. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_camera}{Camera}}
+\begin{DoxyCompactList}\small\item\em First-\/person editor camera that maps keyboard/\+mouse events to view and projection matrices consumed by the \doxylink{classgcep_1_1_r_h_i}{RHI}. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_input_system}{Input\+System}}
+\begin{DoxyCompactList}\small\item\em Polls registered GLFW key states and dispatches callbacks each frame. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_im_gui_console_buffer}{Im\+Gui\+Console\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Custom {\ttfamily std::\+streambuf} that tees all output into an Im\+Gui console log. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_ui_manager}{Ui\+Manager}}
+\begin{DoxyCompactList}\small\item\em Top-\/level editor UI manager built on Dear Im\+Gui and Im\+Guizmo. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_window}{Window}}
+\begin{DoxyCompactList}\small\item\em Singleton that owns the GLFW window for the entire editor process. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_buffer}{Audio\+Buffer}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_device}{Audio\+Device}}
+\begin{DoxyCompactList}\small\item\em Audio device wrapper around miniaudio. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_listener}{Audio\+Listener}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_mixer}{Audio\+Mixer}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_source}{Audio\+Source}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_audio_system}{Audio\+System}}
+\item 
+struct \doxymbox{\hyperlink{structgcep_1_1_audio_voice}{Audio\+Voice}}
+\item 
+struct \doxymbox{\hyperlink{structgcep_1_1_log_channel}{Log\+Channel}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_log}{Log}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_mat3}{Mat3}}
+\begin{DoxyCompactList}\small\item\em Represents a 3x3 matrix for linear algebra operations. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_mat4}{Mat4}}
+\begin{DoxyCompactList}\small\item\em Represents a 4x4 transformation matrix. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_quaternion}{Quaternion}}
+\begin{DoxyCompactList}\small\item\em Represents a quaternion used for 3D rotations. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_quaternion_convertor}{Quaternion\+Convertor}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_vector3_convertor}{Vector3\+Convertor}}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1_vector2}{Vector2}}
+\begin{DoxyCompactList}\small\item\em Represents a 2D mathematical vector with common arithmetic operations. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}
+\begin{DoxyCompactList}\small\item\em Represents a 3D mathematical vector with common arithmetic operations. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_b_player_interface_impl}{BPlayer\+Interface\+Impl}}
+\begin{DoxyCompactList}\small\item\em Implementation of Jolt\textquotesingle{}s Broad\+Phase\+Layer\+Interface for mapping object layers to broadphase layers. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_object_layer_pair_filter_impl}{Object\+Layer\+Pair\+Filter\+Impl}}
+\begin{DoxyCompactList}\small\item\em Implementation of Jolt\textquotesingle{}s Object\+Layer\+Pair\+Filter. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_object_vs_broad_phase_layer_filter_impl}{Object\+Vs\+Broad\+Phase\+Layer\+Filter\+Impl}}
+\begin{DoxyCompactList}\small\item\em Implementation of Jolt\textquotesingle{}s Object\+Vs\+Broad\+Phase\+Layer\+Filter. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_physics_shape}{Physics\+Shape}}
+\begin{DoxyCompactList}\small\item\em High-\/level wrapper around a Jolt Physics shape. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_physics_system}{Physics\+System}}
+\begin{DoxyCompactList}\small\item\em Singleton wrapper for the engine\textquotesingle{}s physics subsystem. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_physics_world}{Physics\+World}}
+\begin{DoxyCompactList}\small\item\em Low-\/level wrapper for the physics simulation. \end{DoxyCompactList}\item 
+struct \doxymbox{\hyperlink{structgcep_1_1_raycast_hit}{Raycast\+Hit}}
+\begin{DoxyCompactList}\small\item\em Represents the result of a physics raycast. \end{DoxyCompactList}\item 
+class \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{RHI}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum class \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5a}{Simulation\+State}} \{ \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa09d4d696b4e935115b9313e3c412509a}{STOPPED}}
+, \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa50366a49630a416ab3ccaa004196027e}{PLAYING}}
+, \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa99b2439e63f73ad515f7ab2447a80673}{PAUSED}}
+ \}
+\begin{DoxyCompactList}\small\item\em Tracks the lifecycle state of the in-\/editor game simulation. \end{DoxyCompactList}\item 
+\Hypertarget{namespacegcep_a1c2260025f8772dec6f0e91dec074469}\label{namespacegcep_a1c2260025f8772dec6f0e91dec074469} 
+enum class {\bfseries Log\+Level} :\+ uint32\+\_\+t \{ \newline
+{\bfseries e\+None} = 0
+, {\bfseries e\+Common} = 1 \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} 0
+, {\bfseries e\+Warn} = 1 \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} 1
+, {\bfseries e\+Error} = 1 \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} 2
+, \newline
+{\bfseries e\+Verbose} = 1 \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} 3
+, {\bfseries e\+All} = e\+Common \texorpdfstring{$\vert$}{|} e\+Warn \texorpdfstring{$\vert$}{|} e\+Error \texorpdfstring{$\vert$}{|} e\+Verbose
+ \}
+\item 
+enum class \doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type}} \{ \newline
+{\bfseries BOX}
+, {\bfseries SPHERE}
+, {\bfseries CAPSULE}
+, {\bfseries CYLINDER}
+, \newline
+{\bfseries MESH}
+ \}
+\begin{DoxyCompactList}\small\item\em Enumerates all supported physics collision shape types. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{namespacegcep_a416b28db75590c2d078c75b81cca5487}{set\+Dark\+Theme}} ()
+\begin{DoxyCompactList}\small\item\em Applies the GCEP dark colour theme to the active Im\+Gui context. \end{DoxyCompactList}\item 
+std::\+string \doxymbox{\hyperlink{namespacegcep_ac2ef903f1a06e903b948525dfc261b0e}{get\+File\+Icon}} (const std::\+filesystem::\+path \&file)
+\begin{DoxyCompactList}\small\item\em Returns the Font Awesome icon glyph that best represents a file type. \end{DoxyCompactList}\item 
+\Hypertarget{namespacegcep_a099e68798947a20154073a7e14a94d8e}\label{namespacegcep_a099e68798947a20154073a7e14a94d8e} 
+Log\+Level {\bfseries operator\texorpdfstring{$\vert$}{|}} (Log\+Level a, Log\+Level b)
+\item 
+\Hypertarget{namespacegcep_a2a7c703ec33052d7317d66dadb8e9249}\label{namespacegcep_a2a7c703ec33052d7317d66dadb8e9249} 
+Log\+Level {\bfseries operator\&} (Log\+Level a, Log\+Level b)
+\item 
+\Hypertarget{namespacegcep_aeca66da256c87e9d023f252f6d83beb2}\label{namespacegcep_aeca66da256c87e9d023f252f6d83beb2} 
+bool {\bfseries has\+Flag} (Log\+Level mask, Log\+Level flag)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Namespace for the Gaming Campus Engine Paris. 
+
+\label{doc-enum-members}
+\Hypertarget{namespacegcep_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}\index{gcep@{gcep}!EPhysicsShapeType@{EPhysicsShapeType}}
+\index{EPhysicsShapeType@{EPhysicsShapeType}!gcep@{gcep}}
+\doxysubsubsection{\texorpdfstring{EPhysicsShapeType}{EPhysicsShapeType}}
+{\footnotesize\ttfamily \label{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5} 
+enum class \doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{gcep::\+\+EPhysics\+Shape\+Type}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+
+
+Enumerates all supported physics collision shape types. 
+
+This enum describes the high-\/level abstraction of collision shapes used by the engine. Each type maps internally to a specific Jolt Physics shape implementation. \Hypertarget{namespacegcep_ae89de9e04e442030938065553f7b4d5a}\index{gcep@{gcep}!SimulationState@{SimulationState}}
+\index{SimulationState@{SimulationState}!gcep@{gcep}}
+\doxysubsubsection{\texorpdfstring{SimulationState}{SimulationState}}
+{\footnotesize\ttfamily \label{namespacegcep_ae89de9e04e442030938065553f7b4d5a} 
+enum class \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5a}{gcep::\+\+Simulation\+State}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+
+
+Tracks the lifecycle state of the in-\/editor game simulation. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STOPPED@{STOPPED}!gcep@{gcep}}
+\index{gcep@{gcep}!STOPPED@{STOPPED}}
+}\Hypertarget{namespacegcep_ae89de9e04e442030938065553f7b4d5aa09d4d696b4e935115b9313e3c412509a}\label{namespacegcep_ae89de9e04e442030938065553f7b4d5aa09d4d696b4e935115b9313e3c412509a} 
+STOPPED&No simulation running; scene is editable. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PLAYING@{PLAYING}!gcep@{gcep}}
+\index{gcep@{gcep}!PLAYING@{PLAYING}}
+}\Hypertarget{namespacegcep_ae89de9e04e442030938065553f7b4d5aa50366a49630a416ab3ccaa004196027e}\label{namespacegcep_ae89de9e04e442030938065553f7b4d5aa50366a49630a416ab3ccaa004196027e} 
+PLAYING&Simulation is executing in real time. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PAUSED@{PAUSED}!gcep@{gcep}}
+\index{gcep@{gcep}!PAUSED@{PAUSED}}
+}\Hypertarget{namespacegcep_ae89de9e04e442030938065553f7b4d5aa99b2439e63f73ad515f7ab2447a80673}\label{namespacegcep_ae89de9e04e442030938065553f7b4d5aa99b2439e63f73ad515f7ab2447a80673} 
+PAUSED&Simulation is suspended; state is preserved. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\label{doc-func-members}
+\Hypertarget{namespacegcep_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacegcep_ac2ef903f1a06e903b948525dfc261b0e}\index{gcep@{gcep}!getFileIcon@{getFileIcon}}
+\index{getFileIcon@{getFileIcon}!gcep@{gcep}}
+\doxysubsubsection{\texorpdfstring{getFileIcon()}{getFileIcon()}}
+{\footnotesize\ttfamily \label{namespacegcep_ac2ef903f1a06e903b948525dfc261b0e} 
+std::\+string gcep::\+get\+File\+Icon (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{file}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the Font Awesome icon glyph that best represents a file type. 
+
+Matches the file extension of {\ttfamily file} against a known set of media types. Falls back to a generic file icon for unrecognised extensions.
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & Path whose extension is inspected. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A UTF-\/8 string containing the corresponding Font Awesome glyph. 
+\end{DoxyReturn}
+\Hypertarget{namespacegcep_a416b28db75590c2d078c75b81cca5487}\index{gcep@{gcep}!setDarkTheme@{setDarkTheme}}
+\index{setDarkTheme@{setDarkTheme}!gcep@{gcep}}
+\doxysubsubsection{\texorpdfstring{setDarkTheme()}{setDarkTheme()}}
+{\footnotesize\ttfamily \label{namespacegcep_a416b28db75590c2d078c75b81cca5487} 
+void gcep::\+set\+Dark\+Theme (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Applies the GCEP dark colour theme to the active Im\+Gui context. 
+
+Sets geometry, spacing, border, rounding, and every {\ttfamily Im\+Gui\+Col\+\_\+\texorpdfstring{$\ast$}{*}} entry to produce a consistent dark editor look. Safe to call at any time between {\ttfamily Im\+Gui::\+\+New\+Frame()} calls; changes take effect on the next rendered frame.
+
+\begin{DoxyParagraph}{Palette summary}
+
+\begin{DoxyItemize}
+\item Background:\+ near-\/black (\#171717)
+\item Panels /\+ frames:\+ dark grey (\#242424)
+\item Accent (selection, sliders, plots):\+ muted steel blue
+\item Text:\+ light grey (\+\#\+DADADA) 
+\end{DoxyItemize}
+\end{DoxyParagraph}

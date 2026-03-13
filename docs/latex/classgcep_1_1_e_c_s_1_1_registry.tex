@@ -1,0 +1,234 @@
+\doxysection{gcep::\+ECS::\+Registry Class Reference}
+\hypertarget{classgcep_1_1_e_c_s_1_1_registry}{}\label{classgcep_1_1_e_c_s_1_1_registry}\index{gcep::ECS::Registry@{gcep::ECS::Registry}}
+
+
+Central Manager for the ECS (Entity Component System).  
+
+
+
+
+{\ttfamily \+\#include $<$registry.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a0d2d76c9fd38638e790c15c63baca83c}{\texorpdfstring{$\sim$}{\string~}\+Registry}} ()=default
+\item 
+Entity\+ID \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_ab5a8e1ef1e9112343ca8b6b978d6ffa8}{create\+Entity}} ()
+\begin{DoxyCompactList}\small\item\em Creates a new entity. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_ad5857c0b00243968a2167fbd9e60ed6d}\label{classgcep_1_1_e_c_s_1_1_registry_ad5857c0b00243968a2167fbd9e60ed6d} 
+void {\bfseries create\+Entity\+With\+ID} (Entity\+ID entity)
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a0bd4ba8465824c805b9fb2debcdb820d}{destroy\+Entity}} (Entity\+ID entity)
+\begin{DoxyCompactList}\small\item\em Marks an entity for deferred destruction. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_afeb8f5323d50743039f2374bf4ac9f5f}\label{classgcep_1_1_e_c_s_1_1_registry_afeb8f5323d50743039f2374bf4ac9f5f} 
+void {\bfseries update} ()
+\begin{DoxyCompactList}\small\item\em Synchronizes the ECS state. Performs the actual destruction of marked entities, pool cleanup (swap-\/and-\/pop), and ID recycling. Should be called at the end of every frame. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept T, typename... Args$>$ }\\T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a8c742da8fb46586fbee61aa68d2038a6}{add\+Component}} (Entity\+ID entity\+ID, Args \&\&... args)
+\begin{DoxyCompactList}\small\item\em Constructs and attaches a component of type T to an entity in-\/place. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept T$>$ }\\void \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a6dfcf82216441baf5b66ae678da819b0}{remove\+Component}} (Entity\+ID entity)
+\begin{DoxyCompactList}\small\item\em Removes a component of type T from an entity. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept T$>$ }\\T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_adaa388447119c46d50c868fae20c81ad}{get\+Component}} (Entity\+ID entity)
+\begin{DoxyCompactList}\small\item\em Retrieves a reference to an entity\textquotesingle{}s component. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept T$>$ }\\bool \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a025a3862cb241455effa3a0f6dd1ce22}{has\+Component}} (Entity\+ID entity)
+\begin{DoxyCompactList}\small\item\em Checks if an entity possesses a component of type T. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept... Args$>$ }\\\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{View}}$<$ Args... $>$ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_ae93e1a66b6ed55f5e6363867cb1dd568}{view}} ()
+\begin{DoxyCompactList}\small\item\em Creates an inclusion-\/filtered view. Returns entities possessing AT LEAST the specified component types. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Component\+Concept T$>$ }\\\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_component_pool}{Component\+Pool}}$<$ T $>$ \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry_a5007aa412379c3a24faddf73e0979363}{get\+Pool}} ()
+\begin{DoxyCompactList}\small\item\em Retrieves the storage pool associated with a component type. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a62cf9f52798de21b8a684514e604795f}\label{classgcep_1_1_e_c_s_1_1_registry_a62cf9f52798de21b8a684514e604795f} 
+const std::\+vector$<$ std::\+unique\+\_\+ptr$<$ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_i_pool}{IPool}} $>$ $>$ \& {\bfseries get\+Pools} () const
+\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_ae93a55d41d00f87e4dde9ce8f8adcfab}\label{classgcep_1_1_e_c_s_1_1_registry_ae93a55d41d00f87e4dde9ce8f8adcfab} 
+const std::\+vector$<$ uint32\+\_\+t $>$ \& {\bfseries get\+Type\+List} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Central Manager for the ECS (Entity Component System). 
+
+The \doxylink{classgcep_1_1_e_c_s_1_1_registry}{Registry} handles the lifecycle of entities, paged allocation of signatures, and maintains the link between entities and their respective components. 
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a0d2d76c9fd38638e790c15c63baca83c}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!````~Registry@{\texorpdfstring{$\sim$}{\string~}Registry}}
+\index{````~Registry@{\texorpdfstring{$\sim$}{\string~}Registry}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}Registry()}{\string~Registry()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a0d2d76c9fd38638e790c15c63baca83c} 
+gcep::\+\+ECS::\+\+Registry::\+\texorpdfstring{$\sim$}{\string~}\+Registry (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+@begin Default destructor of the class. 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a8c742da8fb46586fbee61aa68d2038a6}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!addComponent@{addComponent}}
+\index{addComponent@{addComponent}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{addComponent()}{addComponent()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a8c742da8fb46586fbee61aa68d2038a6} 
+template$<$Component\+Concept T, typename... Args$>$ \\
+T \& gcep::\+\+ECS::\+\+Registry::\+add\+Component (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity\+ID}{, }\item[{Args \&\&...}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Constructs and attaches a component of type T to an entity in-\/place. 
+
+Updates the entity\textquotesingle{}s signature and forwards arguments to the pool\textquotesingle{}s constructor. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Component type. \\
+\hline
+{\em Args} & Constructor argument types. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em entity\+ID} & Target entity ID. \\
+\hline
+{\em args} & Arguments for perfect forwarding. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_ab5a8e1ef1e9112343ca8b6b978d6ffa8}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!createEntity@{createEntity}}
+\index{createEntity@{createEntity}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{createEntity()}{createEntity()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_ab5a8e1ef1e9112343ca8b6b978d6ffa8} 
+Entity\+ID gcep::\+\+ECS::\+\+Registry::\+create\+Entity (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Creates a new entity. 
+
+Uses the \doxylink{classgcep_1_1_e_c_s_1_1_entity_i_d_generator}{Entity\+IDGenerator} to allocate a new entity ID. If a destroyed entity slot is available in the free list, that ID is reused with an incremented version number. Otherwise, a new slot is allocated from the entity pool. \begin{DoxyReturn}{Returns}
+Entity\+ID The unique identifier of the new entity. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a0bd4ba8465824c805b9fb2debcdb820d}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!destroyEntity@{destroyEntity}}
+\index{destroyEntity@{destroyEntity}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{destroyEntity()}{destroyEntity()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a0bd4ba8465824c805b9fb2debcdb820d} 
+void gcep::\+\+ECS::\+\+Registry::\+destroy\+Entity (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Marks an entity for deferred destruction. 
+
+The entity is queued for removal and its ID is invalidated through version checking by the \doxylink{classgcep_1_1_e_c_s_1_1_entity_i_d_generator}{Entity\+IDGenerator}. The entity remains logically valid until the next call to \doxylink{classgcep_1_1_e_c_s_1_1_registry_afeb8f5323d50743039f2374bf4ac9f5f}{update()}, where it is permanently removed and its slot recycled. \begin{DoxyNote}{Note}
+The entity remains valid until the next call to \doxylink{classgcep_1_1_e_c_s_1_1_registry_afeb8f5323d50743039f2374bf4ac9f5f}{update()}. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The identifier of the entity to be removed. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_adaa388447119c46d50c868fae20c81ad}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!getComponent@{getComponent}}
+\index{getComponent@{getComponent}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{getComponent()}{getComponent()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_adaa388447119c46d50c868fae20c81ad} 
+template$<$Component\+Concept T$>$ \\
+T \& gcep::\+\+ECS::\+\+Registry::\+get\+Component (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption})}
+
+
+
+Retrieves a reference to an entity\textquotesingle{}s component. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The type of component to retrieve. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The target entity ID. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+T\& Reference to the stored component data. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a5007aa412379c3a24faddf73e0979363}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!getPool@{getPool}}
+\index{getPool@{getPool}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{getPool()}{getPool()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a5007aa412379c3a24faddf73e0979363} 
+template$<$Component\+Concept T$>$ \\
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_component_pool}{Component\+Pool}}$<$ T $>$ \& gcep::\+\+ECS::\+\+Registry::\+get\+Pool (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Retrieves the storage pool associated with a component type. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The component type. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+\doxylink{structgcep_1_1_e_c_s_1_1_component_pool}{Component\+Pool$<$\+T$>$}\& Reference to the specialized component pool. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a025a3862cb241455effa3a0f6dd1ce22}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!hasComponent@{hasComponent}}
+\index{hasComponent@{hasComponent}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{hasComponent()}{hasComponent()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a025a3862cb241455effa3a0f6dd1ce22} 
+template$<$Component\+Concept T$>$ \\
+bool gcep::\+\+ECS::\+\+Registry::\+has\+Component (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Checks if an entity possesses a component of type T. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The component type to test for. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The target entity ID. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the component is present, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_a6dfcf82216441baf5b66ae678da819b0}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!removeComponent@{removeComponent}}
+\index{removeComponent@{removeComponent}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{removeComponent()}{removeComponent()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_a6dfcf82216441baf5b66ae678da819b0} 
+template$<$Component\+Concept T$>$ \\
+void gcep::\+\+ECS::\+\+Registry::\+remove\+Component (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption})}
+
+
+
+Removes a component of type T from an entity. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The type of component to remove. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The target entity ID. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_registry_ae93e1a66b6ed55f5e6363867cb1dd568}\index{gcep::ECS::Registry@{gcep::ECS::Registry}!view@{view}}
+\index{view@{view}!gcep::ECS::Registry@{gcep::ECS::Registry}}
+\doxysubsubsection{\texorpdfstring{view()}{view()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_registry_ae93e1a66b6ed55f5e6363867cb1dd568} 
+template$<$Component\+Concept... Args$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{View}}$<$ Args... $>$ gcep::\+\+ECS::\+\+Registry::\+view (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Creates an inclusion-\/filtered view. Returns entities possessing AT LEAST the specified component types. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Args} & List of required component types. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+\doxylink{classgcep_1_1_e_c_s_1_1_view}{View$<$\+Args...$>$} An iterable object containing matching entities. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+registry.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+detail/\+registry.\+inl\end{DoxyCompactItemize}

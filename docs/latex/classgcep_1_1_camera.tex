@@ -1,0 +1,151 @@
+\doxysection{gcep::\+Camera Class Reference}
+\hypertarget{classgcep_1_1_camera}{}\label{classgcep_1_1_camera}\index{gcep::Camera@{gcep::Camera}}
+
+
+First-\/person editor camera that maps keyboard/\+mouse events to view and projection matrices consumed by the \doxylink{classgcep_1_1_r_h_i}{RHI}.  
+
+
+
+
+{\ttfamily \+\#include $<$camera.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e}{Camera}} (\doxymbox{\hyperlink{classgcep_1_1_input_system}{Input\+System}} \texorpdfstring{$\ast$}{*}inputs, \doxymbox{\hyperlink{classgcep_1_1_window}{Window}} \texorpdfstring{$\ast$}{*}window)
+\begin{DoxyCompactList}\small\item\em Constructs the camera and binds it to an input source and window. \end{DoxyCompactList}\item 
+glm::\+mat4 \doxymbox{\hyperlink{classgcep_1_1_camera_adac74ae856d7532eec8466b82b266d5d}{get\+View\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Builds and returns the view matrix from the current position and orientation. \end{DoxyCompactList}\item 
+glm::\+mat4 \doxymbox{\hyperlink{classgcep_1_1_camera_a5cd696ea3e1893e8782db1ecee9652c8}{get\+Projection\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Builds and returns the perspective projection matrix. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{rhi::\+vulkan::\+\+Uniform\+Buffer\+Object}} \doxymbox{\hyperlink{classgcep_1_1_camera_a37a93059bf2497140ca65a86eea3371f}{update}} (float aspect, float cam\+Speed)
+\begin{DoxyCompactList}\small\item\em Advances the camera simulation by one frame and returns the updated UBO. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_camera_a9de5a0b5d59182a6c7679d5838fa0986}\label{classgcep_1_1_camera_a9de5a0b5d59182a6c7679d5838fa0986} 
+glm::\+vec3 {\bfseries m\+\_\+velocity}
+\begin{DoxyCompactList}\small\item\em Current velocity vector (world units /\+ second). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_camera_ae1fb1ad68ebe210ab9125dde4c744a37}\label{classgcep_1_1_camera_ae1fb1ad68ebe210ab9125dde4c744a37} 
+glm::\+vec3 {\bfseries m\+\_\+position}
+\begin{DoxyCompactList}\small\item\em World-\/space position of the camera eye point. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_camera_ac2d2e776202269ff00c458a212b06eb5}\label{classgcep_1_1_camera_ac2d2e776202269ff00c458a212b06eb5} 
+glm::\+vec3 {\bfseries m\+\_\+front} = glm::\+vec3(-\/1.\+0f, 0.\+0f, 0.\+0f)
+\begin{DoxyCompactList}\small\item\em Unit vector pointing in the camera\textquotesingle{}s look direction. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_camera_a812292e11890d285658bcac391500419}\label{classgcep_1_1_camera_a812292e11890d285658bcac391500419} 
+float {\bfseries m\+\_\+pitch} = 0.\+0f
+\begin{DoxyCompactList}\small\item\em Vertical rotation angle, in degrees. Positive = tilt up. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_camera_aec82297198b51c3120f0dd4ea34c3fcc}\label{classgcep_1_1_camera_aec82297198b51c3120f0dd4ea34c3fcc} 
+float {\bfseries m\+\_\+yaw} = -\/180.\+0f
+\begin{DoxyCompactList}\small\item\em Horizontal rotation angle, in degrees. 0 = negative-\/X direction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+First-\/person editor camera that maps keyboard/\+mouse events to view and projection matrices consumed by the \doxylink{classgcep_1_1_r_h_i}{RHI}. 
+
+{\ttfamily \doxylink{classgcep_1_1_camera}{Camera}} polls an {\ttfamily \doxylink{classgcep_1_1_input_system}{Input\+System}} each frame to translate WASD /\+ QE keyboard input into positional movement and drag-\/based mouse input into yaw/\+pitch rotation. The resulting matrices are packed into a {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{rhi::\+vulkan::\+\+Uniform\+Buffer\+Object}} and returned by {\ttfamily \doxylink{classgcep_1_1_camera_a37a93059bf2497140ca65a86eea3371f}{update()}}.
+
+\begin{DoxyParagraph}{Coordinate system}
+
+\begin{DoxyItemize}
+\item The world-\/up axis is {\ttfamily }(0, 0, 1) (Z-\/up).
+\item The camera\textquotesingle{}s local up is {\ttfamily }(0, 1, 0).
+\item Yaw is measured from the negative-\/X axis, pitch from the XY plane.
+\end{DoxyItemize}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Typical usage}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e}{Camera}}\ camera(\&inputSystem,\ \&window);}
+\DoxyCodeLine{\textcolor{comment}{//\ each\ frame:}}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ ubo\ =\ camera.update(aspectRatio,\ settings.cameraSpeed);}
+\DoxyCodeLine{rhi-\/>updateCameraUBO(ubo);}
+
+\end{DoxyCode}
+ 
+\end{DoxyParagraph}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_camera_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e}\index{gcep::Camera@{gcep::Camera}!Camera@{Camera}}
+\index{Camera@{Camera}!gcep::Camera@{gcep::Camera}}
+\doxysubsubsection{\texorpdfstring{Camera()}{Camera()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e} 
+gcep::\+\+Camera::\+\+Camera (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1_input_system}{Input\+System}} \texorpdfstring{$\ast$}{*}}]{inputs}{, }\item[{\doxymbox{\hyperlink{classgcep_1_1_window}{Window}} \texorpdfstring{$\ast$}{*}}]{window}{}\end{DoxyParamCaption})}
+
+
+
+Constructs the camera and binds it to an input source and window. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inputs} & Pointer to the active {\ttfamily \doxylink{classgcep_1_1_input_system}{Input\+System}}. Must outlive this object. \\
+\hline
+{\em window} & Pointer to the application {\ttfamily \doxylink{classgcep_1_1_window}{Window}}. Must outlive this object. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_camera_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_camera_a5cd696ea3e1893e8782db1ecee9652c8}\index{gcep::Camera@{gcep::Camera}!getProjectionMatrix@{getProjectionMatrix}}
+\index{getProjectionMatrix@{getProjectionMatrix}!gcep::Camera@{gcep::Camera}}
+\doxysubsubsection{\texorpdfstring{getProjectionMatrix()}{getProjectionMatrix()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_camera_a5cd696ea3e1893e8782db1ecee9652c8} 
+glm::\+mat4 gcep::\+\+Camera::\+get\+Projection\+Matrix (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Builds and returns the perspective projection matrix. 
+
+Uses a 60° vertical FOV, the window\textquotesingle{}s current aspect ratio, and a near/\+far clip of 0.\+01 /\+ 1000.
+
+\begin{DoxyReturn}{Returns}
+A 4×4 projection matrix in column-\/major order (Vulkan NDC). 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_camera_adac74ae856d7532eec8466b82b266d5d}\index{gcep::Camera@{gcep::Camera}!getViewMatrix@{getViewMatrix}}
+\index{getViewMatrix@{getViewMatrix}!gcep::Camera@{gcep::Camera}}
+\doxysubsubsection{\texorpdfstring{getViewMatrix()}{getViewMatrix()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_camera_adac74ae856d7532eec8466b82b266d5d} 
+glm::\+mat4 gcep::\+\+Camera::\+get\+View\+Matrix (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Builds and returns the view matrix from the current position and orientation. 
+
+Computed as {\ttfamily glm::\+look\+At}(position, position + front, up).
+
+\begin{DoxyReturn}{Returns}
+A 4×4 view matrix in column-\/major order. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_camera_a37a93059bf2497140ca65a86eea3371f}\index{gcep::Camera@{gcep::Camera}!update@{update}}
+\index{update@{update}!gcep::Camera@{gcep::Camera}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_camera_a37a93059bf2497140ca65a86eea3371f} 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{rhi::\+vulkan::\+\+Uniform\+Buffer\+Object}} gcep::\+\+Camera::\+update (\begin{DoxyParamCaption}\item[{float}]{aspect}{, }\item[{float}]{cam\+Speed}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Advances the camera simulation by one frame and returns the updated UBO. 
+
+Processes movement keys (WASD /\+ QE) scaled by {\ttfamily cam\+Speed}, updates yaw/\+pitch from right-\/mouse-\/button drag, then recomputes {\ttfamily front}, {\ttfamily right}, and {\ttfamily velocity}. Writes the new view/\+projection matrices and the camera position into {\ttfamily ubo} before returning it.
+
+
+\begin{DoxyParams}{Parameters}
+{\em aspect} & Viewport width divided by height. \\
+\hline
+{\em cam\+Speed} & Movement speed in world units per second. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The updated {\ttfamily Uniform\+Buffer\+Object} ready to be uploaded to the GPU. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Camera/\+\doxymbox{\hyperlink{camera_8hpp}{camera.\+hpp}}\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Camera/\+camera.\+cpp\end{DoxyCompactItemize}

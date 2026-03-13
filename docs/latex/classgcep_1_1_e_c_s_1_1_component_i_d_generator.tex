@@ -1,0 +1,50 @@
+\doxysection{gcep::\+ECS::\+Component\+IDGenerator Class Reference}
+\hypertarget{classgcep_1_1_e_c_s_1_1_component_i_d_generator}{}\label{classgcep_1_1_e_c_s_1_1_component_i_d_generator}\index{gcep::ECS::ComponentIDGenerator@{gcep::ECS::ComponentIDGenerator}}
+
+
+Static identifier generator for component types.  
+
+
+
+
+{\ttfamily \+\#include $<$entity\+\_\+component.\+hpp$>$}
+
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T$>$ }\\static std::\+uint32\+\_\+t \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_component_i_d_generator_a302bdf9eaa2b4340a56b978895fb11fe}{get}} ()
+\begin{DoxyCompactList}\small\item\em Retrieves the unique ID associated with type T. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Static identifier generator for component types. 
+
+Uses a static member within a template function to assign a unique ID to each component class at runtime. This ensures O(1) type-\/to-\/\+ID mapping. 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_component_i_d_generator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_component_i_d_generator_a302bdf9eaa2b4340a56b978895fb11fe}\index{gcep::ECS::ComponentIDGenerator@{gcep::ECS::ComponentIDGenerator}!get@{get}}
+\index{get@{get}!gcep::ECS::ComponentIDGenerator@{gcep::ECS::ComponentIDGenerator}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_component_i_d_generator_a302bdf9eaa2b4340a56b978895fb11fe} 
+template$<$typename T$>$ \\
+std::\+uint32\+\_\+t gcep::\+\+ECS::\+\+Component\+IDGenerator::\+get (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Retrieves the unique ID associated with type T. 
+
+The ID is generated during the first call for type T, then cached statically for all subsequent calls. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The component type (e.\+g., Position, Velocity). \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+uint32\+\_\+t The unique identifier for the component type. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+entity\+\_\+component.\+hpp\end{DoxyCompactItemize}

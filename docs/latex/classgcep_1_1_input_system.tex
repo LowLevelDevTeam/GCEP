@@ -1,0 +1,108 @@
+\doxysection{gcep::\+Input\+System Class Reference}
+\hypertarget{classgcep_1_1_input_system}{}\label{classgcep_1_1_input_system}\index{gcep::InputSystem@{gcep::InputSystem}}
+
+
+Polls registered GLFW key states and dispatches callbacks each frame.  
+
+
+
+
+{\ttfamily \+\#include $<$inputs.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_input_system_ae8b7d3de82c0ce0a74cd387798e553bc}{Input\+System}} (GLFWwindow \texorpdfstring{$\ast$}{*}window)
+\begin{DoxyCompactList}\small\item\em Binds the input system to a GLFW window. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_input_system_ac5bc36aed585b131ffb6e6e54503b469}{add\+Tracked\+Key}} (int key, std::\+function$<$ void()$>$ callback)
+\begin{DoxyCompactList}\small\item\em Registers a callback to be fired while {\ttfamily key} is held down. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_input_system_a2fa29188998ebc92cfa01eb9f68e2c1c}{update}} ()
+\begin{DoxyCompactList}\small\item\em Polls all registered keys and fires their callbacks if pressed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Polls registered GLFW key states and dispatches callbacks each frame. 
+
+{\ttfamily \doxylink{classgcep_1_1_input_system}{Input\+System}} provides a lightweight, callback-\/driven abstraction over raw GLFW key polling. Callers register {\ttfamily }(key, callback) pairs via {\ttfamily \doxylink{classgcep_1_1_input_system_ac5bc36aed585b131ffb6e6e54503b469}{add\+Tracked\+Key()}}. Each call to {\ttfamily \doxylink{classgcep_1_1_input_system_a2fa29188998ebc92cfa01eb9f68e2c1c}{update()}} polls every registered key; when a key is held down (GLFW\+\_\+\+PRESS), its associated callback is invoked immediately on the calling thread.
+
+\begin{DoxyParagraph}{Typical usage}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_input_system_ae8b7d3de82c0ce0a74cd387798e553bc}{InputSystem}}\ input(window);}
+\DoxyCodeLine{input.addTrackedKey(GLFW\_KEY\_W,\ [\&]\{\ camera.moveForward();\ \});}
+\DoxyCodeLine{input.addTrackedKey(GLFW\_KEY\_ESCAPE,\ [\&]\{\ running\ =\ \textcolor{keyword}{false};\ \});}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{while}\ (running)}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{\ \ \ \ glfwPollEvents();}
+\DoxyCodeLine{\ \ \ \ input.update();\ \ \ \textcolor{comment}{//\ fires\ callbacks\ for\ all\ pressed\ keys}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+\end{DoxyParagraph}
+\begin{DoxyNote}{Note}
+{\ttfamily \doxylink{classgcep_1_1_input_system_a2fa29188998ebc92cfa01eb9f68e2c1c}{update()}} must be called after {\ttfamily glfw\+Poll\+Events()} so that GLFW\textquotesingle{}s internal key state is up-\/to-\/date. 
+
+Only one callback per key is supported; registering the same key twice overwrites the previous entry. 
+\end{DoxyNote}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_input_system_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_input_system_ae8b7d3de82c0ce0a74cd387798e553bc}\index{gcep::InputSystem@{gcep::InputSystem}!InputSystem@{InputSystem}}
+\index{InputSystem@{InputSystem}!gcep::InputSystem@{gcep::InputSystem}}
+\doxysubsubsection{\texorpdfstring{InputSystem()}{InputSystem()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_input_system_ae8b7d3de82c0ce0a74cd387798e553bc} 
+gcep::\+\+Input\+System::\+\+Input\+System (\begin{DoxyParamCaption}\item[{GLFWwindow \texorpdfstring{$\ast$}{*}}]{window}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Binds the input system to a GLFW window. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em window} & The GLFW window whose key state will be polled. Must outlive this object. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_input_system_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_input_system_ac5bc36aed585b131ffb6e6e54503b469}\index{gcep::InputSystem@{gcep::InputSystem}!addTrackedKey@{addTrackedKey}}
+\index{addTrackedKey@{addTrackedKey}!gcep::InputSystem@{gcep::InputSystem}}
+\doxysubsubsection{\texorpdfstring{addTrackedKey()}{addTrackedKey()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_input_system_ac5bc36aed585b131ffb6e6e54503b469} 
+void gcep::\+\+Input\+System::\+add\+Tracked\+Key (\begin{DoxyParamCaption}\item[{int}]{key}{, }\item[{std::\+function$<$ void()$>$}]{callback}{}\end{DoxyParamCaption})}
+
+
+
+Registers a callback to be fired while {\ttfamily key} is held down. 
+
+If {\ttfamily key} was already registered, its previous callback is replaced.
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & GLFW key token (e.\+g. {\ttfamily GLFW\+\_\+\+KEY\+\_\+W}). \\
+\hline
+{\em callback} & Zero-\/argument callable invoked each frame the key is pressed. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_input_system_a2fa29188998ebc92cfa01eb9f68e2c1c}\index{gcep::InputSystem@{gcep::InputSystem}!update@{update}}
+\index{update@{update}!gcep::InputSystem@{gcep::InputSystem}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_input_system_a2fa29188998ebc92cfa01eb9f68e2c1c} 
+void gcep::\+\+Input\+System::\+update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Polls all registered keys and fires their callbacks if pressed. 
+
+For each entry in {\ttfamily m\+\_\+tracked\+Keys}, calls {\ttfamily glfw\+Get\+Key()} and invokes the stored callback when the result is {\ttfamily GLFW\+\_\+\+PRESS}. Must be called once per frame after {\ttfamily glfw\+Poll\+Events()}. 
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Inputs/\+\doxymbox{\hyperlink{inputs_8hpp}{inputs.\+hpp}}\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Inputs/\+inputs.\+cpp\end{DoxyCompactItemize}

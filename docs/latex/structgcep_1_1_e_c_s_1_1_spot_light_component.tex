@@ -1,0 +1,59 @@
+\doxysection{gcep::\+ECS::\+Spot\+Light\+Component Struct Reference}
+\hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component}{}\label{structgcep_1_1_e_c_s_1_1_spot_light_component}\index{gcep::ECS::SpotLightComponent@{gcep::ECS::SpotLightComponent}}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_aaa32c01cdd04cb981682fae6946247aa}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_aaa32c01cdd04cb981682fae6946247aa} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries position} = \{ 0.\+0f, 1.\+0f, 0.\+0f \}
+\begin{DoxyCompactList}\small\item\em World-\/space origin. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a863e8c47f4e2c1e531994030335cecd2}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a863e8c47f4e2c1e531994030335cecd2} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries direction} = \{ 0.\+0f, -\/1.\+0f, 0.\+0f \}
+\begin{DoxyCompactList}\small\item\em Unit vector pointing down the cone axis. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a6b11f4a41dda5086624c0fc946a55923}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a6b11f4a41dda5086624c0fc946a55923} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries color} = \{ 1.\+0f, 1.\+0f, 1.\+0f \}
+\begin{DoxyCompactList}\small\item\em Linear-\/space RGB color. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a75a4a58e4f63cdb7c47f59e027a65c05}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a75a4a58e4f63cdb7c47f59e027a65c05} 
+float {\bfseries intensity} = 1.\+0f
+\begin{DoxyCompactList}\small\item\em Luminous intensity scalar. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a5570246422d2d3b1e0c1848764322364}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a5570246422d2d3b1e0c1848764322364} 
+float {\bfseries radius} = 20.\+0f
+\begin{DoxyCompactList}\small\item\em Maximum influence radius in world units. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_ab4b8f51ef7fb2c5c06371975556bf0e5}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_ab4b8f51ef7fb2c5c06371975556bf0e5} 
+float {\bfseries inner\+Cutoff\+Deg} = 15.\+0f
+\begin{DoxyCompactList}\small\item\em Full-\/brightness cone half-\/angle (degrees). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_ae137e7e4657abe8e2ca4d254402e3366}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_ae137e7e4657abe8e2ca4d254402e3366} 
+float {\bfseries outer\+Cutoff\+Deg} = 30.\+0f
+\begin{DoxyCompactList}\small\item\em Zero-\/brightness cone half-\/angle (degrees). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a643829908a282ac378722178e6a40530}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a643829908a282ac378722178e6a40530} 
+bool {\bfseries show\+Gizmo} = true
+\begin{DoxyCompactList}\small\item\em When false the cone wireframe gizmo is hidden. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a20f467019c0381c3d508d406902edd02}\label{structgcep_1_1_e_c_s_1_1_spot_light_component_a20f467019c0381c3d508d406902edd02} 
+std::\+string {\bfseries name}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static bool \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_spot_light_component_a6ec609e54b5a7b3c4f5531fa84a50273}{\+\_\+gcep\+\_\+registered}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-variable-members}
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structgcep_1_1_e_c_s_1_1_spot_light_component_a6ec609e54b5a7b3c4f5531fa84a50273}\index{gcep::ECS::SpotLightComponent@{gcep::ECS::SpotLightComponent}!\_gcep\_registered@{\_gcep\_registered}}
+\index{\_gcep\_registered@{\_gcep\_registered}!gcep::ECS::SpotLightComponent@{gcep::ECS::SpotLightComponent}}
+\doxysubsubsection{\texorpdfstring{\_gcep\_registered}{\_gcep\_registered}}
+{\footnotesize\ttfamily \label{structgcep_1_1_e_c_s_1_1_spot_light_component_a6ec609e54b5a7b3c4f5531fa84a50273} 
+bool gcep::\+\+ECS::\+\+Spot\+Light\+Component::\+\+\_\+gcep\+\_\+registered\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =}
+\DoxyCodeLine{ComponentRegistry::instance().reg<\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_spot_light_component}{SpotLightComponent}}>()}
+
+\end{DoxyCode}
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+\+Components/\+spot\+\_\+light\+\_\+component.\+hpp\end{DoxyCompactItemize}

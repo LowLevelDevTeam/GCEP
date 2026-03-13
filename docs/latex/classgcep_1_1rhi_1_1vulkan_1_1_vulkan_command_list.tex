@@ -1,0 +1,113 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Vulkan\+Command\+List Class Reference}
+\hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}\index{gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}}
+
+
+Thin RAII wrapper around a {\ttfamily vk::\+\+Command\+Buffer} for render-\/thread recording.  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+Command\+List.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{Vulkan\+Command\+List}} (vk::\+\+Command\+Buffer cmd)
+\begin{DoxyCompactList}\small\item\em Constructs a command list wrapping the given command buffer. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a4bb5060a8f08c961b8ca6099d246775b}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a4bb5060a8f08c961b8ca6099d246775b} 
+{\bfseries Vulkan\+Command\+List} (const Vulkan\+Command\+List \&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ac52e209ed6089acabd3e194ad5d8f914}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ac52e209ed6089acabd3e194ad5d8f914} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{Vulkan\+Command\+List}} \& {\bfseries operator=} (const \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{Vulkan\+Command\+List}} \&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a1c1938dedf5d4cd3556610b64bb15e1f}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a1c1938dedf5d4cd3556610b64bb15e1f} 
+{\bfseries Vulkan\+Command\+List} (Vulkan\+Command\+List \&\&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ae180de7c43e45d520f421f1d894ca324}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ae180de7c43e45d520f421f1d894ca324} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{Vulkan\+Command\+List}} \& {\bfseries operator=} (\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{Vulkan\+Command\+List}} \&\&)=delete
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_aaf7edf661afdff70fcf392c3be18f880}{begin\+Recording}} ()
+\begin{DoxyCompactList}\small\item\em Opens the command buffer for recording with {\ttfamily e\+One\+Time\+Submit} semantics. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ab206290d14e79c41fb22d90ba467abfe}{end\+Recording}} ()
+\begin{DoxyCompactList}\small\item\em Closes the command buffer, making it ready for submission. \end{DoxyCompactList}\item 
+vk::\+\+Command\+Buffer \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a36e8d63b02bfa96fe285ceb9faf515c8}{raw}} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the underlying non-\/owning {\ttfamily vk::\+\+Command\+Buffer} handle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Thin RAII wrapper around a {\ttfamily vk::\+\+Command\+Buffer} for render-\/thread recording. 
+
+{\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{Vulkan\+Command\+List}} does not own the command buffer it wraps -\/ ownership remains with the parent {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context}{Vulkan\+Frame\+Context}}. The class exists to provide a typed recording interface and to expose the raw handle for direct Vulkan calls.
+
+\begin{DoxyParagraph}{Lifetime}
+The {\ttfamily vk::\+\+Command\+Buffer} passed to the constructor must remain valid for the entire lifetime of this object. In practice this is guaranteed because {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context}{Vulkan\+Frame\+Context}} constructs {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{Vulkan\+Command\+List}} after allocating the buffer and destroys it before freeing the command pool.
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Thread safety}
+Not thread-\/safe. One instance is owned per frame slot and used exclusively from the render thread. 
+\end{DoxyParagraph}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}\index{gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}!VulkanCommandList@{VulkanCommandList}}
+\index{VulkanCommandList@{VulkanCommandList}!gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}}
+\doxysubsubsection{\texorpdfstring{VulkanCommandList()}{VulkanCommandList()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252} 
+gcep::\+rhi::\+vulkan::\+\+Vulkan\+Command\+List::\+\+Vulkan\+Command\+List (\begin{DoxyParamCaption}\item[{vk::\+\+Command\+Buffer}]{cmd}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Constructs a command list wrapping the given command buffer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cmd} & A non-\/owning handle to a command buffer allocated from a {\ttfamily Vk\+Command\+Pool}. Must remain valid for the object\textquotesingle{}s lifetime. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_aaf7edf661afdff70fcf392c3be18f880}\index{gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}!beginRecording@{beginRecording}}
+\index{beginRecording@{beginRecording}!gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}}
+\doxysubsubsection{\texorpdfstring{beginRecording()}{beginRecording()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_aaf7edf661afdff70fcf392c3be18f880} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+Command\+List::\+begin\+Recording (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Opens the command buffer for recording with {\ttfamily e\+One\+Time\+Submit} semantics. 
+
+Must be called once per frame before any recording commands are issued. Corresponds to {\ttfamily vk\+Begin\+Command\+Buffer} with {\ttfamily VK\+\_\+\+COMMAND\+\_\+\+BUFFER\+\_\+\+USAGE\+\_\+\+ONE\+\_\+\+TIME\+\_\+\+SUBMIT\+\_\+\+BIT}. \Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ab206290d14e79c41fb22d90ba467abfe}\index{gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}!endRecording@{endRecording}}
+\index{endRecording@{endRecording}!gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}}
+\doxysubsubsection{\texorpdfstring{endRecording()}{endRecording()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ab206290d14e79c41fb22d90ba467abfe} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+Command\+List::\+end\+Recording (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Closes the command buffer, making it ready for submission. 
+
+Must be called after all commands have been recorded and before the buffer is passed to {\ttfamily vk\+Queue\+Submit}. Corresponds to {\ttfamily vk\+End\+Command\+Buffer}. \Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a36e8d63b02bfa96fe285ceb9faf515c8}\index{gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}!raw@{raw}}
+\index{raw@{raw}!gcep::rhi::vulkan::VulkanCommandList@{gcep::rhi::vulkan::VulkanCommandList}}
+\doxysubsubsection{\texorpdfstring{raw()}{raw()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a36e8d63b02bfa96fe285ceb9faf515c8} 
+vk::\+\+Command\+Buffer gcep::\+rhi::\+vulkan::\+\+Vulkan\+Command\+List::\+raw (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [nodiscard]}, {\ttfamily [noexcept]}}
+
+
+
+Returns the underlying non-\/owning {\ttfamily vk::\+\+Command\+Buffer} handle. 
+
+Use this to issue Vulkan commands directly (barriers, draw calls, etc.) when the typed API does not cover a required operation.
+
+\begin{DoxyReturn}{Returns}
+A non-\/owning {\ttfamily vk::\+\+Command\+Buffer} handle. Valid as long as the parent {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context}{Vulkan\+Frame\+Context}} is alive. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+\+Commands/\+Vulkan\+Command\+List.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+\+Commands/\+Vulkan\+Command\+List.\+cpp\end{DoxyCompactItemize}

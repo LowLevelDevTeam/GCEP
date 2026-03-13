@@ -1,0 +1,43 @@
+\doxysection{pl::\+Project\+Info Struct Reference}
+\hypertarget{structpl_1_1_project_info}{}\label{structpl_1_1_project_info}\index{pl::ProjectInfo@{pl::ProjectInfo}}
+
+
+Aggregates all metadata and settings that describe a GCEP project on disk.  
+
+
+
+
+{\ttfamily \+\#include $<$project\+\_\+loader.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structpl_1_1_project_info_a503732c254abd4aa5246b0420daae231}\label{structpl_1_1_project_info_a503732c254abd4aa5246b0420daae231} 
+std::\+filesystem::\+path {\bfseries project\+Path}
+\begin{DoxyCompactList}\small\item\em Absolute path to the project\textquotesingle{}s root directory. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_a0eedef22875008b8eea6588d69c45630}\label{structpl_1_1_project_info_a0eedef22875008b8eea6588d69c45630} 
+std::\+filesystem::\+path {\bfseries content\+Path}
+\begin{DoxyCompactList}\small\item\em Absolute path to the project\textquotesingle{}s content (asset) directory. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_aa161e5b69877ea5a2a27e6530e9703bc}\label{structpl_1_1_project_info_aa161e5b69877ea5a2a27e6530e9703bc} 
+std::\+filesystem::\+path {\bfseries start\+Scene}
+\begin{DoxyCompactList}\small\item\em Relative path (from {\ttfamily project\+Path}) to the scene loaded at startup. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_aa4d824e29b9f1ce08b6761e313eba21e}\label{structpl_1_1_project_info_aa4d824e29b9f1ce08b6761e313eba21e} 
+std::\+string {\bfseries project\+Name}
+\begin{DoxyCompactList}\small\item\em Human-\/readable project name displayed in the title bar. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_ab7359623213cc55ffd7f5b6ec311fdf0}\label{structpl_1_1_project_info_ab7359623213cc55ffd7f5b6ec311fdf0} 
+std::\+string {\bfseries version} = "{}1.\+0"{}
+\begin{DoxyCompactList}\small\item\em Semantic version string. Default:\+ {\ttfamily "{}1.\+0"{}}. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_a9b2777789df458b1d0dc4190957d7feb}\label{structpl_1_1_project_info_a9b2777789df458b1d0dc4190957d7feb} 
+std::\+string {\bfseries created\+At}
+\begin{DoxyCompactList}\small\item\em ISO 8601 creation timestamp set when the project file is first written. \end{DoxyCompactList}\item 
+\Hypertarget{structpl_1_1_project_info_a9530e013406e18cbfb4860ef76ee10f6}\label{structpl_1_1_project_info_a9530e013406e18cbfb4860ef76ee10f6} 
+\doxymbox{\hyperlink{structpl_1_1_project_settings}{Project\+Settings}} {\bfseries settings}
+\begin{DoxyCompactList}\small\item\em Runtime-\/tweakable rendering and editor settings. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Aggregates all metadata and settings that describe a GCEP project on disk. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Editor/\+\+Project\+Loader/\+\doxymbox{\hyperlink{project__loader_8hpp}{project\+\_\+loader.\+hpp}}\end{DoxyCompactItemize}

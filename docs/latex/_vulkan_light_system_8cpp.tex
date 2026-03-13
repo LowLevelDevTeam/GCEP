@@ -1,0 +1,32 @@
+\doxysection{C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+\+Vulkan\+Light\+System.cpp File Reference}
+\hypertarget{_vulkan_light_system_8cpp}{}\label{_vulkan_light_system_8cpp}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanLightSystem.cpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanLightSystem.cpp}}
+
+
+Implementation of {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{gcep::\+rhi::\+vulkan::\+\+Light\+System}}.  
+
+
+{\ttfamily \+\#include "{}Vulkan\+Light\+System.\+hpp"{}}\newline
+{\ttfamily \+\#include $<$Log/\+\+Log.\+hpp$>$}\newline
+{\ttfamily \+\#include $<$algorithm$>$}\newline
+{\ttfamily \+\#include $<$cassert$>$}\newline
+{\ttfamily \+\#include $<$cmath$>$}\newline
+{\ttfamily \+\#include $<$filesystem$>$}\newline
+{\ttfamily \+\#include $<$fstream$>$}\newline
+{\ttfamily \+\#include $<$stdexcept$>$}\newline
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \doxymbox{\hyperlink{namespacegcep}{gcep}}
+\begin{DoxyCompactList}\small\item\em Namespace for the Gaming Campus Engine Paris. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implementation of {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{gcep::\+rhi::\+vulkan::\+\+Light\+System}}. 
+
+All Vulkan resources follow the same conventions as the rest of {\ttfamily Vulkan\+RHI:\+} 
+\begin{DoxyItemize}
+\item {\ttfamily vulkan\+\_\+raii.\+hpp} RAII handles -\/ destruction is automatic and in reverse declaration order.
+\item {\ttfamily pipeline\+Barrier2} /\+ {\ttfamily Vk\+Image\+Memory\+Barrier2} (Vulkan 1.\+3 /\+ KHR\+\_\+sync2).
+\item Dynamic rendering (no render passes or framebuffers).
+\item Persistently-\/mapped host-\/visible coherent buffers for CPU-\/\texorpdfstring{$>$}{>}GPU uploads. 
+\end{DoxyItemize}

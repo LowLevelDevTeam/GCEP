@@ -1,0 +1,42 @@
+\doxysection{json\+\_\+component\+\_\+serializer.\+hpp}
+\hypertarget{json__component__serializer_8hpp_source}{}\label{json__component__serializer_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_component\_serializer.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_component\_serializer.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <ECS/headers/json\_archive.hpp>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ \ <ECS/headers/json\_archive\_field.hpp>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <boost/pfr.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }gcep::SER}
+\DoxyCodeLine{00010\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_component_serializer}{JsonComponentSerializer}}}
+\DoxyCodeLine{00013\ \ \ \ \ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ serialize(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ T\&\ component)}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{auto}\ names\ =\ boost::pfr::names\_as\_array<T>();}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ std::size\_t\ N\ =\ boost::pfr::tuple\_size\_v<T>;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \ \ \ \ [\&]<std::size\_t...\ I>(std::index\_sequence<I...>)\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (archiveWriteJson(ar,\ std::string(names[I]),}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ boost::pfr::get<I>(component)),\ ...);}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \}(std::make\_index\_sequence<N>\{\});}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ T\ deserialize(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed)}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \ \ \ \ T\ component\{\};}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{auto}\ names\ =\ boost::pfr::names\_as\_array<T>();}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ std::size\_t\ N\ =\ boost::pfr::tuple\_size\_v<T>;}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ [\&]<std::size\_t...\ I>(std::index\_sequence<I...>)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (archiveReadJson(ed,\ std::string(names[I]),}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ boost::pfr::get<I>(component)),\ ...);}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \}(std::make\_index\_sequence<N>\{\});}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ component;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00035\ \ \ \ \ \};}
+\DoxyCodeLine{00036\ \}}
+
+\end{DoxyCode}

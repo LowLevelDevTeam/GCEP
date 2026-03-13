@@ -1,0 +1,129 @@
+\chapter{GCEP -\/ Entity Component System (ECS) Guide }
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s}{}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s}\index{GCEP -\/ Entity Component System (ECS) Guide@{GCEP -\/ Entity Component System (ECS) Guide}}
+\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md0}%
+\Hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md0}%
+
+
+A high-\/performance, Data-\/\+Oriented ECS using {\bfseries{Sparse Sets}} and {\bfseries{Variadic Templates}} for maximum cache efficiency.\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md1}{}\doxysection{\texorpdfstring{1. Registry Basics}{1. Registry Basics}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md1}
+The {\ttfamily Registry} is the heart of the engine. It manages entity lifecycles and component storage.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ <Engine/Core/Entity-\/Component-\/System/headers/Registry.hpp>}}
+\DoxyCodeLine{}
+\DoxyCodeLine{gcep::Registry\ reg;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Create\ an\ entity\ (returns\ a\ unique\ EntityID)}}
+\DoxyCodeLine{EntityID\ player\ =\ reg.createEntity();}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Destroy\ an\ entity\ (deferred\ until\ reg.update()\ is\ called)}}
+\DoxyCodeLine{reg.destroyEntity(player);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Synchronize\ state\ (cleanup\ destroyed\ entities,\ recycle\ IDs)}}
+\DoxyCodeLine{reg.update();}
+
+\end{DoxyCode}
+
+
+\begin{quote}
+{\bfseries{Warning}}:\+ To properly recycle IDs and free memory, ensure {\ttfamily reg.\+update()} is called at the end of your main game loop. \end{quote}
+
+
+\DoxyHorRuler{0}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md3}{}\doxysection{\texorpdfstring{2. Managing Components}{2. Managing Components}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md3}
+Components are simple structs (PODs).\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md4}{}\doxysubsection{\texorpdfstring{Adding Components}{Adding Components}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md4}
+Use {\ttfamily add\+Component} to attach data. You can pass arguments directly to initialize the component in-\/place, avoiding unnecessary copies.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct\ }Position\ \{\ \textcolor{keywordtype}{float}\ x,\ y;\ \};}
+\DoxyCodeLine{\textcolor{keyword}{struct\ }Velocity\ \{\ \textcolor{keywordtype}{float}\ vx,\ vy;\ \};}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Add\ with\ default\ values}}
+\DoxyCodeLine{reg.addComponent<Position>(player);\ }
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Add\ with\ initial\ values\ (using\ Perfect\ Forwarding)}}
+\DoxyCodeLine{reg.addComponent<Velocity>(player,\ 5.0f,\ -\/2.0f);\ }
+
+\end{DoxyCode}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md5}{}\doxysubsection{\texorpdfstring{Checking \& Retrieving}{Checking \& Retrieving}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md5}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordflow}{if}\ (reg.hasComponent<Position>(player))\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{auto}\&\ pos\ =\ reg.getComponent<Position>(player);}
+\DoxyCodeLine{\ \ \ \ pos.x\ +=\ 10.0f;}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Remove\ a\ component}}
+\DoxyCodeLine{reg.removeComponent<Velocity>(player);}
+
+\end{DoxyCode}
+
+
+\DoxyHorRuler{0}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md7}{}\doxysection{\texorpdfstring{3. Querying Entities (The View)}{3. Querying Entities (The View)}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md7}
+The {\ttfamily view\texorpdfstring{$<$}{<}Args...\texorpdfstring{$>$}{>}} is the primary tool for iterating over entities. It is designed to be as fast as possible by following the {\bfseries{Smallest Pool Optimization}}.\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md8}{}\doxysubsection{\texorpdfstring{How it works:\+}{How it works:\+}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md8}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Pivot Selection}}:\+ The View identifies which of your requested components is the "{}rarest"{} (the smallest pool).
+\item {\bfseries{Iteration}}:\+ It iterates only over that smallest pool, skipping entities that couldn\textquotesingle{}t possibly match your criteria.
+\item {\bfseries{Filtering}}:\+ For each entity in the pivot pool, it checks for the presence of the other requested components.
+\end{DoxyEnumerate}
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{comment}{//\ Matches\ any\ entity\ that\ has\ BOTH\ Position\ AND\ Velocity.}}
+\DoxyCodeLine{\textcolor{comment}{//\ It\ doesn't\ matter\ if\ the\ entity\ has\ other\ components\ (like\ Health).}}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ view\ =\ reg.view<Position,\ Velocity>();}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{for}\ (EntityID\ e\ :\ view)\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ High-\/speed\ access:\ Uses\ pointers\ cached\ during\ View\ construction}}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{auto}\&\ pos\ =\ view.get<Position>(e);\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{auto}\&\ vel\ =\ view.get<Velocity>(e);}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ pos.x\ +=\ vel.vx;}
+\DoxyCodeLine{\ \ \ \ pos.y\ +=\ vel.vy;}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+\DoxyHorRuler{0}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md10}{}\doxysection{\texorpdfstring{4. Performance Tips}{4. Performance Tips}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md10}
+
+\begin{DoxyItemize}
+\item {\bfseries{Order Matters (Cache Hits)}}:\+ While the View finds the smallest pool to start with, the order of {\ttfamily Args...} in {\ttfamily view\texorpdfstring{$<$}{<}Args...\texorpdfstring{$>$}{>}} determines the order of the remaining checks. To optimize for the CPU\textquotesingle{}s short-\/circuit logic, place rarer components earlier in your template list.
+\item {\bfseries{View.\+get vs Registry.\+get}}:\+
+\item {\ttfamily reg.\+get\+Component\texorpdfstring{$<$}{<}T\texorpdfstring{$>$}{>}(e)}:\+ Performs a lookup in the Registry\textquotesingle{}s internal map/\+storage.
+\item {\ttfamily view.\+get\texorpdfstring{$<$}{<}T\texorpdfstring{$>$}{>}(e)}:\+ Uses a {\bfseries{direct pointer}} to the component pool cached when the view was created. {\bfseries{Always use the view\textquotesingle{}s getter inside loops.}}
+\item {\bfseries{No Branching}}:\+ The {\ttfamily for (Entity\+ID e :\+ view)} loop is a tight, predictable loop. Since the data is stored in contiguous "{}\+Dense Arrays,"{} your CPU can prefetch component data into the L1/\+\+L2 cache effectively.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md12}{}\doxysection{\texorpdfstring{5. Example Workflow:\+ Physics System}{5. Example Workflow:\+ Physics System}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md12}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordtype}{void}\ PhysicsSystem(gcep::Registry\&\ reg,\ \textcolor{keywordtype}{float}\ deltaTime)\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ We\ request\ Position,\ Velocity,\ and\ Gravity.\ }}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ The\ View\ will\ automatically\ pick\ the\ smallest\ of\ these\ three\ pools\ to\ iterate.}}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{auto}\ view\ =\ reg.view<Position,\ Velocity,\ Gravity>();}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{for}\ (EntityID\ e\ :\ view)\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ p\ =\ view.get<Position>(e);}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ v\ =\ view.get<Velocity>(e);}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ g\ =\ view.get<Gravity>(e);}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ v.vy\ -\/=\ g.force\ *\ deltaTime;}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ p.x\ +=\ v.vx\ *\ deltaTime;}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ p.y\ +=\ v.vy\ *\ deltaTime;}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\hypertarget{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md13}{}\doxysubsection{\texorpdfstring{Why this is fast:\+}{Why this is fast:\+}}\label{md__c_1_2_users_2leoam_2_c_lion_projects_2_moteur_vulkan_2_engine_2_core_2_e_c_s_2_using_01_e_c_s_autotoc_md13}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Zero Allocation}}:\+ No memory is allocated or freed during the loop.
+\item {\bfseries{Minimal Indirection}}:\+ The sparse set allows \$\+O(1)\$ access to components while keeping the actual data packed tightly in memory.
+\item {\bfseries{Short-\/\+Circuiting}}:\+ As soon as one component check fails, the View moves to the next entity immediately. 
+\end{DoxyEnumerate}

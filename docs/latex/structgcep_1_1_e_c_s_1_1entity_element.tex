@@ -1,0 +1,33 @@
+\doxysection{gcep::\+ECS::\+entity\+Element Struct Reference}
+\hypertarget{structgcep_1_1_e_c_s_1_1entity_element}{}\label{structgcep_1_1_e_c_s_1_1entity_element}\index{gcep::ECS::entityElement@{gcep::ECS::entityElement}}
+
+
+Represents an entity slot in the entity pool.  
+
+
+
+
+{\ttfamily \+\#include $<$entity\+\_\+component.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1entity_element_a6744935a6787be1d1af692fdfd3d4c38}\label{structgcep_1_1_e_c_s_1_1entity_element_a6744935a6787be1d1af692fdfd3d4c38} 
+std::\+uint8\+\_\+t {\bfseries version} = 0
+\begin{DoxyCompactList}\small\item\em Version number used for entity handle validation and reuse detection. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1entity_element_ae835d7d883b3445cd3b5d86db43301d6}\label{structgcep_1_1_e_c_s_1_1entity_element_ae835d7d883b3445cd3b5d86db43301d6} 
+std::\+uint32\+\_\+t {\bfseries nextfree\+ID} = 0
+\begin{DoxyCompactList}\small\item\em Next free entity ID in the linked list of available slots. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1_e_c_s_1_1entity_element_a0a9dfc8b56f142e38dc6119b594f169f}\label{structgcep_1_1_e_c_s_1_1entity_element_a0a9dfc8b56f142e38dc6119b594f169f} 
+bool {\bfseries active} = false
+\begin{DoxyCompactList}\small\item\em Flag indicating whether this entity slot is currently in use. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents an entity slot in the entity pool. 
+
+Stores metadata about an entity including its version, next available ID in the free list, and active status. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+entity\+\_\+component.\+hpp\end{DoxyCompactItemize}

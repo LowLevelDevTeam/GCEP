@@ -1,0 +1,60 @@
+\doxysection{Script\+System.\+hpp}
+\hypertarget{_script_system_8hpp_source}{}\label{_script_system_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptSystem.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptSystem.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\#include\ <filesystem>}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\#include\ <vector>}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\#include\ <ScriptBuildConfig.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\#include\ <Engine/Core/Scripting/ScriptComponent.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\#include\ <Engine/Core/ECS/headers/registry.hpp>}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\#include\ <Engine/RHI/Mesh/Mesh.hpp>}}
+\DoxyCodeLine{00010\ \textcolor{comment}{}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\#if\ defined(\_WIN32)}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ \#ifndef\ WIN32\_LEAN\_AND\_MEAN}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ \ \ \ \ \#define\ WIN32\_LEAN\_AND\_MEAN}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ \#include\ <Windows.h>}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\#elif\ defined(\_\_APPLE\_\_)}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ \ \#include\ <mach-\/o/dyld.h>}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\#else}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ \ \ \#include\ <unistd.h>}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\#endif}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{namespace\ gcep::scripting}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ class\ ScriptSystem}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ public:}}
+\DoxyCodeLine{00028\ \textcolor{comment}{}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ init(ECS::Registry*\ registry,\ const\ std::vector<rhi::vulkan::Mesh>\&\ meshDataVector);}}
+\DoxyCodeLine{00030\ \textcolor{comment}{}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ setMeshList(std::vector<rhi::vulkan::Mesh>*\ meshes);}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ update(ECS::Registry*\ registry,\ double\ deltaSeconds);}}
+\DoxyCodeLine{00033\ \textcolor{comment}{}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \ \ \ \ static\ ScriptSystem\&\ getInstance();}}
+\DoxyCodeLine{00035\ \textcolor{comment}{}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ \ \ \ private:}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::filesystem::path\ getExecutableDir();}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::filesystem::path\ findScriptLibrary();}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::filesystem::path\ findScriptSource();}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::filesystem::path\ findBuildDir();}}
+\DoxyCodeLine{00041\ \textcolor{comment}{}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\#if\ defined(\_WIN32)}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::string\ toShortPath(const\ std::string\&\ path);}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\#endif}}
+\DoxyCodeLine{00045\ \textcolor{comment}{}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ \ \ \ \ \ \ \ rhi::vulkan::Mesh*\ findMesh(std::uint32\_t\ meshId)\ const;}}
+\DoxyCodeLine{00047\ \textcolor{comment}{}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ \ \ \ private:}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::vector<rhi::vulkan::Mesh>*\ m\_meshes\ =\ nullptr;}}
+\DoxyCodeLine{00050\ \textcolor{comment}{}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ \ \ \ \ \ \ \ ECS::Registry*\ m\_registry\ =\ nullptr;}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\}}}
+\DoxyCodeLine{00054\ \textcolor{comment}{*/}}
+
+\end{DoxyCode}

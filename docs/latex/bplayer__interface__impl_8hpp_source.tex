@@ -1,0 +1,52 @@
+\doxysection{bplayer\+\_\+interface\+\_\+impl.\+hpp}
+\hypertarget{bplayer__interface__impl_8hpp_source}{}\label{bplayer__interface__impl_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/PhysicsWrapper/Layers/bplayer\_interface\_impl.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/PhysicsWrapper/Layers/bplayer\_interface\_impl.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Libs}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}glm/fwd.hpp"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Jolt/Jolt.h>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <Jolt/Physics/Collision/ObjectLayer.h>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespace_layers}{Layers}}}
+\DoxyCodeLine{00017\ \ \ \ \ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ JPH::ObjectLayer\ NON\_MOVING\ =\ 0;}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ JPH::ObjectLayer\ MOVING\ =\ 1;}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ JPH::ObjectLayer\ NUM\_LAYERS\ =\ 2;}
+\DoxyCodeLine{00026\ \ \ \ \ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespace_broad_phase_layers}{BroadPhaseLayers}}}
+\DoxyCodeLine{00033\ \ \ \ \ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ JPH::BroadPhaseLayer\ NON\_MOVING(0);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ JPH::BroadPhaseLayer\ MOVING(1);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ glm::uint\ NUM\_LAYERS\ =\ 2;}
+\DoxyCodeLine{00042\ \ \ \ \ \};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_b_player_interface_impl_a9ad059e4dfa38feda9f72894b06746f5}{BPlayerInterfaceImpl}}\ final\ :\ \textcolor{keyword}{public}\ JPH::BroadPhaseLayerInterface}
+\DoxyCodeLine{00052\ \ \ \ \ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_b_player_interface_impl_a9ad059e4dfa38feda9f72894b06746f5}{BPlayerInterfaceImpl}}();}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ [[nodiscard]]\ glm::uint\ \doxymbox{\hyperlink{classgcep_1_1_b_player_interface_impl_a23354479544dece52b5171a59da35c85}{getNumBroadPhaseLayers}}()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ [[nodiscard]]\ JPH::BroadPhaseLayer\ \doxymbox{\hyperlink{classgcep_1_1_b_player_interface_impl_ae1d0b53d847a28873de1ae3544baf8b6}{getBroadPhaseLayer}}(JPH::ObjectLayer\ layer)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#if\ defined(JPH\_EXTERNAL\_PROFILE)\ ||\ defined(JPH\_PROFILE\_ENABLED)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ getBroadPhaseLayerName(JPH::BroadPhaseLayer\ inLayer)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ JPH\_EXTERNAL\_PROFILE\ ||\ JPH\_PROFILE\_ENABLED}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ JPH::BroadPhaseLayer\ m\_ObjectToBroadPhase[Layers::NUM\_LAYERS];}
+\DoxyCodeLine{00082\ \ \ \ \ \};}
+\DoxyCodeLine{00083\ \}}
+
+\end{DoxyCode}

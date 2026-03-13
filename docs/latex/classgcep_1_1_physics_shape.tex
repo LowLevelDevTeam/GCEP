@@ -1,0 +1,199 @@
+\doxysection{gcep::\+Physics\+Shape Class Reference}
+\hypertarget{classgcep_1_1_physics_shape}{}\label{classgcep_1_1_physics_shape}\index{gcep::PhysicsShape@{gcep::PhysicsShape}}
+
+
+High-\/level wrapper around a Jolt Physics shape.  
+
+
+
+
+{\ttfamily \+\#include $<$physics\+\_\+shape.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} (\doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type}} type, JPH::\+\+Ref\+Const$<$ JPH::\+\+Shape $>$ shape)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape} wrapper. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type}} \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a1e8e0f29a48c67686c6acba84d96a5c5}{get\+Type}} () const
+\begin{DoxyCompactList}\small\item\em Returns the high-\/level engine shape type. \end{DoxyCompactList}\item 
+JPH::\+\+Ref\+Const$<$ JPH::\+\+Shape $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a1dfa27d04da89f2df8aff86cbb60486d}{get\+Jolt\+Shape}} () const
+\begin{DoxyCompactList}\small\item\em Returns the underlying Jolt shape. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_acbb70af3d3523e90272126c3b8103bff}{create\+Box}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&half\+Extents)
+\begin{DoxyCompactList}\small\item\em Creates a box collision shape. \end{DoxyCompactList}\item 
+static std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a96959c9de0ee2f5487d6d281418fc649}{create\+Sphere}} (float radius)
+\begin{DoxyCompactList}\small\item\em Creates a sphere collision shape. \end{DoxyCompactList}\item 
+static std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a8592e864ca2e2794f5dbf05af184bbfc}{create\+Cylinder}} (float half\+Height, float radius)
+\begin{DoxyCompactList}\small\item\em Creates a cylinder collision shape. \end{DoxyCompactList}\item 
+static std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_ab82c7a6a8bb6d98a1f00119c9e4ea416}{create\+Capsule}} (float half\+Height, float radius)
+\begin{DoxyCompactList}\small\item\em Creates a capsule collision shape. \end{DoxyCompactList}\item 
+static std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a4f5539f1443a6b68915a9c4748f0ffa3}{create\+Scaled}} (const std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \&base\+Shape, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&scale)
+\begin{DoxyCompactList}\small\item\em Creates a scaled version of an existing shape. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+High-\/level wrapper around a Jolt Physics shape. 
+
+\doxylink{classgcep_1_1_physics_shape}{Physics\+Shape} acts as an abstraction layer over Jolt\textquotesingle{}s internal JPH::\+\+Shape representation. It allows the engine to remain decoupled from the physics backend while exposing a clean and controlled API.
+
+Instances of this class are typically shared across multiple physics bodies through std::\+shared\+\_\+ptr, and are commonly cached to avoid recreating identical shapes. 
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_physics_shape_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!PhysicsShape@{PhysicsShape}}
+\index{PhysicsShape@{PhysicsShape}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{PhysicsShape()}{PhysicsShape()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd} 
+gcep::\+\+Physics\+Shape::\+\+Physics\+Shape (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type}}}]{type}{, }\item[{JPH::\+\+Ref\+Const$<$ JPH::\+\+Shape $>$}]{shape}{}\end{DoxyParamCaption})}
+
+
+
+Constructs a \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape} wrapper. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em type} & The engine-\/level shape type. \\
+\hline
+{\em shape} & A reference-\/counted Jolt shape instance. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_physics_shape_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_physics_shape_acbb70af3d3523e90272126c3b8103bff}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!createBox@{createBox}}
+\index{createBox@{createBox}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{createBox()}{createBox()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_acbb70af3d3523e90272126c3b8103bff} 
+std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ gcep::\+\+Physics\+Shape::\+create\+Box (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{half\+Extents}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a box collision shape. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em half\+Extents} & Half extents of the box along each axis. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared pointer to the created \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape}, or nullptr on failure. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_ab82c7a6a8bb6d98a1f00119c9e4ea416}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!createCapsule@{createCapsule}}
+\index{createCapsule@{createCapsule}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{createCapsule()}{createCapsule()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_ab82c7a6a8bb6d98a1f00119c9e4ea416} 
+std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ gcep::\+\+Physics\+Shape::\+create\+Capsule (\begin{DoxyParamCaption}\item[{float}]{half\+Height}{, }\item[{float}]{radius}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a capsule collision shape. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em half\+Height} & Half of the capsule height. \\
+\hline
+{\em radius} & Radius of the capsule. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared pointer to the created \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape}, or nullptr on failure. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_a8592e864ca2e2794f5dbf05af184bbfc}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!createCylinder@{createCylinder}}
+\index{createCylinder@{createCylinder}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{createCylinder()}{createCylinder()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a8592e864ca2e2794f5dbf05af184bbfc} 
+std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ gcep::\+\+Physics\+Shape::\+create\+Cylinder (\begin{DoxyParamCaption}\item[{float}]{half\+Height}{, }\item[{float}]{radius}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a cylinder collision shape. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em half\+Height} & Half of the cylinder height. \\
+\hline
+{\em radius} & Radius of the cylinder. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared pointer to the created \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape}, or nullptr on failure. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_a4f5539f1443a6b68915a9c4748f0ffa3}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!createScaled@{createScaled}}
+\index{createScaled@{createScaled}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{createScaled()}{createScaled()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a4f5539f1443a6b68915a9c4748f0ffa3} 
+std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ gcep::\+\+Physics\+Shape::\+create\+Scaled (\begin{DoxyParamCaption}\item[{const std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ \&}]{base\+Shape}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{scale}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a scaled version of an existing shape. 
+
+This method wraps the base shape into a scaled shape using Jolt\textquotesingle{}s internal scaling mechanism.
+
+
+\begin{DoxyParams}{Parameters}
+{\em base\+Shape} & The base shape to scale. \\
+\hline
+{\em scale} & The scaling factor applied along each axis. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared pointer to the scaled \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape}, or nullptr on failure. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_a96959c9de0ee2f5487d6d281418fc649}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!createSphere@{createSphere}}
+\index{createSphere@{createSphere}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{createSphere()}{createSphere()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a96959c9de0ee2f5487d6d281418fc649} 
+std::\+shared\+\_\+ptr$<$ \doxymbox{\hyperlink{classgcep_1_1_physics_shape_a188452bcb4e3132b833e63f0958840bd}{Physics\+Shape}} $>$ gcep::\+\+Physics\+Shape::\+create\+Sphere (\begin{DoxyParamCaption}\item[{float}]{radius}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a sphere collision shape. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em radius} & Radius of the sphere. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared pointer to the created \doxylink{classgcep_1_1_physics_shape}{Physics\+Shape}, or nullptr on failure. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_a1dfa27d04da89f2df8aff86cbb60486d}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!getJoltShape@{getJoltShape}}
+\index{getJoltShape@{getJoltShape}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{getJoltShape()}{getJoltShape()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a1dfa27d04da89f2df8aff86cbb60486d} 
+JPH::\+\+Ref\+Const$<$ JPH::\+\+Shape $>$ gcep::\+\+Physics\+Shape::\+get\+Jolt\+Shape (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+
+
+Returns the underlying Jolt shape. 
+
+This function provides access to the internal Jolt representation used by the physics engine.
+
+\begin{DoxyReturn}{Returns}
+A reference-\/counted JPH::\+\+Shape. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_shape_a1e8e0f29a48c67686c6acba84d96a5c5}\index{gcep::PhysicsShape@{gcep::PhysicsShape}!getType@{getType}}
+\index{getType@{getType}!gcep::PhysicsShape@{gcep::PhysicsShape}}
+\doxysubsubsection{\texorpdfstring{getType()}{getType()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_shape_a1e8e0f29a48c67686c6acba84d96a5c5} 
+\doxymbox{\hyperlink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type}} gcep::\+\+Physics\+Shape::\+get\+Type (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+
+
+Returns the high-\/level engine shape type. 
+
+\begin{DoxyReturn}{Returns}
+The \doxylink{namespacegcep_a05cd8b92c0e11772c13df8511b74bec5}{EPhysics\+Shape\+Type} associated with this shape. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Physics\+Wrapper/\+physics\+\_\+shape.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Physics\+Wrapper/\+physics\+\_\+shape.\+cpp\end{DoxyCompactItemize}

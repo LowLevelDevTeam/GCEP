@@ -1,0 +1,58 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+GPUMesh\+Data Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data}{}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data}\index{gcep::rhi::vulkan::GPUMeshData@{gcep::rhi::vulkan::GPUMeshData}}
+
+
+Per-\/mesh data stored in the GPU-\/side SSBO (set 0, binding 0).  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHIData\+Types.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4b5157077d031900cf4a77b887d67e16}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4b5157077d031900cf4a77b887d67e16} 
+glm::\+mat4 {\bfseries transform}
+\begin{DoxyCompactList}\small\item\em Model-\/to-\/world transform matrix. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a0156aeb31636d0c733765759ae799961}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a0156aeb31636d0c733765759ae799961} 
+uint32\+\_\+t {\bfseries texture\+Index}
+\begin{DoxyCompactList}\small\item\em Index into the bindless texture array (set 1, binding 0). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4204044e2a487e3b28724d4b5cce2823}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4204044e2a487e3b28724d4b5cce2823} 
+uint32\+\_\+t {\bfseries first\+Index}
+\begin{DoxyCompactList}\small\item\em Offset into the global index buffer (informational). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a511a63d96f01125e2ad8498106bc3e0f}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a511a63d96f01125e2ad8498106bc3e0f} 
+uint32\+\_\+t {\bfseries index\+Count}
+\begin{DoxyCompactList}\small\item\em Number of indices belonging to this mesh (informational). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_afc9fb1a8fa4bcb90f2b068fe10f48afd}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_afc9fb1a8fa4bcb90f2b068fe10f48afd} 
+uint32\+\_\+t {\bfseries vertex\+Offset}
+\begin{DoxyCompactList}\small\item\em Offset into the global vertex buffer (informational). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4a77d6cfb29e80f59caac32e1d7f80a1}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a4a77d6cfb29e80f59caac32e1d7f80a1} 
+glm::\+vec3 {\bfseries aabb\+Min}
+\begin{DoxyCompactList}\small\item\em Object-\/space AABB minimum corner, computed at load time. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a0e918f8040b77b8f8a382bbeb73d6375}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a0e918f8040b77b8f8a382bbeb73d6375} 
+float {\bfseries \+\_\+pad0}
+\begin{DoxyCompactList}\small\item\em Padding to satisfy std430 vec3 alignment. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a6822c1ce4fe6f732337e39c85006d2a4}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a6822c1ce4fe6f732337e39c85006d2a4} 
+glm::\+vec3 {\bfseries aabb\+Max}
+\begin{DoxyCompactList}\small\item\em Object-\/space AABB maximum corner, computed at load time. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a48d1bcdb25c378e91a6bfcacb184d006}\label{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data_a48d1bcdb25c378e91a6bfcacb184d006} 
+float {\bfseries \+\_\+pad1}
+\begin{DoxyCompactList}\small\item\em Padding to satisfy std430 vec3 alignment. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Per-\/mesh data stored in the GPU-\/side SSBO (set 0, binding 0). 
+
+One entry per mesh, indexed in the vertex shader via {\ttfamily SV\+\_\+\+Start\+Instance\+Location} which carries the {\ttfamily first\+Instance} value set in each {\ttfamily Draw\+Indexed\+Indirect\+Command}.
+
+Must be kept byte-\/for-\/byte identical to the {\ttfamily Object\+Data} /\+ {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data}{GPUMesh\+Data}} struct in both {\ttfamily Base\+\_\+\+Shader.\+slang} and {\ttfamily Cull.\+slang}.
+
+\begin{DoxyNote}{Note}
+The two {\ttfamily float} padding fields ({\ttfamily \+\_\+pad0}, {\ttfamily \+\_\+pad1}) are required to satisfy the std430 alignment rule for {\ttfamily vec3} members inside a storage buffer. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHIData\+Types.\+hpp\end{DoxyCompactItemize}

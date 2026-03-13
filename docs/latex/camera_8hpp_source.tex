@@ -1,0 +1,72 @@
+\doxysection{camera.\+hpp}
+\hypertarget{camera_8hpp_source}{}\label{camera_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/Camera/camera.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/Camera/camera.hpp}}
+\doxymbox{\hyperlink{camera_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <imgui.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <ImGuizmo.h>}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{inputs_8hpp}{Editor/Inputs/inputs.hpp}}>}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{window_8hpp}{Editor/Window/window.hpp}}>}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanRHI.hpp>}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00018\ \{}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e}{Camera}}}
+\DoxyCodeLine{00042\ \{}
+\DoxyCodeLine{00043\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00048\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_camera_a1cfc6179d145a72efd20da719cfeb81e}{Camera}}(\doxymbox{\hyperlink{classgcep_1_1_input_system}{InputSystem}}*\ inputs,\ \doxymbox{\hyperlink{classgcep_1_1_window}{Window}}*\ window);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00055\ \ \ \ \ [[nodiscard]]\ glm::mat4\ \doxymbox{\hyperlink{classgcep_1_1_camera_adac74ae856d7532eec8466b82b266d5d}{getViewMatrix}}();}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00063\ \ \ \ \ [[nodiscard]]\ glm::mat4\ \doxymbox{\hyperlink{classgcep_1_1_camera_a5cd696ea3e1893e8782db1ecee9652c8}{getProjectionMatrix}}();}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00075\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{rhi::vulkan::UniformBufferObject}}\ \doxymbox{\hyperlink{classgcep_1_1_camera_a37a93059bf2497140ca65a86eea3371f}{update}}(\textcolor{keywordtype}{float}\ aspect,\ \textcolor{keywordtype}{float}\ camSpeed);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00079\ \ \ \ \ glm::vec3\ \doxymbox{\hyperlink{classgcep_1_1_camera_a9de5a0b5d59182a6c7679d5838fa0986}{m\_velocity}};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00082\ \ \ \ \ glm::vec3\ \doxymbox{\hyperlink{classgcep_1_1_camera_ae1fb1ad68ebe210ab9125dde4c744a37}{m\_position}};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00085\ \ \ \ \ glm::vec3\ \doxymbox{\hyperlink{classgcep_1_1_camera_ac2d2e776202269ff00c458a212b06eb5}{m\_front}}\ =\ glm::vec3(-\/1.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{float}\ \doxymbox{\hyperlink{classgcep_1_1_camera_a812292e11890d285658bcac391500419}{m\_pitch}}\ =\ 0.0f;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{float}\ \doxymbox{\hyperlink{classgcep_1_1_camera_aec82297198b51c3120f0dd4ea34c3fcc}{m\_yaw}}\ =\ -\/180.0f;}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ moveForward();}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{void}\ moveBackward();}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{void}\ moveLeft();}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ moveRight();}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ moveUp();}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordtype}{void}\ moveDown();}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{void}\ rotate();}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00120\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{rhi::vulkan::UniformBufferObject}}\ m\_ubo\{\};}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{float}\ m\_camSpeed\ =\ 2.0f;}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00126\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_window}{Window}}*\ m\_window;}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00129\ \ \ \ \ glm::vec3\ m\_up\ =\ glm::vec3(0.0f,\ 1.0f,\ 0.0f);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00132\ \ \ \ \ glm::vec3\ m\_right\ =\ glm::vec3(1.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00135\ \ \ \ \ glm::vec3\ m\_worldUp\ =\ glm::vec3(0.0f,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{00136\ \};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \}\ \textcolor{comment}{//\ namespace\ gcep}}
+
+\end{DoxyCode}

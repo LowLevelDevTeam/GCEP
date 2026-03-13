@@ -1,0 +1,41 @@
+\doxysection{Script\+Component.\+hpp}
+\hypertarget{_script_component_8hpp_source}{}\label{_script_component_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptComponent.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptComponent.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\#include\ "{}ScriptHost.hpp"{}}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\#include\ <cstdint>}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\#include\ <filesystem>}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\#include\ <memory>}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\#include\ <string>}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{namespace\ gcep::scripting}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ struct\ ScriptComponent}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::shared\_ptr<ScriptHost>\ host;}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::uint32\_t\ meshId\ =\ UINT32\_MAX;}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ \ \ \ \ \ \ std::string\ scriptName;}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptComponent()\ =\ default;}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptComponent(std::shared\_ptr<ScriptHost>\ sharedHost,\ std::uint32\_t\ meshIdValue,\ std::string\ name)}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ :\ host(std::move(sharedHost)),\ meshId(meshIdValue),\ scriptName(std::move(name))}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ \ \ \ \ \ \ \ \{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00024\ \textcolor{comment}{}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptComponent(std::filesystem::path\ libraryPath,\ std::uint32\_t\ meshIdValue)}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ :\ host(std::make\_shared<ScriptHost>(libraryPath)),\ meshId(meshIdValue)}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ \ \ \ \ \{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00029\ \textcolor{comment}{}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ \ \ \ \ \ \ \ explicit\ ScriptComponent(std::filesystem::path\ libraryPath)}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ :\ host(std::make\_shared<ScriptHost>(libraryPath))}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ \ \ \ \{}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\}*/}}
+
+\end{DoxyCode}
