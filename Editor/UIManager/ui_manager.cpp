@@ -828,7 +828,8 @@ void UiManager::drawAudioControl()
         if(ImGui::Button("Add audio source"))
         {
             const char* filters[] = { "*.mp3", "*.wav", "*.flac"};
-            auto path = tinyfd_openFileDialog("Add an audio source", std::filesystem::current_path().string().c_str(), 5, filters, "Audio files", 0);
+
+            auto path = tinyfd_openFileDialog("Add an audio source", std::filesystem::current_path().string().c_str(), 3, filters, "Audio files", 0);
             if(path != nullptr)
             {
                 audioSources.push_back(audioSystem->loadAudio(path));
