@@ -1,0 +1,161 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Mesh Class Reference}
+\hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh}\index{gcep::rhi::vulkan::Mesh@{gcep::rhi::vulkan::Mesh}}
+
+
+CPU-\/side geometry, transform, and texture data for a single 3D mesh entity.  
+
+
+
+
+{\ttfamily \+\#include $<$Mesh.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2bf3d95f550bc1ac09990835751e1856}{load}} (\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{Vulkan\+RHI}} \texorpdfstring{$\ast$}{*}instance, const std::\+filesystem::\+path \&filepath, const std::\+filesystem::\+path \&texture\+Filepath=L"{}"{}, glm::\+mat4 \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}}=glm::\+mat4(1.\+0f))
+\begin{DoxyCompactList}\small\item\em Loads an OBJ file and optionally a texture from disk. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a9bcb99012bd084bd985f1784df464315}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a9bcb99012bd084bd985f1784df464315} 
+void {\bfseries load\+Obj} (const std::\+filesystem::\+path \&\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}{obj\+Path}})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aaeb468ff518386aaeb9319bd259f5ef0}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aaeb468ff518386aaeb9319bd259f5ef0} 
+void {\bfseries load\+GLTF} (const std::\+filesystem::\+path \&\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}{obj\+Path}})
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2e8dbc9327b773bb29e2c9912c6afda1}{set\+Texture}} (const std::\+filesystem::\+path \&filepath, bool mipmaps=true)
+\begin{DoxyCompactList}\small\item\em Loads or replaces the mesh\textquotesingle{}s texture at runtime. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aff5f6a27f7e2681da75887ca8c10dfb5}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aff5f6a27f7e2681da75887ca8c10dfb5} 
+bool {\bfseries has\+Texture} () const noexcept
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a8b0f4d93a8d04725794a3298f29c01ca}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a8b0f4d93a8d04725794a3298f29c01ca} 
+bool {\bfseries has\+Mipmaps} () const noexcept
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a3ceeea8e1b2afccfd640b76e55558adf}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a3ceeea8e1b2afccfd640b76e55558adf} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{Vulkan\+Texture}} \texorpdfstring{$\ast$}{*} {\bfseries texture} () noexcept
+\begin{DoxyCompactList}\small\item\em Returns a non-\/owning pointer to the mesh\textquotesingle{}s {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{Vulkan\+Texture}}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a54c6cef1b196f8b4537bd97b8eb3dcfb}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a54c6cef1b196f8b4537bd97b8eb3dcfb} 
+glm::\+mat4 \& {\bfseries get\+Transform} ()
+\begin{DoxyCompactList}\small\item\em Rebuilds and returns the model-\/to-\/world matrix from the ECS {\ttfamily \doxylink{structgcep_1_1_e_c_s_1_1_transform}{ECS::\+\+Transform}} (position, rotation quaternion, scale). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab71ddcd3b05936e3c4d7c8aa13b75602}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab71ddcd3b05936e3c4d7c8aa13b75602} 
+void {\bfseries set\+Position} (glm::\+vec3 position)
+\begin{DoxyCompactList}\small\item\em Overwrites the world-\/space position column of {\ttfamily m\+\_\+transform}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a0518945f33d188415b1500d8562063df}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a0518945f33d188415b1500d8562063df} 
+void {\bfseries set\+Rotation} (glm::\+vec3 euler\+Degrees)
+\begin{DoxyCompactList}\small\item\em Rebuilds {\ttfamily m\+\_\+transform} as T \texorpdfstring{$\ast$}{*} R(euler\+Degrees) \texorpdfstring{$\ast$}{*} S, preserving the existing translation and scale. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aaabf953ea1aaa9788b9c942cad061a33}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aaabf953ea1aaa9788b9c942cad061a33} 
+void {\bfseries set\+Scale} (glm::\+vec3 scale)
+\begin{DoxyCompactList}\small\item\em Rescales the rotation columns of {\ttfamily m\+\_\+transform} by {\ttfamily scale}, leaving the translation column unchanged. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a03920814749788f9a043075a1ba6d886}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a03920814749788f9a043075a1ba6d886} 
+void {\bfseries set\+Transform} (glm::\+mat4 \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}})
+\begin{DoxyCompactList}\small\item\em Directly replaces the model-\/to-\/world transform matrix. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac6cad8d0844d7d27341410b41e5a768f}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac6cad8d0844d7d27341410b41e5a768f} 
+int32\+\_\+t {\bfseries get\+Num\+Indices} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the number of indices (valid even after {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}{clear\+Indices()}}). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a58a81b7ee83669f61db0df27164ae735}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a58a81b7ee83669f61db0df27164ae735} 
+int32\+\_\+t {\bfseries get\+Num\+Vertices} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the number of vertices (valid even after {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}{clear\+Vertices()}}). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a01462a424662fa4a4e4d72beb2a4cf51}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a01462a424662fa4a4e4d72beb2a4cf51} 
+vk::\+\+Device\+Size {\bfseries get\+Vertex\+Buffer\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the byte size of the vertex data for staging buffer allocation. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a933399044277f90c958b5883e909b58a}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a933399044277f90c958b5883e909b58a} 
+vk::\+\+Device\+Size {\bfseries get\+Index\+Buffer\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the byte size of the index data for staging buffer allocation. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a72eb74507f497937f180520b872849b0}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a72eb74507f497937f180520b872849b0} 
+const std::\+vector$<$ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vertex}{Vertex}} $>$ \& {\bfseries get\+Vertices} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the CPU-\/side vertex array. Valid until {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}{clear\+Vertices()}}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aa76d98d09567fe08646fafe58218eaea}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_aa76d98d09567fe08646fafe58218eaea} 
+const std::\+vector$<$ uint32\+\_\+t $>$ \& {\bfseries get\+Indices} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the CPU-\/side index array. Valid until {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}{clear\+Indices()}}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a68b3ee3b072e44dc1b68cdf6b93a6dec}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a68b3ee3b072e44dc1b68cdf6b93a6dec} 
+glm::\+vec3 {\bfseries get\+AABBMin} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the object-\/space AABB minimum corner. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_afe18e8d17d556b4d1501678ac0c067af}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_afe18e8d17d556b4d1501678ac0c067af} 
+glm::\+vec3 {\bfseries get\+AABBMax} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the object-\/space AABB maximum corner. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_af86a521d49ec43a9838cadd8481ed3e5} 
+const std::\+filesystem::\+path \& {\bfseries obj\+Path} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the canonical path of the OBJ file this mesh was loaded from. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985} 
+void {\bfseries clear\+Vertices} ()
+\begin{DoxyCompactList}\small\item\em Frees the CPU-\/side vertex vector after GPU upload. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6} 
+void {\bfseries clear\+Indices} ()
+\begin{DoxyCompactList}\small\item\em Frees the CPU-\/side index vector after GPU upload. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e} 
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_transform}{ECS::\+\+Transform}} {\bfseries transform}
+\begin{DoxyCompactList}\small\item\em ECS transform component (position, rotation, scale). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a316e4da371ffe4498bb5be5dbd74c113}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a316e4da371ffe4498bb5be5dbd74c113} 
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_physics_component}{ECS::\+\+Physics\+Component}} {\bfseries physics}
+\begin{DoxyCompactList}\small\item\em ECS physics component (motion type, layers, body). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a091dc34b2232683b6b34be3a3abc22bb}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a091dc34b2232683b6b34be3a3abc22bb} 
+std::\+string {\bfseries name} = "{}Unknown"{}
+\begin{DoxyCompactList}\small\item\em Name shown in the scene hierarchy. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a5e423ccc32bd99d40c448903910d4663}\label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a5e423ccc32bd99d40c448903910d4663} 
+ECS::\+\+Entity\+ID {\bfseries id} = std::\+numeric\+\_\+limits$<$ECS::\+\+Entity\+ID$>$::\+max()
+\begin{DoxyCompactList}\small\item\em ECS entity ID. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+CPU-\/side geometry, transform, and texture data for a single 3D mesh entity. 
+
+Handles the full pipeline from OBJ loading to GPU upload readiness:\+ vertex deduplication, AABB computation, and CPU-\/side buffer storage. The actual device-\/local buffers live in {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{Vulkan\+RHI}\textquotesingle{}s} global vertex and index buffers; this class only holds staging data and metadata until {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}{clear\+Vertices()}} /\+ {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}{clear\+Indices()}} are called after the GPU upload.
+
+Instances are stored by value inside {\ttfamily Vulkan\+RHI::\+meshes}. Each instance owns exactly one {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{Vulkan\+Texture}} which may internally share GPU resources with other instances via {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{Vulkan\+Texture}\textquotesingle{}s} {\ttfamily shared\+\_\+ptr-\/based} cache.
+
+\begin{DoxyNote}{Note}
+Holds a non-\/owning pointer to {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{Vulkan\+RHI}} — the \doxylink{classgcep_1_1_r_h_i}{RHI} must outlive all meshes it owns. 
+\end{DoxyNote}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2bf3d95f550bc1ac09990835751e1856}\index{gcep::rhi::vulkan::Mesh@{gcep::rhi::vulkan::Mesh}!load@{load}}
+\index{load@{load}!gcep::rhi::vulkan::Mesh@{gcep::rhi::vulkan::Mesh}}
+\doxysubsubsection{\texorpdfstring{load()}{load()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2bf3d95f550bc1ac09990835751e1856} 
+void gcep::\+rhi::\+vulkan::\+\+Mesh::\+load (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{Vulkan\+RHI}} \texorpdfstring{$\ast$}{*}}]{instance}{, }\item[{const std::\+filesystem::\+path \&}]{filepath}{, }\item[{const std::\+filesystem::\+path \&}]{texture\+Filepath}{ = {\ttfamily L"{}"{}}, }\item[{glm::\+mat4}]{transform}{ = {\ttfamily glm:\+:\+mat4(1.0f)}}\end{DoxyParamCaption})}
+
+
+
+Loads an OBJ file and optionally a texture from disk. 
+
+Parses the OBJ via {\ttfamily Obj\+Loader}, builds the vertex array, computes the object-\/space AABB, and loads the texture via {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a28da1fadcbd3b52c50e2d2aae97eb4dd}{Vulkan\+Texture::\+load\+Texture()}} if {\ttfamily texture\+Filepath} is non-\/empty. CPU attribute data is freed immediately after the vertex array is built. {\ttfamily m\+\_\+vertices} and {\ttfamily m\+\_\+indices} remain populated until {\ttfamily Vulkan\+RHI::\+upload\+Single\+Mesh()} calls {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a61cd2da28f81178a18cc12020b391985}{clear\+Vertices()}} and {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ab7bf8407b11cdb17ca936d4d0278f8d6}{clear\+Indices()}}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em instance} & Non-\/owning pointer to the owning {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{Vulkan\+RHI}}. \\
+\hline
+{\em filepath} & Path to the source OBJ file. \\
+\hline
+{\em texture\+Filepath} & Path to the albedo texture. Pass empty to skip. \\
+\hline
+{\em \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_mesh_ac2585e2f8b37aee066fb8542b50c075e}{transform}} & Initial model-\/to-\/world transform (default:\+ identity). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2e8dbc9327b773bb29e2c9912c6afda1}\index{gcep::rhi::vulkan::Mesh@{gcep::rhi::vulkan::Mesh}!setTexture@{setTexture}}
+\index{setTexture@{setTexture}!gcep::rhi::vulkan::Mesh@{gcep::rhi::vulkan::Mesh}}
+\doxysubsubsection{\texorpdfstring{setTexture()}{setTexture()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_mesh_a2e8dbc9327b773bb29e2c9912c6afda1} 
+void gcep::\+rhi::\+vulkan::\+\+Mesh::\+set\+Texture (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{filepath}{, }\item[{bool}]{mipmaps}{ = {\ttfamily true}}\end{DoxyParamCaption})}
+
+
+
+Loads or replaces the mesh\textquotesingle{}s texture at runtime. 
+
+Delegates to {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a28da1fadcbd3b52c50e2d2aae97eb4dd}{Vulkan\+Texture::\+load\+Texture()}}. If the texture path is already cached, the existing bindless slot is reused. The {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data}{GPUMesh\+Data}} entry is updated on the next {\ttfamily refresh\+Mesh\+Data()} call.
+
+
+\begin{DoxyParams}{Parameters}
+{\em filepath} & Path to the new texture file. \\
+\hline
+{\em mipmaps} & When {\ttfamily true}, generates a full mip chain. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Mesh/\+Mesh.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Mesh/\+Mesh.\+cpp\end{DoxyCompactItemize}

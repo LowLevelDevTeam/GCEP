@@ -1,0 +1,765 @@
+\doxysection{gcep::\+Quaternion Class Reference}
+\hypertarget{classgcep_1_1_quaternion}{}\label{classgcep_1_1_quaternion}\index{gcep::Quaternion@{gcep::Quaternion}}
+
+
+Represents a quaternion used for 3D rotations.  
+
+
+
+
+{\ttfamily \+\#include $<$quaternion.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} ()
+\begin{DoxyCompactList}\small\item\em Constructs the identity quaternion (no rotation). \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac2e8978efd6c38048358ead096c0fa23}{Quaternion}} (float \doxymbox{\hyperlink{classgcep_1_1_quaternion_af2eeac1d8120494d6eaa32cd8ed40dce}{w}}, float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a6159279ec7d211b3be2d16ffdbedc9d4}{x}}, float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a5b537dcac509863de194eebcdb89a568}{y}}, float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a5033f36ee2a04220ff3e64fc3d2c0467}{z}})
+\begin{DoxyCompactList}\small\item\em Constructs a quaternion with the given components. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_quaternion_a79f02ba72e0ccea7da741813367ff7c2}\label{classgcep_1_1_quaternion_a79f02ba72e0ccea7da741813367ff7c2} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Quaternion} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac047bcf14face3a7a39d5c5cf8058e36}{Normalized}} () const
+\begin{DoxyCompactList}\small\item\em Returns a normalized copy of this quaternion. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_quaternion_a050644eef50b4625d9bb1ede17f69f91}{Normalize}} ()
+\begin{DoxyCompactList}\small\item\em Normalizes this quaternion in place. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a3863a45f271f48d9c38062da5280c177}{Conjugate}} () const
+\begin{DoxyCompactList}\small\item\em Returns the conjugate of this quaternion. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a585dcd784d21fa4214c6433bb14db925}{Inverse}} () const
+\begin{DoxyCompactList}\small\item\em Returns the inverse of this quaternion. \end{DoxyCompactList}\item 
+float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a200f5e980884b9a26bb639cfaf989deb}{Magnitude}} () const
+\begin{DoxyCompactList}\small\item\em Returns the magnitude (length) of this quaternion. \end{DoxyCompactList}\item 
+float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a1e722258d718babbd0699e8c7dab5af7}{Get\+Magnitude\+Squared}} () const
+\begin{DoxyCompactList}\small\item\em Returns the squared magnitude of this quaternion. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_ae0e2f57bb78138afc900bb8bed44f7ed}{operator\texorpdfstring{$\ast$}{*}}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&other) const
+\begin{DoxyCompactList}\small\item\em Multiplies this quaternion with another (rotation composition). \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \& \doxymbox{\hyperlink{classgcep_1_1_quaternion_a9359e5b26b5a422f505286d2481ef976}{operator\texorpdfstring{$\ast$}{*}=}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&other)
+\begin{DoxyCompactList}\small\item\em Multiplies this quaternion with another and assigns the result. \end{DoxyCompactList}\item 
+bool \doxymbox{\hyperlink{classgcep_1_1_quaternion_a62754682ddbbbd6ff218e6ab0a17f4d2}{operator==}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&other) const
+\begin{DoxyCompactList}\small\item\em Checks equality between two quaternions (with tolerance). \end{DoxyCompactList}\item 
+bool \doxymbox{\hyperlink{classgcep_1_1_quaternion_a70eeed9908480d585d6c23cd90e9602d}{operator!=}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&other) const
+\begin{DoxyCompactList}\small\item\em Checks inequality between two quaternions. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a24b4f2b0519387dcbbc7ec2550b0c576}{Rotate\+Vector}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&v) const
+\begin{DoxyCompactList}\small\item\em Rotates a 3D vector by this quaternion. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac987fda9b36f3fb83b0a45220a6c30f0}{To\+Axis\+Angle}} (\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&axis, float \&angle\+Radians) const
+\begin{DoxyCompactList}\small\item\em Extracts the axis and rotation angle (in radians) from this quaternion. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \doxymbox{\hyperlink{classgcep_1_1_quaternion_ae2abacf02e39f4f0f63c0b105b599f73}{To\+Euler}} () const
+\begin{DoxyCompactList}\small\item\em Converts this quaternion to Euler angles (in radians). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a85318eed78ab47c32c9e542b095d9f9f}{Identity}} ()
+\begin{DoxyCompactList}\small\item\em Returns the identity quaternion. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8}{From\+Axis\+Angle}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&axis, float angle\+Radians)
+\begin{DoxyCompactList}\small\item\em Builds a quaternion from an axis-\/angle representation. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{From\+Euler}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&euler\+Radians)
+\begin{DoxyCompactList}\small\item\em Builds a quaternion from Euler angles (in radians). \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a16ac26db623cece031703c756a862550}{From\+To\+Rotation}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&from, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&to)
+\begin{DoxyCompactList}\small\item\em Builds a quaternion that rotates vector "{}from"{} to align with vector "{}to"{}. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a7133acb203ce17e3b1bf889e5ab8919b}{Look\+Rotation}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&forward, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&up=\{ 0.\+0f, 1.\+0f, 0.\+0f \})
+\begin{DoxyCompactList}\small\item\em Builds a quaternion that looks in a forward direction with a specified up vector. \end{DoxyCompactList}\item 
+static float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a23cf6908052b450664ffd0e7c499604c}{Dot}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b)
+\begin{DoxyCompactList}\small\item\em Computes the dot product between two quaternions. \end{DoxyCompactList}\item 
+static float \doxymbox{\hyperlink{classgcep_1_1_quaternion_a8b8b67bb059a6452c33b97dd245ab783}{Angle}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b)
+\begin{DoxyCompactList}\small\item\em Computes the angle (in radians) between two quaternions. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a9247ca9e58347478eb0df7cf566e61f0}{Slerp}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b, float t)
+\begin{DoxyCompactList}\small\item\em Performs spherical linear interpolation between two quaternions. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a0324482a3f163c5c5614eff38bcc652a}{Slerp\+Unclamped}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b, float t)
+\begin{DoxyCompactList}\small\item\em Performs spherical linear interpolation without clamping t. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a0b65304b3890ac3ce65798cd57040243}{Lerp}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b, float t)
+\begin{DoxyCompactList}\small\item\em Performs normalized linear interpolation (clamped). \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a686f9d96d04b6c8c55a0172f708f6fdb}{Lerp\+Unclamped}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&a, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&b, float t)
+\begin{DoxyCompactList}\small\item\em Performs normalized linear interpolation without clamping. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \doxymbox{\hyperlink{classgcep_1_1_quaternion_a407f163dda4df5730927740fad07803c}{Rotate\+Towards}} (const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&from, const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&to, float max\+Radians\+Delta)
+\begin{DoxyCompactList}\small\item\em Rotates one quaternion toward another by a limited angular step. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_quaternion_af2eeac1d8120494d6eaa32cd8ed40dce}\label{classgcep_1_1_quaternion_af2eeac1d8120494d6eaa32cd8ed40dce} 
+float {\bfseries w}
+\begin{DoxyCompactList}\small\item\em Scalar component of the quaternion. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_quaternion_a6159279ec7d211b3be2d16ffdbedc9d4}\label{classgcep_1_1_quaternion_a6159279ec7d211b3be2d16ffdbedc9d4} 
+float {\bfseries x}
+\begin{DoxyCompactList}\small\item\em X component of the vector part. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_quaternion_a5b537dcac509863de194eebcdb89a568}\label{classgcep_1_1_quaternion_a5b537dcac509863de194eebcdb89a568} 
+float {\bfseries y}
+\begin{DoxyCompactList}\small\item\em Y component of the vector part. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_quaternion_a5033f36ee2a04220ff3e64fc3d2c0467}\label{classgcep_1_1_quaternion_a5033f36ee2a04220ff3e64fc3d2c0467} 
+float {\bfseries z}
+\begin{DoxyCompactList}\small\item\em Z component of the vector part. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a quaternion used for 3D rotations. 
+
+This class provides utilities to create, normalize, interpolate, and convert quaternions. 
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_quaternion_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}\index{gcep::Quaternion@{gcep::Quaternion}!Quaternion@{Quaternion}}
+\index{Quaternion@{Quaternion}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Quaternion()}{Quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d} 
+gcep::\+\+Quaternion::\+\+Quaternion (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Constructs the identity quaternion (no rotation). 
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q;}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Identity\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (1,\ 0,\ 0,\ 0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_ac2e8978efd6c38048358ead096c0fa23}\index{gcep::Quaternion@{gcep::Quaternion}!Quaternion@{Quaternion}}
+\index{Quaternion@{Quaternion}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Quaternion()}{Quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ac2e8978efd6c38048358ead096c0fa23} 
+gcep::\+\+Quaternion::\+\+Quaternion (\begin{DoxyParamCaption}\item[{float}]{w}{, }\item[{float}]{x}{, }\item[{float}]{y}{, }\item[{float}]{z}{}\end{DoxyParamCaption})}
+
+
+
+Constructs a quaternion with the given components. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \doxylink{classgcep_1_1_quaternion_af2eeac1d8120494d6eaa32cd8ed40dce}{w}} & The scalar component. \\
+\hline
+{\em \doxylink{classgcep_1_1_quaternion_a6159279ec7d211b3be2d16ffdbedc9d4}{x}} & The X component of the vector part. \\
+\hline
+{\em \doxylink{classgcep_1_1_quaternion_a5b537dcac509863de194eebcdb89a568}{y}} & The Y component of the vector part. \\
+\hline
+{\em \doxylink{classgcep_1_1_quaternion_a5033f36ee2a04220ff3e64fc3d2c0467}{z}} & The Z component of the vector part.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q(0.707f,\ 0.0f,\ 0.707f,\ 0.0f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (0.707,\ 0.0,\ 0.707,\ 0.0)}}
+
+\end{DoxyCode}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_quaternion_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_quaternion_a8b8b67bb059a6452c33b97dd245ab783}\index{gcep::Quaternion@{gcep::Quaternion}!Angle@{Angle}}
+\index{Angle@{Angle}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Angle()}{Angle()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a8b8b67bb059a6452c33b97dd245ab783} 
+float gcep::\+\+Quaternion::\+\+Angle (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Computes the angle (in radians) between two quaternions. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The first quaternion. \\
+\hline
+{\em b} & The second quaternion. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The angular difference in radians.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ a\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ b\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 2.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\textcolor{keywordtype}{float}\ angle\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a8b8b67bb059a6452c33b97dd245ab783}{Quaternion::Angle}}(a,\ b);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Angle\ between\ rotations:\ "{}}\ <<\ angle\ <<\ \textcolor{stringliteral}{"{}\ radians\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=1.5708\ radians}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a3863a45f271f48d9c38062da5280c177}\index{gcep::Quaternion@{gcep::Quaternion}!Conjugate@{Conjugate}}
+\index{Conjugate@{Conjugate}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Conjugate()}{Conjugate()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a3863a45f271f48d9c38062da5280c177} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Conjugate (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the conjugate of this quaternion. 
+
+\begin{DoxyReturn}{Returns}
+The conjugate quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q(0.707f,\ 0.0f,\ 0.707f,\ 0.0f);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ c\ =\ q.Conjugate();}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Conjugate:\ ("{}}\ <<\ c.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ c.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ c.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ c.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (0.707,\ -\/0.0,\ -\/0.707,\ -\/0.0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a23cf6908052b450664ffd0e7c499604c}\index{gcep::Quaternion@{gcep::Quaternion}!Dot@{Dot}}
+\index{Dot@{Dot}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Dot()}{Dot()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a23cf6908052b450664ffd0e7c499604c} 
+float gcep::\+\+Quaternion::\+\+Dot (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Computes the dot product between two quaternions. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The first quaternion. \\
+\hline
+{\em b} & The second quaternion. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The dot product value.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ a(1,\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ b(0,\ 1,\ 0,\ 0);}
+\DoxyCodeLine{\textcolor{keywordtype}{float}\ dot\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a23cf6908052b450664ffd0e7c499604c}{Quaternion::Dot}}(a,\ b);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Dot\ Product:\ "{}}\ <<\ dot\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ 0}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8}\index{gcep::Quaternion@{gcep::Quaternion}!FromAxisAngle@{FromAxisAngle}}
+\index{FromAxisAngle@{FromAxisAngle}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{FromAxisAngle()}{FromAxisAngle()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+From\+Axis\+Angle (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{axis}{, }\item[{float}]{angle\+Radians}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Builds a quaternion from an axis-\/angle representation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em axis} & The axis of rotation (must be normalized). \\
+\hline
+{\em angle\+Radians} & The rotation angle in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Vector3<float>\ axis(0.0f,\ 1.0f,\ 0.0f);}
+\DoxyCodeLine{\textcolor{keywordtype}{float}\ angle\ =\ std::numbers::pi\_v<float>\ /\ 2.0f;}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8}{Quaternion::FromAxisAngle}}(axis,\ angle);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}FromAxisAngle\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (\string~=0.707,\ 0.0,\ \string~=0.707,\ 0.0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}\index{gcep::Quaternion@{gcep::Quaternion}!FromEuler@{FromEuler}}
+\index{FromEuler@{FromEuler}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{FromEuler()}{FromEuler()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+From\+Euler (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{euler\+Radians}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Builds a quaternion from Euler angles (in radians). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em euler\+Radians} & A vector containing pitch (X), yaw (Y), and roll (Z). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting quaternion.
+\end{DoxyReturn}
+The rotation order used is Yaw (Y) \texorpdfstring{$\ast$}{*} Pitch (X) \texorpdfstring{$\ast$}{*} Roll (Z).
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Vector3<float>\ euler(0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(euler);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}FromEuler\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (\string~=0.924,\ 0.0,\ \string~=0.383,\ 0.0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a16ac26db623cece031703c756a862550}\index{gcep::Quaternion@{gcep::Quaternion}!FromToRotation@{FromToRotation}}
+\index{FromToRotation@{FromToRotation}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{FromToRotation()}{FromToRotation()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a16ac26db623cece031703c756a862550} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+From\+To\+Rotation (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{from}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{to}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Builds a quaternion that rotates vector "{}from"{} to align with vector "{}to"{}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from} & The starting direction vector. \\
+\hline
+{\em to} & The target direction vector. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A quaternion representing the rotation from "{}from"{} to "{}to"{}.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Vector3<float>\ from(1.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{Vector3<float>\ to(0.0f,\ 0.0f,\ 1.0f);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a16ac26db623cece031703c756a862550}{Quaternion::FromToRotation}}(from,\ to);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}FromToRotation\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ Quaternion\ rotating\ +X\ to\ +Z}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a1e722258d718babbd0699e8c7dab5af7}\index{gcep::Quaternion@{gcep::Quaternion}!GetMagnitudeSquared@{GetMagnitudeSquared}}
+\index{GetMagnitudeSquared@{GetMagnitudeSquared}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{GetMagnitudeSquared()}{GetMagnitudeSquared()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a1e722258d718babbd0699e8c7dab5af7} 
+float gcep::\+\+Quaternion::\+\+Get\+Magnitude\+Squared (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the squared magnitude of this quaternion. 
+
+\begin{DoxyReturn}{Returns}
+The squared magnitude value. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_quaternion_a85318eed78ab47c32c9e542b095d9f9f}\index{gcep::Quaternion@{gcep::Quaternion}!Identity@{Identity}}
+\index{Identity@{Identity}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Identity()}{Identity()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a85318eed78ab47c32c9e542b095d9f9f} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Identity (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Returns the identity quaternion. 
+
+\begin{DoxyReturn}{Returns}
+A quaternion representing no rotation.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a85318eed78ab47c32c9e542b095d9f9f}{Quaternion::Identity}}();}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Identity\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (1,\ 0,\ 0,\ 0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a585dcd784d21fa4214c6433bb14db925}\index{gcep::Quaternion@{gcep::Quaternion}!Inverse@{Inverse}}
+\index{Inverse@{Inverse}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Inverse()}{Inverse()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a585dcd784d21fa4214c6433bb14db925} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Inverse (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the inverse of this quaternion. 
+
+\begin{DoxyReturn}{Returns}
+The inverse quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8}{Quaternion::FromAxisAngle}}(\{\ 0.0f,\ 1.0f,\ 0.0f\ \},\ std::numbers::pi\_v<float>\ /\ 2.0f);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ inv\ =\ q.Inverse();}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Inverse\ Quaternion:\ ("{}}\ <<\ inv.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ inv.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ inv.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ inv.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ Quaternion\ representing\ the\ opposite\ rotation}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a0b65304b3890ac3ce65798cd57040243}\index{gcep::Quaternion@{gcep::Quaternion}!Lerp@{Lerp}}
+\index{Lerp@{Lerp}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Lerp()}{Lerp()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a0b65304b3890ac3ce65798cd57040243} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Lerp (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{, }\item[{float}]{t}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Performs normalized linear interpolation (clamped). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The starting quaternion. \\
+\hline
+{\em b} & The target quaternion. \\
+\hline
+{\em t} & Interpolation factor in \+[0, 1]\+. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The interpolated quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ a\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ b\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 2.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a0b65304b3890ac3ce65798cd57040243}{Quaternion::Lerp}}(a,\ b,\ 0.5f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Lerp\ halfway\ rotation:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=45\ degrees\ rotation\ around\ Y}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a686f9d96d04b6c8c55a0172f708f6fdb}\index{gcep::Quaternion@{gcep::Quaternion}!LerpUnclamped@{LerpUnclamped}}
+\index{LerpUnclamped@{LerpUnclamped}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{LerpUnclamped()}{LerpUnclamped()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a686f9d96d04b6c8c55a0172f708f6fdb} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Lerp\+Unclamped (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{, }\item[{float}]{t}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Performs normalized linear interpolation without clamping. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The starting quaternion. \\
+\hline
+{\em b} & The target quaternion. \\
+\hline
+{\em t} & Interpolation factor (not clamped). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The interpolated quaternion. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_quaternion_a7133acb203ce17e3b1bf889e5ab8919b}\index{gcep::Quaternion@{gcep::Quaternion}!LookRotation@{LookRotation}}
+\index{LookRotation@{LookRotation}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{LookRotation()}{LookRotation()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a7133acb203ce17e3b1bf889e5ab8919b} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Look\+Rotation (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{forward}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{up}{ = {\ttfamily \{~0.0f,~1.0f,~0.0f~\}}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Builds a quaternion that looks in a forward direction with a specified up vector. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em forward} & The forward direction vector. \\
+\hline
+{\em up} & The up direction vector (default is Y-\/up). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A quaternion representing the desired orientation.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Vector3<float>\ forward(0.0f,\ 0.0f,\ -\/1.0f);}
+\DoxyCodeLine{Vector3<float>\ up(0.0f,\ 1.0f,\ 0.0f);}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a7133acb203ce17e3b1bf889e5ab8919b}{Quaternion::LookRotation}}(forward,\ up);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}LookRotation\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ Quaternion\ facing\ forward\ (-\/Z)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a200f5e980884b9a26bb639cfaf989deb}\index{gcep::Quaternion@{gcep::Quaternion}!Magnitude@{Magnitude}}
+\index{Magnitude@{Magnitude}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Magnitude()}{Magnitude()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a200f5e980884b9a26bb639cfaf989deb} 
+float gcep::\+\+Quaternion::\+\+Magnitude (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the magnitude (length) of this quaternion. 
+
+\begin{DoxyReturn}{Returns}
+The magnitude value. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_quaternion_a050644eef50b4625d9bb1ede17f69f91}\index{gcep::Quaternion@{gcep::Quaternion}!Normalize@{Normalize}}
+\index{Normalize@{Normalize}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Normalize()}{Normalize()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a050644eef50b4625d9bb1ede17f69f91} 
+void gcep::\+\+Quaternion::\+\+Normalize (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Normalizes this quaternion in place. 
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q(2.0f,\ 0.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{q.Normalize();}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Normalized\ Quaternion:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (1,\ 0,\ 0,\ 0)}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_ac047bcf14face3a7a39d5c5cf8058e36}\index{gcep::Quaternion@{gcep::Quaternion}!Normalized@{Normalized}}
+\index{Normalized@{Normalized}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Normalized()}{Normalized()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ac047bcf14face3a7a39d5c5cf8058e36} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Normalized (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns a normalized copy of this quaternion. 
+
+\begin{DoxyReturn}{Returns}
+A unit quaternion representing the same rotation. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_quaternion_a70eeed9908480d585d6c23cd90e9602d}\index{gcep::Quaternion@{gcep::Quaternion}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{operator"!=()}{operator!=()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a70eeed9908480d585d6c23cd90e9602d} 
+bool gcep::\+\+Quaternion::\+operator!= (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{other}{}\end{DoxyParamCaption}) const}
+
+
+
+Checks inequality between two quaternions. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & The quaternion to compare with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if the quaternions differ.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q1\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q2\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f\ \});}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Different?\ "{}}\ <<\ (q1\ !=\ q2\ ?\ \textcolor{stringliteral}{"{}true"{}}\ :\ \textcolor{stringliteral}{"{}false"{}})\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ true}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_ae0e2f57bb78138afc900bb8bed44f7ed}\index{gcep::Quaternion@{gcep::Quaternion}!operator\texorpdfstring{$\ast$}{*}@{operator\texorpdfstring{$\ast$}{*}}}
+\index{operator\texorpdfstring{$\ast$}{*}@{operator\texorpdfstring{$\ast$}{*}}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{operator\texorpdfstring{$\ast$}{*}()}{operator*()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ae0e2f57bb78138afc900bb8bed44f7ed} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+operator\texorpdfstring{$\ast$}{*} (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{other}{}\end{DoxyParamCaption}) const}
+
+
+
+Multiplies this quaternion with another (rotation composition). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & The quaternion to multiply with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q1\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q2\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ result\ =\ q1\ *\ q2;}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Combined\ rotation\ (Y\ 90\ degrees):\ ("{}}\ <<\ result.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ result.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ result.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ result.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=90\ degrees\ rotation\ around\ Y}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a9359e5b26b5a422f505286d2481ef976}\index{gcep::Quaternion@{gcep::Quaternion}!operator\texorpdfstring{$\ast$}{*}=@{operator\texorpdfstring{$\ast$}{*}=}}
+\index{operator\texorpdfstring{$\ast$}{*}=@{operator\texorpdfstring{$\ast$}{*}=}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{operator\texorpdfstring{$\ast$}{*}=()}{operator*=()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a9359e5b26b5a422f505286d2481ef976} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \& gcep::\+\+Quaternion::\+operator\texorpdfstring{$\ast$}{*}= (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{other}{}\end{DoxyParamCaption})}
+
+
+
+Multiplies this quaternion with another and assigns the result. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & The quaternion to multiply with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Reference to this quaternion. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_quaternion_a62754682ddbbbd6ff218e6ab0a17f4d2}\index{gcep::Quaternion@{gcep::Quaternion}!operator==@{operator==}}
+\index{operator==@{operator==}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a62754682ddbbbd6ff218e6ab0a17f4d2} 
+bool gcep::\+\+Quaternion::\+operator== (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{other}{}\end{DoxyParamCaption}) const}
+
+
+
+Checks equality between two quaternions (with tolerance). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & The quaternion to compare with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if both quaternions are approximately equal.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q1\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a85318eed78ab47c32c9e542b095d9f9f}{Quaternion::Identity}}();}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q2\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}(1.0f,\ 0.0f,\ 0.0f,\ 0.0f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Equal?\ "{}}\ <<\ (q1\ ==\ q2\ ?\ \textcolor{stringliteral}{"{}true"{}}\ :\ \textcolor{stringliteral}{"{}false"{}})\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ true}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a407f163dda4df5730927740fad07803c}\index{gcep::Quaternion@{gcep::Quaternion}!RotateTowards@{RotateTowards}}
+\index{RotateTowards@{RotateTowards}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{RotateTowards()}{RotateTowards()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a407f163dda4df5730927740fad07803c} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Rotate\+Towards (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{from}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{to}{, }\item[{float}]{max\+Radians\+Delta}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Rotates one quaternion toward another by a limited angular step. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from} & The starting quaternion. \\
+\hline
+{\em to} & The target quaternion. \\
+\hline
+{\em max\+Radians\+Delta} & Maximum rotation step in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The rotated quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ from\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ to\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 2.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a407f163dda4df5730927740fad07803c}{Quaternion::RotateTowards}}(from,\ to,\ std::numbers::pi\_v<float>\ /\ 4.0f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}RotateTowards\ result:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=45\ degrees\ rotation\ around\ Y}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a24b4f2b0519387dcbbc7ec2550b0c576}\index{gcep::Quaternion@{gcep::Quaternion}!RotateVector@{RotateVector}}
+\index{RotateVector@{RotateVector}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{RotateVector()}{RotateVector()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a24b4f2b0519387dcbbc7ec2550b0c576} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ gcep::\+\+Quaternion::\+\+Rotate\+Vector (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{v}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Rotates a 3D vector by this quaternion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em v} & The vector to rotate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The rotated vector.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ rotation\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f\ \});}
+\DoxyCodeLine{Vector3<float>\ forward(0.0f,\ 0.0f,\ -\/1.0f);}
+\DoxyCodeLine{Vector3<float>\ rotated\ =\ rotation.RotateVector(forward);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Rotated\ vector:\ ("{}}\ <<\ rotated.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ rotated.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ rotated.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ Vector\ diagonally\ between\ -\/Z\ and\ -\/X}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a9247ca9e58347478eb0df7cf566e61f0}\index{gcep::Quaternion@{gcep::Quaternion}!Slerp@{Slerp}}
+\index{Slerp@{Slerp}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{Slerp()}{Slerp()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a9247ca9e58347478eb0df7cf566e61f0} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Slerp (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{, }\item[{float}]{t}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Performs spherical linear interpolation between two quaternions. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The starting quaternion. \\
+\hline
+{\em b} & The target quaternion. \\
+\hline
+{\em t} & Interpolation factor in \+[0, 1]\+. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The interpolated quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ a\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ b\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 2.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a9247ca9e58347478eb0df7cf566e61f0}{Quaternion::Slerp}}(a,\ b,\ 0.5f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Slerp\ halfway\ rotation:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=45\ degrees\ rotation\ around\ Y}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_a0324482a3f163c5c5614eff38bcc652a}\index{gcep::Quaternion@{gcep::Quaternion}!SlerpUnclamped@{SlerpUnclamped}}
+\index{SlerpUnclamped@{SlerpUnclamped}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{SlerpUnclamped()}{SlerpUnclamped()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_a0324482a3f163c5c5614eff38bcc652a} 
+\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} gcep::\+\+Quaternion::\+\+Slerp\+Unclamped (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{a}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}} \&}]{b}{, }\item[{float}]{t}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Performs spherical linear interpolation without clamping t. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & The starting quaternion. \\
+\hline
+{\em b} & The target quaternion. \\
+\hline
+{\em t} & Interpolation factor (not clamped). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The interpolated quaternion.
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ a\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ 0.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ b\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 2.0f,\ 0.0f\ \});}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a0324482a3f163c5c5614eff38bcc652a}{Quaternion::SlerpUnclamped}}(a,\ b,\ 1.5f);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}SlerpUnclamped\ beyond\ target:\ ("{}}\ <<\ q.w\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ q.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ \string~=135\ degrees\ rotation\ around\ Y}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_ac987fda9b36f3fb83b0a45220a6c30f0}\index{gcep::Quaternion@{gcep::Quaternion}!ToAxisAngle@{ToAxisAngle}}
+\index{ToAxisAngle@{ToAxisAngle}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{ToAxisAngle()}{ToAxisAngle()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ac987fda9b36f3fb83b0a45220a6c30f0} 
+void gcep::\+\+Quaternion::\+\+To\+Axis\+Angle (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{axis}{, }\item[{float \&}]{angle\+Radians}{}\end{DoxyParamCaption}) const}
+
+
+
+Extracts the axis and rotation angle (in radians) from this quaternion. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em axis} & Output parameter for the rotation axis. \\
+\hline
+{\em angle\+Radians} & Output parameter for the rotation angle in radians.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a1f1f5b6e130310ad99a5add432d026e8}{Quaternion::FromAxisAngle}}(\{\ 0.0f,\ 1.0f,\ 0.0f\ \},\ std::numbers::pi\_v<float>\ /\ 3.0f);}
+\DoxyCodeLine{Vector3<float>\ axis;}
+\DoxyCodeLine{\textcolor{keywordtype}{float}\ angle;}
+\DoxyCodeLine{q.\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac987fda9b36f3fb83b0a45220a6c30f0}{ToAxisAngle}}(axis,\ angle);}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}Axis:\ ("{}}\ <<\ axis.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ axis.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ axis.z\ <<\ \textcolor{stringliteral}{"{}),\ Angle:\ "{}}\ <<\ angle\ <<\ \textcolor{stringliteral}{"{}\ radians\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ Axis\ (0,1,0),\ Angle\ 1.047\ rad}}
+
+\end{DoxyCode}
+ \Hypertarget{classgcep_1_1_quaternion_ae2abacf02e39f4f0f63c0b105b599f73}\index{gcep::Quaternion@{gcep::Quaternion}!ToEuler@{ToEuler}}
+\index{ToEuler@{ToEuler}!gcep::Quaternion@{gcep::Quaternion}}
+\doxysubsubsection{\texorpdfstring{ToEuler()}{ToEuler()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_quaternion_ae2abacf02e39f4f0f63c0b105b599f73} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ gcep::\+\+Quaternion::\+\+To\+Euler (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Converts this quaternion to Euler angles (in radians). 
+
+\begin{DoxyReturn}{Returns}
+A vector containing pitch (X), yaw (Y), and roll (Z).
+\end{DoxyReturn}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\doxymbox{\hyperlink{classgcep_1_1_quaternion_ac878839ec6e67d45d9d1c32c2c4f2c9d}{Quaternion}}\ q\ =\ \doxymbox{\hyperlink{classgcep_1_1_quaternion_a282e7056ae01f98471c482ce44aa1def}{Quaternion::FromEuler}}(\{\ 0.0f,\ std::numbers::pi\_v<float>\ /\ 4.0f,\ 0.0f\ \});}
+\DoxyCodeLine{Vector3<float>\ euler\ =\ q.\doxymbox{\hyperlink{classgcep_1_1_quaternion_ae2abacf02e39f4f0f63c0b105b599f73}{ToEuler}}();}
+\DoxyCodeLine{std::cout\ <<\ \textcolor{stringliteral}{"{}ToEuler:\ ("{}}\ <<\ euler.\doxymbox{\hyperlink{classgcep_1_1_vector3_a7ed604b18acb9f517b2d140ba95cb27a}{x}}\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ euler.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ euler.z\ <<\ \textcolor{stringliteral}{"{})\(\backslash\)n"{}};}
+\DoxyCodeLine{\textcolor{comment}{//\ Output:\ (\string~=0,\ \string~=0.785,\ \string~=0)}}
+
+\end{DoxyCode}
+ 
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+quaternion.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+quaternion.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,116 @@
+\doxysection{archive.\+hpp}
+\hypertarget{archive_8hpp_source}{}\label{archive_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/archive.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/archive.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <fstream>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Maths/vector2.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <Maths/vector3.hpp>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <Maths/mat3.hpp>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <Maths/mat4.hpp>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ ⚠\ mat4.hpp\ retiré\ :\ il\ définit\ (ou\ inclut)\ une\ macro\ \`{}mat4`\ qui\ écrase}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ \ \ le\ nom\ du\ constructeur\ Mat4<T>::mat4()\ dans\ mat4.inl.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ \ \ Si\ tu\ as\ besoin\ de\ sérialiser\ des\ Mat4,\ inclus\ mat4.hpp\ APRÈS\ avoir}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ \ \ fait\ \#undef\ mat4,\ ou\ corrige\ la\ macro\ dans\ mat4.hpp\ directement.}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{namespace\ }gcep::SER}
+\DoxyCodeLine{00018\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_i_archive}{IArchive}}}
+\DoxyCodeLine{00020\ \ \ \ \ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_i_archive}{\string~IArchive}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ std::streampos\ tell()\ =\ 0;}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ seek(std::streampos\ pos)\ =\ 0;}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ skip(uint32\_t\ bytes)\ =\ 0;}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeFloat(\textcolor{keywordtype}{float}\ val)\ \ \ =\ 0;}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeDouble(\textcolor{keywordtype}{double}\ val)\ =\ 0;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeUint8(uint8\_t\ val)\ \ \ =\ 0;}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeUint16(uint16\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeUint32(uint32\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeUint64(uint64\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeInt8(int8\_t\ val)\ \ \ =\ 0;}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeInt16(int16\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeInt32(int32\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeInt64(int64\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeSize(uint32\_t\ val)\ =\ 0;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ writeName(\textcolor{keyword}{const}\ std::string\&\ name)\ =\ 0;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{float}\ \ readFloat()\ \ =\ 0;}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{double}\ readDouble()\ =\ 0;}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ uint8\_t\ \ readUint8()\ \ =\ 0;}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ uint16\_t\ readUint16()\ =\ 0;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ uint32\_t\ readUint32()\ =\ 0;}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ uint64\_t\ readUint64()\ =\ 0;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ int8\_t\ \ readInt8()\ \ =\ 0;}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ int16\_t\ readInt16()\ =\ 0;}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ int32\_t\ readInt32()\ =\ 0;}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ int64\_t\ readInt64()\ =\ 0;}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{size\_t}\ \ \ \ \ \ readSize()\ =\ 0;}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ std::string\ readName()\ =\ 0;}
+\DoxyCodeLine{00059\ \ \ \ \ \};}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{class\ }FileArchive\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_i_archive}{IArchive}}}
+\DoxyCodeLine{00062\ \ \ \ \ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ FileArchive(\textcolor{keyword}{const}\ std::string\&\ filename,\ \textcolor{keywordtype}{bool}\ isWriting\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \string~FileArchive()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ std::streampos\ tell()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ seek(std::streampos\ pos)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ skip(uint32\_t\ bytes)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeFloat(\textcolor{keywordtype}{float}\ val)\ \ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeDouble(\textcolor{keywordtype}{double}\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint8(uint8\_t\ val)\ \ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint16(uint16\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint32(uint32\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeUint64(uint64\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt8(int8\_t\ val)\ \ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt16(int16\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt32(int32\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeInt64(int64\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeSize(uint32\_t\ val)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ writeName(\textcolor{keyword}{const}\ std::string\&\ name)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \ readFloat()\ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ readDouble()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ uint8\_t\ \ readUint8()\ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ uint16\_t\ readUint16()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ uint32\_t\ readUint32()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ uint64\_t\ readUint64()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ int8\_t\ \ readInt8()\ \ \textcolor{keyword}{override};}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ int16\_t\ readInt16()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ int32\_t\ readInt32()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ int64\_t\ readInt64()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \ \ \ \ \ readSize()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ std::string\ readName()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ std::fstream\ m\_file;}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ std::string\ \ m\_filename;}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ m\_isWriting;}
+\DoxyCodeLine{00107\ \ \ \ \ \};}
+\DoxyCodeLine{00108\ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/detail/archive.inl>}}
+
+\end{DoxyCode}

@@ -1,0 +1,48 @@
+\doxysection{Vulkan\+Frame\+Context.\+hpp}
+\hypertarget{_vulkan_frame_context_8hpp_source}{}\label{_vulkan_frame_context_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanFrameContext.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanFrameContext.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/Commands/VulkanCommandList.hpp>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}}
+\DoxyCodeLine{00042\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}(\textcolor{keyword}{const}\ vk::raii::Device\&\ device,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ queueFamily);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{\string~VulkanFrameContext}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&)\ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00060\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&\ operator=(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00061\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&\&)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00062\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&\ operator=(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a59dc3d294c0409dbcc773be29d80487a}{VulkanFrameContext}}\&\&)\ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_ac0cc8d881276e86a3735367f24bac8e2}{waitAndReset}}(\textcolor{keyword}{const}\ vk::raii::Device\&\ device);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ Members}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00079\ \ \ \ \ vk::raii::CommandPool\ \ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a4977ace1dcea81b7ad30f5394ad8fd2c}{commandPool}};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00082\ \ \ \ \ vk::raii::CommandBuffer\ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_ab230301fadfb14ff14972432b024a013}{commandBuffer}};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00085\ \ \ \ \ vk::raii::Fence\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_ad8342092269319558482d9fddfe9a305}{inFlightFence}};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00089\ \ \ \ \ vk::raii::Semaphore\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_af78a59282c57ff4baac3297d263150dc}{presentCompleteSemaphore}};}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00092\ \ \ \ \ std::unique\_ptr<VulkanCommandList>\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vulkan_frame_context_a4cb8496b81b6247bd99c62d5f73b0d65}{commandList}};}
+\DoxyCodeLine{00093\ \};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+
+\end{DoxyCode}

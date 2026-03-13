@@ -1,0 +1,471 @@
+\chapter{Technical Design Document (TDD) for Gaming Engine Campus Paris }
+\hypertarget{md__r_e_a_d_m_e}{}\label{md__r_e_a_d_m_e}\index{Technical Design Document (TDD) for Gaming Engine Campus Paris@{Technical Design Document (TDD) for Gaming Engine Campus Paris}}
+\label{md__r_e_a_d_m_e_autotoc_md0}%
+\Hypertarget{md__r_e_a_d_m_e_autotoc_md0}%
+\hypertarget{md__r_e_a_d_m_e_autotoc_md1}{}\doxysection{\texorpdfstring{Document Header}{Document Header}}\label{md__r_e_a_d_m_e_autotoc_md1}
+
+\begin{DoxyItemize}
+\item {\bfseries{Project Title:\+}} Gaming Campus Engine Paris
+\item {\bfseries{Version:\+}} 1.\+4 
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md2}{}\doxysection{\texorpdfstring{-\/ {\bfseries{Date:\+}} 2026-\/02-\/17}{-\/ {\bfseries{Date:\+}} 2026-\/02-\/17}}\label{md__r_e_a_d_m_e_autotoc_md2}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md3}{}\doxysection{\texorpdfstring{Authors}{Authors}}\label{md__r_e_a_d_m_e_autotoc_md3}
+
+\begin{DoxyTable}{2}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Author  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Contact  \\
+Morgane Prevost  &\href{mailto:mprevost@gaming.tech}{\texttt{mprevost@gaming.\+tech}}  \\
+Dylan Hollemaert  &\href{mailto:dhollemaert@gaming.tech}{\texttt{dhollemaert@gaming.\+tech}}  \\
+Clément Bobeda  &\href{mailto:cbobeda@gaming.tech}{\texttt{cbobeda@gaming.\+tech}}  \\
+Najim Bakkali  &\href{mailto:nbakkali@gaming.tech}{\texttt{nbakkali@gaming.\+tech}}  \\
+Leo Grognet  &\href{mailto:lgrognet@gaming.tech}{\texttt{lgrognet@gaming.\+tech}}  \\
+\end{DoxyTable}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md4}{}\doxysection{\texorpdfstring{Revision History}{Revision History}}\label{md__r_e_a_d_m_e_autotoc_md4}
+
+\begin{DoxyTable}{4}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Date  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Version  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Description  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Author  \\
+2026-\/02-\/17  &1.\+4  &Code conventions  &\+[Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost]\+  \\
+2026-\/02-\/04  &1.\+3  &Naming Convention, Schematic tweaks and dependencies justification  &\+[Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost]\+  \\
+2026-\/02-\/04  &1.\+2  &Document bottom half document fill  &\+[Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali, Morgane Prevost]\+  \\
+2026-\/02-\/03  &1.\+1  &Document General improvement  &\+[Leo Grognet, Clément BOBEDA, Dylan Hollemaert, Najim Bakkali]\+  \\
+2026-\/02-\/03  &1.\+0  &Initial document creation  &\+[Leo Grognet, Clément BOBEDA]\+  \\
+\end{DoxyTable}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md5}{}\doxysection{\texorpdfstring{Table of Contents}{Table of Contents}}\label{md__r_e_a_d_m_e_autotoc_md5}
+
+\begin{DoxyEnumerate}
+\item Introduction
+\item System Overview
+\item Requirements
+\item System Architecture \& Design
+\item Detailed Module Design
+\item Interface Design
+\item Performance and Optimization
+\item Testing Strategy (TDD Implementation)
+\item Tools, Environment, and Deployment
+\item Security and Safety Considerations
+\item Project Timeline and Milestones
+\item Appendices
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md7}{}\doxysection{\texorpdfstring{1. Introduction}{1. Introduction}}\label{md__r_e_a_d_m_e_autotoc_md7}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md8}{}\doxysubsection{\texorpdfstring{1.\+1 Purpose}{1.\+1 Purpose}}\label{md__r_e_a_d_m_e_autotoc_md8}
+This document outlines the technical design for a modular C++ Game Engine, detailing its architecture, modules, and Test-\/\+Driven Development (TDD) approach.\hypertarget{md__r_e_a_d_m_e_autotoc_md9}{}\doxysubsection{\texorpdfstring{1.\+2 Scope}{1.\+2 Scope}}\label{md__r_e_a_d_m_e_autotoc_md9}
+
+\begin{DoxyItemize}
+\item {\bfseries{Objective:\+}} Develop a cross-\/platform, fast and intuitive game engine for rendering, physics, audio, and input management.
+\item {\bfseries{Application:\+}} Real-\/time game development and academic projects.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md10}{}\doxysubsection{\texorpdfstring{1.\+3 Definitions, Acronyms, and Abbreviations}{1.\+3 Definitions, Acronyms, and Abbreviations}}\label{md__r_e_a_d_m_e_autotoc_md10}
+
+\begin{DoxyItemize}
+\item {\bfseries{TDD:\+}} Test-\/\+Driven Development
+\item {\bfseries{API:\+}} Application Programming Interface
+\item {\bfseries{FPS:\+}} Frames Per Second
+\item {\bfseries{IDE:\+}} Integrated Development Environment
+\item {\bfseries{GUI:\+}} Graphical User Interface
+\item {\bfseries{Gizmo:\+}} Gizmo are directly manipulable, self-\/contained, visual screen idioms
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md11}{}\doxysubsection{\texorpdfstring{1.\+4 References /\+ Dependencies}{1.\+4 References /\+ Dependencies}}\label{md__r_e_a_d_m_e_autotoc_md11}
+
+\begin{DoxyItemize}
+\item \href{https://en.cppreference.com/}{\texttt{C++ Standard Documentation}}
+\item \href{https://github.com/google/googletest}{\texttt{Google Test Framework}}
+\item \href{https://github.com/mackron/miniaudio}{\texttt{Mini audio for sound management}}
+\item \href{https://github.com/jrouwe/JoltPhysics}{\texttt{Jolt physics for physics management}}
+\item \href{https://github.com/g-truc/glm}{\texttt{GLM for mathematics}}
+\item \href{https://github.com/glfw/glfw}{\texttt{GLFW for window handling}}
+\item \href{https://github.com/ocornut/imgui/tree/docking}{\texttt{Im\+Gui for all GUI handling}}
+\item \href{https://github.com/CedricGuillemet/ImGuizmo}{\texttt{Im\+Guizmo for the implementation of gizmo}}
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md12}{}\doxysubsection{\texorpdfstring{1.\+5 Document Overview}{1.\+5 Document Overview}}\label{md__r_e_a_d_m_e_autotoc_md12}
+This Technical Design Document (TDD) details the architecture of a high-\/performance, lightweight game engine specifically tailored for academic environments. The primary goal is to provide a robust yet accessible platform for game design students, balancing low-\/level technical transparency with high-\/level usability. To fulfill these requirements, the engine’s design focuses on three core pillars:\+
+
+
+\begin{DoxyItemize}
+\item {\bfseries{Performance}} \& {\bfseries{Optimization}}:\+ Leveraging the Vulkan API through a custom RHI (Render Hardware Interface) to ensure a minimal memory footprint and high frame rates on varied hardware.
+\item {\bfseries{Educational Accessibility}}:\+ Abstracting the verbosity of modern graphics APIs into a clean, intuitive interface, allowing students to focus on game logic and scene composition rather than hardware-\/specific boilerplate.
+\item {\bfseries{Modular Decoupling}}:\+ A strict separation between the Editor (creation tool) and the Runtime (execution layer). This ensures that students can experiment in a stable environment where game-\/logic errors remain isolated from the core engine tools.
+\end{DoxyItemize}
+
+This document serves as the structural roadmap for implementation, covering module interactions, data flow, and the testing strategies necessary to maintain a stable learning tool.
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md14}{}\doxysection{\texorpdfstring{2. System Overview}{2. System Overview}}\label{md__r_e_a_d_m_e_autotoc_md14}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md15}{}\doxysubsection{\texorpdfstring{2.\+1 High-\/\+Level Description}{2.\+1 High-\/\+Level Description}}\label{md__r_e_a_d_m_e_autotoc_md15}
+The engine is built as a {\bfseries{layered modular system}} using {\bfseries{C++20}}. It is architected to decouple high-\/level game logic from low-\/level hardware interactions, ensuring both high performance and ease of use for academic purposes.
+
+The system is organized into three primary layers:\+
+
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Application}} \& {\bfseries{Tools Layer}}:\+ The {\bfseries{Editor}} and {\bfseries{Runtime}} environments. The {\bfseries{Editor}} provides a visual interface for scene composition, while the {\bfseries{Runtime}} offers a lightweight execution path for the final game. Both communicate with the core through a unified API.
+\item {\bfseries{Core Engine}} :\+ This layer acts as the "{}brain"{} of the engine. It manages the {\bfseries{Scene Graph}} (object hierarchy) and dispatches tasks to specialized Servers (Rendering, Physics, Audio).
+\item {\bfseries{Abstraction Layer (RHI \& Drivers)}}:\+ To ensure long-\/term stability and performance, the engine utilizes a {\bfseries{Render Hardware Interface (RHI)}}. This layer translates high-\/level draw calls into optimized Vulkan commands. This abstraction hides the complexity of {\bfseries{Vulkan}} from the end-\/user while maintaining "{}close-\/to-\/metal"{} speed.
+\end{DoxyEnumerate}\hypertarget{md__r_e_a_d_m_e_autotoc_md16}{}\doxysubsection{\texorpdfstring{2.\+2 System Context Diagram}{2.\+2 System Context Diagram}}\label{md__r_e_a_d_m_e_autotoc_md16}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{graph\ TB}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \%\%\ -\/-\/-\/\ ENGINE\ -\/-\/-\/}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ subgraph\ Engine\ [Engine]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ direction\ TB}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ subgraph\ Core\ [Core]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ subgraph\ RHI[RHI]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ RenderW[RenderWrapper]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PhysW[PhysicsWrapper]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ AudioW[AudioWrapper]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \%\%\ -\/-\/-\/\ EXTERNAL\ -\/-\/-\/}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ subgraph\ Dependencies\ [External]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ direction\ LR}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ subgraph\ UI\_Lib\ [UI]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ImGui\{ImGui\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ImGuizmo\{ImGuizmo\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ subgraph\ Audio\_Lib\ [Audio]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Miniaudio\{Miniaudio\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ subgraph\ Physics\_Lib\ [Physics]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ JoltPhysics\{JoltPhysics\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ subgraph\ Math\_Window\ [Math\ \&\ Window]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GLM\{GLM\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GLFW\{GLFW\}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \%\%\ -\/-\/-\/\ EDITOR\ -\/-\/-\/}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ subgraph\ Editor\ [Editor]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ UIW[UIWrapper]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ Viewport[Viewport]}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ end}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \%\%\ -\/-\/-\/\ LIAISONS\ LOGIQUES\ (CONNECTIVITY)\ -\/-\/-\/}
+\DoxyCodeLine{\ \ \ \ \%\%\ L'Editor\ utilise\ l'Engine\ et\ les\ Libs}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ Engine\ -\/-\/>\ Editor}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ UIW\ -\/-\/-\/\ ImGui}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ Viewport\ -\/-\/-\/\ ImGuizmo}
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ \%\%\ L'Engine\ utilise\ les\ Libs}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ Engine\ -\/-\/>\ GLFW}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ Engine\ -\/-\/>\ GLM}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ PhysW\ -\/-\/>\ JoltPhysics}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ AudioW\ -\/-\/>\ Miniaudio}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{\%\%\ -\/-\/-\/\ STYLES\ -\/-\/-\/}
+\DoxyCodeLine{\ \ \ \ style\ Engine\ fill:\#705c51,stroke:\#000,stroke-\/width:4px}
+\DoxyCodeLine{\ \ \ \ style\ Dependencies\ fill:\#c2c1a5,stroke:\#000,\ stroke-\/width:4px}
+\DoxyCodeLine{\ \ \ \ style\ Editor\ fill:\#c2c1a5,stroke:\#000,stroke-\/width:4px}
+\DoxyCodeLine{\ \ \ \ style\ Core\ fill:\#677051,stroke:\#000,stroke-\/width:4px}
+\DoxyCodeLine{\ \ \ \ style\ RHI\ fill:\#517059,stroke:\#000,\ stroke-\/width:\ 4px}
+\DoxyCodeLine{\ \ \ \ style\ Physics\_Lib\ stroke:\#000,\ stroke-\/width:\ 4px}
+\DoxyCodeLine{\ \ \ \ style\ Audio\_Lib\ stroke:\#000,\ stroke-\/width:\ 4px}
+\DoxyCodeLine{\ \ \ \ style\ UI\_Lib\ stroke:\#000,\ stroke-\/width:\ 4px}
+\DoxyCodeLine{\ \ \ \ style\ Math\_Window\ stroke:\#000,\ stroke-\/width:\ 4px}
+
+\end{DoxyCode}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md17}{}\doxysubsection{\texorpdfstring{2.\+3 Major Components}{2.\+3 Major Components}}\label{md__r_e_a_d_m_e_autotoc_md17}
+
+\begin{DoxyItemize}
+\item {\bfseries{Rendering Engine:\+}} Handles graphics using the Vulkan API.
+\item {\bfseries{Physics Engine:\+}} Manages collision detection and physics simulations using Jolt Physics.
+\item {\bfseries{Audio Engine:\+}} Processes sound effects and music using miniaudio.
+\item {\bfseries{Input Manager:\+}} Captures keyboard, mouse, and gamepad events using GLFW.
+\item {\bfseries{Window Manager:\+}} Manages application window, dispatches and receive input events using GLFW
+\item {\bfseries{Editor GUI:\+}} Graphical user interface using Im\+Gui
+\item {\bfseries{Game Logic:\+}} Integrates modules via a scripting interface.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md19}{}\doxysection{\texorpdfstring{3. Requirements}{3. Requirements}}\label{md__r_e_a_d_m_e_autotoc_md19}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md20}{}\doxysubsection{\texorpdfstring{3.\+1 Functional Requirements}{3.\+1 Functional Requirements}}\label{md__r_e_a_d_m_e_autotoc_md20}
+
+\begin{DoxyItemize}
+\item Render 3D graphics with dynamic lighting and shading.
+\item Perform real-\/time physics simulation and collision detection.
+\item Play background music and trigger sound effects.
+\item Capture and process user inputs.
+\item Provide a scripting interface for game behavior customization.
+\item Supports OBJ parsing.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md21}{}\doxysubsection{\texorpdfstring{3.\+2 Non-\/\+Functional Requirements}{3.\+2 Non-\/\+Functional Requirements}}\label{md__r_e_a_d_m_e_autotoc_md21}
+
+\begin{DoxyItemize}
+\item {\bfseries{Performance:\+}} Maintain a minimum of 60 FPS. Smart Pointers, Allocation Pools, Cache-\/\+Efficients Structures to achieve an optimized memory management.
+\item {\bfseries{Scalability:\+}} Modular design for easy extension. Use of RHI to allow the use of multiple graphics API. Feature proof choice of dependencies and technologies.
+\item {\bfseries{Portability:\+}} Support Windows, Linux, and mac\+OS.
+\item {\bfseries{Maintainability:\+}} Clear code structure with thorough documentation.
+\item {\bfseries{Quality of Life:\+}} Dynamic Asset Loading. Im\+Gui Editor with window docking system and entity and ressources management.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md22}{}\doxysubsection{\texorpdfstring{3.\+3 Use Cases}{3.\+3 Use Cases}}\label{md__r_e_a_d_m_e_autotoc_md22}
+
+\begin{DoxyItemize}
+\item {\bfseries{Rendering:\+}} Load and display complex scenes.
+\item {\bfseries{Physics:\+}} Update object states and detect collisions.
+\item {\bfseries{Audio:\+}} Manage and play audio assets.
+\item {\bfseries{Input:\+}} Map user actions to game events.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md23}{}\doxysubsection{\texorpdfstring{3.\+4 Design Constraints and Assumptions}{3.\+4 Design Constraints and Assumptions}}\label{md__r_e_a_d_m_e_autotoc_md23}
+
+\begin{DoxyItemize}
+\item Use modern C++ (C++20 or later).
+\item Use Slang as the primary shader language.
+\item Rely on hardware-\/accelerated graphics.
+\item Assume a minimum hardware configuration for target platforms.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md25}{}\doxysection{\texorpdfstring{4. System Architecture \& Design}{4. System Architecture \& Design}}\label{md__r_e_a_d_m_e_autotoc_md25}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md26}{}\doxysubsection{\texorpdfstring{4.\+1 Architectural Overview}{4.\+1 Architectural Overview}}\label{md__r_e_a_d_m_e_autotoc_md26}
+The engine employs an entity component system and a component based architecture. Each module has well-\/defined interfaces, ensuring loose coupling and isolated development.\hypertarget{md__r_e_a_d_m_e_autotoc_md27}{}\doxysubsection{\texorpdfstring{4.\+2 Module Breakdown}{4.\+2 Module Breakdown}}\label{md__r_e_a_d_m_e_autotoc_md27}
+
+\begin{DoxyItemize}
+\item {\bfseries{Rendering Module:\+}} Handles shaders, textures, and communicates with the GPU. (Vulkan)
+\item {\bfseries{Physics Module:\+}} Implements collision detection and rigid body dynamics.(Jolt Physics)
+\item {\bfseries{Audio Module:\+}} Interfaces with audio libraries. (miniaudio)
+\item {\bfseries{Input Module:\+}} Abstracts device-\/specific input. (GLFW)
+\item {\bfseries{Game Logic Module:\+}} Manages scripting and event coordination. (Core)
+\item {\bfseries{Editor Module:\+}} Manages Graphical User interface. (Im\+Gui)
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md28}{}\doxysubsection{\texorpdfstring{4.\+3 Interaction Diagrams}{4.\+3 Interaction Diagrams}}\label{md__r_e_a_d_m_e_autotoc_md28}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md29}{}\doxysubsubsection{\texorpdfstring{Sequence Diagram:\+ Rendering a Frame}{Sequence Diagram:\+ Rendering a Frame}}\label{md__r_e_a_d_m_e_autotoc_md29}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{User\ Input\ -\/>\ Game\ Logic\ -\/>\ Rendering\ Module\ -\/>\ GPU}
+
+\end{DoxyCode}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md30}{}\doxysubsubsection{\texorpdfstring{Game Loop Flowchart}{Game Loop Flowchart}}\label{md__r_e_a_d_m_e_autotoc_md30}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{graph}
+\DoxyCodeLine{\ \ \ \ A[Start\ Loop]\ -\/-\/>\ B[Process\ Input];}
+\DoxyCodeLine{\ \ \ \ B\ -\/-\/>\ C[Update\ Game\ State];}
+\DoxyCodeLine{\ \ \ \ A\ -\/-\/>\ |Fixed\ Update|D[Update\ Game\ Physics];}
+\DoxyCodeLine{\ \ \ \ C\ -\/-\/>\ E[Render];}
+\DoxyCodeLine{\ \ \ \ E\ -\/-\/>\ F[End\ Loop];}
+
+\end{DoxyCode}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md31}{}\doxysubsection{\texorpdfstring{4.\+4 Design Decisions and Rationale}{4.\+4 Design Decisions and Rationale}}\label{md__r_e_a_d_m_e_autotoc_md31}
+
+\begin{DoxyItemize}
+\item {\bfseries{Language Choice:\+}} C++ for high performance.
+\item {\bfseries{Modular Design:\+}} Supports isolated testing and independent module development.
+\item {\bfseries{Graphic API:\+}} Vulkan is a modern Graphic API and cross-\/platform allowing us to get the best performances.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md33}{}\doxysection{\texorpdfstring{5. Detailed Module Design}{5. Detailed Module Design}}\label{md__r_e_a_d_m_e_autotoc_md33}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md34}{}\doxysubsection{\texorpdfstring{5.\+1 Class Diagrams and Data Structures}{5.\+1 Class Diagrams and Data Structures}}\label{md__r_e_a_d_m_e_autotoc_md34}
+
+\begin{DoxyItemize}
+\item {\bfseries{Rendering:\+}} {\ttfamily Renderer}, {\ttfamily Shader}, {\ttfamily Texture}
+\item {\bfseries{Physics:\+}} {\ttfamily Physics\+Engine}, {\ttfamily Collider}, {\ttfamily Rigid\+Body}
+\item {\bfseries{Audio:\+}} {\ttfamily Audio\+Engine}, {\ttfamily Sound}, {\ttfamily Music\+Player}
+\item {\bfseries{Input:\+}} {\ttfamily Input\+Manager}, {\ttfamily Keyboard}, {\ttfamily Mouse}, {\ttfamily Controller}
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md35}{}\doxysubsection{\texorpdfstring{5.\+2 Key Algorithms and Code Snippets}{5.\+2 Key Algorithms and Code Snippets}}\label{md__r_e_a_d_m_e_autotoc_md35}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md36}{}\doxysubsubsection{\texorpdfstring{Basic Rendering Loop in C++}{Basic Rendering Loop in C++}}\label{md__r_e_a_d_m_e_autotoc_md36}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ "{}Renderer.h"{}}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{int}\ main()\ \{}
+\DoxyCodeLine{\ \ \ \ Renderer\ renderer;}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{if}\ (!renderer.initialize())\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Renderer\ initialization\ failed."{}}\ <<\ std::endl;}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{while}\ (renderer.isRunning())\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ renderer.processInput();}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ renderer.updateScene();}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ renderer.renderFrame();}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ renderer.shutdown();}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{\`{}\`{}\`{}\`{}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\#\ 5.3\ Error\ Handling\ and\ Logging}}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Utilize\ exception\ handling\ \textcolor{keywordflow}{for}\ critical\ errors.}
+\DoxyCodeLine{-\/\ Implement\ a\ logging\ system\ to\ record\ runtime\ events\ and\ performance\ metrics.}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/-\/-\/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\ 6.\ Interface\ Design}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\#\ 6.1\ Internal\ Interfaces}}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Define\ clear\ APIs\ between\ modules\ \textcolor{keyword}{using\ }abstract\ classes\ or\ interfaces.}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ 6.2\ External\ APIs\ and\ File\ Formats}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Support\ standard\ file\ formats:\ OBJ\ (models),\ PNG\ and\ JPG\ (textures),\ WAV,\ MP3,\ FLAC\ (audio).}
+\DoxyCodeLine{-\/\ Provide\ documentation\ \textcolor{keywordflow}{for}\ external\ scripting\ interfaces.}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ 6.3\ User\ Interface\ (\textcolor{keywordflow}{if}\ applicable)}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Develop\ a\ debug\ UI\ \textcolor{keywordflow}{for}\ real-\/time\ performance\ monitoring\ and\ diagnostics.}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/-\/-\/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\ 7.\ Performance\ and\ Optimization}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\#\ 7.1\ Performance\ Goals}}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Physics\ Update\ runs\ consistently\ at\ 60\ tick\ per\ seconds.}
+\DoxyCodeLine{-\/\ Consistently\ achieve\ 120\ FPS.}
+\DoxyCodeLine{-\/\ Optimize\ memory\ usage\ and\ processing\ overhead.}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ 7.2\ Profiling\ and\ Benchmarking}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Integrate\ Valgrind\ profiling\ tool.}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ 7.3\ Optimization\ Techniques}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Use\ \textcolor{keywordtype}{object}\ pooling\ and\ memory\ management\ best\ practices.}
+\DoxyCodeLine{-\/\ Implement\ batching\ and\ frustum\ culling\ in\ the\ rendering\ process.}
+\DoxyCodeLine{-\/\ Use\ of\ multiple\ threads\ on\ updating\ different\ type\ of\ loop.}
+\DoxyCodeLine{-\/\ Use\ of\ Entity\ Component\ System\ by\ grouping\ each\ entity\ updates\ together\ in\ memory.}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/-\/-\/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\ 8.\ Testing\ Strategy}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{preprocessor}{\#\#\#\ 8.1\ Unit\ Testing}}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ Develop\ tests\ \textcolor{keywordflow}{for}\ individual\ components.}
+\DoxyCodeLine{-\/\ **Example\ \textcolor{keyword}{using\ }Google\ Test:**}
+
+\end{DoxyCode}
+ cpp \+\#include \texorpdfstring{$<$}{<}gtest/\+gtest.\+h\texorpdfstring{$>$}{>} \+\#include "{}\+Renderer.\+h"{}
+
+TEST(\+Renderer\+Test, Initialize\+Success) \{ Renderer renderer; EXPECT\+\_\+\+TRUE(renderer.\+initialize()); \} \`{}\`{}\`{}\hypertarget{md__r_e_a_d_m_e_autotoc_md37}{}\doxysubsection{\texorpdfstring{8.\+2 Integration Testing}{8.\+2 Integration Testing}}\label{md__r_e_a_d_m_e_autotoc_md37}
+
+\begin{DoxyItemize}
+\item Verify that modules interact correctly through integration tests.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md38}{}\doxysubsection{\texorpdfstring{8.\+3 Regression Testing}{8.\+3 Regression Testing}}\label{md__r_e_a_d_m_e_autotoc_md38}
+
+\begin{DoxyItemize}
+\item Maintain a suite of automated tests to catch and fix regressions early.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md39}{}\doxysubsection{\texorpdfstring{8.\+4 Testing Tools and Frameworks}{8.\+4 Testing Tools and Frameworks}}\label{md__r_e_a_d_m_e_autotoc_md39}
+
+\begin{DoxyItemize}
+\item {\bfseries{Framework:\+}} Google Test
+\item {\bfseries{CI/\+\+CD:\+}} Automate testing with CI pipelines (Git\+Hub Actions).
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md41}{}\doxysection{\texorpdfstring{9. Tools, Environment, and Deployment}{9. Tools, Environment, and Deployment}}\label{md__r_e_a_d_m_e_autotoc_md41}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md42}{}\doxysubsection{\texorpdfstring{9.\+1 Development Tools and IDEs}{9.\+1 Development Tools and IDEs}}\label{md__r_e_a_d_m_e_autotoc_md42}
+
+\begin{DoxyItemize}
+\item Recommended IDEs:\+ CLion.
+\item Code editors that support C++20 features.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md43}{}\doxysubsection{\texorpdfstring{9.\+2 Build System and Automation}{9.\+2 Build System and Automation}}\label{md__r_e_a_d_m_e_autotoc_md43}
+
+\begin{DoxyItemize}
+\item Use CMake for project configuration.
+\item Automate builds using CI/\+\+CD pipelines.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md44}{}\doxysubsection{\texorpdfstring{9.\+3 Version Control}{9.\+3 Version Control}}\label{md__r_e_a_d_m_e_autotoc_md44}
+
+\begin{DoxyItemize}
+\item Use Git for version control.
+\item Adopt a clear branching strategy for feature development.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md45}{}\doxysubsection{\texorpdfstring{9.\+4 Deployment Environment}{9.\+4 Deployment Environment}}\label{md__r_e_a_d_m_e_autotoc_md45}
+
+\begin{DoxyItemize}
+\item Target platforms:\+ Windows, Linux, mac\+OS.
+\item Provide deployment instructions and environment setup guides.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md47}{}\doxysection{\texorpdfstring{10. Project Timeline and Milestones}{10. Project Timeline and Milestones}}\label{md__r_e_a_d_m_e_autotoc_md47}
+
+\begin{DoxyItemize}
+\item {\bfseries{Phase 1:\+}} Requirement Analysis \& Detailed Design
+\item {\bfseries{Phase 2:\+}} Core Module Development (Rendering, Physics, Audio, Input, GUI)
+\item {\bfseries{Phase 3:\+}} Integration and Testing
+\item {\bfseries{Phase 4:\+}} Optimization and Final Deployment
+\item Outline milestones with deadlines and deliverables.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md49}{}\doxysection{\texorpdfstring{11. Project choices}{11. Project choices}}\label{md__r_e_a_d_m_e_autotoc_md49}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md50}{}\doxysubsection{\texorpdfstring{11.\+1 Graphical APIs}{11.\+1 Graphical APIs}}\label{md__r_e_a_d_m_e_autotoc_md50}
+
+\begin{DoxyItemize}
+\item {\bfseries{Vulkan:\+}} Cross-\/platfrom, multithreading, low-\/level with control over each step.
+\item {\bfseries{Direct3D 12:\+}} Not cross-\/platform.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md51}{}\doxysubsection{\texorpdfstring{11.\+2 Audio APIs}{11.\+2 Audio APIs}}\label{md__r_e_a_d_m_e_autotoc_md51}
+
+\begin{DoxyItemize}
+\item {\bfseries{Miniaudio:\+}} Minimal implementation, easy to abstract.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md52}{}\doxysubsection{\texorpdfstring{11.\+3 Physics APIs}{11.\+3 Physics APIs}}\label{md__r_e_a_d_m_e_autotoc_md52}
+
+\begin{DoxyItemize}
+\item {\bfseries{Jolt:\+}} Powerfull, Modern and Efficient
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md53}{}\doxysubsection{\texorpdfstring{11.\+4 Window manager APIs}{11.\+4 Window manager APIs}}\label{md__r_e_a_d_m_e_autotoc_md53}
+
+\begin{DoxyItemize}
+\item {\bfseries{GLFW:\+}} Can work easily with Vulkan.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md54}{}\doxysubsection{\texorpdfstring{11.\+5 GUI library}{11.\+5 GUI library}}\label{md__r_e_a_d_m_e_autotoc_md54}
+
+\begin{DoxyItemize}
+\item {\bfseries{Dear Im\+Gui:\+}} Cross platform, multiple API compatibility layer.
+\item {\bfseries{Im\+Guizmo:\+}} works with Im\+Gui
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md55}{}\doxysubsection{\texorpdfstring{11.\+6 Maths library}{11.\+6 Maths library}}\label{md__r_e_a_d_m_e_autotoc_md55}
+
+\begin{DoxyItemize}
+\item {\bfseries{GLM:\+}} because their data structures are aligned with shaders.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md56}{}\doxysubsection{\texorpdfstring{11.\+7 Build system}{11.\+7 Build system}}\label{md__r_e_a_d_m_e_autotoc_md56}
+
+\begin{DoxyItemize}
+\item {\bfseries{CMake:\+}} cross-\/platform and highly customizable.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md57}{}\doxysubsection{\texorpdfstring{11.\+8 Conventions}{11.\+8 Conventions}}\label{md__r_e_a_d_m_e_autotoc_md57}
+
+\begin{DoxyTable}{3}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Element  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Convention  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Example  \\
+Namespace  &Lowercase  &{\ttfamily gcep::\+render}  \\
+Namespace prefix  &{\ttfamily gcep} (Gaming Campus Engine Paris)  &{\ttfamily gcep:\+:\+}  \\
+Class name  &Pascal\+Case  &{\ttfamily RHI\+\_\+\+Vulkan}  \\
+Struct name  &Pascal\+Case  &{\ttfamily Render\+Data}  \\
+Enum name  &Pascal\+Case  &{\ttfamily Render\+Backend}  \\
+Enum values  &Pascal\+Case  &{\ttfamily Render\+Backend::\+\+Vulkan}  \\
+Function name  &camel\+Case, starts with a verb  &{\ttfamily create\+Instance()}  \\
+Getter name  &camel\+Case, starts with {\ttfamily get}  &{\ttfamily get\+Context()}  \\
+Variable name  &camel\+Case  &{\ttfamily frame\+Index}  \\
+Member variable  &{\ttfamily m\+\_\+} + camel\+Case  &{\ttfamily m\+\_\+context}  \\
+Constant  &UPPER\+\_\+\+CASE  &{\ttfamily MAX\+\_\+\+FRAMES\+\_\+\+IN\+\_\+\+FLIGHT}  \\
+Macro  &UPPER\+\_\+\+CASE  &{\ttfamily DEBUG\+\_\+\+MODE}  \\
+File name  &snake\+\_\+case  &{\ttfamily rhi\+\_\+vulkan.\+cpp}  \\
+Header file  &snake\+\_\+case  &{\ttfamily rhi\+\_\+vulkan.\+hpp}  \\
+Indentation  &4 spaces  &{\ttfamily  int value;}  \\
+Braces style  &Opening brace on new line  &{\ttfamily function()\textbackslash{}n\{\}}  \\
+Documentation  &Doxygen  &{\ttfamily @brief Create instance}  \\
+Attributes  &{\ttfamily \+[\+[nodiscard]\+]\+} when applicable  &{\ttfamily \+[\+[nodiscard]\+]\+ int get\+Id();}  \\
+Includes ordering  &Internals /\+ Externals /\+ STL  &see include rules  \\
+Include sorting  &Alphabetical inside each group  &{\ttfamily \texorpdfstring{$<$}{<}algorithm\texorpdfstring{$>$}{>}} before {\ttfamily \texorpdfstring{$<$}{<}vector\texorpdfstring{$>$}{>}}  \\
+Class access modifiers sorting  &Public, Private, Protected  &Inside :\+ methods before members  \\
+\end{DoxyTable}
+
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md59}{}\doxysection{\texorpdfstring{12. Appendices}{12. Appendices}}\label{md__r_e_a_d_m_e_autotoc_md59}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md60}{}\doxysubsection{\texorpdfstring{12.\+1 Glossary}{12.\+1 Glossary}}\label{md__r_e_a_d_m_e_autotoc_md60}
+
+\begin{DoxyItemize}
+\item {\bfseries{Game Engine:\+}} The core framework managing all game processes.
+\item {\bfseries{Module:\+}} A self-\/contained component providing specific functionality.
+\item {\bfseries{Shader:\+}} A program executed on the GPU to control rendering.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md61}{}\doxysubsection{\texorpdfstring{12.\+2 Additional Diagrams}{12.\+2 Additional Diagrams}}\label{md__r_e_a_d_m_e_autotoc_md61}
+
+\begin{DoxyItemize}
+\item Include any additional architectural diagrams or flowcharts as needed.
+\end{DoxyItemize}\hypertarget{md__r_e_a_d_m_e_autotoc_md62}{}\doxysubsection{\texorpdfstring{12.\+3 References and Further Reading}{12.\+3 References and Further Reading}}\label{md__r_e_a_d_m_e_autotoc_md62}
+
+\begin{DoxyItemize}
+\item Additional resources on C++ game development and engine architecture. 
+\end{DoxyItemize}

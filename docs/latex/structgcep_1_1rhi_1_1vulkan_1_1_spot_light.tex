@@ -1,0 +1,59 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Spot\+Light Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light}{}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light}\index{gcep::rhi::vulkan::SpotLight@{gcep::rhi::vulkan::SpotLight}}
+
+
+CPU-\/side description of a spot light.  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHIData\+Types.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a5e94b3c2c7d7919f9dfb5ee3915b8fea}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a5e94b3c2c7d7919f9dfb5ee3915b8fea} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries position} = \{ 0.\+0f, 0.\+0f, 0.\+0f \}
+\begin{DoxyCompactList}\small\item\em World-\/space origin. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ab277f4adb9e8d724bfb8caa2ce4c7be2}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ab277f4adb9e8d724bfb8caa2ce4c7be2} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries direction} = \{ 0.\+0f, 0.\+0f, -\/1.\+0f \}
+\begin{DoxyCompactList}\small\item\em Unit vector pointing down the cone axis. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a7e7b2039a2d1c6b29edb69cbdc08d4c6}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a7e7b2039a2d1c6b29edb69cbdc08d4c6} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ {\bfseries color} = \{ 1.\+0f, 1.\+0f, 1.\+0f \}
+\begin{DoxyCompactList}\small\item\em Linear-\/space RGB color. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ac4cc882379ee64b1768375df89f5e81a}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ac4cc882379ee64b1768375df89f5e81a} 
+float {\bfseries intensity} = 1.\+0f
+\begin{DoxyCompactList}\small\item\em Luminous intensity scalar. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a6f2ba20d0fa659829863d59ec821dbd9}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a6f2ba20d0fa659829863d59ec821dbd9} 
+float {\bfseries radius} = 20.\+0f
+\begin{DoxyCompactList}\small\item\em Maximum influence radius in world units. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a510ba979ced56d6af140674a1da1a430}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a510ba979ced56d6af140674a1da1a430} 
+float {\bfseries inner\+Cutoff\+Deg} = 15.\+0f
+\begin{DoxyCompactList}\small\item\em Full-\/brightness cone half-\/angle (degrees). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a14ab1d529c5b65b0d509a37191b89100}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a14ab1d529c5b65b0d509a37191b89100} 
+float {\bfseries outer\+Cutoff\+Deg} = 30.\+0f
+\begin{DoxyCompactList}\small\item\em Zero-\/brightness cone half-\/angle (degrees). \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a521f5f9b604b5e70c70b4e89602ef185}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a521f5f9b604b5e70c70b4e89602ef185} 
+bool {\bfseries show\+Gizmo} = true
+\begin{DoxyCompactList}\small\item\em When false the cone wireframe gizmo is hidden. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ac4793b483b508b67225ec6c95d29fb53}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_ac4793b483b508b67225ec6c95d29fb53} 
+std::\+string {\bfseries name} = "{}Unknown"{}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a4d7b1b83cbe555c28619ef958da1a08a}\label{structgcep_1_1rhi_1_1vulkan_1_1_spot_light_a4d7b1b83cbe555c28619ef958da1a08a} 
+ECS::\+\+Entity\+ID {\bfseries id} = ECS::\+\+INVALID\+\_\+\+VALUE
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+CPU-\/side description of a spot light. 
+
+A spot light illuminates a cone defined by {\ttfamily inner\+Cutoff\+Deg} and {\ttfamily outer\+Cutoff\+Deg} (both in degrees, measured from the central axis). Between the two angles the intensity is smoothly attenuated using a cosine-\/based falloff. Beyond {\ttfamily radius} the light has no influence.
+
+\begin{DoxyNote}{Note}
+Keep fields in sync with {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light}{GPULight}} layout offsets. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHIData\+Types.\+hpp\end{DoxyCompactItemize}

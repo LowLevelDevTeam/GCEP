@@ -1,0 +1,90 @@
+\doxysection{Vulkan\+Swapchain.\+hpp}
+\hypertarget{_vulkan_swapchain_8hpp_source}{}\label{_vulkan_swapchain_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanSwapchain.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanSwapchain.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }gcep::rhi}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{SwapchainDesc}}}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{void}*\ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc_a4c3444c8b13f6dd0f54d9f4476cba635}{nativeWindowHandle}}\ =\ \textcolor{keyword}{nullptr};\ }
+\DoxyCodeLine{00017\ \ \ \ \ uint32\_t\ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc_a8e02010b52f4a8efc47ef094ca9dfaa8}{width}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00018\ \ \ \ \ uint32\_t\ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc_ae46a08ee9af938a9eb802a70a01245ef}{height}}\ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;\ \ \ \ \ \ \ }
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc_ad4e3051c7697dd74d11b140e0b7e1c59}{vsync}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{true};\ \ \ \ }
+\DoxyCodeLine{00020\ \};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00025\ \{}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}}
+\DoxyCodeLine{00042\ \{}
+\DoxyCodeLine{00043\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00056\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}(\textcolor{keyword}{const}\ vk::raii::Device\&\ \ \ \ \ \ \ \ \ device,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vk::raii::PhysicalDevice\&\ physicalDevice,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vk::raii::SurfaceKHR\&\ \ \ \ \ surface,}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{SwapchainDesc}}\&\ \ \ \ \ \ \ \ desc);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{\string~VulkanSwapchain}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&)\ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00064\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&\ operator=(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00065\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&\&)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00066\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&\ operator=(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a2a5b856b5b396295699e5f6a8f5b2f67}{VulkanSwapchain}}\&\&)\ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00080\ \ \ \ \ [[nodiscard]]\ std::pair<vk::Result,\ uint32\_t>}
+\DoxyCodeLine{00081\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a640d8b8907fafd65fa80a1d5df48f599}{acquireNextImage}}(\textcolor{keyword}{const}\ vk::raii::Semaphore\&\ signalSemaphore)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00084\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ vk::raii::SwapchainKHR\&\ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a22ba93afdce849b240d98d37defb8ea5}{raw}}()\ \ \ \ \ \ \ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_swapchain;\ \ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00087\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<vk::Image>\&\ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a1a502505fa1caa73f7e3c5c36acf6ca0}{images}}()\ \ \ \ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_images;\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00090\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<vk::raii::ImageView>\&\ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_acbd1465a5bbd039cf6fbe0b8189da31b}{imageViews}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_imageViews;\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00093\ \ \ \ \ [[nodiscard]]\ vk::Format\ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_acca73769a7d9b4b3293a5020b5004fb4}{format}}()\ \ \ \ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_format;\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00096\ \ \ \ \ [[nodiscard]]\ vk::Extent2D\ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_ac90459330939ca9d6ca2fd57501be417}{extent}}()\ \ \ \ \ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_extent;\ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_swapchain_a7ebed041464f61523388378d76fce95f}{imageCount}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(m\_images.size());\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ createSwapchain(\textcolor{keyword}{const}\ vk::raii::Device\&\ \ \ \ \ \ \ \ \ device,}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vk::raii::PhysicalDevice\&\ physicalDevice,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vk::raii::SurfaceKHR\&\ \ \ \ \ surface,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{SwapchainDesc}}\&\ \ \ \ \ \ \ \ desc);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordtype}{void}\ createImageViews(\textcolor{keyword}{const}\ vk::raii::Device\&\ device);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00123\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{static}\ vk::SurfaceFormatKHR\ chooseSurfaceFormat(}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<vk::SurfaceFormatKHR>\&\ available);}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00134\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{static}\ vk::PresentModeKHR\ choosePresentMode(}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<vk::PresentModeKHR>\&\ available,}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ vsync);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00148\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{static}\ vk::Extent2D\ chooseExtent(}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vk::SurfaceCapabilitiesKHR\&\ caps,}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ desiredWidth,}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ desiredHeight);}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00154\ \ \ \ \ vk::raii::SwapchainKHR\ \ \ \ \ \ \ \ \ \ \ m\_swapchain\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00155\ \ \ \ \ std::vector<vk::Image>\ \ \ \ \ \ \ \ \ \ \ m\_images;}
+\DoxyCodeLine{00156\ \ \ \ \ std::vector<vk::raii::ImageView>\ m\_imageViews;}
+\DoxyCodeLine{00157\ \ \ \ \ vk::Format\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_format\ =\ vk::Format::eUndefined;}
+\DoxyCodeLine{00158\ \ \ \ \ vk::Extent2D\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_extent\{\};}
+\DoxyCodeLine{00159\ \};}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+
+\end{DoxyCode}

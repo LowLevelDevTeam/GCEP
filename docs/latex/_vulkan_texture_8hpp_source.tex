@@ -1,0 +1,108 @@
+\doxysection{Vulkan\+Texture.\+hpp}
+\hypertarget{_vulkan_texture_8hpp_source}{}\label{_vulkan_texture_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanTexture.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanTexture.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <ktxvulkan.h>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <atomic>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <filesystem>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{VulkanRHI}};}
+\DoxyCodeLine{00018\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_texture_data}{TextureData}}}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ vk::raii::Image\ \ \ \ \ \ \ \ image\ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00021\ \ \ \ \ vk::raii::DeviceMemory\ imageMemory\ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00022\ \ \ \ \ vk::raii::ImageView\ \ \ \ imageView\ \ \ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00023\ \ \ \ \ vk::raii::Sampler\ \ \ \ \ \ sampler\ \ \ \ \ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00024\ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bindlessIndex\ =\ 0;}
+\DoxyCodeLine{00025\ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mipLevels\ \ \ \ \ =\ 1;}
+\DoxyCodeLine{00026\ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ width\ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00027\ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ height\ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00028\ \};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_texture_cache_entry}{TextureCacheEntry}}}
+\DoxyCodeLine{00031\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ std::shared\_ptr<TextureData>\ data;}
+\DoxyCodeLine{00033\ \};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00040\ \textcolor{keyword}{static}\ std::atomic<uint32\_t>\ m\_nextTextureSlot\ =\ 0;}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00058\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture}{VulkanTexture}}}
+\DoxyCodeLine{00059\ \{}
+\DoxyCodeLine{00060\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a28da1fadcbd3b52c50e2d2aae97eb4dd}{loadTexture}}(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{VulkanRHI}}*\ instance,\ \textcolor{keyword}{const}\ std::filesystem::path\&\ filepath,\ \textcolor{keywordtype}{bool}\ mipmaps\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_afcd775fc35c5a490fff439c78d67c634}{setLodLevel}}(\textcolor{keywordtype}{float}\ lodLevel);}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{bool}\ hasTexture()\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{\ \textcolor{keywordflow}{return}\ m\_hasTexture;\ \}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{bool}\ hasMipmaps()\ \textcolor{keyword}{const}\ \textcolor{keyword}{noexcept}\ \{\ \textcolor{keywordflow}{return}\ m\_hasMipmaps;\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ Accessors}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \ \ [[nodiscard]]\ vk::Image\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a60b57f39d1d5106d6d7cae6684a644f3}{getImage}}()\ \ \ \ \ \ \ \ \ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>image;\ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00102\ \ \ \ \ [[nodiscard]]\ vk::ImageView\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a313059eb2fb88ce449c0a550b25d5060}{getImageView}}()\ \ \ \ \ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>imageView;\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ [[nodiscard]]\ vk::Sampler\ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_ae44208cbae0e1e63f56438db4ae3bcfc}{getSampler}}()\ \ \ \ \ \ \ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>sampler;\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00108\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a5dadb868540a8c00ab4ab6d52217e309}{getMipLevels}}()\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>mipLevels;\ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00111\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a715b1890fa08d1f3f4a2f0f4776a081e}{getWidth}}()\ \ \ \ \ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>width;\ \ \ \ \ \}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00114\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a776846727074937e8436e1d395633b8d}{getHeight}}()\ \ \ \ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_data-\/>height;\ \ \ \ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00123\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_texture_a662053e7da85215134d61757713eee67}{getBindlessIndex}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_bindlessIndex;\ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{void}\ createTexture(\textcolor{keyword}{const}\ std::filesystem::path\&\ filepath);}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordtype}{void}\ createTextureView();}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{void}\ createTextureSampler(\textcolor{keywordtype}{float}\ minLod\ =\ 0.0f);}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{void}\ createImage(vk::ImageTiling\ tiling,\ vk::ImageUsageFlags\ usage,\ vk::MemoryPropertyFlags\ properties);}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00166\ \ \ \ \ [[nodiscard]]\ vk::raii::ImageView\ createImageView(vk::ImageAspectFlags\ aspectFlags);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordtype}{void}\ createBuffer(vk::DeviceSize\ size,\ vk::BufferUsageFlags\ usage,}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vk::MemoryPropertyFlags\ properties,}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vk::raii::Buffer\&\ buffer,\ vk::raii::DeviceMemory\&\ bufferMemory);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordtype}{void}\ copyBufferToImage(\textcolor{keyword}{const}\ vk::raii::Buffer\&\ buffer);}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{keywordtype}{void}\ generateMipmaps(\textcolor{keywordtype}{bool}\ isKtx\ =\ \textcolor{keyword}{false},\ ktxTexture*\ texture\ =\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordtype}{void}\ transitionImageLayout(vk::ImageLayout\ oldLayout,\ vk::ImageLayout\ newLayout);}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00222\ \ \ \ \ uint32\_t\ registerBindless(uint32\_t\ slot);}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00231\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{static}\ uint32\_t\ allocateTextureSlot()\ \{\ \textcolor{keywordflow}{return}\ m\_nextTextureSlot.fetch\_add(1);\ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00234\ \ \ \ \ VulkanRHI*\ pRhi;\ }
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \ \ std::shared\_ptr<TextureData>\ m\_data;}
+\DoxyCodeLine{00237\ \ \ \ \ vk::Format\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_format\ =\ vk::Format::eR8G8B8A8Srgb;\ }
+\DoxyCodeLine{00238\ \ \ \ \ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_bindlessIndex;}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_hasMipmaps\ =\ \textcolor{keyword}{true};\ \ }
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_hasTexture\ =\ \textcolor{keyword}{false};\ }
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \ \ VulkanTexture*\ m\_sharedOwner\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00244\ \};}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+
+\end{DoxyCode}

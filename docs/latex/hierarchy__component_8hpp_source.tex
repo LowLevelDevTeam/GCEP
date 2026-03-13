@@ -1,0 +1,21 @@
+\doxysection{hierarchy\+\_\+component.\+hpp}
+\hypertarget{hierarchy__component_8hpp_source}{}\label{hierarchy__component_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/Components/hierarchy\_component.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/Components/hierarchy\_component.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/headers/component\_registry.hpp>}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{namespace\ }gcep::ECS}
+\DoxyCodeLine{00005\ \{}
+\DoxyCodeLine{00006\ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_hierarchy_component}{HierarchyComponent}}}
+\DoxyCodeLine{00007\ \ \ \ \ \{}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ ECS::EntityID\ parent\ \ \ \ \ \ =\ ECS::INVALID\_VALUE;}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ ECS::EntityID\ firstChild\ \ =\ ECS::INVALID\_VALUE;}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ ECS::EntityID\ nextSibling\ =\ ECS::INVALID\_VALUE;}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ ECS::EntityID\ prevSibling\ =\ ECS::INVALID\_VALUE;}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \_gcep\_registered\ =}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ gcep::ECS::ComponentRegistry::instance().reg<\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_hierarchy_component}{HierarchyComponent}}>();}
+\DoxyCodeLine{00014\ \ \ \ \ \};}
+\DoxyCodeLine{00015\ \}}
+
+\end{DoxyCode}

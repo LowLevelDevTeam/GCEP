@@ -1,0 +1,94 @@
+\doxysection{config.\+hpp}
+\hypertarget{config_8hpp_source}{}\label{config_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/config.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/config.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <string\_view>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }gcep::config}
+\DoxyCodeLine{00007\ \{}
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ Engine\ Info\ -\/-\/-\/}}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ engineName\ =\ \textcolor{stringliteral}{"{}Gaming\ Campus\ Engine\ Paris"{}};}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ engineVersion\ =\ \textcolor{stringliteral}{"{}0.1"{}};}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ Build\ Info\ -\/-\/-\/}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifdef\ NDEBUG}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ isDebug\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ buildType\ =\ \textcolor{stringliteral}{"{}Release"{}};}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ isDebug\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ buildType\ =\ \textcolor{stringliteral}{"{}Debug"{}};}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ Platform\ \&\ Architecture\ -\/-\/-\/}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#if\ defined(\_WIN32)}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ platform\ =\ \textcolor{stringliteral}{"{}Windows"{}};}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#elif\ defined(\_\_APPLE\_\_)}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ platform\ =\ \textcolor{stringliteral}{"{}Apple"{}};}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#elif\ defined(\_\_linux\_\_)}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ platform\ =\ \textcolor{stringliteral}{"{}Linux"{}};}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#elif\ defined(\_\_unix\_\_)}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ platform\ =\ \textcolor{stringliteral}{"{}Unix"{}};}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ platform\ =\ \textcolor{stringliteral}{"{}Unsupported"{}};}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\ \ \ \ \#error\ Unsupported\ platform}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#if\ defined(\_M\_X64)\ ||\ defined(\_\_x86\_64\_\_)}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ architecture\ =\ \textcolor{stringliteral}{"{}x86\_64"{}};}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ platformBits\ =\ 64;}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#elif\ defined(\_M\_IX86)\ ||\ defined(\_\_i386\_\_)}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ architecture\ =\ \textcolor{stringliteral}{"{}x86"{}};}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ platformBits\ =\ 32;}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#elif\ defined(\_\_aarch64\_\_)}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ architecture\ =\ \textcolor{stringliteral}{"{}ARM64"{}};}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ platformBits\ =\ 64;}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#elif\ defined(\_\_arm\_\_)}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ architecture\ =\ \textcolor{stringliteral}{"{}ARM"{}};}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ platformBits\ =\ 32;}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ architecture\ =\ \textcolor{stringliteral}{"{}Unknown"{}};}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ platformBits\ =\ 0;}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ message("{}Your\ architecture\ might\ not\ support\ the\ application."{})}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ Compiler\ Info\ -\/-\/-\/}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#if\ defined(\_MSC\_VER)}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ compiler\ =\ \textcolor{stringliteral}{"{}MSVC"{}};}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ compilerVersion\ =\ \_MSC\_VER;}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#elif\ defined(\_\_clang\_\_)}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ compiler\ =\ \textcolor{stringliteral}{"{}Clang"{}};}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ compilerVersion\ =\ (\_\_clang\_major\_\_\ *\ 100)\ +\ (\_\_clang\_minor\_\_\ *\ 10)\ +\ \_\_clang\_patchlevel\_\_;}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#elif\ defined(\_\_GNUC\_\_)}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ compiler\ =\ \textcolor{stringliteral}{"{}GCC"{}};}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ compilerVersion\ =\ (\_\_GNUC\_\_\ *\ 100)\ +\ (\_\_GNUC\_MINOR\_\_\ *\ 10)\ +\ \_\_GNUC\_PATCHLEVEL\_\_;}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ compiler\ =\ \textcolor{stringliteral}{"{}Unknown"{}};}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ compilerVersion\ =\ 0;}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ message("{}Your\ compiler\ might\ not\ work\ with\ this\ application."{})}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ C++\ version\ -\/-\/-\/}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#if\ defined(\_MSVC\_LANG)}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\ \ \ \ \#define\ CPP\_STD\ \_MSVC\_LANG}}
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\ \ \ \ \#define\ CPP\_STD\ \_\_cplusplus}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#if\ CPP\_STD\ >\ 202302L}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//\ The\ official\ macro\ value\ for\ C++26\ is\ not\ yet\ finalized.}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ cppStandard\ =\ \textcolor{stringliteral}{"{}C++26\ (Experimental)"{}};}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#elif\ CPP\_STD\ ==\ 202302L}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ cppStandard\ =\ \textcolor{stringliteral}{"{}C++23"{}};}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#elif\ CPP\_STD\ ==\ 202002L}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ cppStandard\ =\ \textcolor{stringliteral}{"{}C++20"{}};}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ std::string\_view\ cppStandard\ =\ \textcolor{stringliteral}{"{}Pre-\/C++20"{}};}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ message("{}Your\ C++\ version\ might\ not\ support\ C++20\ features\ used\ inside\ this\ engine."{})}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \}\ \textcolor{comment}{//\ Namespace\ gcep::config}}
+
+\end{DoxyCode}

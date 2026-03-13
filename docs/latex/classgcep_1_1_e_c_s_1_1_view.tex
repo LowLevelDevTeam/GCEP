@@ -1,0 +1,126 @@
+\doxysection{gcep::\+ECS::\+View\texorpdfstring{$<$}{<} Args \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{classgcep_1_1_e_c_s_1_1_view}{}\label{classgcep_1_1_e_c_s_1_1_view}\index{gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}}
+
+
+Query system used to iterate over entities possessing a specific set of components.  
+
+
+
+
+{\ttfamily \+\#include $<$view\+\_\+finder.\+hpp$>$}
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{Iterator}}
+\begin{DoxyCompactList}\small\item\em Custom iterator for traversing entities validated by the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{Registry}} \&registry)
+\begin{DoxyCompactList}\small\item\em Constructor for the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View} class. \end{DoxyCompactList}\item 
+bool \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04}{match}} (Entity\+ID entity) const
+\begin{DoxyCompactList}\small\item\em Checks if an entity meets the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View}\textquotesingle{}s criteria. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_ab73d668f6ae7bdb2739ae43f2c4b1868}\label{classgcep_1_1_e_c_s_1_1_view_ab73d668f6ae7bdb2739ae43f2c4b1868} 
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{Iterator}} {\bfseries begin} ()
+\begin{DoxyCompactList}\small\item\em Returns the beginning iterator. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_aff027176852abd248b04addfd37f07f8}\label{classgcep_1_1_e_c_s_1_1_view_aff027176852abd248b04addfd37f07f8} 
+\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{Iterator}} {\bfseries end} ()
+\begin{DoxyCompactList}\small\item\em Returns the end iterator (sentinel). \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T$>$ }\\T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a45904a19f3834c21439e7a9ee393e349}{get}} (Entity\+ID entity)
+\begin{DoxyCompactList}\small\item\em Retrieves a specific component for the entity being iterated. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename... Args$>$\newline
+class gcep::\+\+ECS::\+\+View$<$ Args $>$}
+Query system used to iterate over entities possessing a specific set of components. 
+
+The \doxylink{classgcep_1_1_e_c_s_1_1_view}{View} is the primary tool for entity filtering. It optimizes iteration by identifying the smallest (most restrictive) pool to minimize the number of checks performed. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Args} & List of component types required for filtering. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}\index{gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}!View@{View}}
+\index{View@{View}!gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}}
+\doxysubsubsection{\texorpdfstring{View()}{View()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356} 
+template$<$typename... Args$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{gcep::\+\+ECS::\+\+View}}$<$ Args $>$::\+\+View (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{Registry}} \&}]{registry}{}\end{DoxyParamCaption})}
+
+
+
+Constructor for the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View} class. 
+
+\begin{DoxyNote}{Note}
+Retrieves pool pointers and calculates the view signature upon construction to maximize performance during iteration. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em registry} & Reference to the parent \doxylink{classgcep_1_1_e_c_s_1_1_registry}{Registry}. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_a45904a19f3834c21439e7a9ee393e349}\index{gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}!get@{get}}
+\index{get@{get}!gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_view_a45904a19f3834c21439e7a9ee393e349} 
+template$<$typename ... Args$>$ \\
+template$<$typename T$>$ \\
+T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{gcep::\+\+ECS::\+\+View}}$<$ Args $>$::\+get (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Retrieves a specific component for the entity being iterated. 
+
+\begin{DoxyNote}{Note}
+This method uses pool pointers cached in the m\+\_\+pools tuple to avoid expensive lookups in the \doxylink{classgcep_1_1_e_c_s_1_1_registry}{Registry}. 
+\end{DoxyNote}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The type of component to retrieve (must be part of Args). \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The target entity ID. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+T\& Reference to the component data. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04}\index{gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}!match@{match}}
+\index{match@{match}!gcep::ECS::View$<$ Args $>$@{gcep::ECS::View$<$ Args $>$}}
+\doxysubsubsection{\texorpdfstring{match()}{match()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04} 
+template$<$typename ... Args$>$ \\
+bool \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view}{gcep::\+\+ECS::\+\+View}}$<$ Args $>$::\+match (\begin{DoxyParamCaption}\item[{Entity\+ID}]{entity}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Checks if an entity meets the \doxylink{classgcep_1_1_e_c_s_1_1_view}{View}\textquotesingle{}s criteria. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em entity} & The unique identifier of the entity to test. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the entity has the required components (respecting the exactness rule), false otherwise. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+registry.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+view\+\_\+finder.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+detail/\+view\+\_\+finder.\+inl\end{DoxyCompactItemize}

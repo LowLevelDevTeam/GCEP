@@ -1,0 +1,137 @@
+\doxysection{Script\+API.\+hpp}
+\hypertarget{_script_a_p_i_8hpp_source}{}\label{_script_a_p_i_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptAPI.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptAPI.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\#include\ <cstddef>}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\#include\ <vector>}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\#include\ <Engine/Core/ECS/headers/registry.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\#include\ <Engine/Core/PhysicsWrapper/physics\_system.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\#include\ <Engine/RHI/Mesh/Mesh.hpp>}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\#if\ defined(\_WIN32)}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ \#if\ defined(GCE\_SCRIPT\_BUILD)}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ \ \ \ \ \#define\ GCE\_SCRIPT\_API\ extern\ "{}C"{}\ \_\_declspec(dllexport)}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ \#else}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ \ \ \ \ \#define\ GCE\_SCRIPT\_API\ extern\ "{}C"{}}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\#else}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ \ \#define\ GCE\_SCRIPT\_API\ extern\ "{}C"{}\ \_\_attribute\_\_((visibility("{}default"{})))}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\#endif}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{namespace\ gcep::scripting}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ \ \ \ struct\ ScriptContext}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ \ \ \ \ \ \ double\ deltaSeconds\ =\ 0.0;}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ (*log)(const\ char*\ message)\ =\ nullptr;}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \ \ \ \ void*\ userData\ =\ nullptr;}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ \ \ \ \ ECS::Registry*\ registry\ =\ nullptr;}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ \ \ \ \ \ \ ECS::EntityID\ entity\ =\ ECS::INVALID\_VALUE;}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ \ \ \ rhi::vulkan::Mesh*\ mesh\ =\ nullptr;}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ \ \ \ \ \ \ \ gcep::PhysicsSystem*\ physicsSystem\ =\ nullptr;}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00032\ \textcolor{comment}{}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ \ \ struct\ ScriptPlugin}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ \ \ \ \ \ \ \ void*\ state\ =\ nullptr;}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ (*onLoad)(ScriptContext*\ context,\ void**\ state)\ =\ nullptr;}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ (*onUpdate)(ScriptContext*\ context,\ void*\ state)\ =\ nullptr;}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ (*onUnload)(ScriptContext*\ context,\ void*\ state)\ =\ nullptr;}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00040\ \textcolor{comment}{}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ \ \ \ //\ -\/-\/\ Multi-\/plugin\ registry\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00042\ \textcolor{comment}{}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ \ \ \ struct\ ScriptRegistryEntry}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ \ \ \ \ \ \ \ const\ char*\ name\ =\ nullptr;}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptPlugin\ plugin\{\};}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00048\ \textcolor{comment}{}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ \ \ \ //\ Global\ registry\ (one\ per\ DLL,\ lives\ in\ the\ DLL\ address\ space)}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ \ \ \ inline\ std::vector<ScriptRegistryEntry>\&\ getScriptRegistry()}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ \ \ \ \ \ \ \ static\ std::vector<ScriptRegistryEntry>\ s\_registry;}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\ \ \ \ \ \ \ \ return\ s\_registry;}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ \ \ \ \}}}
+\DoxyCodeLine{00055\ \textcolor{comment}{}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ \ \ \ //\ RAII\ helper\ {\ucr}\ its\ constructor\ pushes\ an\ entry\ into\ the\ registry}}
+\DoxyCodeLine{00057\ \textcolor{comment}{\ \ \ \ struct\ ScriptAutoRegister}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00059\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptAutoRegister(const\ char*\ name,\ ScriptPlugin\ plugin)}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ \ \ \ \ \ \ \ \{}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ getScriptRegistry().push\_back(\{name,\ plugin\});}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ \ \ \ \};}}
+\DoxyCodeLine{00064\ \textcolor{comment}{}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ \ \ \ //\ -\/-\/\ DLL\ export\ symbols\ (resolved\ by\ ScriptHost)\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00066\ \textcolor{comment}{}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ \ \ \ using\ GetScriptCountFn\ \ =\ std::size\_t\ (*)();}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ \ \ \ using\ GetScriptEntryFn\ \ =\ ScriptRegistryEntry*\ (*)(std::size\_t\ index);}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ \ \ \ using\ GetScriptEntryByNameFn\ =\ ScriptRegistryEntry*\ (*)(const\ char*\ name);}}
+\DoxyCodeLine{00070\ \textcolor{comment}{}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kGetCountSymbol\ \ \ \ \ \ \ =\ "{}GCE\_GetScriptCount"{};}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kGetEntrySymbol\ \ \ \ \ \ \ =\ "{}GCE\_GetScriptEntry"{};}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kGetEntryByNameSymbol\ =\ "{}GCE\_GetScriptEntryByName"{};}}
+\DoxyCodeLine{00074\ \textcolor{comment}{}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ \ \ \ \#if\ defined(\_WIN32)}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kSharedLibraryExtension\ =\ "{}.dll"{};}}
+\DoxyCodeLine{00077\ \textcolor{comment}{\ \ \ \ \#elif\ defined(\_\_APPLE\_\_)}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kSharedLibraryExtension\ =\ "{}.dylib"{};}}
+\DoxyCodeLine{00079\ \textcolor{comment}{\ \ \ \ \#else}}
+\DoxyCodeLine{00080\ \textcolor{comment}{\ \ \ \ inline\ constexpr\ const\ char*\ kSharedLibraryExtension\ =\ "{}.so"{};}}
+\DoxyCodeLine{00081\ \textcolor{comment}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00082\ \textcolor{comment}{}}
+\DoxyCodeLine{00083\ \textcolor{comment}{\ \ \ \ //\ -\/-\/\ Convenience\ helpers\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ \textcolor{comment}{}}
+\DoxyCodeLine{00085\ \textcolor{comment}{\ \ \ \ inline\ rhi::vulkan::Mesh*\ getMesh(ScriptContext*\ context)}}
+\DoxyCodeLine{00086\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00087\ \textcolor{comment}{\ \ \ \ \ \ \ \ return\ context\ ?\ context-\/>mesh\ :\ nullptr;}}
+\DoxyCodeLine{00088\ \textcolor{comment}{\ \ \ \ \}}}
+\DoxyCodeLine{00089\ \textcolor{comment}{}}
+\DoxyCodeLine{00093\ \ \ \ \ inline\ ECS::Transform*\ getTransform(ScriptContext*\ context)}
+\DoxyCodeLine{00094\ \ \ \ \ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ if\ (!context\ ||\ !context-\/>registry\ ||\ !context-\/>mesh)}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ return\ nullptr;}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ if\ (!context-\/>registry-\/>hasComponent<ECS::Transform>(context-\/>mesh-\/>id))}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ return\ nullptr;}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ return\ \&context-\/>registry-\/>getComponent<ECS::Transform>(context-\/>mesh-\/>id);}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ inline\ void\ setMeshPosition(ScriptContext*\ context,\ const\ Vector3<float>\&\ position)}
+\DoxyCodeLine{00103\ \ \ \ \ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ if\ (auto*\ tc\ =\ getTransform(context))}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ tc-\/>position\ =\ position;}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00108\ \ \ \ \ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ inline\ void\ setMeshRotation(ScriptContext*\ context,\ const\ Quaternion\&\ rotation)}
+\DoxyCodeLine{00111\ \ \ \ \ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ if\ (auto*\ tc\ =\ getTransform(context))}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ tc-\/>rotation\ =\ rotation;}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00116\ \ \ \ \ \}}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ inline\ void\ setMeshScale(ScriptContext*\ context,\ const\ Vector3<float>\&\ scale)}
+\DoxyCodeLine{00119\ \ \ \ \ \{}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ if\ (auto*\ tc\ =\ getTransform(context))}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ tc-\/>scale\ =\ scale;}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ //\ -\/-\/\ Macro\ that\ users\ put\ at\ the\ end\ of\ each\ script\ file\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}
+\DoxyCodeLine{00128\ //\ Usage:\ GCE\_REGISTER\_SCRIPT("{}Script0"{},\ g\_plugin)}
+\DoxyCodeLine{00129\ \#define\ GCE\_CONCAT\_IMPL(a,\ b)\ a\#\#b}
+\DoxyCodeLine{00130\ \#define\ GCE\_CONCAT(a,\ b)\ GCE\_CONCAT\_IMPL(a,\ b)}
+\DoxyCodeLine{00131\ \#define\ GCE\_REGISTER\_SCRIPT(scriptName,\ pluginVar)\ \(\backslash\)}
+\DoxyCodeLine{00132\ \ \ \ \ static\ gcep::scripting::ScriptAutoRegister\ GCE\_CONCAT(\_gce\_auto\_reg\_,\ \_\_COUNTER\_\_)(scriptName,\ pluginVar)}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ */}
+
+\end{DoxyCode}

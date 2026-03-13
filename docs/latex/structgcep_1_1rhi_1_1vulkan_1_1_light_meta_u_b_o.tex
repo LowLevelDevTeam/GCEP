@@ -1,0 +1,30 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Light\+Meta\+UBO Struct Reference}
+\hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o}{}\label{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o}\index{gcep::rhi::vulkan::LightMetaUBO@{gcep::rhi::vulkan::LightMetaUBO}}
+
+
+Metadata uniform uploaded alongside the light SSBO.  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHIData\+Types.\+hpp$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o_a3295cd193dc6d48dc211cec0e952dec9}\label{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o_a3295cd193dc6d48dc211cec0e952dec9} 
+uint32\+\_\+t {\bfseries light\+Count} = 0u
+\begin{DoxyCompactList}\small\item\em Number of active entries in the {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light}{GPULight}} SSBO. \end{DoxyCompactList}\item 
+\Hypertarget{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o_af437011d2d99e9fe18a0b1b70d82c06e}\label{structgcep_1_1rhi_1_1vulkan_1_1_light_meta_u_b_o_af437011d2d99e9fe18a0b1b70d82c06e} 
+float {\bfseries \+\_\+pad} \+[3]\+ = \{\}
+\begin{DoxyCompactList}\small\item\em Explicit std140 padding to 16 bytes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Metadata uniform uploaded alongside the light SSBO. 
+
+The Slang compute shader reads {\ttfamily light\+Count} to early-\/exit per-\/thread light loops, avoiding dead iterations over unpopulated slots. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHIData\+Types.\+hpp\end{DoxyCompactItemize}

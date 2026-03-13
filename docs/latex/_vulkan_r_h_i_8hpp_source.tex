@@ -1,0 +1,192 @@
+\doxysection{Vulkan\+RHI.\+hpp}
+\hypertarget{_vulkan_r_h_i_8hpp_source}{}\label{_vulkan_r_h_i_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanRHI.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanRHI.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <ECS/headers/registry.hpp>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Mesh/Mesh.hpp>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Mesh/MeshCache.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Engine/RHI/RHI.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanDevice.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{_vulkan_light_system_8hpp}{Engine/RHI/Vulkan/VulkanLightSystem.hpp}}>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanTexture.hpp>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ GLM\_ENABLE\_EXPERIMENTAL}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <glm/gtx/hash.hpp>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <imgui.h>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <imgui\_impl\_vulkan.h>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <chrono>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00029\ \{}
+\DoxyCodeLine{00038\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\ final\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{gcep::RHI}}}
+\DoxyCodeLine{00039\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }VulkanTexture;}
+\DoxyCodeLine{00041\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{explicit}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{gcep::rhi::SwapchainDesc}}\&\ desc);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00053\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a69c83af2ed361713868ae3ee23b140b1}{\string~VulkanRHI}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&)\ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00056\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&\ operator=(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00057\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&\&)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00058\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&\ operator=(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{VulkanRHI}}\&\&)\ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ gcep::RHI}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336}{setWindow}}(GLFWwindow*\ window)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff}{initRHI}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{drawFrame}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac1e15ce47e7b98d34e62488b299a1d51}{cleanup}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//\ Editor\ /\ window\ surface}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a80844a5484dd4a7bb398f9fc78dcc641}{setFramebufferResized}}(\textcolor{keywordtype}{bool}\ resized)\ \textcolor{keyword}{noexcept}\ \{\ m\_framebufferResized\ =\ resized;\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab999a9666aba5ff103cc6a1b57b588b9}{updateCameraUBO}}(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{UniformBufferObject}}\ ubo);}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ae1151a3c4968b1f8b81616e9a7071d1e}{updateSceneUBO}}(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_scene_infos}{rhi::vulkan::SceneInfos}}*\ upstr,\ glm::vec3\ cameraPos);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf}{requestOffscreenResize}}(uint32\_t\ width,\ uint32\_t\ height);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a30a2f70845998845c335c5b49992a00e}{setVSync}}(\textcolor{keywordtype}{bool}\ vsync);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00144\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_adb8b137bddd9943342ba0bf9e95bcbda}{isVSync}}();}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{comment}{//\ Scene\ management}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a99fcc755d81c7163a2b6f1df5b1b8bae}{spawnCone}}(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnCube(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnCylinder(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnIcosphere(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnSphere(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnSuzanne(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnTorus(glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a85750ec1a5d7b23fa303f2876e00cccf}{spawnAsset}}(\textcolor{keywordtype}{char}*\ filepath,\ ECS::EntityID\ \textcolor{keywordtype}{id},\ glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordtype}{void}\ spawnLight(LightType\ type,\ ECS::EntityID\ \textcolor{keywordtype}{id},\ glm::vec3\ pos\ =\ \{0.0f,\ 0.0f,\ 0.0f\});}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a26b1c2b5e2d38bf43c5151592692de9a}{removeMesh}}(ECS::EntityID\ \textcolor{keywordtype}{id});}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9fe006e4199739be86e893e889b09af7}{addTexture}}(ECS::EntityID\ \textcolor{keywordtype}{id},\ \textcolor{keywordtype}{char}*\ path,\ \textcolor{keywordtype}{bool}\ mipmaps\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordtype}{void}\ uploadTexture(ECS::EntityID\ \textcolor{keywordtype}{id},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ texPath,\ \textcolor{keywordtype}{bool}\ mipmaps);}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordtype}{void}\ uploadMesh(ECS::EntityID\ \textcolor{keywordtype}{id},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ objPath);}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordtype}{void}\ setSimulationStarted(\textcolor{keywordtype}{bool}\ started);}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordtype}{void}\ setRegistry(ECS::Registry*\ registry);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{comment}{//\ Queries}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00209\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{LightSystem}}\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a593fa4ece9e465404c21d90e21418c6b}{getLightSystem}}()\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_lightSystem;\ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00218\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{Mesh}}*\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8d8b18ebe0d1d99c4fa39bb4f2650a23}{findMesh}}(ECS::EntityID\ \textcolor{keywordtype}{id});}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00221\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_init_infos}{InitInfos}}*\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0f822376d2442efe57f513ee197cca23}{getInitInfos}}();}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00228\ \ \ \ \ [[nodiscard]]\ uint32\_t\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a471acc30ff504fca3e45b33639745019}{getDrawCount}}();}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00231\ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{VulkanDevice}}\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aa88ae2f2bbe1b4742d4082be804834be}{device}}()\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_device;\ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00234\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{VulkanDevice}}\&\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0fdf93139d24b54630b1e6b373a24d7b}{device}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_device;\ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{comment}{//\ TAA\ control}}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8f5503c397d1a3b7aa94fc919f2b5130}{setTAABlendAlpha}}(\textcolor{keywordtype}{float}\ alpha)\ \textcolor{keyword}{noexcept}\ \{\ m\_taaBlendAlpha\ =\ std::clamp(alpha,\ 0.0f,\ 1.0f);\ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{comment}{//\ ImGui\ integration}}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00259\ \ \ \ \ ImGui\_ImplVulkan\_InitInfo\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a757115d14b2dd58455c3d7f27a792c15}{getUIInitInfo}}();}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9c08cd1053ee52183352816b85786a9c}{processPendingOffscreenResize}}();}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{comment}{//\ Init\ helpers}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordtype}{void}\ initSceneResources();}
+\DoxyCodeLine{00274\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{void}\ recreateSwapchain(\textcolor{keywordtype}{bool}\ forVSync\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{comment}{//\ Per-\/frame\ recording}}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{void}\ perFrameUpdate();}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keywordtype}{void}\ recordOffscreenCommandBuffer();}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordtype}{void}\ recordImGuiCommandBuffer();}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{comment}{//\ Core}}
+\DoxyCodeLine{00312\ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{gcep::rhi::SwapchainDesc}}\ m\_swapchainDesc;}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00315\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{VulkanDevice}}\ m\_device;}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{LightSystem}}\ m\_lightSystem;}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_framebufferResized\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00322\ \ \ \ \ VkDescriptorPool\ \ \ \ \ \ \ \ \ m\_descriptorPoolImGui\ =\ VK\_NULL\_HANDLE;}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00325\ \ \ \ \ vk::raii::CommandPool\ \ \ \ m\_uploadCommandPool\ \ \ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00328\ \ \ \ \ vk::Format\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_swapchainFormat\ \ \ \ \ =\ vk::Format::eUndefined;}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ glm::vec4\ \ \ \ \ \ \ \ \ \ \ m\_clearColor\{\ 0.1f,\ 0.1f,\ 0.1f,\ 1.0f\ \};}
+\DoxyCodeLine{00331\ \ \ \ \ UniformBufferObject\ m\_cameraUBO;}
+\DoxyCodeLine{00332\ \ \ \ \ SceneUBO\ \ \ \ \ \ \ \ \ \ \ \ m\_sceneUBO;}
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordtype}{float}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_shininess\ =\ 32.0f;}
+\DoxyCodeLine{00334\ \ \ \ \ GridPushConstant\ \ \ \ m\_gridPC;}
+\DoxyCodeLine{00335\ \ \ \ \ InitInfos\ \ \ \ \ \ \ \ \ \ \ m\_initInfos;}
+\DoxyCodeLine{00336\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::Registry}}*\ \ \ \ \ \ m\_ECSRegistry\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ simulationStarted\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \ \ \ \ std::chrono::high\_resolution\_clock::time\_point\ m\_startTime\ =\ std::chrono::high\_resolution\_clock::now();}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \ \ \ \ \ MAX\_FRAMES\_IN\_FLIGHT\ =\ 2;}
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ uint32\_t\ MAX\_MESHES\ \ \ \ \ \ \ \ \ \ \ =\ 4096;}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{comment}{//\ Private\ subsystem\ declarations}}
+\DoxyCodeLine{00345\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Descriptors.hpp"{}}}
+\DoxyCodeLine{00346\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Geometry.hpp"{}}}
+\DoxyCodeLine{00347\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Pipelines.hpp"{}}}
+\DoxyCodeLine{00348\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Gizmos.hpp"{}}}
+\DoxyCodeLine{00349\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Offscreen.hpp"{}}}
+\DoxyCodeLine{00350\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_TAA.hpp"{}}}
+\DoxyCodeLine{00351\ \textcolor{preprocessor}{\ \ \ \ \#include\ "{}VulkanRHI\_private\_Helpers.hpp"{}}}
+\DoxyCodeLine{00352\ \};}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \textcolor{keyword}{namespace\ }std}
+\DoxyCodeLine{00357\ \{}
+\DoxyCodeLine{00364\ \textcolor{keyword}{template}<>\ \textcolor{keyword}{struct\ }hash<\doxymbox{\hyperlink{namespacegcep}{gcep}}::rhi::vulkan::Vertex>}
+\DoxyCodeLine{00365\ \{}
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ operator()(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_vertex}{gcep::rhi::vulkan::Vertex}}\ \textcolor{keyword}{const}\&\ v)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00367\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ((hash<glm::vec3>()(v.pos)\ \string^}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (hash<glm::vec3>()(v.normal)\ <<\ 1))\ >>\ 1)\ \string^}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (hash<glm::vec2>()(v.texCoord)\ <<\ 1);}
+\DoxyCodeLine{00371\ \ \ \ \ \}}
+\DoxyCodeLine{00372\ \};}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00374\ \}\ \textcolor{comment}{//\ Namespace\ std}}
+
+\end{DoxyCode}

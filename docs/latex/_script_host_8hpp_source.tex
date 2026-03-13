@@ -1,0 +1,94 @@
+\doxysection{Script\+Host.\+hpp}
+\hypertarget{_script_host_8hpp_source}{}\label{_script_host_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptHost.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scripting/ScriptHost.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{comment}{}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\#include\ "{}ScriptAPI.hpp"{}}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\#include\ "{}SharedLibrary.hpp"{}}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\#include\ <Engine/Core/ECS/headers/entity\_component.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\#include\ <chrono>}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\#include\ <filesystem>}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\#include\ <string>}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\#include\ <atomic>}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\#include\ <mutex>}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\#include\ <thread>}}
+\DoxyCodeLine{00014\ \textcolor{comment}{}}
+\DoxyCodeLine{00015\ \textcolor{comment}{namespace\ gcep::ECS}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ \ class\ Registry;}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\}}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{namespace\ gcep::scripting}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ \ \ \ class\ ScriptHost}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ \ \ public:}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ \ \ \ \ explicit\ ScriptHost(std::filesystem::path\ sourceLibraryPath);}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \ \ \ \ \string~ScriptHost();}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptHost(const\ ScriptHost\&)\ =\ delete;}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ \ \ \ ScriptHost\&\ operator=(const\ ScriptHost\&)\ =\ delete;}}
+\DoxyCodeLine{00030\ \textcolor{comment}{}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ \ \ \ \ \ \ [[nodiscard]]\ bool\ load(std::string*\ error\ =\ nullptr);}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ \ \ \ void\ unload();}}
+\DoxyCodeLine{00033\ \textcolor{comment}{}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ void\ updatePlugin(const\ std::string\&\ scriptName,\ ScriptContext*\ context);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ [[nodiscard]]\ ScriptRegistryEntry*\ getPluginByName(const\ std::string\&\ name)\ const;}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ [[nodiscard]]\ std::size\_t\ getScriptCount()\ const;}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ void\ requestReload();}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ void\ startWatching(std::chrono::milliseconds\ interval\ =\ std::chrono::milliseconds(250));}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ void\ stopWatching();}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ void\ setSourceFilePath(const\ std::filesystem::path\&\ sourcePath);}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ void\ setBuildCommand(std::string\ commandLine);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ [[nodiscard]]\ const\ std::filesystem::path\&\ getSourcePath()\ const;}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ private:}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ bool\ reloadIfNeeded();}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ [[nodiscard]]\ bool\ loadInternal(std::string*\ error);}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ [[nodiscard]]\ bool\ shouldReload()\ const;}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ void\ notifyLoad();}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ void\ notifyUnload();}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ void\ runWatcher(std::chrono::milliseconds\ interval);}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ bool\ maybeBuildFromSource();}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ bool\ waitForLibraryUpdate(std::chrono::milliseconds\ timeout);}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ bool\ waitForLibraryStable(std::chrono::milliseconds\ timeout);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ static\ void\ defaultLog(const\ char*\ message);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ private:}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ std::filesystem::path\ m\_sourcePath;}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ std::filesystem::path\ m\_loadedPath;}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ std::filesystem::path\ m\_sourceFilePath;}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ std::filesystem::file\_time\_type\ m\_lastWriteTime\{\};}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ std::filesystem::file\_time\_type\ m\_lastSourceWriteTime\{\};}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ SharedLibrary\ m\_library;}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ //\ Multi-\/plugin\ registry\ function\ pointers\ (resolved\ from\ DLL)}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ GetScriptCountFn\ m\_getCount\ =\ nullptr;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ GetScriptEntryFn\ m\_getEntry\ =\ nullptr;}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ GetScriptEntryByNameFn\ m\_getEntryByName\ =\ nullptr;}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ std::atomic<bool>\ m\_reloadRequested\{false\};}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ unsigned\ long\ long\ m\_reloadCounter\ =\ 0;}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ std::unique\_ptr<ScriptContext>\ m\_context;}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ std::string\ m\_buildCommand;}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ std::atomic<bool>\ m\_watcherRunning\{false\};}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ std::thread\ m\_watcherThread;}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ mutable\ std::mutex\ m\_timestampMutex;}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ std::mutex\ m\_buildMutex;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ std::atomic<bool>\ m\_buildInProgress\{false\};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ int\ m\_copyRetryCount\ =\ 10;}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ std::chrono::milliseconds\ m\_copyRetryDelay\{50\};}
+\DoxyCodeLine{00089\ \ \ \ \ \};}
+\DoxyCodeLine{00090\ \}}
+\DoxyCodeLine{00091\ */}
+
+\end{DoxyCode}

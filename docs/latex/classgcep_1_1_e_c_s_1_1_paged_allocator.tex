@@ -1,0 +1,121 @@
+\doxysection{gcep::\+ECS::\+Paged\+Allocator\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator}{}\label{classgcep_1_1_e_c_s_1_1_paged_allocator}\index{gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}}
+
+
+Memory allocator that organizes data into discrete memory blocks (pages).  
+
+
+
+
+{\ttfamily \+\#include $<$paged\+\_\+allocator.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_aa45e8b97a8b9350945621793ff74d994}{Paged\+Allocator}} (T default\+Value)
+\begin{DoxyCompactList}\small\item\em Parameterized constructor. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_a00eb54253938b8ecb9c43207179a25aa}\label{classgcep_1_1_e_c_s_1_1_paged_allocator_a00eb54253938b8ecb9c43207179a25aa} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Paged\+Allocator} ()
+\begin{DoxyCompactList}\small\item\em Destructor. Frees all allocated pages and deallocates the memory occupied by the stored elements. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_ad836a6fb962b3fdacb50e2de811bf3f9}{reserve}} (std::\+size\+\_\+t entity\+Count)
+\begin{DoxyCompactList}\small\item\em Pre-\/allocates memory for a given number of entities. \end{DoxyCompactList}\item 
+T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_a2b703be32548e8867d73d2892abc3058}{get}} (std::\+size\+\_\+t index)
+\begin{DoxyCompactList}\small\item\em Read/\+\+Write access to an element by its index. \end{DoxyCompactList}\item 
+T \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator_a96393c53a70900bcfdf6959faf9c89e1}{get}} (std::\+size\+\_\+t index) const
+\begin{DoxyCompactList}\small\item\em Read-\/only access to an element by its index. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+class gcep::\+\+ECS::\+\+Paged\+Allocator$<$ T $>$}
+Memory allocator that organizes data into discrete memory blocks (pages). 
+
+This structure allows for quasi-\/contiguous data storage while avoiding massive reallocations by allocating memory in fixed-\/size chunks as needed. 
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_aa45e8b97a8b9350945621793ff74d994}\index{gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}!PagedAllocator@{PagedAllocator}}
+\index{PagedAllocator@{PagedAllocator}!gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{PagedAllocator()}{PagedAllocator()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_paged_allocator_aa45e8b97a8b9350945621793ff74d994} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator}{gcep::\+\+ECS::\+\+Paged\+Allocator}}$<$ T $>$::\+\+Paged\+Allocator (\begin{DoxyParamCaption}\item[{T}]{default\+Value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Parameterized constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em default\+Value} & The default value used to initialize every memory slot when a new page is allocated. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_a2b703be32548e8867d73d2892abc3058}\index{gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}!get@{get}}
+\index{get@{get}!gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_paged_allocator_a2b703be32548e8867d73d2892abc3058} 
+template$<$typename T$>$ \\
+T \& \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator}{gcep::\+\+ECS::\+\+Paged\+Allocator}}$<$ T $>$::\+get (\begin{DoxyParamCaption}\item[{std::\+size\+\_\+t}]{index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Read/\+\+Write access to an element by its index. 
+
+If the index points to an unallocated page, the memory block is automatically created (lazy allocation). 
+\begin{DoxyParams}{Parameters}
+{\em index} & The position of the element in the allocator. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+T\& Reference to the stored element. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_a96393c53a70900bcfdf6959faf9c89e1}\index{gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}!get@{get}}
+\index{get@{get}!gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_paged_allocator_a96393c53a70900bcfdf6959faf9c89e1} 
+template$<$typename T$>$ \\
+T \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator}{gcep::\+\+ECS::\+\+Paged\+Allocator}}$<$ T $>$::\+get (\begin{DoxyParamCaption}\item[{std::\+size\+\_\+t}]{index}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Read-\/only access to an element by its index. 
+
+\begin{DoxyNote}{Note}
+If the page does not exist, returns the default value without allocating new memory. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The position of the element in the allocator. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+T A copy of the element or m\+\_\+default\+Value. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_e_c_s_1_1_paged_allocator_ad836a6fb962b3fdacb50e2de811bf3f9}\index{gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}!reserve@{reserve}}
+\index{reserve@{reserve}!gcep::ECS::PagedAllocator$<$ T $>$@{gcep::ECS::PagedAllocator$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{reserve()}{reserve()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_e_c_s_1_1_paged_allocator_ad836a6fb962b3fdacb50e2de811bf3f9} 
+template$<$typename T$>$ \\
+void \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_paged_allocator}{gcep::\+\+ECS::\+\+Paged\+Allocator}}$<$ T $>$::\+reserve (\begin{DoxyParamCaption}\item[{std::\+size\+\_\+t}]{entity\+Count}{}\end{DoxyParamCaption})}
+
+
+
+Pre-\/allocates memory for a given number of entities. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em entity\+Count} & Total number of entities to support without reallocating the page pointer vector. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+headers/\+paged\+\_\+allocator.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+ECS/\+detail/\+paged\+\_\+allocator.\+inl\end{DoxyCompactItemize}

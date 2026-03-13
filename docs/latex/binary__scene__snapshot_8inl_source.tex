@@ -1,0 +1,97 @@
+\doxysection{binary\+\_\+scene\+\_\+snapshot.\+inl}
+\hypertarget{binary__scene__snapshot_8inl_source}{}\label{binary__scene__snapshot_8inl_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scene/detail/binary\_scene\_snapshot.inl@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scene/detail/binary\_scene\_snapshot.inl}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ <optional>}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{keyword}{namespace\ }gcep::SLS}
+\DoxyCodeLine{00004\ \{}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ binarySnapShot::serializeAll(SER::FileArchive\&\ archive)}
+\DoxyCodeLine{00007\ \{}
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ registry\ =\ m\_scene.getRegistry();}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ pools\ \ \ \ =\ registry.getPools();}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \ \ archive.writeName(\textcolor{stringliteral}{"{}GCEP\_SCENE"{}});}
+\DoxyCodeLine{00012\ \ \ \ \ archive.writeUint64(1);\ \textcolor{comment}{//\ version}}
+\DoxyCodeLine{00013\ \ \ \ \ archive.writeName(m\_scene.getName());}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ uint32\_t\ poolCount\ =\ 0;}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ pool\ :\ pools)}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pool\ \&\&\ !pool-\/>getEntities().empty())\ poolCount++;}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \ \ archive.writeSize(poolCount);}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ pool\ :\ pools)}
+\DoxyCodeLine{00022\ \ \ \ \ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!pool)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ entities\ =\ pool-\/>getEntities();}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entities.empty())\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ archive.writeName(pool-\/>getName());}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ archive.writeSize(\textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(entities.size()));}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ entity\ :\ entities)}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ archive.writeUint32(entity\ \&\ 0xFFFFFF);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ std::streampos\ sizePos\ \ \ =\ archive.tell();}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ archive.writeUint32(0);\ \textcolor{comment}{//\ placeholder\ byte-\/size}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ std::streampos\ dataStart\ =\ archive.tell();}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ pool-\/>serializeEntity(entity,\ archive);}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ std::streampos\ dataEnd\ \ \ =\ archive.tell();}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ byteCount\ =\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(dataEnd\ -\/\ dataStart);}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ archive.seek(sizePos);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ archive.writeUint32(byteCount);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ archive.seek(dataEnd);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_log_a9d7147fb53fbac421d2fd673afd8aa4e}{Log::info}}(std::format(\textcolor{stringliteral}{"{}Pool\ Name\ :\ \{\}\ |\ Entity\ :\ \{\}\ |\ Saved"{}}\ \ ,\ pool-\/>getName(),\ entity));}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ binarySnapShot::deserializeAll(SER::FileArchive\&\ archive)}
+\DoxyCodeLine{00052\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{auto}\&\ registry\ =\ m\_scene.getRegistry();}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordflow}{if}\ (archive.readName()\ !=\ \textcolor{stringliteral}{"{}GCEP\_SCENE"{}})}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Format\ invalide"{}});}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ archive.readUint64();}
+\DoxyCodeLine{00059\ \ \ \ \ m\_scene.setName(archive.readName());}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ uint32\_t\ poolCount\ =\ archive.readSize();}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ poolCount;\ ++i)}
+\DoxyCodeLine{00064\ \ \ \ \ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ std::string\ poolName\ \ \ \ =\ archive.readName();}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ uint32\_t\ \ \ \ entityCount\ =\ archive.readSize();}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ std::optional<ECS::ComponentRegistry::Entry>\ entry;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ e\ :\ ECS::ComponentRegistry::instance().entries())}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (e.name\ ==\ poolName)\ \{\ entry\ =\ e;\ \textcolor{keywordflow}{break};\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ j\ =\ 0;\ j\ <\ entityCount;\ ++j)}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ rawID\ \ \ \ =\ archive.readUint32();}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ byteSize\ =\ archive.readUint32();}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry)}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ registry.createEntityWithID(rawID);}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ entry-\/>deserialize(registry,\ rawID,\ archive);}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ archive.skip(byteSize);\ \textcolor{comment}{//\ composant\ inconnu\ →\ on\ saute}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \}\ \textcolor{comment}{//\ namespace\ gcep::SLS}}
+
+\end{DoxyCode}

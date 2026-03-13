@@ -1,0 +1,63 @@
+\doxysection{view\+\_\+finder.\+hpp}
+\hypertarget{view__finder_8hpp_source}{}\label{view__finder_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/view\_finder.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/view\_finder.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}entity\_component.hpp"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <tuple>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }gcep::ECS}
+\DoxyCodeLine{00008\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{Registry}};}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...\ Args>}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}}}
+\DoxyCodeLine{00020\ \ \ \ \ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}}(\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{Registry}}\&\ registry);}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a800c8f7f59977d0400c885aeca91ad04}{match}}(EntityID\ entity)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ EntityID*\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d}{m\_currentEntity}};\ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ EntityID*\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f299e8f15cfa333d6fea69005508a84}{m\_lastEntity}};\ \ \ \ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}}\&\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a6261cb2fb3e78055226cd4b2442183c3}{m\_view}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}}(\textcolor{keyword}{const}\ EntityID\ *current,\ \textcolor{keyword}{const}\ EntityID\ *last,\ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a3a6a279c8117eec7168e4cb46b5b9356}{View}}\ \&v);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a8951342fd7ba4032a22597990710b89d}{Iterator}}\&\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_ac9bf174a244d804cefc39c1198601bfa}{operator++}}()}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}\ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d}{m\_currentEntity}}++;}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{while}\ (\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d}{m\_currentEntity}}\ !=\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f299e8f15cfa333d6fea69005508a84}{m\_lastEntity}}\ \&\&\ !\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a6261cb2fb3e78055226cd4b2442183c3}{m\_view}}.match(*\doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a766f9e464b3d197059547e71a9843d0d}{m\_currentEntity}}));}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ EntityID\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_aafd202ef083b6d70f5a3fcae43ba1bf7}{operator*}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator_a1f4016343202817686f918c24d3d20b7}{operator!=}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_view_1_1_iterator}{Iterator}}\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ [[nodiscard]]\ Iterator\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_ab73d668f6ae7bdb2739ae43f2c4b1868}{begin}}();}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ Iterator\ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_aff027176852abd248b04addfd37f07f8}{end}}();}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ [[nodiscard]]\ T\ \&\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_view_a45904a19f3834c21439e7a9ee393e349}{get}}(EntityID\ entity);}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{Registry}}\&\ m\_registry;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structgcep_1_1_e_c_s_1_1_i_pool}{IPool}}*\ m\_smallestPool\ =\ \textcolor{keyword}{nullptr};\ \ \ \ \ \ \ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ std::tuple<ComponentPool<Args>*...>\ m\_pools;\ }
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \ \ \};}
+\DoxyCodeLine{00109\ \}}
+\DoxyCodeLine{00110\ }
+
+\end{DoxyCode}

@@ -1,0 +1,87 @@
+\doxysection{mat4.\+hpp}
+\hypertarget{mat4_8hpp_source}{}\label{mat4_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Maths/mat4.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Maths/mat4.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ STL}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ Core}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}vector3.hpp"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}quaternion.hpp"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4}}}
+\DoxyCodeLine{00024\ \ \ \ \ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4}}();}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4}}(T\ m00,\ T\ m01,\ T\ m02,\ T\ m03,}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ T\ m10,\ T\ m11,\ T\ m12,\ T\ m13,}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ T\ m20,\ T\ m21,\ T\ m22,\ T\ m23,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ T\ m30,\ T\ m31,\ T\ m32,\ T\ m33);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_a7acc4d81eaa53930b7fd6175b81b7790}{\string~Mat4}}();}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ac64dd544f8343e723548a2ee6e72e341}{Identity}}();}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a8d14ed69bd5ba85327c5e576de08f84d}{Zero}}();}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a36a7fa84c949df3990233fb0d2713b2f}{TRS}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ position,\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_quaternion}{Quaternion}}\&\ rotation,\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ scale);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a61ae0ef06df2bf678c7e99bd95af8ed5}{Perspective}}(T\ fovYRadians,\ T\ aspect,\ T\ nearZ,\ T\ farZ);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a1a5aef7558c6858d4e89d1a915fedbe8}{Ortho}}(T\ left,\ T\ right,\ T\ bottom,\ T\ top,\ T\ nearZ,\ T\ farZ);}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a4e3975c8f87bd64a02198b8994d094bf}{LookAt}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ eye,\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ target,\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ up);}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_abb1f75b904f4df76c88fff8112aeacbc}{Transpose}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a42e420be3dd90f128cb7df103b66cdf8}{Inverse}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ T\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad914453616ce0a730144a8a96fe96828}{Determinant}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a7c38d653f37c448963b57556d4c2f626}{operator*}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_acaf7ee12c2b83b982b10a81371c5b2a0}{MultiplyPoint}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ v)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a2e90ac17f16b0e66aaac890a0be8354b}{MultiplyVector}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ v)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_quaternion}{Quaternion}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a8d43cd7359a1b5c288e7ed2baa9c0354}{ExtractRotation}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a90ea26d71cf4a92afc81c9ca2d5de4a6}{ValidTRS}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a51485795b646cfc8974d7b7b27349794}{operator==}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a66f6cbbdab4352e21cb04688afd8b4be}{operator!=}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a7021c7d92b0d5e4227916c2aacce7f84}{ExtractPosition}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_aff1fcc488e540e1b1ebb223230d63910}{ExtractScale}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a739e7056c79917b6ff2b32f062c59190}{GetRow}}(\textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_accf47dcef979f0a191e625b816b6c335}{GetColumn}}(\textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ac7f37d4f7deff8e087968a0287a90422}{Translate}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ position);}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a3311918b95b528d81adedc9ad9af19ef}{Scale}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<T>}}\&\ scale);}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_ad762f88f1a651b341ecf8038934bafde}{Mat4<T>}}\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a801e6555f7921f0711877016986e4ded}{Rotate}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_quaternion}{Quaternion}}\&\ rotation);}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ T\&\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a86148ccc43e62ae5f32ee414a1b4978f}{operator()}}(\textcolor{keywordtype}{int}\ row,\ \textcolor{keywordtype}{int}\ col);}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ T\&\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a86148ccc43e62ae5f32ee414a1b4978f}{operator()}}(\textcolor{keywordtype}{int}\ row,\ \textcolor{keywordtype}{int}\ col)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ T\ \doxymbox{\hyperlink{classgcep_1_1_mat4_a551529d0981c5953ec9ad04997782dd7}{m}}[4][4];}
+\DoxyCodeLine{00229\ \ \ \ \ \};}
+\DoxyCodeLine{00230\ \}\ \textcolor{comment}{//\ gcep}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \textcolor{preprocessor}{\#include\ "{}mat4.inl"{}}}
+
+\end{DoxyCode}

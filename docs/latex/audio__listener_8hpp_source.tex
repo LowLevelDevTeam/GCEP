@@ -1,0 +1,31 @@
+\doxysection{audio\+\_\+listener.\+hpp}
+\hypertarget{audio__listener_8hpp_source}{}\label{audio__listener_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Audio/audio\_listener.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Audio/audio\_listener.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Engine/Core/Maths/vector3.hpp"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00006\ \{}
+\DoxyCodeLine{00007\ \ \ \ \ \textcolor{keyword}{class\ }AudioListener}
+\DoxyCodeLine{00008\ \ \ \ \ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ AudioListener();}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setPosition(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ position);}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setForward(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ forward);}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ setUp(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ up);}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ getPosition();}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ getForward();}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ [[nodiscard]]\ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\&\ getUp();}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\ m\_position\{0.0f,\ 0.0f,\ 0.0f\};}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\ m\_forward\{0.0f,\ 0.0f,\ -\/1.0f\};}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3<float>}}\ m\_up\{0.0f,\ 1.0f,\ 0.0f\};}
+\DoxyCodeLine{00024\ \ \ \ \ \};}
+\DoxyCodeLine{00025\ \}\ \textcolor{comment}{//\ gcep}}
+
+\end{DoxyCode}

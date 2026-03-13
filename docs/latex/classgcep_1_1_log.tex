@@ -1,0 +1,99 @@
+\doxysection{gcep::\+Log Class Reference}
+\hypertarget{classgcep_1_1_log}{}\label{classgcep_1_1_log}\index{gcep::Log@{gcep::Log}}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \doxymbox{\hyperlink{classgcep_1_1_log_acd6b4863180990ca2141990200e3f5ac}{initialize}} (std::\+string app\+Name, std::\+string crash\+Log\+Path)
+\item 
+static void \doxymbox{\hyperlink{classgcep_1_1_log_a0aaf5c3927d3d1ab7d4e1ea71e8e25a8}{set\+Vulkan\+Device}} (vk::\+raii::\+\+Physical\+Device \texorpdfstring{$\ast$}{*}physical\+Device)
+\item 
+static bool \doxymbox{\hyperlink{classgcep_1_1_log_a064eb6bfec6d74a0fca132fa16ce871f}{open\+Channel}} (std::\+string\+\_\+view channel\+Name, const std::\+string \&file\+Path, Log\+Level level\+Mask=Log\+Level::\+e\+All, bool mirror\+To\+Console=true)
+\item 
+\Hypertarget{classgcep_1_1_log_a0f0bdb89406ab13f4b6ce3b611c5f21a}\label{classgcep_1_1_log_a0f0bdb89406ab13f4b6ce3b611c5f21a} 
+static void {\bfseries set\+Channel\+Level} (std::\+string\+\_\+view channel\+Name, Log\+Level level\+Mask)
+\begin{DoxyCompactList}\small\item\em Change the active level mask of an existing channel at runtime. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_a0aa9beb912d4da0ea53cfe0210e655de}\label{classgcep_1_1_log_a0aa9beb912d4da0ea53cfe0210e655de} 
+static void {\bfseries close\+Channel} (std::\+string\+\_\+view channel\+Name)
+\begin{DoxyCompactList}\small\item\em Close a channel and flush/\+release its file. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_ae272a86909515b84e8f3a74834f628d5}\label{classgcep_1_1_log_ae272a86909515b84e8f3a74834f628d5} 
+static void {\bfseries log} (std::\+string\+\_\+view channel\+Name, Log\+Level level, std::\+string\+\_\+view message, const std::\+source\+\_\+location \&location=std::\+source\+\_\+location::\+current())
+\begin{DoxyCompactList}\small\item\em Write a message to a named channel if the channel\textquotesingle{}s level mask permits it. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_a9d7147fb53fbac421d2fd673afd8aa4e}\label{classgcep_1_1_log_a9d7147fb53fbac421d2fd673afd8aa4e} 
+static void {\bfseries info} (std::\+string\+\_\+view msg, const std::\+source\+\_\+location \&loc=std::\+source\+\_\+location::\+current())
+\begin{DoxyCompactList}\small\item\em Convenience overloads that target the "{}default"{} channel. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_a0a3768f829349dd7761d27ae66a31759}\label{classgcep_1_1_log_a0a3768f829349dd7761d27ae66a31759} 
+static void {\bfseries warn} (std::\+string\+\_\+view msg, const std::\+source\+\_\+location \&loc=std::\+source\+\_\+location::\+current())
+\item 
+\Hypertarget{classgcep_1_1_log_a843df8864a9ca33c437d33f6a3f06381}\label{classgcep_1_1_log_a843df8864a9ca33c437d33f6a3f06381} 
+static void {\bfseries error} (std::\+string\+\_\+view msg, const std::\+source\+\_\+location \&loc=std::\+source\+\_\+location::\+current())
+\item 
+\Hypertarget{classgcep_1_1_log_aba538c88eb17cbaae4135a51856b1ba8}\label{classgcep_1_1_log_aba538c88eb17cbaae4135a51856b1ba8} 
+static void {\bfseries verbose} (std::\+string\+\_\+view msg, const std::\+source\+\_\+location \&loc=std::\+source\+\_\+location::\+current())
+\item 
+\Hypertarget{classgcep_1_1_log_a32b3428ef04e0c4ee2b9cf07bea6284d}\label{classgcep_1_1_log_a32b3428ef04e0c4ee2b9cf07bea6284d} 
+static void {\bfseries flush\+All} ()
+\begin{DoxyCompactList}\small\item\em Flush all open channels to disk immediately. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_ae39fe93c245a0cf0d47825bb1e6e436f}\label{classgcep_1_1_log_ae39fe93c245a0cf0d47825bb1e6e436f} 
+static void {\bfseries handle\+Exception} (const std::\+exception \&e)
+\begin{DoxyCompactList}\small\item\em Write a structured crash report for a C++ exception. \end{DoxyCompactList}\item 
+static void \doxymbox{\hyperlink{classgcep_1_1_log_a7ff6f52565d9a8ad7db460e2c9234b5f}{signal\+Handler}} (int signal\+Num)
+\item 
+\Hypertarget{classgcep_1_1_log_adde4b35f2f31f0f95fade7a6afcdae92}\label{classgcep_1_1_log_adde4b35f2f31f0f95fade7a6afcdae92} 
+static void {\bfseries log\+System\+Info} (std::\+ofstream \&out)
+\item 
+\Hypertarget{classgcep_1_1_log_ab3156fb15dbc4b6779bb89e8096a18f9}\label{classgcep_1_1_log_ab3156fb15dbc4b6779bb89e8096a18f9} 
+static void {\bfseries log\+Vulkan\+Info} (std::\+ofstream \&out, vk::\+raii::\+\+Physical\+Device \texorpdfstring{$\ast$}{*}dev)
+\item 
+\Hypertarget{classgcep_1_1_log_a206bb2ace8b78491cfab8f31472a4180}\label{classgcep_1_1_log_a206bb2ace8b78491cfab8f31472a4180} 
+static constexpr std::\+string\+\_\+view {\bfseries level\+To\+String} (Log\+Level level) noexcept
+\begin{DoxyCompactList}\small\item\em Returns a human-\/readable label for a log level. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_log_acdeca5b1eda031131b9df10fecc5a41e}\label{classgcep_1_1_log_acdeca5b1eda031131b9df10fecc5a41e} 
+static constexpr std::\+string\+\_\+view {\bfseries level\+To\+Color} (Log\+Level level) noexcept
+\begin{DoxyCompactList}\small\item\em Returns the ANSI escape code for console colouring (empty on Windows). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_log_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_log_acd6b4863180990ca2141990200e3f5ac}\index{gcep::Log@{gcep::Log}!initialize@{initialize}}
+\index{initialize@{initialize}!gcep::Log@{gcep::Log}}
+\doxysubsubsection{\texorpdfstring{initialize()}{initialize()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_log_acd6b4863180990ca2141990200e3f5ac} 
+void gcep::\+\+Log::\+initialize (\begin{DoxyParamCaption}\item[{std::\+string}]{app\+Name}{, }\item[{std::\+string}]{crash\+Log\+Path}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Must be called once before any logging. 
+\begin{DoxyParams}{Parameters}
+{\em app\+Name} & Human-\/readable application name embedded in reports. \\
+\hline
+{\em crash\+Log\+Path} & File path for crash reports generated by signal/\+exception handlers. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_log_a064eb6bfec6d74a0fca132fa16ce871f}\index{gcep::Log@{gcep::Log}!openChannel@{openChannel}}
+\index{openChannel@{openChannel}!gcep::Log@{gcep::Log}}
+\doxysubsubsection{\texorpdfstring{openChannel()}{openChannel()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_log_a064eb6bfec6d74a0fca132fa16ce871f} 
+bool gcep::\+\+Log::\+open\+Channel (\begin{DoxyParamCaption}\item[{std::\+string\+\_\+view}]{channel\+Name}{, }\item[{const std::\+string \&}]{file\+Path}{, }\item[{Log\+Level}]{level\+Mask}{ = {\ttfamily LogLevel:\+:\+eAll}, }\item[{bool}]{mirror\+To\+Console}{ = {\ttfamily true}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Open (or reopen) a named channel backed by a log file. Returns false if the file cannot be opened. \Hypertarget{classgcep_1_1_log_a0aaf5c3927d3d1ab7d4e1ea71e8e25a8}\index{gcep::Log@{gcep::Log}!setVulkanDevice@{setVulkanDevice}}
+\index{setVulkanDevice@{setVulkanDevice}!gcep::Log@{gcep::Log}}
+\doxysubsubsection{\texorpdfstring{setVulkanDevice()}{setVulkanDevice()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_log_a0aaf5c3927d3d1ab7d4e1ea71e8e25a8} 
+void gcep::\+\+Log::\+set\+Vulkan\+Device (\begin{DoxyParamCaption}\item[{vk::\+raii::\+\+Physical\+Device \texorpdfstring{$\ast$}{*}}]{physical\+Device}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Must be called once . 
+\begin{DoxyParams}{Parameters}
+{\em physical\+Device} & Optional Vulkan device pointer for richer crash reports. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_log_a7ff6f52565d9a8ad7db460e2c9234b5f}\index{gcep::Log@{gcep::Log}!signalHandler@{signalHandler}}
+\index{signalHandler@{signalHandler}!gcep::Log@{gcep::Log}}
+\doxysubsubsection{\texorpdfstring{signalHandler()}{signalHandler()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_log_a7ff6f52565d9a8ad7db460e2c9234b5f} 
+void gcep::\+\+Log::\+signal\+Handler (\begin{DoxyParamCaption}\item[{int}]{signal\+Num}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Write a structured crash report for an OS signal (SIGSEGV, SIGILL, ...). Registered automatically by \doxylink{classgcep_1_1_log_acd6b4863180990ca2141990200e3f5ac}{initialize()}; may also be set manually. 
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Log/\+Log.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Log/\+Log.\+cpp\end{DoxyCompactItemize}

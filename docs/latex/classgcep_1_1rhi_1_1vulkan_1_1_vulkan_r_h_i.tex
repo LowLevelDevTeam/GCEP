@@ -1,0 +1,490 @@
+\doxysection{gcep::\+rhi::\+vulkan::\+Vulkan\+RHI Class Reference}
+\hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}{}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+
+
+Top-\/level Vulkan renderer implementing the {\ttfamily \doxylink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}} interface.  
+
+
+
+
+{\ttfamily \+\#include $<$Vulkan\+RHI.\+hpp$>$}
+
+Inheritance diagram for gcep::\+rhi::\+vulkan::\+Vulkan\+RHI:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{Vulkan\+RHI}} (const \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{gcep::\+rhi::\+\+Swapchain\+Desc}} \&desc)
+\begin{DoxyCompactList}\small\item\em Constructs the \doxylink{classgcep_1_1_r_h_i}{RHI} object and stores the swapchain creation parameters. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a69c83af2ed361713868ae3ee23b140b1}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a69c83af2ed361713868ae3ee23b140b1} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Vulkan\+RHI} () override
+\begin{DoxyCompactList}\small\item\em Default destructor. All Vulkan resources are destroyed by their RAII wrappers in reverse declaration order. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a52e8fa9f7e2dd8e7deeacf168a570107}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a52e8fa9f7e2dd8e7deeacf168a570107} 
+{\bfseries Vulkan\+RHI} (const Vulkan\+RHI \&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a1752d3f2ef02772b8d18e5f176a8d3b7}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a1752d3f2ef02772b8d18e5f176a8d3b7} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{Vulkan\+RHI}} \& {\bfseries operator=} (const \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{Vulkan\+RHI}} \&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a081eac6c0310cdbcd411153d241eb66d}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a081eac6c0310cdbcd411153d241eb66d} 
+{\bfseries Vulkan\+RHI} (Vulkan\+RHI \&\&)=delete
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a768b072257550425e938909e76383ecf}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a768b072257550425e938909e76383ecf} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{Vulkan\+RHI}} \& {\bfseries operator=} (\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}{Vulkan\+RHI}} \&\&)=delete
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336}{set\+Window}} (GLFWwindow \texorpdfstring{$\ast$}{*}window) override
+\begin{DoxyCompactList}\small\item\em Stores the GLFW window handle and registers the framebuffer-\/resize callback. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff}{init\+RHI}} () override
+\begin{DoxyCompactList}\small\item\em Initialises all Vulkan objects and scene resources. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame}} () override
+\begin{DoxyCompactList}\small\item\em Records and submits one complete frame. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac1e15ce47e7b98d34e62488b299a1d51}{cleanup}} () override
+\begin{DoxyCompactList}\small\item\em Waits for GPU idle, shuts down Im\+Gui, and frees the Im\+Gui pool. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a80844a5484dd4a7bb398f9fc78dcc641}{set\+Framebuffer\+Resized}} (bool resized) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the framebuffer-\/resized flag. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab999a9666aba5ff103cc6a1b57b588b9}{update\+Camera\+UBO}} (\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{Uniform\+Buffer\+Object}} ubo)
+\begin{DoxyCompactList}\small\item\em Uploads per-\/frame camera matrices to the persistently-\/mapped UBO. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ae1151a3c4968b1f8b81616e9a7071d1e}{update\+Scene\+UBO}} (\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_scene_infos}{rhi::\+vulkan::\+\+Scene\+Infos}} \texorpdfstring{$\ast$}{*}upstr, glm::\+vec3 camera\+Pos)
+\begin{DoxyCompactList}\small\item\em Uploads per-\/frame lighting and camera data to the scene UBO. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf}{request\+Offscreen\+Resize}} (uint32\+\_\+t width, uint32\+\_\+t height)
+\begin{DoxyCompactList}\small\item\em Defers an offscreen render target resize to the next frame boundary. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a30a2f70845998845c335c5b49992a00e}{set\+VSync}} (bool vsync)
+\begin{DoxyCompactList}\small\item\em Enables or disables vertical synchronisation. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_adb8b137bddd9943342ba0bf9e95bcbda}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_adb8b137bddd9943342ba0bf9e95bcbda} 
+bool {\bfseries is\+VSync} ()
+\begin{DoxyCompactList}\small\item\em Returns whether vertical synchronisation is currently enabled. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a99fcc755d81c7163a2b6f1df5b1b8bae}{spawn\+Cone}} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\begin{DoxyCompactList}\small\item\em Spawns a unit cube at {\ttfamily pos} and uploads it to the GPU. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a63d439319e904b391ffb1e796fd2156e}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a63d439319e904b391ffb1e796fd2156e} 
+void {\bfseries spawn\+Cube} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac4b5d10ff96064f38c8f80541e715c77}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac4b5d10ff96064f38c8f80541e715c77} 
+void {\bfseries spawn\+Cylinder} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_af3a967dca854b05c8595633765bcc7bb}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_af3a967dca854b05c8595633765bcc7bb} 
+void {\bfseries spawn\+Icosphere} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a122c2a21d7cff3b774ba8537cfdd07e0}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a122c2a21d7cff3b774ba8537cfdd07e0} 
+void {\bfseries spawn\+Sphere} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a044b3562cf2435894fca346a5838346c}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a044b3562cf2435894fca346a5838346c} 
+void {\bfseries spawn\+Suzanne} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a1e7958eafb004d151d874d959ef8a5d1}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a1e7958eafb004d151d874d959ef8a5d1} 
+void {\bfseries spawn\+Torus} (glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a85750ec1a5d7b23fa303f2876e00cccf}{spawn\+Asset}} (char \texorpdfstring{$\ast$}{*}filepath, ECS::\+\+Entity\+ID id, glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\begin{DoxyCompactList}\small\item\em Spawns an arbitrary OBJ asset at {\ttfamily pos} and uploads it to the GPU. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_adc142566316728877b6be4f6a6af888d}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_adc142566316728877b6be4f6a6af888d} 
+void {\bfseries spawn\+Light} (\doxymbox{\hyperlink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97}{Light\+Type}} type, ECS::\+\+Entity\+ID id, glm::\+vec3 pos=\{0.\+0f, 0.\+0f, 0.\+0f\})
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a26b1c2b5e2d38bf43c5151592692de9a}{remove\+Mesh}} (ECS::\+\+Entity\+ID id)
+\begin{DoxyCompactList}\small\item\em Destroys the mesh at {\ttfamily mesh\+Index} and compacts the GPU buffers. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9fe006e4199739be86e893e889b09af7}{add\+Texture}} (ECS::\+\+Entity\+ID id, char \texorpdfstring{$\ast$}{*}path, bool mipmaps=true)
+\begin{DoxyCompactList}\small\item\em Loads or replaces the texture of the mesh identified by {\ttfamily id}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a784be99c0a497f18a1814e08dab166b2}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a784be99c0a497f18a1814e08dab166b2} 
+void {\bfseries upload\+Texture} (ECS::\+\+Entity\+ID id, const char \texorpdfstring{$\ast$}{*}tex\+Path, bool mipmaps)
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a5f31ff36ca95b4a0dd5b8d021c16c8a8}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a5f31ff36ca95b4a0dd5b8d021c16c8a8} 
+void {\bfseries upload\+Mesh} (ECS::\+\+Entity\+ID id, const char \texorpdfstring{$\ast$}{*}obj\+Path)
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac8f0257f29bdb8ca912fa922a6f13196}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac8f0257f29bdb8ca912fa922a6f13196} 
+void {\bfseries set\+Simulation\+Started} (bool started)
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_add37e1444cda2085e155d87a78c3503e}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_add37e1444cda2085e155d87a78c3503e} 
+void {\bfseries set\+Registry} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \texorpdfstring{$\ast$}{*}registry)
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a593fa4ece9e465404c21d90e21418c6b}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a593fa4ece9e465404c21d90e21418c6b} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{Light\+System}} \& {\bfseries get\+Light\+System} () noexcept
+\begin{DoxyCompactList}\small\item\em Returns a reference to the renderer light system. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8d8b18ebe0d1d99c4fa39bb4f2650a23}{find\+Mesh}} (ECS::\+\+Entity\+ID id)
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the mesh whose {\ttfamily id} field matches {\ttfamily id}, or {\ttfamily nullptr} if no such mesh exists. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0f822376d2442efe57f513ee197cca23}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0f822376d2442efe57f513ee197cca23} 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_init_infos}{Init\+Infos}} \texorpdfstring{$\ast$}{*} {\bfseries get\+Init\+Infos} ()
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the renderer initialisation info struct. \end{DoxyCompactList}\item 
+uint32\+\_\+t \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a471acc30ff504fca3e45b33639745019}{get\+Draw\+Count}} ()
+\begin{DoxyCompactList}\small\item\em Returns the number of draw calls issued in the most recent frame. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aa88ae2f2bbe1b4742d4082be804834be}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aa88ae2f2bbe1b4742d4082be804834be} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{Vulkan\+Device}} \& {\bfseries device} () noexcept
+\begin{DoxyCompactList}\small\item\em Returns a mutable reference to the {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{Vulkan\+Device}}. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0fdf93139d24b54630b1e6b373a24d7b}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0fdf93139d24b54630b1e6b373a24d7b} 
+const \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{Vulkan\+Device}} \& {\bfseries device} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns a const reference to the {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device}{Vulkan\+Device}}. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8f5503c397d1a3b7aa94fc919f2b5130}{set\+TAABlend\+Alpha}} (float alpha) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the TAA blend alpha (weight of the current frame). \end{DoxyCompactList}\item 
+Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init\+Info \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a757115d14b2dd58455c3d7f27a792c15}{get\+UIInit\+Info}} ()
+\begin{DoxyCompactList}\small\item\em Builds and returns the {\ttfamily Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init\+Info} for this device. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9c08cd1053ee52183352816b85786a9c}{process\+Pending\+Offscreen\+Resize}} ()
+\begin{DoxyCompactList}\small\item\em Applies a pending offscreen resize if one was requested via {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf}{request\+Offscreen\+Resize()}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a895dfd5bb35d6ff20bab62325b0f461c}\label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a895dfd5bb35d6ff20bab62325b0f461c} 
+class {\bfseries Vulkan\+Texture}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Top-\/level Vulkan renderer implementing the {\ttfamily \doxylink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}} interface. 
+
+Private members and helpers are split across {\ttfamily Vulkan\+RHI\+\_\+private\+\_\+\texorpdfstring{$\ast$}{*}}.hpp files included at the bottom of the class to keep this header readable.
+
+\begin{DoxyParagraph}{Thread safety}
+All public methods must be called from the main/\+render thread. No internal synchronisation is provided. 
+\end{DoxyParagraph}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!VulkanRHI@{VulkanRHI}}
+\index{VulkanRHI@{VulkanRHI}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{VulkanRHI()}{VulkanRHI()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_aadef7c32ea7cc96340687e5d6c185b30} 
+gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+\+Vulkan\+RHI (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_swapchain_desc}{gcep::\+rhi::\+\+Swapchain\+Desc}} \&}]{desc}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Constructs the \doxylink{classgcep_1_1_r_h_i}{RHI} object and stores the swapchain creation parameters. 
+
+No Vulkan objects are created here. Call {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336}{set\+Window()}} then {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff}{init\+RHI()}} before using any other method.
+
+
+\begin{DoxyParams}{Parameters}
+{\em desc} & Swapchain parameters (width, height, vsync flag). The {\ttfamily native\+Window\+Handle} field is populated by {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336}{set\+Window()}}. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9fe006e4199739be86e893e889b09af7}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!addTexture@{addTexture}}
+\index{addTexture@{addTexture}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{addTexture()}{addTexture()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9fe006e4199739be86e893e889b09af7} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+add\+Texture (\begin{DoxyParamCaption}\item[{ECS::\+\+Entity\+ID}]{id}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{bool}]{mipmaps}{ = {\ttfamily true}}\end{DoxyParamCaption})}
+
+
+
+Loads or replaces the texture of the mesh identified by {\ttfamily id}. 
+
+If {\ttfamily path} is already in the texture cache, the existing bindless slot is reused. Otherwise the texture is uploaded and registered. The mesh\textquotesingle{}s {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_mesh_data}{GPUMesh\+Data}} entry is updated on the next {\ttfamily refresh\+Mesh\+Data()} call.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & ECS {\ttfamily Entity\+ID} of the target mesh. \\
+\hline
+{\em path} & File path to the new texture (PNG /\+ JPG /\+ JPEG). \\
+\hline
+{\em mipmaps} & When {\ttfamily true}, generates a full mip chain. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac1e15ce47e7b98d34e62488b299a1d51}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!cleanup@{cleanup}}
+\index{cleanup@{cleanup}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{cleanup()}{cleanup()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ac1e15ce47e7b98d34e62488b299a1d51} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+cleanup (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Waits for GPU idle, shuts down Im\+Gui, and frees the Im\+Gui pool. 
+
+Call order:\+ {\ttfamily m\+\_\+device.\+wait\+Idle()} -\/\texorpdfstring{$>$}{>} remove registered Im\+Gui texture descriptor -\/\texorpdfstring{$>$}{>} {\ttfamily Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Shutdown} -\/\texorpdfstring{$>$}{>} {\ttfamily Im\+Gui\+\_\+\+Impl\+Glfw\+\_\+\+Shutdown} -\/\texorpdfstring{$>$}{>} {\ttfamily Im\+Gui::\+\+Destroy\+Context} -\/\texorpdfstring{$>$}{>} destroy {\ttfamily m\+\_\+descriptor\+Pool\+Im\+Gui}. Must be called before the window is destroyed. 
+
+Implements \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}}.
+
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!drawFrame@{drawFrame}}
+\index{drawFrame@{drawFrame}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{drawFrame()}{drawFrame()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+draw\+Frame (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Records and submits one complete frame. 
+
+Returns early without submitting if {\ttfamily begin\+Frame()} reports an out-\/of-\/date swapchain, or if a swapchain /\+ offscreen resize is serviced on this tick. See the class-\/level frame sequence for the full call order. 
+
+Implements \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}}.
+
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8d8b18ebe0d1d99c4fa39bb4f2650a23}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!findMesh@{findMesh}}
+\index{findMesh@{findMesh}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{findMesh()}{findMesh()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8d8b18ebe0d1d99c4fa39bb4f2650a23} 
+\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+find\+Mesh (\begin{DoxyParamCaption}\item[{ECS::\+\+Entity\+ID}]{id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns a pointer to the mesh whose {\ttfamily id} field matches {\ttfamily id}, or {\ttfamily nullptr} if no such mesh exists. 
+
+Performs a linear search over {\ttfamily meshes}. Prefer caching the result for the duration of a single frame rather than calling this repeatedly.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & ECS {\ttfamily Entity\+ID} to search for. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a471acc30ff504fca3e45b33639745019}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!getDrawCount@{getDrawCount}}
+\index{getDrawCount@{getDrawCount}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{getDrawCount()}{getDrawCount()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a471acc30ff504fca3e45b33639745019} 
+uint32\+\_\+t gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+get\+Draw\+Count (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [nodiscard]}}
+
+
+
+Returns the number of draw calls issued in the most recent frame. 
+
+Reads directly from the persistently-\/mapped {\ttfamily m\+\_\+draw\+Count\+Buffer} written atomically by the culling compute shader. The value lags by one frame due to GPU/\+\+CPU pipelining -\/ use only for editor display, not synchronisation. \Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a757115d14b2dd58455c3d7f27a792c15}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!getUIInitInfo@{getUIInitInfo}}
+\index{getUIInitInfo@{getUIInitInfo}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{getUIInitInfo()}{getUIInitInfo()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a757115d14b2dd58455c3d7f27a792c15} 
+Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init\+Info gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+get\+UIInit\+Info (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Builds and returns the {\ttfamily Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init\+Info} for this device. 
+
+Creates {\ttfamily m\+\_\+descriptor\+Pool\+Im\+Gui} (11 descriptor types × 1000 sets), fills the init info with instance /\+ device /\+ queue handles, configures {\ttfamily Use\+Dynamic\+Rendering}, sets swapchain color and depth formats, and sets {\ttfamily MSAASamples} to {\ttfamily e1}.
+
+\begin{DoxyReturn}{Returns}
+A fully populated {\ttfamily Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init\+Info} ready to pass to {\ttfamily Im\+Gui\+\_\+\+Impl\+Vulkan\+\_\+\+Init()}. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std::\+runtime\+\_\+error} & if descriptor pool creation fails. \\
+\hline
+\end{DoxyExceptions}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!initRHI@{initRHI}}
+\index{initRHI@{initRHI}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{initRHI()}{initRHI()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+init\+RHI (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Initialises all Vulkan objects and scene resources. 
+
+Initialisation order:\+
+\begin{DoxyEnumerate}
+\item {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_device_acc11ffb5acf9b126c1cb0e49dcc7a9ce}{Vulkan\+Device::\+create\+Vulkan\+Device()}} -\/ instance, device, swapchain.
+\item Creates {\ttfamily m\+\_\+upload\+Command\+Pool} for single-\/time submit operations.
+\item {\ttfamily init\+Scene\+Resources()} -\/ UBO, bindless textures, mesh buffers, descriptor sets, culling pipeline, graphics pipeline, offscreen target.
+\end{DoxyEnumerate}
+
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std::\+runtime\+\_\+error} & if any initialisation step fails. \\
+\hline
+\end{DoxyExceptions}
+
+
+Implements \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}}.
+
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9c08cd1053ee52183352816b85786a9c}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!processPendingOffscreenResize@{processPendingOffscreenResize}}
+\index{processPendingOffscreenResize@{processPendingOffscreenResize}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{processPendingOffscreenResize()}{processPendingOffscreenResize()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9c08cd1053ee52183352816b85786a9c} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+process\+Pending\+Offscreen\+Resize (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Applies a pending offscreen resize if one was requested via {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf}{request\+Offscreen\+Resize()}}. 
+
+Clears the pending flag and calls {\ttfamily resize\+Offscreen\+Resources()}. Called at the very start of {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}} so the resize always occurs between frames, never mid-\/recording. \Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a26b1c2b5e2d38bf43c5151592692de9a}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!removeMesh@{removeMesh}}
+\index{removeMesh@{removeMesh}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{removeMesh()}{removeMesh()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a26b1c2b5e2d38bf43c5151592692de9a} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+remove\+Mesh (\begin{DoxyParamCaption}\item[{ECS::\+\+Entity\+ID}]{id}{}\end{DoxyParamCaption})}
+
+
+
+Destroys the mesh at {\ttfamily mesh\+Index} and compacts the GPU buffers. 
+
+Releases the geometry reference in {\ttfamily m\+\_\+mesh\+Cache}. If this was the last entity using that OBJ, physically compacts the global vertex and index buffers via {\ttfamily compact\+Geometry()}. Destroys the ECS entity, erases from {\ttfamily meshes} /\+ {\ttfamily m\+\_\+mesh\+Data} /\+ {\ttfamily m\+\_\+indirect\+Commands}, and rewrites the GPU SSBO and indirect buffer for all surviving slots.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mesh\+Index} & 0-\/based index into {\ttfamily meshes}. Must be \texorpdfstring{$<$}{<} {\ttfamily meshes.\+size()}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!requestOffscreenResize@{requestOffscreenResize}}
+\index{requestOffscreenResize@{requestOffscreenResize}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{requestOffscreenResize()}{requestOffscreenResize()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a0e7d8249526f26a9c73f24c0d28632bf} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+request\+Offscreen\+Resize (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{width}{, }\item[{uint32\+\_\+t}]{height}{}\end{DoxyParamCaption})}
+
+
+
+Defers an offscreen render target resize to the next frame boundary. 
+
+Safe to call at any time, including while a frame is being recorded. Ignored if {\ttfamily width} × {\ttfamily height} matches the current extent. Applied by {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a9c08cd1053ee52183352816b85786a9c}{process\+Pending\+Offscreen\+Resize()}} at the top of the next {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}} call.
+
+
+\begin{DoxyParams}{Parameters}
+{\em width} & New render target width in pixels. Must be \texorpdfstring{$>$}{>} 0. \\
+\hline
+{\em height} & New render target height in pixels. Must be \texorpdfstring{$>$}{>} 0. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a80844a5484dd4a7bb398f9fc78dcc641}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!setFramebufferResized@{setFramebufferResized}}
+\index{setFramebufferResized@{setFramebufferResized}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{setFramebufferResized()}{setFramebufferResized()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a80844a5484dd4a7bb398f9fc78dcc641} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+set\+Framebuffer\+Resized (\begin{DoxyParamCaption}\item[{bool}]{resized}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+
+
+Sets the framebuffer-\/resized flag. 
+
+Called from the GLFW {\ttfamily framebuffer\+Resize\+Callback}. The flag is consumed at the top of the next {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}} call, triggering {\ttfamily recreate\+Swapchain()}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em resized} & {\ttfamily true} when the framebuffer dimensions have changed. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8f5503c397d1a3b7aa94fc919f2b5130}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!setTAABlendAlpha@{setTAABlendAlpha}}
+\index{setTAABlendAlpha@{setTAABlendAlpha}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{setTAABlendAlpha()}{setTAABlendAlpha()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a8f5503c397d1a3b7aa94fc919f2b5130} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+set\+TAABlend\+Alpha (\begin{DoxyParamCaption}\item[{float}]{alpha}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+
+
+Sets the TAA blend alpha (weight of the current frame). 
+
+Typical range:\+ 0.\+05 – 0.\+15. Higher values reduce ghosting but increase aliasing; lower values give smoother output at the cost of more ghosting on fast-\/moving geometry.
+
+
+\begin{DoxyParams}{Parameters}
+{\em alpha} & Current-\/frame weight in \+[0, 1]\+. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a30a2f70845998845c335c5b49992a00e}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!setVSync@{setVSync}}
+\index{setVSync@{setVSync}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{setVSync()}{setVSync()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a30a2f70845998845c335c5b49992a00e} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+set\+VSync (\begin{DoxyParamCaption}\item[{bool}]{vsync}{}\end{DoxyParamCaption})}
+
+
+
+Enables or disables vertical synchronisation. 
+
+Triggers a swapchain recreation with the requested present mode. Blocks until the GPU is idle before recreating.
+
+
+\begin{DoxyParams}{Parameters}
+{\em vsync} & {\ttfamily true} for {\ttfamily e\+Fifo} (vsync on), {\ttfamily false} for {\ttfamily e\+Immediate}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!setWindow@{setWindow}}
+\index{setWindow@{setWindow}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{setWindow()}{setWindow()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a81634cb6b136dcbe2cfcf26330c20336} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+set\+Window (\begin{DoxyParamCaption}\item[{GLFWwindow \texorpdfstring{$\ast$}{*}}]{window}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Stores the GLFW window handle and registers the framebuffer-\/resize callback. 
+
+Must be called before {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a411603423bd30596d5813387367bf6ff}{init\+RHI()}}. Stores {\ttfamily window} in {\ttfamily m\+\_\+swapchain\+Desc} and registers {\ttfamily glfw\+Set\+Framebuffer\+Size\+Callback} so that resize events set {\ttfamily m\+\_\+framebuffer\+Resized}, which {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}} checks at the top of every frame.
+
+
+\begin{DoxyParams}{Parameters}
+{\em window} & The application\textquotesingle{}s GLFW window. Must outlive this object. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \doxymbox{\hyperlink{classgcep_1_1_r_h_i}{gcep::\+\+RHI}}.
+
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a85750ec1a5d7b23fa303f2876e00cccf}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!spawnAsset@{spawnAsset}}
+\index{spawnAsset@{spawnAsset}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{spawnAsset()}{spawnAsset()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a85750ec1a5d7b23fa303f2876e00cccf} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+spawn\+Asset (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{filepath}{, }\item[{ECS::\+\+Entity\+ID}]{id}{, }\item[{glm::\+vec3}]{pos}{ = {\ttfamily \{0.0f,~0.0f,~0.0f\}}}\end{DoxyParamCaption})}
+
+
+
+Spawns an arbitrary OBJ asset at {\ttfamily pos} and uploads it to the GPU. 
+
+Creates an ECS entity, loads the OBJ via {\ttfamily Vulkan\+Mesh::\+load\+Mesh()}, calls {\ttfamily upload\+Single\+Mesh()}, and configures the transform and physics components. If the same OBJ path was previously uploaded, geometry is reused from {\ttfamily m\+\_\+mesh\+Cache} without re-\/uploading.
+
+
+\begin{DoxyParams}{Parameters}
+{\em filepath} & Path to the OBJ file. Must exist on disk. \\
+\hline
+{\em pos} & Initial world-\/space position. Defaults to the origin. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a99fcc755d81c7163a2b6f1df5b1b8bae}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!spawnCone@{spawnCone}}
+\index{spawnCone@{spawnCone}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{spawnCone()}{spawnCone()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_a99fcc755d81c7163a2b6f1df5b1b8bae} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+spawn\+Cone (\begin{DoxyParamCaption}\item[{glm::\+vec3}]{pos}{ = {\ttfamily \{0.0f,~0.0f,~0.0f\}}}\end{DoxyParamCaption})}
+
+
+
+Spawns a unit cube at {\ttfamily pos} and uploads it to the GPU. 
+
+Creates an ECS entity, adds {\ttfamily \doxylink{structgcep_1_1_e_c_s_1_1_transform}{ECS::\+\+Transform}} and {\ttfamily Physics\+Component}, loads a built-\/in cube OBJ, and calls {\ttfamily upload\+Single\+Mesh()}. The cube is registered as a static non-\/moving body.
+
+
+\begin{DoxyParams}{Parameters}
+{\em pos} & Initial world-\/space position. Defaults to the origin. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab999a9666aba5ff103cc6a1b57b588b9}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!updateCameraUBO@{updateCameraUBO}}
+\index{updateCameraUBO@{updateCameraUBO}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{updateCameraUBO()}{updateCameraUBO()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab999a9666aba5ff103cc6a1b57b588b9} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+update\+Camera\+UBO (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_uniform_buffer_object}{Uniform\+Buffer\+Object}}}]{ubo}{}\end{DoxyParamCaption})}
+
+
+
+Uploads per-\/frame camera matrices to the persistently-\/mapped UBO. 
+
+Stores {\ttfamily ubo} for use in {\ttfamily record\+Offscreen\+Command\+Buffer()} during the same frame. Call once per frame before {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ubo} & \doxylink{classgcep_1_1_camera}{Camera} view and projection matrices for the current frame. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ae1151a3c4968b1f8b81616e9a7071d1e}\index{gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}!updateSceneUBO@{updateSceneUBO}}
+\index{updateSceneUBO@{updateSceneUBO}!gcep::rhi::vulkan::VulkanRHI@{gcep::rhi::vulkan::VulkanRHI}}
+\doxysubsubsection{\texorpdfstring{updateSceneUBO()}{updateSceneUBO()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ae1151a3c4968b1f8b81616e9a7071d1e} 
+void gcep::\+rhi::\+vulkan::\+\+Vulkan\+RHI::\+update\+Scene\+UBO (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_scene_infos}{rhi::\+vulkan::\+\+Scene\+Infos}} \texorpdfstring{$\ast$}{*}}]{upstr}{, }\item[{glm::\+vec3}]{camera\+Pos}{}\end{DoxyParamCaption})}
+
+
+
+Uploads per-\/frame lighting and camera data to the scene UBO. 
+
+Constructs a {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_scene_u_b_o}{Scene\+UBO}} from {\ttfamily upstr} and {\ttfamily camera\+Pos} and memcpys it into all persistently-\/mapped UBO slots (one per frame-\/in-\/flight). Call once per frame before {\ttfamily \doxylink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_r_h_i_ab6dc45f8f6c83c28d4a162108e26d1be}{draw\+Frame()}}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em upstr} & Scene lighting parameters (light direction, color, ambient). \\
+\hline
+{\em camera\+Pos} & World-\/space camera position for specular highlight computation. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Descriptors.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Geometry.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Gizmo\+Pipelines.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Helpers.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Offscreen.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Pipelines.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+Recording.\+cpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+Vulkan\+RHI\+\_\+\+TAA.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,135 @@
+\doxysection{json\+\_\+archive\+\_\+field.\+hpp}
+\hypertarget{json__archive__field_8hpp_source}{}\label{json__archive__field_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_archive\_field.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/ECS/headers/json\_archive\_field.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <ECS/headers/json\_archive.hpp>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <Maths/vector2.hpp>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Maths/vector3.hpp>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Maths/quaternion.hpp>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Maths/mat3.hpp>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Maths/mat4.hpp>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <ECS/headers/ArchiveField.hpp>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }gcep::SER}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{float}\ \ \ \ v)\ \{\ ar.writeFloat\ (key,\ v);\ \}}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{double}\ \ \ v)\ \{\ ar.writeDouble(key,\ v);\ \}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint8\_t\ \ v)\ \{\ ar.writeUint8\ (key,\ v);\ \}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint16\_t\ v)\ \{\ ar.writeUint16(key,\ v);\ \}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint32\_t\ v)\ \{\ ar.writeUint32(key,\ v);\ \}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint64\_t\ v)\ \{\ ar.writeUint64(key,\ v);\ \}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int8\_t\ \ \ v)\ \{\ ar.writeInt8\ \ (key,\ v);\ \}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int16\_t\ \ v)\ \{\ ar.writeInt16\ (key,\ v);\ \}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int32\_t\ \ v)\ \{\ ar.writeInt32\ (key,\ v);\ \}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int64\_t\ \ v)\ \{\ ar.writeInt64\ (key,\ v);\ \}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ Vector2<T>\&\ v)}
+\DoxyCodeLine{00025\ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.x"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(v.x));}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.y"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(v.y));}
+\DoxyCodeLine{00028\ \ \ \ \ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ Vector3<T>\&\ v)}
+\DoxyCodeLine{00032\ \ \ \ \ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.x"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(v.x));}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.y"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(v.y));}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.z"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(v.z));}
+\DoxyCodeLine{00036\ \ \ \ \ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00040\ \ \ \ \ std::enable\_if\_t<std::is\_enum\_v<T>>}
+\DoxyCodeLine{00041\ \ \ \ \ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ T\&\ v)}
+\DoxyCodeLine{00042\ \ \ \ \ \{}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ ar.writeInt32(key,\ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(v));}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00047\ \ \ \ \ std::enable\_if\_t<!std::is\_enum\_v<T>>}
+\DoxyCodeLine{00048\ \ \ \ \ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ T\&\ v)\ \{\}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ Mat3<T>\&\ m)}
+\DoxyCodeLine{00053\ \ \ \ \ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.x"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].x));}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.y"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].y));}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.z"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].z));}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \ \ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ Mat4<T>\&\ m)}
+\DoxyCodeLine{00063\ \ \ \ \ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 4;\ ++i)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.x"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].x));}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.y"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].y));}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.z"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].z));}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.col"{}}\ +\ std::to\_string(i)\ +\ \textcolor{stringliteral}{"{}.w"{}},\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(m.cols[i].w));}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ Quaternion\&\ q)}
+\DoxyCodeLine{00073\ \ \ \ \ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.w"{}},\ q.w);}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.x"{}},\ q.x);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.y"{}},\ q.y);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ ar.writeFloat(key\ +\ \textcolor{stringliteral}{"{}.z"{}},\ q.z);}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveWriteJson(\doxymbox{\hyperlink{classgcep_1_1_s_e_r_1_1_json_write_archive}{JsonWriteArchive}}\&\ ar,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keyword}{const}\ std::string\&\ str)}
+\DoxyCodeLine{00081\ \ \ \ \ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ ar.writeString(key,\ str);}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{float}\&\ \ \ \ v)\ \{\ v\ =\ ed.readFloat\ (key);\ \}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ \textcolor{keywordtype}{double}\&\ \ \ v)\ \{\ v\ =\ ed.readDouble(key);\ \}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint8\_t\&\ \ v)\ \{\ v\ =\ ed.readUint8\ (key);\ \}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint16\_t\&\ v)\ \{\ v\ =\ ed.readUint16(key);\ \}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint32\_t\&\ v)\ \{\ v\ =\ ed.readUint32(key);\ \}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ uint64\_t\&\ v)\ \{\ v\ =\ ed.readUint64(key);\ \}}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int8\_t\&\ \ \ v)\ \{\ v\ =\ ed.readInt8\ \ (key);\ \}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int16\_t\&\ \ v)\ \{\ v\ =\ ed.readInt16\ (key);\ \}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int32\_t\&\ \ v)\ \{\ v\ =\ ed.readInt32\ (key);\ \}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ int64\_t\&\ \ v)\ \{\ v\ =\ ed.readInt64\ (key);\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ Vector2<T>\&\ v)}
+\DoxyCodeLine{00101\ \ \ \ \ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ v.x\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readFloat(key\ +\ \textcolor{stringliteral}{"{}.x"{}}));}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ v.y\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readFloat(key\ +\ \textcolor{stringliteral}{"{}.y"{}}));}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ Vector3<T>\&\ v)}
+\DoxyCodeLine{00108\ \ \ \ \ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ v.x\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readFloat(key\ +\ \textcolor{stringliteral}{"{}.x"{}}));}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ v.y\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readFloat(key\ +\ \textcolor{stringliteral}{"{}.y"{}}));}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ v.z\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readFloat(key\ +\ \textcolor{stringliteral}{"{}.z"{}}));}
+\DoxyCodeLine{00112\ \ \ \ \ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ std::string\&\ v)}
+\DoxyCodeLine{00115\ \ \ \ \ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ v\ =\ ed.readString(key);}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00120\ \ \ \ \ std::enable\_if\_t<std::is\_enum\_v<T>>}
+\DoxyCodeLine{00121\ \ \ \ \ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ T\&\ v)}
+\DoxyCodeLine{00122\ \ \ \ \ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ v\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(ed.readInt32(key));}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00127\ \ \ \ \ std::enable\_if\_t<!std::is\_enum\_v<T>>}
+\DoxyCodeLine{00128\ \ \ \ \ archiveReadJson(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{structgcep_1_1_s_e_r_1_1_json_read_archive_1_1_entity_data}{JsonReadArchive::EntityData}}\&\ ed,\ \textcolor{keyword}{const}\ std::string\&\ key,\ T\&\ v)\ \{\}}
+\DoxyCodeLine{00129\ \}}
+
+\end{DoxyCode}

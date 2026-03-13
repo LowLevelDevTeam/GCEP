@@ -1,0 +1,38 @@
+\doxysection{json\+\_\+scene\+\_\+snapshot.\+inl}
+\hypertarget{json__scene__snapshot_8inl_source}{}\label{json__scene__snapshot_8inl_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scene/detail/json\_scene\_snapshot.inl@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/Core/Scene/detail/json\_scene\_snapshot.inl}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{keyword}{namespace\ }gcep::SLS}
+\DoxyCodeLine{00004\ \{}
+\DoxyCodeLine{00005\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ JsonSnapShot::serializeAll(\textcolor{keyword}{const}\ std::string\&\ path)}
+\DoxyCodeLine{00006\ \ \ \ \ \{}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ SER::JsonWriteArchive\ ar(path);}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ ar.beginScene(\textcolor{stringliteral}{"{}GCEP\_SCENE"{}},\ 1);}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ ar.writeSceneName(m\_scene.getName());}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ entry\ :\ ECS::ComponentRegistry::instance().entries())}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ entry.serializeJson(m\_scene.getRegistry(),\ ar);}
+\DoxyCodeLine{00013\ \ \ \ \ \}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ JsonSnapShot::deserializeAll(\textcolor{keyword}{const}\ std::string\&\ path)}
+\DoxyCodeLine{00016\ \ \ \ \ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ SER::JsonReadArchive\ ar(path);}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ m\_scene.setName(ar.readSceneName());}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ pool\ :\ ar.pools())}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ entry\ :\ ECS::ComponentRegistry::instance().entries())}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry.name\ !=\ pool.name)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ed\ :\ pool.entities)}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_scene.getRegistry().createEntityWithID(ed.id);}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ entry.deserializeJson(m\_scene.getRegistry(),\ ed.id,\ ed);}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00031\ \ \ \ \ \}}
+\DoxyCodeLine{00032\ \}}
+
+\end{DoxyCode}

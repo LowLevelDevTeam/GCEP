@@ -1,0 +1,98 @@
+\doxysection{C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Vulkan/\+\+Vulkan\+Light\+System.hpp File Reference}
+\hypertarget{_vulkan_light_system_8hpp}{}\label{_vulkan_light_system_8hpp}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanLightSystem.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/VulkanLightSystem.hpp}}
+
+
+CPU-\/side light data types, GPU-\/mapped buffer structs, and the {\ttfamily Light\+System} class that owns all Vulkan resources for point and spot lights.  
+
+
+{\ttfamily \+\#include $<$vulkan/\+vulkan\+\_\+raii.\+hpp$>$}\newline
+{\ttfamily \+\#include $<$glm/\+glm.\+hpp$>$}\newline
+{\ttfamily \+\#include $<$array$>$}\newline
+{\ttfamily \+\#include $<$cstdint$>$}\newline
+{\ttfamily \+\#include $<$vector$>$}\newline
+{\ttfamily \+\#include $<$Engine/\+\+RHI/\+\+Vulkan/\+\+Vulkan\+Device.\+hpp$>$}\newline
+{\ttfamily \+\#include $<$Engine/\+\+RHI/\+\+Vulkan/\+\+Vulkan\+RHIData\+Types.\+hpp$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_light_system}{gcep::\+rhi::\+vulkan::\+\+Light\+System}}
+\begin{DoxyCompactList}\small\item\em Manages the GPU light SSBO, lighting compute pipeline, and the lit output image that replaces the raw scene color for TAA. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \doxymbox{\hyperlink{namespacegcep}{gcep}}
+\begin{DoxyCompactList}\small\item\em Namespace for the Gaming Campus Engine Paris. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum class \doxymbox{\hyperlink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97}{gcep::\+rhi::\+vulkan::\+\+Light\+Type}} :\+ uint32\+\_\+t \{ \doxymbox{\hyperlink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a2a3cd5946cfd317eb99c3d32e35e2d4c}{Point}} = 0u
+, \doxymbox{\hyperlink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a6c9d6b8aea6f3d16847bdebe05878a2d}{Spot}} = 1u
+ \}
+\begin{DoxyCompactList}\small\item\em Identifies the light model encoded in a {\ttfamily \doxylink{structgcep_1_1rhi_1_1vulkan_1_1_g_p_u_light}{GPULight}} entry. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+CPU-\/side light data types, GPU-\/mapped buffer structs, and the {\ttfamily Light\+System} class that owns all Vulkan resources for point and spot lights. 
+
+\begin{DoxyParagraph}{Architecture overview}
+The light system is a self-\/contained subsystem that plugs directly into {\ttfamily Vulkan\+RHI}. It owns:\+
+\begin{DoxyItemize}
+\item A persistently-\/mapped, host-\/visible/\+coherent SSBO containing packed {\ttfamily GPULight} entries (one per live light, up to {\ttfamily MAX\+\_\+\+LIGHTS}).
+\item A host-\/visible/\+coherent metadata UBO ({\ttfamily Light\+Meta\+UBO}) that carries the live light count so the lighting compute shader can early-\/exit.
+\item A compute pipeline ({\ttfamily Compute\+\_\+\+Lighting.\+spv}, entry {\ttfamily comp\+Main}) that reads the G-\/buffer-\/like offscreen color + depth produced by the scene pass, the light SSBO, and writes a shaded output into an RGBA16F storage image. The result is fed into the TAA resolve stage as the new "{}current color"{}.
+\item All descriptor set layouts, pools, and sets needed for the above.
+\end{DoxyItemize}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Descriptor set layout (set 3 -\/ lighting compute)}
+
+\begin{DoxyItemize}
+\item Binding 0 {\ttfamily e\+Storage\+Buffer} -\/ {\ttfamily GPULight} SSBO (read-\/only)
+\item Binding 1 {\ttfamily e\+Uniform\+Buffer} -\/ {\ttfamily Light\+Meta\+UBO} (read-\/only)
+\item Binding 2 {\ttfamily e\+Combined\+Image\+Sampler} -\/ offscreen color (read)
+\item Binding 3 {\ttfamily e\+Combined\+Image\+Sampler} -\/ offscreen depth (read)
+\item Binding 4 {\ttfamily e\+Storage\+Image} -\/ lit output (write)
+\end{DoxyItemize}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Push constants ({\ttfamily Lighting\+Push\+Constants}, compute stage)}
+
+\begin{DoxyItemize}
+\item {\ttfamily inv\+View\+Proj} -\/ inverse view-\/projection for depth-\/buffer ray reconstruction
+\item {\ttfamily camera\+Pos} -\/ world-\/space eye position for specular computation
+\item {\ttfamily screen\+Size} -\/ pixel dimensions of the offscreen render target
+\end{DoxyItemize}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Integration in {\ttfamily Vulkan\+RHI::\+record\+Offscreen\+Command\+Buffer}()}
+Insert {\ttfamily record\+Lighting\+Pass()} {\itshape after} {\ttfamily end\+Rendering()} and {\itshape before} {\ttfamily record\+TAAPass()}. The lighting pass reads the scene color and depth as sampled images and writes the lit result into {\ttfamily m\+\_\+lit\+Image} (storage), then transitions it to {\ttfamily e\+Shader\+Read\+Only\+Optimal} for TAA.
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Thread safety}
+All public methods must be called from the render thread. No internal synchronisation is provided. 
+\end{DoxyParagraph}
+
+
+\label{doc-enum-members}
+\Hypertarget{_vulkan_light_system_8hpp_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97}\index{VulkanLightSystem.hpp@{VulkanLightSystem.hpp}!LightType@{LightType}}
+\index{LightType@{LightType}!VulkanLightSystem.hpp@{VulkanLightSystem.hpp}}
+\doxysubsubsection{\texorpdfstring{LightType}{LightType}}
+{\footnotesize\ttfamily \label{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97} 
+enum class \doxymbox{\hyperlink{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97}{gcep::\+rhi::\+vulkan::\+\+Light\+Type}} :\+ uint32\+\_\+t\hspace{0.3cm}{\ttfamily [strong]}}
+
+
+
+Identifies the light model encoded in a {\ttfamily GPULight} entry. 
+
+The value is stored in {\ttfamily GPULight::\+type} and is tested by the Slang shader to branch between the point-\/light and spot-\/light attenuation models. \begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{Point@{Point}!VulkanLightSystem.hpp@{VulkanLightSystem.hpp}}
+\index{VulkanLightSystem.hpp@{VulkanLightSystem.hpp}!Point@{Point}}
+}\Hypertarget{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a2a3cd5946cfd317eb99c3d32e35e2d4c}\label{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a2a3cd5946cfd317eb99c3d32e35e2d4c} 
+Point&Isotropic point light with inverse-\/square attenuation. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{Spot@{Spot}!VulkanLightSystem.hpp@{VulkanLightSystem.hpp}}
+\index{VulkanLightSystem.hpp@{VulkanLightSystem.hpp}!Spot@{Spot}}
+}\Hypertarget{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a6c9d6b8aea6f3d16847bdebe05878a2d}\label{_vulkan_light_system_8hpp_aab5aa84123c7893d7dfe7e5decbaea97a6c9d6b8aea6f3d16847bdebe05878a2d} 
+Spot&Cone-\/shaped spot light with inner/\+outer cutoff angles. \\
+\hline
+
+\end{DoxyEnumFields}

@@ -1,0 +1,324 @@
+\doxysection{gcep::\+Mat3\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{classgcep_1_1_mat3}{}\label{classgcep_1_1_mat3}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+
+
+Represents a 3x3 matrix for linear algebra operations.  
+
+
+
+
+{\ttfamily \+\#include $<$mat3.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}\label{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b} 
+constexpr {\bfseries Mat3} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. Initializes the matrix as the identity. \end{DoxyCompactList}\item 
+constexpr \doxymbox{\hyperlink{classgcep_1_1_mat3_add9bc4c2cdc26fbbb84b873ff37f8ff8}{Mat3}} (T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22)
+\begin{DoxyCompactList}\small\item\em Constructs a matrix from 9 components (row-\/major order). \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_mat3_a13340947f0c14eeb33571eeddf5e1477}\label{classgcep_1_1_mat3_a13340947f0c14eeb33571eeddf5e1477} 
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} {\bfseries Transposed} () const
+\begin{DoxyCompactList}\small\item\em Returns the transposed version of this matrix. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_mat3_ad8dcc86e81fd0582fef8f939dc3f22f3}\label{classgcep_1_1_mat3_ad8dcc86e81fd0582fef8f939dc3f22f3} 
+T {\bfseries Determinant} () const
+\begin{DoxyCompactList}\small\item\em Computes the determinant of the matrix. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_mat3_a08522f5746a95460f0e813f447d1e005}\label{classgcep_1_1_mat3_a08522f5746a95460f0e813f447d1e005} 
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} {\bfseries Inverted} () const
+\begin{DoxyCompactList}\small\item\em Returns the inverse of this matrix. If the determinant is zero, returns Mat3::\+\+ZERO. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_mat3_ade12d775b7015499988aac3a07077776}\label{classgcep_1_1_mat3_ade12d775b7015499988aac3a07077776} 
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} {\bfseries operator\texorpdfstring{$\ast$}{*}} (const \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} \&rhs) const
+\begin{DoxyCompactList}\small\item\em Multiplies two matrices together. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_mat3_a137838bef99185e1f8ef2ab2280cd22c}\label{classgcep_1_1_mat3_a137838bef99185e1f8ef2ab2280cd22c} 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ {\bfseries operator\texorpdfstring{$\ast$}{*}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \&v) const
+\begin{DoxyCompactList}\small\item\em Multiplies the matrix by a 3D vector. \end{DoxyCompactList}\item 
+T \& \doxymbox{\hyperlink{classgcep_1_1_mat3_a06df09990c296115dcc88efc255d6925}{operator()}} (int row, int col)
+\begin{DoxyCompactList}\small\item\em Accesses a specific matrix element (mutable). \end{DoxyCompactList}\item 
+const T \& \doxymbox{\hyperlink{classgcep_1_1_mat3_ae7d355c90331220bd7ef6a3900495d17}{operator()}} (int row, int col) const
+\begin{DoxyCompactList}\small\item\em Accesses a specific matrix element (read-\/only). \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3_a8cefdacd8096c0657e32cec7fc50dc14}{Get\+Row}} (int i) const
+\begin{DoxyCompactList}\small\item\em Returns a specific row as a \doxylink{classgcep_1_1_vector3}{Vector3}. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_mat3_a81ffdcff277d25bc04a32db3f4193d92}{Set\+Row}} (int i, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \&row)
+\begin{DoxyCompactList}\small\item\em Sets a specific row using a \doxylink{classgcep_1_1_vector3}{Vector3}. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3_a8a88840f2a61b750228207bacdb36518}{Get\+Column}} (int i) const
+\begin{DoxyCompactList}\small\item\em Returns a specific column as a \doxylink{classgcep_1_1_vector3}{Vector3}. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_mat3_ab2151c8735b1a668bfc55e5b82b40dc2}{Set\+Column}} (int i, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \&column)
+\begin{DoxyCompactList}\small\item\em Sets a specific column using a \doxylink{classgcep_1_1_vector3}{Vector3}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_mat3_abf5e8589168b93dc48c8cfc31b64e806}\label{classgcep_1_1_mat3_abf5e8589168b93dc48c8cfc31b64e806} 
+static \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} {\bfseries Identity} ()
+\begin{DoxyCompactList}\small\item\em Returns the 3x3 identity matrix. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} \doxymbox{\hyperlink{classgcep_1_1_mat3_ac355b04a3df6b0fd446e82a6c1beb8c7}{RotationX}} (T angle)
+\begin{DoxyCompactList}\small\item\em Creates a rotation matrix around the X axis. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} \doxymbox{\hyperlink{classgcep_1_1_mat3_a0063f0b0c92cd931a180762f5c2febe0}{RotationY}} (T angle)
+\begin{DoxyCompactList}\small\item\em Creates a rotation matrix around the Y axis. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} \doxymbox{\hyperlink{classgcep_1_1_mat3_aa97ad22249f3328f9112d78002c65f21}{RotationZ}} (T angle)
+\begin{DoxyCompactList}\small\item\em Creates a rotation matrix around the Z axis. \end{DoxyCompactList}\item 
+static \doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}} \doxymbox{\hyperlink{classgcep_1_1_mat3_abe853fb7794822558f7e5acd0f03d091}{Scale}} (T x, T y, T z)
+\begin{DoxyCompactList}\small\item\em Creates a scaling matrix. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1_mat3_aa1df088ce2a1aa71e1f79c742441d080}\label{classgcep_1_1_mat3_aa1df088ce2a1aa71e1f79c742441d080} 
+T {\bfseries m} \+[3]\+\+[3]\+
+\begin{DoxyCompactList}\small\item\em Matrix data in row-\/major order. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+class gcep::\+\+Mat3$<$ T $>$}
+Represents a 3x3 matrix for linear algebra operations. 
+
+This class supports matrix creation, multiplication, inversion, and transformations such as rotation and scaling. The matrix is stored in {\bfseries{row-\/major order}}.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Numeric type (float, double, etc.) \\
+\hline
+\end{DoxyTemplParams}
+
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_mat3_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_mat3_add9bc4c2cdc26fbbb84b873ff37f8ff8}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!Mat3@{Mat3}}
+\index{Mat3@{Mat3}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{Mat3()}{Mat3()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_add9bc4c2cdc26fbbb84b873ff37f8ff8} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Mat3 (\begin{DoxyParamCaption}\item[{T}]{m00}{, }\item[{T}]{m01}{, }\item[{T}]{m02}{, }\item[{T}]{m10}{, }\item[{T}]{m11}{, }\item[{T}]{m12}{, }\item[{T}]{m20}{, }\item[{T}]{m21}{, }\item[{T}]{m22}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [constexpr]}}
+
+
+
+Constructs a matrix from 9 components (row-\/major order). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m00} & First row, first column. \\
+\hline
+{\em m01} & First row, second column. \\
+\hline
+{\em m02} & First row, third column. \\
+\hline
+{\em m10} & Second row, first column. \\
+\hline
+{\em m11} & Second row, second column. \\
+\hline
+{\em m12} & Second row, third column. \\
+\hline
+{\em m20} & Third row, first column. \\
+\hline
+{\em m21} & Third row, second column. \\
+\hline
+{\em m22} & Third row, third column. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_mat3_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_mat3_a8a88840f2a61b750228207bacdb36518}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!GetColumn@{GetColumn}}
+\index{GetColumn@{GetColumn}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{GetColumn()}{GetColumn()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_a8a88840f2a61b750228207bacdb36518} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Get\+Column (\begin{DoxyParamCaption}\item[{int}]{i}{}\end{DoxyParamCaption}) const}
+
+
+
+Returns a specific column as a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Column index (0-\/2). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The column as a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_a8cefdacd8096c0657e32cec7fc50dc14}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!GetRow@{GetRow}}
+\index{GetRow@{GetRow}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{GetRow()}{GetRow()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_a8cefdacd8096c0657e32cec7fc50dc14} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Get\+Row (\begin{DoxyParamCaption}\item[{int}]{i}{}\end{DoxyParamCaption}) const}
+
+
+
+Returns a specific row as a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Row index (0-\/2). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The row as a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_a06df09990c296115dcc88efc255d6925}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!operator()@{operator()}}
+\index{operator()@{operator()}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator()()}{operator()()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_a06df09990c296115dcc88efc255d6925} 
+template$<$typename T$>$ \\
+T \& \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+operator() (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Accesses a specific matrix element (mutable). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em row} & Row index (0-\/2). \\
+\hline
+{\em col} & Column index (0-\/2). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Reference to the element. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_ae7d355c90331220bd7ef6a3900495d17}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!operator()@{operator()}}
+\index{operator()@{operator()}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator()()}{operator()()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_ae7d355c90331220bd7ef6a3900495d17} 
+template$<$typename T$>$ \\
+const T \& \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+operator() (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption}) const}
+
+
+
+Accesses a specific matrix element (read-\/only). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em row} & Row index (0-\/2). \\
+\hline
+{\em col} & Column index (0-\/2). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Constant reference to the element. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_ac355b04a3df6b0fd446e82a6c1beb8c7}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!RotationX@{RotationX}}
+\index{RotationX@{RotationX}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{RotationX()}{RotationX()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_ac355b04a3df6b0fd446e82a6c1beb8c7} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+RotationX (\begin{DoxyParamCaption}\item[{T}]{angle}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a rotation matrix around the X axis. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em angle} & Angle in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation matrix. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_a0063f0b0c92cd931a180762f5c2febe0}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!RotationY@{RotationY}}
+\index{RotationY@{RotationY}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{RotationY()}{RotationY()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_a0063f0b0c92cd931a180762f5c2febe0} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+RotationY (\begin{DoxyParamCaption}\item[{T}]{angle}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a rotation matrix around the Y axis. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em angle} & Angle in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation matrix. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_aa97ad22249f3328f9112d78002c65f21}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!RotationZ@{RotationZ}}
+\index{RotationZ@{RotationZ}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{RotationZ()}{RotationZ()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_aa97ad22249f3328f9112d78002c65f21} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+RotationZ (\begin{DoxyParamCaption}\item[{T}]{angle}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a rotation matrix around the Z axis. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em angle} & Angle in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation matrix. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_abe853fb7794822558f7e5acd0f03d091}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!Scale@{Scale}}
+\index{Scale@{Scale}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{Scale()}{Scale()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_abe853fb7794822558f7e5acd0f03d091} 
+template$<$typename T$>$ \\
+\doxymbox{\hyperlink{classgcep_1_1_mat3_a851e47ef250cb6a8276adf28c497f73b}{Mat3}}$<$ T $>$ \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Scale (\begin{DoxyParamCaption}\item[{T}]{x}{, }\item[{T}]{y}{, }\item[{T}]{z}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Creates a scaling matrix. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & Scale factor along the X axis. \\
+\hline
+{\em y} & Scale factor along the Y axis. \\
+\hline
+{\em z} & Scale factor along the Z axis. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Scaling matrix. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_mat3_ab2151c8735b1a668bfc55e5b82b40dc2}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!SetColumn@{SetColumn}}
+\index{SetColumn@{SetColumn}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{SetColumn()}{SetColumn()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_ab2151c8735b1a668bfc55e5b82b40dc2} 
+template$<$typename T$>$ \\
+void \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Set\+Column (\begin{DoxyParamCaption}\item[{int}]{i}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \&}]{column}{}\end{DoxyParamCaption})}
+
+
+
+Sets a specific column using a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Column index (0-\/2). \\
+\hline
+{\em column} & \doxylink{classgcep_1_1_vector3}{Vector3} representing the new column. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_mat3_a81ffdcff277d25bc04a32db3f4193d92}\index{gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}!SetRow@{SetRow}}
+\index{SetRow@{SetRow}!gcep::Mat3$<$ T $>$@{gcep::Mat3$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{SetRow()}{SetRow()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_mat3_a81ffdcff277d25bc04a32db3f4193d92} 
+template$<$typename T$>$ \\
+void \doxymbox{\hyperlink{classgcep_1_1_mat3}{gcep::\+\+Mat3}}$<$ T $>$::\+\+Set\+Row (\begin{DoxyParamCaption}\item[{int}]{i}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ T $>$ \&}]{row}{}\end{DoxyParamCaption})}
+
+
+
+Sets a specific row using a \doxylink{classgcep_1_1_vector3}{Vector3}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Row index (0-\/2). \\
+\hline
+{\em row} & \doxylink{classgcep_1_1_vector3}{Vector3} representing the new row. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+mat3.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Maths/\+mat3.\+inl\end{DoxyCompactItemize}

@@ -1,0 +1,250 @@
+\doxysection{gcep::\+Physics\+System Class Reference}
+\hypertarget{classgcep_1_1_physics_system}{}\label{classgcep_1_1_physics_system}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+
+
+Singleton wrapper for the engine\textquotesingle{}s physics subsystem.  
+
+
+
+
+{\ttfamily \+\#include $<$physics\+\_\+system.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_physics_system_a51228abcc71bcd006bc7f6c010ce4d78}{Physics\+System}} ()
+\begin{DoxyCompactList}\small\item\em Constructs a new \doxylink{classgcep_1_1_physics_system}{Physics\+System} instance. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_physics_system_a312c7b89c54d63c045dad132c4243aab}{\texorpdfstring{$\sim$}{\string~}\+Physics\+System}} ()
+\begin{DoxyCompactList}\small\item\em Destroys the \doxylink{classgcep_1_1_physics_system}{Physics\+System} instance. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{classgcep_1_1_physics_system_aa311797b90323a76b9269e4ec8ccf0fd}{Physics\+System}} (const Physics\+System \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted copy constructor. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_a3f1b6b950b11437d9615ecc7a280c051}{init}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the physics subsystem. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_a104d711bbd1f9f8cb20b23b44e7aa23b}{shutdown}} ()
+\begin{DoxyCompactList}\small\item\em Shuts down the physics subsystem. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_afd77e732b70fab29b248810abf0042a3}{start\+Simulation}} ()
+\begin{DoxyCompactList}\small\item\em Starts the physics simulation for all registered entities. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_acd5cec16fa5df1f3743d88409bc02df9}{update}} (float dt)
+\begin{DoxyCompactList}\small\item\em Advances the physics simulation by the given delta time. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_a21714440bfba384f0a035216d45313fb}{stop\+Simulation}} ()
+\begin{DoxyCompactList}\small\item\em Stops the physics simulation and removes physics bodies. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_physics_system_a3dd90d0ff0f2a78014662d69419c2dd2}\label{classgcep_1_1_physics_system_a3dd90d0ff0f2a78014662d69419c2dd2} 
+void {\bfseries set\+Registry} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \texorpdfstring{$\ast$}{*}reg)
+\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_abd88bd2034fbd0933db0752a81a47d57}{sync\+Physics\+To\+Transforms}} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&reg)
+\begin{DoxyCompactList}\small\item\em Synchronizes entity transforms with the current physics simulation. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1_physics_system_a276b51029c3b33bcbde89eb8e13f6dd7}{sync\+Transforms\+To\+Physics}} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&reg)
+\begin{DoxyCompactList}\small\item\em Synchronizes physics bodies with the entity transforms. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1_physics_system_adefa69456c79ee3de34f2283117c073c}\label{classgcep_1_1_physics_system_adefa69456c79ee3de34f2283117c073c} 
+void {\bfseries sync\+Components\+Velocities\+To\+Physics} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&reg)
+\item 
+\Hypertarget{classgcep_1_1_physics_system_abebb5e710010958ea8f05ac9fae9b492}\label{classgcep_1_1_physics_system_abebb5e710010958ea8f05ac9fae9b492} 
+void {\bfseries sync\+Physics\+Velocities\+To\+Components} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&reg)
+\item 
+\Hypertarget{classgcep_1_1_physics_system_a950502ea98e23fd6fab406929638d920}\label{classgcep_1_1_physics_system_a950502ea98e23fd6fab406929638d920} 
+void {\bfseries apply\+Forces} (\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&reg)
+\item 
+\doxymbox{\hyperlink{structgcep_1_1_raycast_hit}{Raycast\+Hit}} \doxymbox{\hyperlink{classgcep_1_1_physics_system_a60a16bc39b366f25a9dc9b3d11ea9cfd}{raycast}} (const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&origin, const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&direction, float max\+Distance)
+\begin{DoxyCompactList}\small\item\em Performs a raycast query in the physics world. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \doxymbox{\hyperlink{classgcep_1_1_physics_system_a51228abcc71bcd006bc7f6c010ce4d78}{Physics\+System}} \& \doxymbox{\hyperlink{classgcep_1_1_physics_system_afd6a297478ce6cf96680f8bee001a455}{get\+Instance}} ()
+\begin{DoxyCompactList}\small\item\em Accesses the singleton instance of \doxylink{classgcep_1_1_physics_system}{Physics\+System}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{classgcep_1_1_physics_system_a5d6d6fdf87528bd9acafa7d6d8e15936}{registry}}
+\begin{DoxyCompactList}\small\item\em Entity-\/\+Component-\/\+System registry. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Singleton wrapper for the engine\textquotesingle{}s physics subsystem. 
+
+\doxylink{classgcep_1_1_physics_system}{Physics\+System} manages the physics simulation, updating the physics world, syncing physics results to entity transforms, and performing queries like raycasts.
+
+It internally owns a \doxylink{classgcep_1_1_physics_world}{Physics\+World} instance and interacts with the ECS Registry to manage Physics\+Components. 
+
+\label{doc-constructors}
+\Hypertarget{classgcep_1_1_physics_system_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgcep_1_1_physics_system_a51228abcc71bcd006bc7f6c010ce4d78}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!PhysicsSystem@{PhysicsSystem}}
+\index{PhysicsSystem@{PhysicsSystem}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{PhysicsSystem()}{PhysicsSystem()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a51228abcc71bcd006bc7f6c010ce4d78} 
+gcep::\+\+Physics\+System::\+\+Physics\+System (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Constructs a new \doxylink{classgcep_1_1_physics_system}{Physics\+System} instance. 
+
+Initializes internal members. For proper usage, prefer using \doxylink{classgcep_1_1_physics_system_afd6a297478ce6cf96680f8bee001a455}{get\+Instance()}. \Hypertarget{classgcep_1_1_physics_system_a312c7b89c54d63c045dad132c4243aab}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!````~PhysicsSystem@{\texorpdfstring{$\sim$}{\string~}PhysicsSystem}}
+\index{````~PhysicsSystem@{\texorpdfstring{$\sim$}{\string~}PhysicsSystem}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}PhysicsSystem()}{\string~PhysicsSystem()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a312c7b89c54d63c045dad132c4243aab} 
+gcep::\+\+Physics\+System::\+\texorpdfstring{$\sim$}{\string~}\+Physics\+System (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Destroys the \doxylink{classgcep_1_1_physics_system}{Physics\+System} instance. 
+
+Cleans up the \doxylink{classgcep_1_1_physics_world}{Physics\+World} and releases resources. \Hypertarget{classgcep_1_1_physics_system_aa311797b90323a76b9269e4ec8ccf0fd}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!PhysicsSystem@{PhysicsSystem}}
+\index{PhysicsSystem@{PhysicsSystem}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{PhysicsSystem()}{PhysicsSystem()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_aa311797b90323a76b9269e4ec8ccf0fd} 
+gcep::\+\+Physics\+System::\+\+Physics\+System (\begin{DoxyParamCaption}\item[{const Physics\+System \&}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+
+
+Deleted copy constructor. 
+
+\doxylink{classgcep_1_1_physics_system}{Physics\+System} is a singleton; copying is not allowed. 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1_physics_system_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1_physics_system_afd6a297478ce6cf96680f8bee001a455}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!getInstance@{getInstance}}
+\index{getInstance@{getInstance}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{getInstance()}{getInstance()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_afd6a297478ce6cf96680f8bee001a455} 
+\doxymbox{\hyperlink{classgcep_1_1_physics_system_a51228abcc71bcd006bc7f6c010ce4d78}{Physics\+System}} \& gcep::\+\+Physics\+System::\+get\+Instance (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Accesses the singleton instance of \doxylink{classgcep_1_1_physics_system}{Physics\+System}. 
+
+\begin{DoxyReturn}{Returns}
+Reference to the \doxylink{classgcep_1_1_physics_system}{Physics\+System} singleton. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_system_a3f1b6b950b11437d9615ecc7a280c051}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!init@{init}}
+\index{init@{init}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a3f1b6b950b11437d9615ecc7a280c051} 
+void gcep::\+\+Physics\+System::\+init (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Initializes the physics subsystem. 
+
+Allocates the \doxylink{classgcep_1_1_physics_world}{Physics\+World}. \Hypertarget{classgcep_1_1_physics_system_a60a16bc39b366f25a9dc9b3d11ea9cfd}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!raycast@{raycast}}
+\index{raycast@{raycast}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{raycast()}{raycast()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a60a16bc39b366f25a9dc9b3d11ea9cfd} 
+\doxymbox{\hyperlink{structgcep_1_1_raycast_hit}{Raycast\+Hit}} gcep::\+\+Physics\+System::\+raycast (\begin{DoxyParamCaption}\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{origin}{, }\item[{const \doxymbox{\hyperlink{classgcep_1_1_vector3}{Vector3}}$<$ float $>$ \&}]{direction}{, }\item[{float}]{max\+Distance}{}\end{DoxyParamCaption})}
+
+
+
+Performs a raycast query in the physics world. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em origin} & Start point of the ray in world space. \\
+\hline
+{\em direction} & Normalized direction vector of the ray. \\
+\hline
+{\em max\+Distance} & Maximum distance to check along the ray. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\doxylink{structgcep_1_1_raycast_hit}{Raycast\+Hit} structure containing hit information. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1_physics_system_a104d711bbd1f9f8cb20b23b44e7aa23b}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!shutdown@{shutdown}}
+\index{shutdown@{shutdown}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{shutdown()}{shutdown()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a104d711bbd1f9f8cb20b23b44e7aa23b} 
+void gcep::\+\+Physics\+System::\+shutdown (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Shuts down the physics subsystem. 
+
+Cleans up the \doxylink{classgcep_1_1_physics_world}{Physics\+World} and releases all associated resources. \Hypertarget{classgcep_1_1_physics_system_afd77e732b70fab29b248810abf0042a3}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!startSimulation@{startSimulation}}
+\index{startSimulation@{startSimulation}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{startSimulation()}{startSimulation()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_afd77e732b70fab29b248810abf0042a3} 
+void gcep::\+\+Physics\+System::\+start\+Simulation (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Starts the physics simulation for all registered entities. 
+
+Typically called before the main simulation loop to create physics bodies for entities with Physics\+Components. \Hypertarget{classgcep_1_1_physics_system_a21714440bfba384f0a035216d45313fb}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!stopSimulation@{stopSimulation}}
+\index{stopSimulation@{stopSimulation}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{stopSimulation()}{stopSimulation()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a21714440bfba384f0a035216d45313fb} 
+void gcep::\+\+Physics\+System::\+stop\+Simulation (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Stops the physics simulation and removes physics bodies. 
+
+Typically called when shutting down or resetting the simulation. \Hypertarget{classgcep_1_1_physics_system_abd88bd2034fbd0933db0752a81a47d57}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!syncPhysicsToTransforms@{syncPhysicsToTransforms}}
+\index{syncPhysicsToTransforms@{syncPhysicsToTransforms}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{syncPhysicsToTransforms()}{syncPhysicsToTransforms()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_abd88bd2034fbd0933db0752a81a47d57} 
+void gcep::\+\+Physics\+System::\+sync\+Physics\+To\+Transforms (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&}]{reg}{}\end{DoxyParamCaption})}
+
+
+
+Synchronizes entity transforms with the current physics simulation. 
+
+Copies updated positions and rotations from the physics bodies into the ECS Registry transforms.
+
+
+\begin{DoxyParams}{Parameters}
+{\em reg} & Reference to the entity Registry containing Physics\+Components and ECS::\+\+Transforms. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_physics_system_a276b51029c3b33bcbde89eb8e13f6dd7}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!syncTransformsToPhysics@{syncTransformsToPhysics}}
+\index{syncTransformsToPhysics@{syncTransformsToPhysics}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{syncTransformsToPhysics()}{syncTransformsToPhysics()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a276b51029c3b33bcbde89eb8e13f6dd7} 
+void gcep::\+\+Physics\+System::\+sync\+Transforms\+To\+Physics (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}} \&}]{reg}{}\end{DoxyParamCaption})}
+
+
+
+Synchronizes physics bodies with the entity transforms. 
+
+Updates physics bodies to match the ECS transforms, useful for kinematic objects or editor manipulation.
+
+
+\begin{DoxyParams}{Parameters}
+{\em reg} & Reference to the entity Registry containing Physics\+Components and ECS::\+\+Transforms. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classgcep_1_1_physics_system_acd5cec16fa5df1f3743d88409bc02df9}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!update@{update}}
+\index{update@{update}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_acd5cec16fa5df1f3743d88409bc02df9} 
+void gcep::\+\+Physics\+System::\+update (\begin{DoxyParamCaption}\item[{float}]{dt}{}\end{DoxyParamCaption})}
+
+
+
+Advances the physics simulation by the given delta time. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dt} & Time step to advance the simulation (in seconds). \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-variable-members}
+\Hypertarget{classgcep_1_1_physics_system_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classgcep_1_1_physics_system_a5d6d6fdf87528bd9acafa7d6d8e15936}\index{gcep::PhysicsSystem@{gcep::PhysicsSystem}!registry@{registry}}
+\index{registry@{registry}!gcep::PhysicsSystem@{gcep::PhysicsSystem}}
+\doxysubsubsection{\texorpdfstring{registry}{registry}}
+{\footnotesize\ttfamily \label{classgcep_1_1_physics_system_a5d6d6fdf87528bd9acafa7d6d8e15936} 
+\doxymbox{\hyperlink{classgcep_1_1_e_c_s_1_1_registry}{ECS::\+\+Registry}}\texorpdfstring{$\ast$}{*} gcep::\+\+Physics\+System::\+registry}
+
+
+
+Entity-\/\+Component-\/\+System registry. 
+
+Holds all entities, including those with Physics\+Components and ECS::\+\+Transforms. Typically this would be private, but exposed here for testing. 
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Physics\+Wrapper/\+physics\+\_\+system.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+Core/\+\+Physics\+Wrapper/\+physics\+\_\+system.\+cpp\end{DoxyCompactItemize}

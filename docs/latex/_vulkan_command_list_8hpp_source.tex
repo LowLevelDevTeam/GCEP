@@ -1,0 +1,37 @@
+\doxysection{Vulkan\+Command\+List.\+hpp}
+\hypertarget{_vulkan_command_list_8hpp_source}{}\label{_vulkan_command_list_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/Commands/VulkanCommandList.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Engine/RHI/Vulkan/Commands/VulkanCommandList.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Externals}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{namespace\ }gcep::rhi::vulkan}
+\DoxyCodeLine{00007\ \{}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{VulkanCommandList}}}
+\DoxyCodeLine{00025\ \{}
+\DoxyCodeLine{00026\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{explicit}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{VulkanCommandList}}(vk::CommandBuffer\ cmd)\ :\ m\_cmd(cmd)\ \{\}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{\string~VulkanCommandList}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{VulkanCommandList}}(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&)\ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00035\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&\ operator=(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00036\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a671330456b6232a12952beec92b86252}{VulkanCommandList}}(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&\&)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00037\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&\ operator=(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list}{VulkanCommandList}}\&\&)\ \ \ \ \ \ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_aaf7edf661afdff70fcf392c3be18f880}{beginRecording}}();}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_ab206290d14e79c41fb22d90ba467abfe}{endRecording}}();}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00059\ \ \ \ \ [[nodiscard]]\ vk::CommandBuffer\ \doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_vulkan_command_list_a36e8d63b02bfa96fe285ceb9faf515c8}{raw}}()\ const\ noexcept\ \{\ \textcolor{keywordflow}{return}\ m\_cmd;\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00063\ \ \ \ \ vk::CommandBuffer\ m\_cmd;}
+\DoxyCodeLine{00064\ \};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \}\ \textcolor{comment}{//\ Namespace\ gcep::rhi::vulkan}}
+
+\end{DoxyCode}

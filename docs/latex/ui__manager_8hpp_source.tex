@@ -1,0 +1,221 @@
+\doxysection{ui\+\_\+manager.\+hpp}
+\hypertarget{ui__manager_8hpp_source}{}\label{ui__manager_8hpp_source}\index{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/UIManager/ui\_manager.hpp@{C:/Users/leoam/CLionProjects/MoteurVulkan/Editor/UIManager/ui\_manager.hpp}}
+\doxymbox{\hyperlink{ui__manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <GLFW/glfw3.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <glm/glm.hpp>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <imgui.h>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <ImGuizmo.h>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <imgui\_impl\_glfw.h>}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ <imgui\_impl\_vulkan.h>}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <vulkan/vulkan\_raii.hpp>}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <Engine/Audio/audio\_system.hpp>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Mesh/Mesh.hpp>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <Engine/RHI/Vulkan/VulkanRHIDataTypes.hpp>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <PhysicsWrapper/physics\_system.hpp>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <Engine/Core/Scene/header/scene\_manager.hpp>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <Engine/Core/ECS/Components/components.hpp>}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{scene__util_8hpp}{Editor/SceneUtils/scene\_util.hpp}}>}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{_helpers_8hpp}{Editor/Helpers.hpp}}>}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{project__loader_8hpp}{Editor/ProjectLoader/project\_loader.hpp}}>}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ <\doxymbox{\hyperlink{content__browser_8hpp}{Editor/ContentBrowser/content\_browser.hpp}}>}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{namespace\ }\doxymbox{\hyperlink{namespacegcep}{gcep}}}
+\DoxyCodeLine{00033\ \{}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_camera}{Camera}};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ ─────────────────────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_im_gui_console_buffer_af2aa6431920048dbc488bef28534c7b3}{ImGuiConsoleBuffer}}\ :\ \textcolor{keyword}{public}\ std::streambuf}
+\DoxyCodeLine{00051\ \{}
+\DoxyCodeLine{00052\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00057\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_im_gui_console_buffer_af2aa6431920048dbc488bef28534c7b3}{ImGuiConsoleBuffer}}(std::streambuf*\ original,\ std::vector<std::string>\&\ log)}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ :\ m\_original(original),\ m\_log(log)}
+\DoxyCodeLine{00059\ \ \ \ \ \{\}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{classgcep_1_1_im_gui_console_buffer_aeb54b20ec639006825993432f5ae0153}{overflow}}(\textcolor{keywordtype}{int}\ c)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00070\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (c\ ==\ \textcolor{charliteral}{'\(\backslash\)n'})}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ m\_log.push\_back(m\_currentLine);}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ m\_currentLine.clear();}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ m\_currentLine\ +=\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{char}\textcolor{keyword}{>}(c);}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ m\_original-\/>sputc(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{char}\textcolor{keyword}{>}(c));}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00085\ \ \ \ \ std::streambuf*\ \ \ \ \ \ \ \ \ \ \ m\_original;}
+\DoxyCodeLine{00086\ \ \ \ \ std::vector<std::string>\&\ m\_log;}
+\DoxyCodeLine{00087\ \ \ \ \ std::string\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_currentLine;}
+\DoxyCodeLine{00088\ \};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{comment}{//\ ─────────────────────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00138\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{classgcep_1_1_ui_manager_a2c51489f1973dfe987a0481589287214}{UiManager}}}
+\DoxyCodeLine{00139\ \{}
+\DoxyCodeLine{00140\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00156\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a2c51489f1973dfe987a0481589287214}{UiManager}}(GLFWwindow*\ window,\ \doxymbox{\hyperlink{classgcep_1_1_s_l_s_1_1_scene_manager}{SLS::SceneManager}}*\ manager,\ \textcolor{keywordtype}{bool}\&\ reload,\ \textcolor{keywordtype}{bool}\&\ close);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00159\ \ \ \ \ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_aab46a59217bba4ad438814703349965b}{\string~UiManager}}();}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a367358f5bc496dbd9e93246d68a12e83}{setInfos}}(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_init_infos}{rhi::vulkan::InitInfos}}*\ initInfos);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a200913dbfb67cd1a783a1b3c5ed0dd53}{uiUpdate}}();}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a005d29738f7c1cbf6d5701fbb6024e3b}{applyLoadedSettings}}();}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a66881db877a1639d1032956b5332187b}{drawGizmoControls}}();}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_abdad91053b2905d6f0c136feb66759c5}{handleGizmoInput}}();}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_a142f57c804db2a009339e19eed5c68c7}{drawGizmo}}();}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordtype}{void}\ drawGizmoMesh(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{rhi::vulkan::Mesh}}\ \&selectedMesh);}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordtype}{void}\ drawGizmoPointLight(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_point_light}{rhi::vulkan::PointLight}}\ \&selectedLight);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{void}\ drawGizmoSpotLight(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_spot_light}{rhi::vulkan::SpotLight}}\ \&selectedLight);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_aadbba5e690c1e205605fc7689532dbee}{setCamera}}(\doxymbox{\hyperlink{classgcep_1_1_camera}{Camera}}*\ pCamera);}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keywordtype}{void}\ setSceneManager(\doxymbox{\hyperlink{classgcep_1_1_s_l_s_1_1_scene_manager}{SLS::SceneManager}}\ *sceneManager);}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{classgcep_1_1_ui_manager_afa2eda085254e6111684350704bb5616}{setProjectLoader}}(\doxymbox{\hyperlink{classpl_1_1_project_loader}{pl::ProjectLoader}}*\ loader)\ \{\ m\_projectLoader\ =\ loader;\ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{comment}{//\ ──\ Initialisation\ helpers\ ────────────────────────────────────────────────}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00235\ \ \ \ \ ImGuiViewport*\ setupViewport();}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00244\ \ \ \ \ ImGuiID\ getDockspaceID();}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordtype}{void}\ drawMainMenuBar();}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{keywordtype}{void}\ initDockspace(\textcolor{keyword}{const}\ ImGuiID\&\ dockspaceId,\ \textcolor{keyword}{const}\ ImGuiViewport*\ viewport);}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keywordtype}{void}\ initConsole();}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{comment}{//\ ──\ Shutdown\ helpers\ ──────────────────────────────────────────────────────}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{void}\ shutdownConsole();}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{comment}{//\ ──\ Per-\/frame\ helpers\ ─────────────────────────────────────────────────────}}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{void}\ beginFrame();}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{void}\ drawViewport();}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{keywordtype}{void}\ drawSettings();}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keywordtype}{void}\ drawSceneHierarchy();}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keywordtype}{void}\ drawEntityProperties();}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keywordtype}{void}\ showMeshInfos(\doxymbox{\hyperlink{classgcep_1_1rhi_1_1vulkan_1_1_mesh}{rhi::vulkan::Mesh}}\ *mesh);}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordtype}{void}\ showSpotLightInfos(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_spot_light}{rhi::vulkan::SpotLight}}\ *spot);}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordtype}{void}\ showPointLightInfos(\doxymbox{\hyperlink{structgcep_1_1rhi_1_1vulkan_1_1_point_light}{rhi::vulkan::PointLight}}\ *point);}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{keywordtype}{void}\ drawAudioControl();}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordtype}{void}\ drawConsole();}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{keywordtype}{void}\ drawBottomBar();}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00342\ \ \ \ \ GLFWwindow*\ m\_window;}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00345\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_showDemoWindow\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00348\ \ \ \ \ ImVec2\ m\_viewportSize\ =\ \{\ 800,\ 600\ \};}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordtype}{bool}\&\ m\_reloadApp;}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{keywordtype}{bool}\&\ m\_closeApp;}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00357\ \ \ \ \ std::vector<rhi::vulkan::Mesh>*\ m\_meshData\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00358\ \ \ \ \ std::vector<rhi::vulkan::PointLight>*\ m\_pointLights\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00359\ \ \ \ \ std::vector<rhi::vulkan::SpotLight>*\ m\_spotLights\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00360\ }
+\DoxyCodeLine{00363\ \ \ \ \ ECS::EntityID\ m\_selectedEntityID\ =\ UINT32\_MAX;}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keywordtype}{float}\ m\_camSpeed\ =\ 5.0f;}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00369\ \ \ \ \ rhi::vulkan::SceneInfos\ m\_sceneInfos;}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00372\ \ \ \ \ rhi::vulkan::GridPushConstant\ m\_gridPC;}
+\DoxyCodeLine{00373\ }
+\DoxyCodeLine{00375\ \ \ \ \ ImGuizmo::OPERATION\ m\_currentGizmoOperation\ =\ ImGuizmo::TRANSLATE;}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00379\ \ \ \ \ ImGuizmo::MODE\ m\_currentGizmoMode\ =\ ImGuizmo::WORLD;}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_useSnap\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{keywordtype}{float}\ m\_snapTranslation[3]\ =\ \{\ 0.5f,\ 0.5f,\ 0.5f\ \};}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordtype}{float}\ m\_snapRotation\ =\ 15.0f;}
+\DoxyCodeLine{00389\ }
+\DoxyCodeLine{00391\ \ \ \ \ \textcolor{keywordtype}{float}\ m\_snapScale\ =\ 0.1f;}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00394\ \ \ \ \ ECS::Registry*\ m\_registry\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00397\ \ \ \ \ Camera*\ m\_cameraRef\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00400\ \ \ \ \ VkDescriptorSet*\ m\_viewportTexture\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00403\ \ \ \ \ rhi::vulkan::VulkanRHI*\ m\_pRHI\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00406\ \ \ \ \ AudioSystem*\ m\_audioSystem\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00409\ \ \ \ \ std::vector<std::shared\_ptr<gcep::AudioSource>>\ m\_audioSources;}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \ \ \ \ \textcolor{comment}{//\ ──\ Console\ ───────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00414\ \ \ \ \ std::vector<std::string>\ m\_consoleItems;}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00417\ \ \ \ \ std::unique\_ptr<ImGuiConsoleBuffer>\ m\_consoleBuffer;}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00420\ \ \ \ \ std::streambuf*\ m\_oldCout\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{comment}{//\ ──\ Project\ ───────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00425\ \ \ \ \ pl::ProjectLoader*\ m\_projectLoader\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00428\ \ \ \ \ gcep::editor::ContentBrowser\ m\_contentBrowser;}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{comment}{//\ ──\ Scene\ ─────────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00431\ }
+\DoxyCodeLine{00433\ \ \ \ \ \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5a}{SimulationState}}\ m\_simulationState\ =\ \doxymbox{\hyperlink{namespacegcep_ae89de9e04e442030938065553f7b4d5aa09d4d696b4e935115b9313e3c412509a}{SimulationState::STOPPED}};}
+\DoxyCodeLine{00434\ }
+\DoxyCodeLine{00436\ \ \ \ \ SLS::SceneManager*\ m\_sceneManager\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00439\ \ \ \ \ std::string\ m\_currentScenePath;}
+\DoxyCodeLine{00440\ }
+\DoxyCodeLine{00441\ \ \ \ \ \textcolor{comment}{//\ ──\ Physics\ ───────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00444\ \ \ \ \ PhysicsSystem\&\ m\_physicsSystem;}
+\DoxyCodeLine{00445\ }
+\DoxyCodeLine{00446\ \ \ \ \ \textcolor{comment}{//\ ──\ Settings\ ──────────────────────────────────────────────────────────────}}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00449\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_showSettings\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00450\ \};}
+\DoxyCodeLine{00451\ }
+\DoxyCodeLine{00452\ \}\ \textcolor{comment}{//\ namespace\ gcep}}
+
+\end{DoxyCode}

@@ -1,0 +1,100 @@
+\doxysection{gcep::\+rhi::\+Mesh\+Cache Class Reference}
+\hypertarget{classgcep_1_1rhi_1_1_mesh_cache}{}\label{classgcep_1_1rhi_1_1_mesh_cache}\index{gcep::rhi::MeshCache@{gcep::rhi::MeshCache}}
+
+
+Maps canonical OBJ paths to their uploaded {\ttfamily \doxylink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} descriptors.  
+
+
+
+
+{\ttfamily \+\#include $<$Mesh\+Cache.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_a172d44c67be45bef2e81fc5eb7e33be7}\label{classgcep_1_1rhi_1_1_mesh_cache_a172d44c67be45bef2e81fc5eb7e33be7} 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} \texorpdfstring{$\ast$}{*} {\bfseries find} (const std::\+filesystem::\+path \&path)
+\begin{DoxyCompactList}\small\item\em Returns a pointer to the cached region for {\ttfamily path}, or {\ttfamily nullptr} if this path has not been uploaded yet. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} \& \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ac220ae6394250cb003c1b2086f5fc570}{insert}} (const std::\+filesystem::\+path \&path, \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} region)
+\begin{DoxyCompactList}\small\item\em Registers a newly uploaded region for {\ttfamily path} with {\ttfamily ref\+Count} = 1. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} \& \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_a43ad71aff0d3247cc545325b6d30e560}{add\+Ref}} (const std::\+filesystem::\+path \&path)
+\begin{DoxyCompactList}\small\item\em Increments the reference count for {\ttfamily path} and returns the region. \end{DoxyCompactList}\item 
+bool \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ad215df694df45de74e51ee149edd62be}{release}} (const std::\+filesystem::\+path \&path)
+\begin{DoxyCompactList}\small\item\em Decrements the reference count for {\ttfamily path}, erasing the entry at zero. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{classgcep_1_1rhi_1_1_mesh_cache_ac734e1de7bda25a287a54372745d4219}{patch\+After\+Compaction}} (uint32\+\_\+t removed\+Vertex\+Offset, uint32\+\_\+t removed\+First\+Index, uint32\+\_\+t removed\+Vertex\+Count, uint32\+\_\+t removed\+Index\+Count)
+\begin{DoxyCompactList}\small\item\em Patches all cached offsets after a compaction closed a hole in the buffers. \end{DoxyCompactList}\item 
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_a7a7bd3a13ff3e1056a4494b2c60975b4}\label{classgcep_1_1rhi_1_1_mesh_cache_a7a7bd3a13ff3e1056a4494b2c60975b4} 
+const std::\+unordered\+\_\+map$<$ std::\+string, \doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} $>$ \& {\bfseries all} () const
+\begin{DoxyCompactList}\small\item\em Returns a read-\/only view of all entries, keyed by canonical path string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Maps canonical OBJ paths to their uploaded {\ttfamily \doxylink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} descriptors. 
+
+Lives inside {\ttfamily Vulkan\+RHI} as a plain member. Ref-\/counted so GPU memory is only reclaimed when the last entity referencing a given OBJ is destroyed. 
+
+\label{doc-func-members}
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_a43ad71aff0d3247cc545325b6d30e560}\index{gcep::rhi::MeshCache@{gcep::rhi::MeshCache}!addRef@{addRef}}
+\index{addRef@{addRef}!gcep::rhi::MeshCache@{gcep::rhi::MeshCache}}
+\doxysubsubsection{\texorpdfstring{addRef()}{addRef()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1_mesh_cache_a43ad71aff0d3247cc545325b6d30e560} 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} \& gcep::\+rhi::\+\+Mesh\+Cache::\+add\+Ref (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{path}{}\end{DoxyParamCaption})}
+
+
+
+Increments the reference count for {\ttfamily path} and returns the region. 
+
+\begin{DoxyPrecond}{Precondition}
+{\ttfamily path} must already be present in the cache. 
+\end{DoxyPrecond}
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_ac220ae6394250cb003c1b2086f5fc570}\index{gcep::rhi::MeshCache@{gcep::rhi::MeshCache}!insert@{insert}}
+\index{insert@{insert}!gcep::rhi::MeshCache@{gcep::rhi::MeshCache}}
+\doxysubsubsection{\texorpdfstring{insert()}{insert()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1_mesh_cache_ac220ae6394250cb003c1b2086f5fc570} 
+\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}} \& gcep::\+rhi::\+\+Mesh\+Cache::\+insert (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{path}{, }\item[{\doxymbox{\hyperlink{structgcep_1_1rhi_1_1_geometry_region}{Geometry\+Region}}}]{region}{}\end{DoxyParamCaption})}
+
+
+
+Registers a newly uploaded region for {\ttfamily path} with {\ttfamily ref\+Count} = 1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Path to the source OBJ file. \\
+\hline
+{\em region} & Descriptor containing offsets and vertex/\+index counts. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to the newly inserted entry. 
+\end{DoxyReturn}
+\Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_ac734e1de7bda25a287a54372745d4219}\index{gcep::rhi::MeshCache@{gcep::rhi::MeshCache}!patchAfterCompaction@{patchAfterCompaction}}
+\index{patchAfterCompaction@{patchAfterCompaction}!gcep::rhi::MeshCache@{gcep::rhi::MeshCache}}
+\doxysubsubsection{\texorpdfstring{patchAfterCompaction()}{patchAfterCompaction()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1_mesh_cache_ac734e1de7bda25a287a54372745d4219} 
+void gcep::\+rhi::\+\+Mesh\+Cache::\+patch\+After\+Compaction (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{removed\+Vertex\+Offset}{, }\item[{uint32\+\_\+t}]{removed\+First\+Index}{, }\item[{uint32\+\_\+t}]{removed\+Vertex\+Count}{, }\item[{uint32\+\_\+t}]{removed\+Index\+Count}{}\end{DoxyParamCaption})}
+
+
+
+Patches all cached offsets after a compaction closed a hole in the buffers. 
+
+Regions starting at or after {\ttfamily removed\+Vertex\+Offset} + {\ttfamily removed\+Vertex\+Count} are shifted down by {\ttfamily removed\+Vertex\+Count} (and analogously for indices). \Hypertarget{classgcep_1_1rhi_1_1_mesh_cache_ad215df694df45de74e51ee149edd62be}\index{gcep::rhi::MeshCache@{gcep::rhi::MeshCache}!release@{release}}
+\index{release@{release}!gcep::rhi::MeshCache@{gcep::rhi::MeshCache}}
+\doxysubsubsection{\texorpdfstring{release()}{release()}}
+{\footnotesize\ttfamily \label{classgcep_1_1rhi_1_1_mesh_cache_ad215df694df45de74e51ee149edd62be} 
+bool gcep::\+rhi::\+\+Mesh\+Cache::\+release (\begin{DoxyParamCaption}\item[{const std::\+filesystem::\+path \&}]{path}{}\end{DoxyParamCaption})}
+
+
+
+Decrements the reference count for {\ttfamily path}, erasing the entry at zero. 
+
+\begin{DoxyReturn}{Returns}
+{\ttfamily true} if the count hit zero and the caller must compact the GPU buffers. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Mesh/\+Mesh\+Cache.\+hpp\item 
+C:\+/\+\+Users/\+leoam/\+\+CLion\+Projects/\+\+Moteur\+Vulkan/\+\+Engine/\+\+RHI/\+\+Mesh/\+Mesh\+Cache.\+cpp\end{DoxyCompactItemize}
