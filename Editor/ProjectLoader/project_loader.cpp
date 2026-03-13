@@ -11,6 +11,9 @@
 #include <ctime>
 #include <iostream>
 
+#include "Editor/Helpers.hpp"
+#include "Editor/ContentBrowser/ContentBrowser.hpp"
+
 namespace pl
 {
     static std::filesystem::path getAppDataPath()
@@ -213,10 +216,6 @@ namespace pl
                 std::filesystem::create_directories(m_info.contentPath);
                 stillSelecting = false;
                 loadProject(p);
-
-
-                std::cerr << "Test2\n";
-
             }
         }
 
@@ -226,7 +225,6 @@ namespace pl
         {
             if (m_projectName[0] == '\0')
             {
-                std::cerr << "Test1\n";
 
                 ImGui::OpenPopup("Error");
             }
@@ -235,7 +233,6 @@ namespace pl
                 std::filesystem::path projectPath = getAppDataPath() / m_projectName;
                 std::filesystem::create_directories(projectPath / "Content");
                 std::filesystem::create_directories(projectPath/ "Content"/"Scenes");
-
                 m_info.projectPath = projectPath;
                 m_info.projectName = m_projectName;
                 m_info.contentPath = projectPath / "Content" ;

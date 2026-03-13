@@ -20,7 +20,7 @@
 namespace gcep
 {
 
-UiManager::UiManager(GLFWwindow* window, bool& reload, bool& close)
+UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager,bool& reload, bool& close)
     : physicsSystem(PhysicsSystem::getInstance()),
       reloadApp(reload),
       closeApp(close),
@@ -28,7 +28,8 @@ UiManager::UiManager(GLFWwindow* window, bool& reload, bool& close)
 {
     m_window    = window;
     audioSystem = gcep::AudioSystem::getInstance();
-    // ImGui déjà initialisé par ImGuiManager — on ne touche à rien ici
+    m_sceneManager = manager;
+    m_registry = &m_sceneManager->current().getRegistry();
     initConsole();
     Log::info("UiManager initialized successfully");
 }
@@ -44,16 +45,12 @@ void UiManager::setCamera(Camera *pCamera)
     cameraRef = pCamera;
 }
 
-void UiManager::setSceneManager(SLS::SceneManager *sceneManager)
-{
-    m_sceneManager = sceneManager;
-    m_registry = &sceneManager->current().getRegistry();
-}
 
 
 void UiManager::setCurrentScenePath(const std::string& path)
 {
     m_currentScenePath = path;
+
     m_registry = &m_sceneManager->current().getRegistry();
 }
 

@@ -141,7 +141,7 @@ public:
     ///
     /// @param window    The application GLFW window. Must outlive this object.
     /// @param initInfo  Vulkan backend initialisation info from @c VulkanRHI::getUIInitInfo().
-    UiManager(GLFWwindow* window, bool& reload, bool& close);
+    UiManager(GLFWwindow* window, SLS::SceneManager* manager, bool& reload, bool& close);
 
     /// @brief Calls @c shutdownConsole() to restore stream buffers.
     ~UiManager();
@@ -197,7 +197,6 @@ public:
     /// @param pCamera  Editor camera instance. Must outlive this object.
     void setCamera(Camera* pCamera);
 
-    void setSceneManager(SLS::SceneManager* sceneManager);
 
     void setCurrentScenePath(const std::string &path);
 

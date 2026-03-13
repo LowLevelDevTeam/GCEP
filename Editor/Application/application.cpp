@@ -116,6 +116,7 @@ void gcep::application::init()
     // UiManager
     m_uiManager = std::make_unique<UiManager>(
         m_window->getGlfwWindow(),
+        &SLS::SceneManager::instance(),
         m_reloadRequested,
         m_isRunning
     );
@@ -127,18 +128,13 @@ void gcep::application::init()
 
     m_currentScenePath = pl::project_loader::instance().getProjectInfo().startScene.string();
     m_uiManager->setCurrentScenePath(m_currentScenePath);
-    m_uiManager->setSceneManager(&SLS::SceneManager::instance());
 
     m_lastFrameTime = glfwGetTime();
 }
 
 void gcep::application::shutdown()
 {
-
     m_physicsSystem->shutdown();
-   //
-
-
     m_input.reset();
     m_camera.reset();
     m_rhi->cleanup();
@@ -147,7 +143,6 @@ void gcep::application::shutdown()
     m_rhi.reset();
     m_imguiManager.reset();
     m_window->destroy();
-
 }
 
 void gcep::application::update(float deltaTime)
@@ -167,7 +162,7 @@ void gcep::application::update(float deltaTime)
 float gcep::application::computeDeltaTime()
 {
     double currentTime = glfwGetTime();
-    float deltaTime = static_cast<float>(currentTime - m_lastFrameTime);
+    auto deltaTime = static_cast<float>(currentTime - m_lastFrameTime);
     m_lastFrameTime = currentTime;
     return deltaTime;
 }

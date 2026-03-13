@@ -2,6 +2,7 @@
 
 #include <Externals/imgui/imgui_internal.h>
 #include <filesystem>
+#include <fstream>
 #include "font_awesome.hpp"
 
 namespace gcep
@@ -134,6 +135,5 @@ inline std::string getFileIcon(const std::filesystem::path& file) {
     if (ext == ".zip" || ext == ".rar")                    return ICON_FA_FILE_ARCHIVE_O;
     return ICON_FA_FILE;
 }
-
 
 } // Namespace gcep

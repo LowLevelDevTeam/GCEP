@@ -7,6 +7,7 @@
 #include <Externals/rapidjson/stringbuffer.h>
 #include <Externals/rapidjson/istreamwrapper.h>
 
+
 namespace gcep { struct ProjectInfo; }
 
 namespace pl
@@ -70,6 +71,9 @@ namespace pl
 
         void loadProject(const std::filesystem::path& projFile);
         void writeProjectFile();
+
+        void writeDefaultSceneFile();
+
         std::string nowISO8601();
 
         GLFWwindow*  m_window = nullptr;

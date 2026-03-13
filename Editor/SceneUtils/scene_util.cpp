@@ -89,4 +89,6 @@ ECS::EntityID spawnTorus(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::ve
     return spawnAsset(scene, rhi, "Assets/Models/torus.obj", pos);
 }
 
+
+
 } // namespace gcep::editor
