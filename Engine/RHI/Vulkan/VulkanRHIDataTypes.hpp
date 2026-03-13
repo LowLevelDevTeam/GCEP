@@ -95,14 +95,101 @@ struct GPUMeshData
 struct SceneUBO
 {
     glm::vec3 lightDir;    ///< Normalized world-space direction pointing TOWARD the light source.
-    float     _pad0;       ///< Padding to satisfy std430 vec3 alignment.
+    float cellSize     = 1.0f;
     glm::vec3 lightColor;  ///< Linear RGB color and intensity of the directional light.
-    float     _pad1;       ///< Padding to satisfy std430 vec3 alignment.
+    float thickEvery   = 10.0f;
     glm::vec3 ambientColor;///< Linear RGB ambient term added to all fragments regardless of normal.
-    float     _pad2;       ///< Padding to satisfy std430 vec3 alignment.
+    float fadeDistance = 100.0f;
     glm::vec3 cameraPos;   ///< World-space camera position used to compute the view vector V.
-    float     _pad3;       ///< Padding to satisfy std430 vec3 alignment.
+    float lineWidth    = 1.0f;
 };
+
+
+/// @brief CPU-side description of a point light.
+///
+/// A point light radiates equally in all directions. Attenuation follows the
+/// physically-based inverse-square law, clamped to a maximum influence radius
+/// of @c radius world-space units.
+///
+/// @note Keep fields in sync with @c GPULight layout offsets.
+struct PointLight
+{
+    Vector3<float> position  = { 0.0f, 0.0f, 0.0f }; ///< World-space origin.
+    Vector3<float> color     = { 1.0f, 1.0f, 1.0f }; ///< Linear-space RGB color.
+    float     intensity = 1.0f;                 ///< Luminous intensity scalar (lm/sr equivalent).
+    float     radius    = 10.0f;                ///< Maximum influence radius in world units.
+    std::string name = "Unknown";
+    ECS::EntityID id = ECS::INVALID_VALUE;
+};
+
+/// @brief CPU-side description of a spot light.
+///
+/// A spot light illuminates a cone defined by @c innerCutoffDeg and
+/// @c outerCutoffDeg (both in degrees, measured from the central axis).
+/// Between the two angles the intensity is smoothly attenuated using a
+/// cosine-based falloff. Beyond @c radius the light has no influence.
+///
+/// @note Keep fields in sync with @c GPULight layout offsets.
+struct SpotLight
+{
+    Vector3<float> position       = { 0.0f,  0.0f,  0.0f }; ///< World-space origin.
+    Vector3<float> direction      = { 0.0f,  0.0f, -1.0f }; ///< Unit vector pointing down the cone axis.
+    Vector3<float> color          = { 1.0f,  1.0f,  1.0f }; ///< Linear-space RGB color.
+    float     intensity      = 1.0f;                  ///< Luminous intensity scalar.
+    float     radius         = 20.0f;                 ///< Maximum influence radius in world units.
+    float     innerCutoffDeg = 15.0f;                 ///< Full-brightness cone half-angle (degrees).
+    float     outerCutoffDeg = 30.0f;                 ///< Zero-brightness cone half-angle (degrees).
+    bool      showGizmo      = true;                  ///< When false the cone wireframe gizmo is hidden.
+    std::string name = "Unknown";
+    ECS::EntityID id = ECS::INVALID_VALUE;
+};
+
+// ============================================================================
+// GPU-mapped structs (std140 / explicit padding)
+// ============================================================================
+
+/// @brief Tightly-packed GPU light entry.  Laid out as std430 so the Slang
+///        @c StructuredBuffer can address it with @c sizeof == 64 bytes.
+///
+/// Both @c PointLight and @c SpotLight are packed into a single union-like
+/// structure. Fields unused by a given light type are zeroed on upload.
+struct alignas(16) GPULight
+{
+    glm::vec3 position;   ///< World-space position.
+    uint32_t  type;       ///< @c LightType cast to uint.
+    glm::vec3 color;      ///< Linear-space RGB, pre-multiplied by intensity.
+    float     intensity;  ///< Raw intensity; used separately for HDR bloom budgeting.
+    glm::vec3 direction;  ///< Normalized cone axis (spot lights only; zero for point).
+    float     radius;     ///< Influence radius; fragment discards light beyond this.
+    float     innerCos;   ///< cos(innerCutoffDeg) - full-brightness threshold.
+    float     outerCos;   ///< cos(outerCutoffDeg) - zero-brightness threshold.
+    float     _pad[2];    ///< Explicit padding to 64 bytes.
+};
+static_assert(sizeof(GPULight) == 64, "GPULight must be 64 bytes for SSBO stride");
+
+/// @brief Metadata uniform uploaded alongside the light SSBO.
+///
+/// The Slang compute shader reads @c lightCount to early-exit per-thread
+/// light loops, avoiding dead iterations over unpopulated slots.
+struct alignas(16) LightMetaUBO
+{
+    uint32_t lightCount = 0u; ///< Number of active entries in the @c GPULight SSBO.
+    float    _pad[3]    = {}; ///< Explicit std140 padding to 16 bytes.
+};
+static_assert(sizeof(LightMetaUBO) == 16, "LightMetaUBO must be 16 bytes (std140)");
+
+/// @brief Push-constant block passed to the lighting compute shader.
+///
+/// Fits inside the guaranteed 128-byte push-constant budget.
+struct LightingPushConstants
+{
+    glm::mat4 invViewProj; ///< Inverse of proj * view; used to reconstruct world position from depth.
+    glm::vec3 cameraPos;   ///< World-space eye position for specular computation.
+    float     _pad0;       ///< Explicit padding.
+    glm::vec2 screenSize;  ///< Render-target dimensions in pixels.
+    float     _pad1[2];    ///< Explicit padding to 16-byte boundary.
+};
+static_assert(sizeof(LightingPushConstants) == 96, "LightingPushConstants must be 96 bytes");
 
 /// @brief Frustum plane data passed as a push constant to the culling compute shader.
 ///
@@ -127,27 +214,56 @@ struct SceneInfos
     glm::vec3 ambientColor   = {0.2f, 0.2f, 0.2f};
     glm::vec3 lightColor     = {0.5f, 0.5f, 0.5f};
     glm::vec3 lightDirection = {1.0f, 1.0f, 0.0f};
+    float cellSize     = 1.0f;
+    float thickEvery   = 10.0f;
+    float fadeDistance = 100.0f;
+    float lineWidth    = 1.0f;
 };
 
 struct InitInfos
 {
     VulkanRHI* instance;
     std::vector<Mesh>* meshData;
+    std::vector<PointLight>* pointLights;
+    std::vector<SpotLight>* spotLights;
     ECS::Registry* registry;
     VkDescriptorSet* ds;
 };
 
-// TODO: Fit in 128 bytes - Maybe invViewProjMatrix + viewMatrix and drop grid options = 128 bytes
-struct GridPushConstant
+struct GridPushConstant // mirrors Grid.slang
 {
-    glm::mat4 invView;
-    glm::mat4 invProj;
+    glm::mat4 invViewProj;
     glm::mat4 viewProj;
-
-    float cellSize     = 1.0f;
-    float thickEvery   = 10.0f;
-    float fadeDistance = 100.0f;
-    float lineWidth    = 1.0f;
 };
+static_assert(sizeof(GridPushConstant) <= 128, "GridPushConstants exceeds push constant limit");
+
+struct SpritePushConstants  // mirrors Gizmo_LightSprite.slang
+{
+    glm::mat4 viewProj;
+    glm::vec3 worldPos;
+    float     halfSize;
+    glm::vec3 color;
+    float     _pad;
+    glm::vec3 cameraRight;
+    float     _pad2;
+    glm::vec3 cameraUp;
+    float     _pad3;
+};
+static_assert(sizeof(SpritePushConstants) <= 128, "SpritePushConstants exceeds push constant limit");
+
+struct ConePushConstants
+{
+    glm::mat4 viewProj;
+    glm::vec3 apex;
+    float     length;
+    glm::vec3 direction;
+    float     outerCos;
+    glm::vec3 color;
+    float     innerCos;
+    float     alpha;
+    uint32_t  visible;
+    float     _pad[2];
+};
+static_assert(sizeof(ConePushConstants) <= 128, "ConePushConstants exceeds push constant limit");
 
 } // Namespace gcep::rhi::vulkan

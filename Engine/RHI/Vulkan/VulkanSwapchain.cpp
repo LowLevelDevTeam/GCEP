@@ -126,9 +126,27 @@ vk::Extent2D VulkanSwapchain::chooseExtent(const vk::SurfaceCapabilitiesKHR& cap
     };
 }
 
-vk::ResultValue<uint32_t> VulkanSwapchain::acquireNextImage(const vk::raii::Semaphore& signalSemaphore) const
+// Fixes versions of Vulkan that use std::pair instead of vk::ResultValue
+template<typename T>
+concept HasFirstSecond = requires(T t) {
+    t.first;
+    t.second;
+};
+
+template<HasFirstSecond T>
+std::pair<vk::Result, uint32_t> extractResult(T& result) {
+    return { result.first, result.second };
+}
+
+template<typename T>
+std::pair<vk::Result, uint32_t> extractResult(T& result) {
+    return { result.result, result.value };
+}
+
+std::pair<vk::Result, uint32_t> VulkanSwapchain::acquireNextImage(const vk::raii::Semaphore& signalSemaphore) const
 {
-    return m_swapchain.acquireNextImage(UINT64_MAX, *signalSemaphore, nullptr);
+    auto result = m_swapchain.acquireNextImage(UINT64_MAX, *signalSemaphore, nullptr);
+    return extractResult(result);
 }
 
 } // Namespace gcep::rhi::vulkan

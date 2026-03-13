@@ -13,18 +13,6 @@ namespace gcep::ECS
         }
     }
 
-
-    template<typename... Args>
-    View<Args...>::Iterator& View<Args...>::Iterator::operator++()
-    {
-        do {
-        m_currentEntity++;
-        }
-        while (m_currentEntity != m_lastEntity && !m_view.match(*m_currentEntity));
-
-        return *this;
-    }
-
     template<typename... Args>
     EntityID View<Args...>::Iterator::operator*() const
     {

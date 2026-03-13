@@ -5,8 +5,8 @@
 #include <algorithm>
 
 // Core
-#include "Vector3.hpp"
-#include "Quaternion.hpp"
+#include "vector3.hpp"
+#include "quaternion.hpp"
 
 namespace gcep
 {
