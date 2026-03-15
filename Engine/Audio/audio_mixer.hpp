@@ -27,4 +27,4 @@ namespace gcep
         const AudioVoice* m_voices = nullptr;
         size_t m_voiceCount = 0;
     };
-} // gcep
+} // namespace gcep

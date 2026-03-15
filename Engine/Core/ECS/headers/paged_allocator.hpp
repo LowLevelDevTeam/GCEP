@@ -1,4 +1,6 @@
 #pragma once
+
+// STL
 #include <bit>
 #include <vector>
 
@@ -74,6 +76,6 @@ namespace gcep::ECS
          */
         void allocatePages(std::size_t pageNumber);
     };
-}
+} // namespace gcep::ECS
 
-#include <Engine/Core/ECS/detail/paged_allocator.inl>
+#include <ECS/detail/paged_allocator.inl>

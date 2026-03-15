@@ -34,4 +34,4 @@ namespace gcep
     {
         return m_up;
     }
-} // gcep
+} // namespace gcep

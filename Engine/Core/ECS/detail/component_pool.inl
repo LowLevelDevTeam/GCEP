@@ -1,10 +1,12 @@
 #pragma once
+
 #ifdef __GNUG__
     #include <cxxabi.h>
     #include <cstdlib>
 #endif
 
-namespace gcep::ECS {
+namespace gcep::ECS
+{
     template <ComponentConcept  T>
     void ComponentPool<T>::addDefault(EntityID entity)
     {
@@ -99,5 +101,4 @@ namespace gcep::ECS {
         T component = SER::BinarySerializer<T>::deserialize(archive);
         add(entity, std::move(component));
     }
-}
-
+} // namespace gcep::ECS

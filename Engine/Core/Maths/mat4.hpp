@@ -1,12 +1,12 @@
 #pragma once
 
-// STL
-#include <cmath>
-#include <algorithm>
-
-// Core
+// Internals
 #include "vector3.hpp"
 #include "quaternion.hpp"
+
+// STL
+#include <algorithm>
+#include <cmath>
 
 namespace gcep
 {
@@ -227,6 +227,6 @@ namespace gcep
         /** @brief Matrix elements in row-major order. */
         T m[4][4];
     };
-} // gcep
+} // namespace gcep
 
 #include "mat4.inl"

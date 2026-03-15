@@ -1,18 +1,16 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <cstddef>
-#include <cstdint>
 
+// Internals
 #include <Maths/vector2.hpp>
 #include <Maths/vector3.hpp>
 #include <Maths/mat3.hpp>
 #include <Maths/mat4.hpp>
 
-// ⚠ mat4.hpp retiré : il définit (ou inclut) une macro `mat4` qui écrase
-//   le nom du constructeur Mat4<T>::mat4() dans mat4.inl.
-//   Si tu as besoin de sérialiser des Mat4, inclus mat4.hpp APRÈS avoir
-//   fait #undef mat4, ou corrige la macro dans mat4.hpp directement.
+// STL
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <string>
 
 namespace gcep::SER
 {
@@ -105,6 +103,6 @@ namespace gcep::SER
         std::string  m_filename;
         bool         m_isWriting;
     };
-}
+} // namespace gcep::SER
 
-#include <Engine/Core/ECS/detail/archive.inl>
+#include <ECS/detail/archive.inl>

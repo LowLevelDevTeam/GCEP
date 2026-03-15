@@ -1,11 +1,14 @@
 #pragma once
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
 
+// Externals
 #include <Externals/rapidjson/prettywriter.h>
 #include <Externals/rapidjson/stringbuffer.h>
 #include <Externals/rapidjson/istreamwrapper.h>
+
+// STL
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 
 namespace gcep::SER
 {
@@ -131,7 +134,6 @@ namespace gcep::SER
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val), m_alloc);
     }
 
-
     inline void JsonWriteArchive::writeString(const std::string& key, const std::string& val)
     {
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val.c_str(), m_alloc), m_alloc);
@@ -140,7 +142,6 @@ namespace gcep::SER
     {
         m_doc.AddMember("scene_name", rapidjson::Value(name.c_str(), m_alloc), m_alloc);
     }
-
 
     inline JsonReadArchive::JsonReadArchive(const std::string& filename)
     {
@@ -244,4 +245,4 @@ namespace gcep::SER
             return m_doc["scene_name"].GetString();
         return "Unnamed Scene";
     }
-}
+} // namespace gcep::SER

@@ -1,6 +1,10 @@
 #pragma once
+
+// Internals
 #include <ECS/headers/archive.hpp>
-#include <ECS/headers/ArchiveField.hpp>
+#include <ECS/headers/archive_field.hpp>
+
+// Externals
 #include <boost/pfr.hpp>
 
 namespace gcep::SER
@@ -24,4 +28,4 @@ namespace gcep::SER
             return component;
         }
     };
-}
+} // namespace gcep::SER

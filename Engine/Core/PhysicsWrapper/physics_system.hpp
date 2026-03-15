@@ -1,11 +1,13 @@
 #pragma once
 
-#include <memory>
-
-#include "physics_world.hpp"
-#include <Engine/Core/ECS/Components/physics_component.hpp>
+// Internals
+#include <ECS/Components/physics_component.hpp>
 #include <ECS/headers/registry.hpp>
-#include "raycast_hit.hpp"
+#include <PhysicsWrapper/physics_world.hpp>
+#include <PhysicsWrapper/raycast_hit.hpp>
+
+// STL
+#include <memory>
 
 namespace gcep
 {

@@ -28,8 +28,6 @@ namespace gcep::ECS
         }
     }
 
-
-
     template<typename T>
     T& PagedAllocator<T>::get(size_t index)
     {
@@ -48,7 +46,6 @@ namespace gcep::ECS
         return m_pages[pageNumber][index & PAGE_MASK];
     }
 
-
     template <typename T>
     void PagedAllocator<T>::allocatePages(size_t pageNumber)
     {
@@ -63,4 +60,4 @@ namespace gcep::ECS
             std::fill_n(m_pages[pageNumber], PAGE_SIZE, m_defaultValue);
         }
     }
-}
+} // namespace gcep::ECS

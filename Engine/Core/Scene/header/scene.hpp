@@ -1,25 +1,31 @@
 #pragma once
+
+// Internals
+#include <ECS/headers/registry.hpp>
+#include <ECS/Components/components.hpp>
+#include <Maths/vector3.hpp>
+#include <Maths/vector4.hpp>
+#include <Scene/header/binary_scene_snapshot.hpp>
+#include <Scene/header/json_scene_snapshot.hpp>
+
+// STL
 #include <string>
 #include <vector>
-#include <ECS/headers/registry.hpp>
-#include <Scene/header/json_scene_snapshot.hpp>
-#include <Scene/header/binary_scene_snapshot.hpp>
-#include <Engine/Core/Maths/vector3.hpp>
-#include <Engine/Core/Maths/vector4.hpp>
-#include <Engine/Core/ECS/Components/components.hpp>
 
-namespace gcep::rhi::vulkan {
+// Forward declarations
+namespace gcep::rhi::vulkan
+{
     class VulkanRHI;
 }
 
-namespace  gcep::SLS
+namespace gcep::SLS
 {
     struct SceneSettings
     {
-        mth::Vector4<float> clearColor     = { 0.1f, 0.1f, 0.1f, 1.0f };
-        Vector3<float>      ambientColor   = { 0.2f, 0.2f, 0.2f };
-        Vector3<float>      lightColor     = { 0.5f, 0.5f, 0.5f };
-        Vector3<float>      lightDirection = { 1.0f, 1.0f, 0.0f };
+        Vector4<float> clearColor     = { 0.1f, 0.1f, 0.1f, 1.0f };
+        Vector3<float> ambientColor   = { 0.2f, 0.2f, 0.2f };
+        Vector3<float> lightColor     = { 0.5f, 0.5f, 0.5f };
+        Vector3<float> lightDirection = { 1.0f, 1.0f, 0.0f };
     };
 
     class Scene
@@ -55,16 +61,12 @@ namespace  gcep::SLS
         void setSceneSettings(const SceneSettings& settings) { m_settings = settings; }
         SceneSettings& getSceneSettings() { return m_settings; }
     private:
-
-
         std::string m_name;
         ECS::Registry m_registry;
         SceneSettings m_settings;
-
     };
+} // namespace gcep::SLS
 
-}
-
-#include  <Engine/Core/Scene/detail/scene.inl>
-#include <Engine/Core/Scene/detail/json_scene_snapshot.inl>
-#include <Engine/Core/Scene/detail/binary_scene_snapshot.inl>
+#include <Scene/detail/scene.inl>
+#include <Scene/detail/json_scene_snapshot.inl>
+#include <Scene/detail/binary_scene_snapshot.inl>

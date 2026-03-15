@@ -19,4 +19,4 @@ namespace gcep
         bool isLooping = false;
         bool isActive = false;
     };
-} // gcep
+} // namespace gcep

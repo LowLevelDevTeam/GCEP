@@ -34,7 +34,7 @@ namespace gcep::ECS
     }
 
     template<ComponentConcept T, typename... Args>
-T& Registry::addComponent(EntityID entityID, Args&&... args)
+    T& Registry::addComponent(EntityID entityID, Args&&... args)
     {
         uint32_t id = ComponentIDGenerator::get<T>();
 
@@ -107,5 +107,4 @@ T& Registry::addComponent(EntityID entityID, Args&&... args)
         }
         m_idGenerator.destroyEntity(toRemove);
     }
-
-}
+} // namespace gcep::ECS

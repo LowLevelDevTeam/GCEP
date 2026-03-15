@@ -1,3 +1,4 @@
+// STL
 #include <cmath>
 
 namespace gcep
@@ -221,4 +222,4 @@ namespace gcep
         cosTheta = max(static_cast<T>(-1), min(static_cast<T>(1), cosTheta));
         return std::acos(cosTheta) * static_cast<T>(180.0 / std::numbers::pi_v<float>);
     }
-} // gcep
+} // namespace gcep

@@ -1,4 +1,4 @@
-namespace gcep::mth
+namespace gcep
 {
     // Constructors
     template<typename T>
@@ -195,5 +195,4 @@ namespace gcep::mth
         cosTheta = std::max(static_cast<T>(-1), std::min(static_cast<T>(1), cosTheta));
         return std::acos(cosTheta) * static_cast<T>(180.0 / std::numbers::pi_v<double>);
     }
-
 } // namespace gcep

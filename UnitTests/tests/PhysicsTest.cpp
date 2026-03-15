@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "Engine/Core/PhysicsWrapper/physics_shape.hpp"
-#include "Engine/Core/PhysicsWrapper/physics_world.hpp"
-#include "Engine/Core/PhysicsWrapper/physics_system.hpp"
-#include <Engine/Core/ECS/headers/registry.hpp>
+// Internals
+#include <ECS/headers/registry.hpp>
+#include <PhysicsWrapper/physics_shape.hpp>
+#include <PhysicsWrapper/physics_world.hpp>
+#include <PhysicsWrapper/physics_system.hpp>
 
 using namespace gcep;
 

@@ -57,8 +57,6 @@ add_subdirectory(Externals)
 #    add_subdirectory(UnitTests)
 #endif()
 
-
-
 add_library(GCExternals INTERFACE)
 target_include_directories(GCExternals INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -99,7 +97,7 @@ target_link_libraries(GCEngineLib PRIVATE GCExternals)
 
 # Add top level directories as include paths e.g. <Editor/...> or <Engine/...>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-# e.g. <RHI/RHI.hpp>
+# e.g. <Log/log.hpp>
 target_include_directories(GCEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Core)
 # Generated scripting config
 target_include_directories(GCEngine PRIVATE ${GCE_SCRIPT_CONFIG_OUT})
@@ -111,6 +109,4 @@ add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 # Copy the test textures
 copy_textures(Textures)
 
-add_dependencies(GCEngine Shaders Textures)
-add_dependencies(GCEngine GCEngineScripts)
-add_dependencies(GCEngine GCEngineScripts)
+add_dependencies(GCEngine Shaders Textures GCEngineScripts)

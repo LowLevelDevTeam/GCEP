@@ -1,11 +1,11 @@
 #pragma once
 
-// STL
-#include <cmath>
-#include <algorithm>
-
-// Core
+// Internals
 #include "vector3.hpp"
+
+// STL
+#include <algorithm>
+#include <cmath>
 
 namespace gcep
 {
@@ -398,4 +398,4 @@ namespace gcep
          */
         [[nodiscard]] Vector3<float> ToEuler() const;
     };
-} // gcep
+} // namespace gcep

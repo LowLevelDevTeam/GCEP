@@ -150,4 +150,4 @@ namespace gcep
 
         return current + delta / distance * maxDistanceDelta;
     }
-} // gcep
+} // namespace gcep

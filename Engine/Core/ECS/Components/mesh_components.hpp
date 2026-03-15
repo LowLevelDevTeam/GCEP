@@ -1,6 +1,7 @@
 #pragma once
-#include <Engine/Core/ECS/headers/component_registry.hpp>
 
+// Internals
+#include <ECS/headers/component_registry.hpp>
 
 namespace gcep::ECS
 {
@@ -10,5 +11,4 @@ namespace gcep::ECS
         static inline bool _gcep_registered =
                 ComponentRegistry::instance().reg<MeshComponent>();
     };
-
-}
+} // namespace gcep::ECS

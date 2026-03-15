@@ -1,20 +1,25 @@
 #include "project_loader.hpp"
-#include <tinyfiledialogs.h>
+
+// Externals
 #include <imgui.h>
 #include <Externals/rapidjson/document.h>
+#include <Externals/rapidjson/istreamwrapper.h>
 #include <Externals/rapidjson/prettywriter.h>
 #include <Externals/rapidjson/stringbuffer.h>
-#include <Externals/rapidjson/istreamwrapper.h>
+#include <tinyfiledialogs.h>
+
+// STL
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <ctime>
 #include <iostream>
 
-#include "Editor/Helpers.hpp"
-#include "Editor/ContentBrowser/content_browser.hpp"
+// Project
+#include <Editor/Helpers.hpp>
+#include <Editor/ContentBrowser/content_browser.hpp>
 
-namespace pl
+namespace gcep::pl
 {
 
 static std::filesystem::path getAppDataPath()
@@ -254,4 +259,4 @@ void ProjectLoader::drawUI(bool& stillSelecting)
     ImGui::End();
 }
 
-} // namespace pl
+} // namespace gcep::pl

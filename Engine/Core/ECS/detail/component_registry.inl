@@ -1,19 +1,18 @@
 #pragma once
+
 #ifdef __GNUG__
     #include <cxxabi.h>
     #include <cstdlib>
 #endif
 
-// IMPORTANT: Ces includes doivent être AVANT le code pour que ComponentIDGenerator soit connu
-#include <Engine/Core/ECS/headers/entity_component.hpp>
-#include <Engine/Core/ECS/headers/json_archive.hpp>
-#include <Engine/Core/ECS/headers/json_component_serializer.hpp>
+// Internals
+#include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/json_archive.hpp>
+#include <ECS/headers/json_component_serializer.hpp>
 #include <ECS/headers/registry.hpp>
 
 namespace gcep::ECS
 {
-    // Même logique de démangling que ComponentPool<T>::getName()
-    // pour que les noms dans le registry matchent ceux écrits dans le fichier.
     inline std::string demangle(const char* mangled)
     {
 #ifdef __GNUG__
@@ -77,5 +76,4 @@ namespace gcep::ECS
         m_entries.push_back(std::move(entry));
         return true;
     }
-
-}
+} // namespace gcep::ECS

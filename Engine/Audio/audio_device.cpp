@@ -1,11 +1,11 @@
 #include "audio_device.hpp"
 
-// STL
-#include <cstring>
-
-// Core
+// Internals
 #include "audio_mixer.hpp"
 #include "audio_source.hpp"
+
+// STL
+#include <cstring>
 
 namespace gcep
 {
@@ -71,4 +71,4 @@ namespace gcep
     	}
     }
 #pragma endregion
-} // gcep
+} // namespace gcep

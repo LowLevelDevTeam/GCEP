@@ -1,4 +1,6 @@
 #pragma once
+
+// Internals
 #include <ECS/headers/archive.hpp>
 #include <Maths/quaternion.hpp>
 
@@ -12,7 +14,7 @@ namespace gcep::SER
     inline void archiveWrite(IArchive& ar, float    v) { ar.writeFloat(v);  }
     inline void archiveWrite(IArchive& ar, double   v) { ar.writeDouble(v); }
 
-    // ── Maths — const& obligatoire pour que boost::pfr (const auto&) compile ─
+    // ── Maths ─────────────────────────────────────────────────────────────────
     template<typename T>
     void archiveWrite(IArchive& ar, const Vector2<T>& v) {
         archiveWrite(ar, v.x);
@@ -58,8 +60,6 @@ namespace gcep::SER
     template<typename T>
     std::enable_if_t<!std::is_enum_v<T>>
     archiveWrite(IArchive& ar, const T& v) {}
-
-
 
     // ── Lecture ───────────────────────────────────────────────────────────────
     inline void archiveRead(IArchive& ar, uint8_t&  v) { v = ar.readUint8();  }
@@ -115,4 +115,4 @@ namespace gcep::SER
     std::enable_if_t<!std::is_enum_v<T>>
     archiveRead(IArchive& ar, T& v) {}
 
-}
+} // namespace gcep::SER

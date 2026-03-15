@@ -29,4 +29,4 @@ namespace gcep::SLS
             }
         }
     }
-}
+} // namespace gcep::SLS

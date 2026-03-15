@@ -1,18 +1,20 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <cstdint>
-#include <vector>
-#include <stdexcept>
 
+// Externals
 #include <Externals/rapidjson/document.h>
 #include <Externals/rapidjson/prettywriter.h>
 #include <Externals/rapidjson/stringbuffer.h>
 #include <Externals/rapidjson/istreamwrapper.h>
 
+// STL
+#include <cstdint>
+#include <fstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 namespace gcep::SER
 {
-
     class JsonWriteArchive
     {
     public:
@@ -59,9 +61,6 @@ namespace gcep::SER
 
         bool m_saved = false;
     };
-
-
-
 
 
     class JsonReadArchive
@@ -113,7 +112,6 @@ namespace gcep::SER
         void parse();
 
     };
-}
+} // namespace gcep::SER
 
-
-#include <Engine/Core/ECS/detail/json_archive.inl>
+#include <ECS/detail/json_archive.inl>

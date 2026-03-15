@@ -1,4 +1,6 @@
 #pragma once
+
+// STL
 #include <cstdint>
 #include <numeric>
 #include <vector>
@@ -62,9 +64,6 @@ namespace gcep::ECS
 		 * @param newSize The new capacity for the entity pool. */
 		void grow(std::size_t newSize);
 
-
-
-
 		/** @brief Pool of entity metadata elements. */
 		std::vector<entityElement> elements;
 		/** @brief Index of the first available entity ID in the free list. */
@@ -103,7 +102,6 @@ namespace gcep::ECS
 		/** @brief Global counter incremented each time a new component type is encountered. */
 		static inline std::uint32_t m_nextID = 0;
 	};
-}
+} // namespace gcep::ECS
 
-
-#include <Engine/Core/ECS/detail/entity_component.inl>
+#include <ECS/detail/entity_component.inl>

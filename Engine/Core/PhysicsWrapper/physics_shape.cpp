@@ -3,18 +3,17 @@
 // STL
 #include <memory>
 
-// Libs
+// Externals
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/Shape/Shape.h>
-
-#include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
-#include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
-#include "Jolt/Physics/Collision/Shape/ScaledShape.h"
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
 
-// Core
-#include "Engine/Core/Maths/Utils/vector3_convertor.hpp"
+// Project
+#include <Maths/Utils/vector3_convertor.hpp>
 
 namespace gcep
 {
@@ -92,4 +91,4 @@ namespace gcep
     {
         return m_shape;
     }
-} // gcep
+} // namespace gcep

@@ -1,7 +1,9 @@
 #pragma once
+
+// Internals
 #include <ECS/headers/archive.hpp>
+#include <Log/log.hpp>
 #include <Scene/header/scene.hpp>
-#include <Log/Log.hpp>
 
 namespace gcep::SLS
 {
@@ -17,6 +19,6 @@ namespace gcep::SLS
     private:
         Scene& m_scene;
     };
-}
+} // namespace gcep::SLS
 
-//#include <Scene/detail/binary_scene_snapshot.inl>
+// .inl include in scene.hpp

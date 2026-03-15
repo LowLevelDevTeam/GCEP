@@ -1,11 +1,13 @@
 #pragma once
+
+// Internals
+#include <ECS/headers/archive_field.hpp>
 #include <ECS/headers/json_archive.hpp>
-#include <Maths/vector2.hpp>
-#include <Maths/vector3.hpp>
-#include <Maths/quaternion.hpp>
 #include <Maths/mat3.hpp>
 #include <Maths/mat4.hpp>
-#include <ECS/headers/ArchiveField.hpp>
+#include <Maths/quaternion.hpp>
+#include <Maths/vector2.hpp>
+#include <Maths/vector3.hpp>
 
 namespace gcep::SER
 {
@@ -35,7 +37,6 @@ namespace gcep::SER
         ar.writeFloat(key + ".z", static_cast<float>(v.z));
     }
 
-
     template<typename T>
     std::enable_if_t<std::is_enum_v<T>>
     archiveWriteJson(JsonWriteArchive& ar, const std::string& key, T& v)
@@ -46,7 +47,6 @@ namespace gcep::SER
     template<typename T>
     std::enable_if_t<!std::is_enum_v<T>>
     archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const T& v) {}
-
 
     template <typename T>
     void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const Mat3<T>& m)
@@ -81,9 +81,6 @@ namespace gcep::SER
     {
         ar.writeString(key, str);
     }
-
-
-
 
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, float&    v) { v = ed.readFloat (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, double&   v) { v = ed.readDouble(key); }
@@ -126,4 +123,4 @@ namespace gcep::SER
     template<typename T>
     std::enable_if_t<!std::is_enum_v<T>>
     archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T& v) {}
-}
+} // namespace gcep::SER

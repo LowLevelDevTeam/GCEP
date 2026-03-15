@@ -1,9 +1,10 @@
-#include <Engine/Core/ECS/headers/component_registry.hpp>
+#pragma once
 
+// Internals
+#include <ECS/headers/component_registry.hpp>
 
 namespace gcep::ECS
 {
-
     struct WorldTransform
     {
         alignas(16) Vector3<float> position    { 0.f, 0.f, 0.f };
@@ -14,6 +15,4 @@ namespace gcep::ECS
         static inline bool _gcep_registered =
         gcep::ECS::ComponentRegistry::instance().reg<WorldTransform>();
     };
-
-
-}
+} // namespace gcep::ECS

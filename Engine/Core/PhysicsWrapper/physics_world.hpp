@@ -1,23 +1,23 @@
 #pragma once
 
-// STL
-#include <memory>
-#include <unordered_map>
-
-// Libs
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Body/BodyID.h>
-
-// Core
+// Internals
 #include "Layers/bplayer_interface_impl.hpp"
 #include "Layers/object_layer_pair_filter_impl.hpp"
 #include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
 
-#include <Engine/Core/ECS/Components/physics_component.hpp>
-#include <Engine/Core/ECS/Components/transform.hpp>
-#include <Engine/Core/PhysicsWrapper/physics_shape.hpp>
-#include "raycast_hit.hpp"
+#include <ECS/Components/physics_component.hpp>
+#include <ECS/Components/transform.hpp>
+#include <PhysicsWrapper/physics_shape.hpp>
+#include <PhysicsWrapper/raycast_hit.hpp>
+
+// Externals
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+
+// STL
+#include <memory>
+#include <unordered_map>
 
 namespace gcep
 {

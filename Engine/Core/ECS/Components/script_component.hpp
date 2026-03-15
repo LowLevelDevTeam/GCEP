@@ -1,7 +1,3 @@
-//
-// Created by leoam on 08/03/2026.
-//
-
 #ifndef GCENGINE_SCRIPT_COMPONENT_HPP
 #define GCENGINE_SCRIPT_COMPONENT_HPP
 

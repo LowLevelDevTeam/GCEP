@@ -1,15 +1,19 @@
 #pragma once
 
+// Internals
 #include <ECS/headers/archive.hpp>
-#include <Externals/boost_pfr/include/boost/pfr.hpp>
-#include <ECS/headers/paged_allocator.hpp>
-#include <ECS/headers/entity_component.hpp>
 #include <ECS/headers/binary_component_serializer.hpp>
+#include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/paged_allocator.hpp>
 
+// Externals
+#include <boost/pfr.hpp>
+
+// STL
+#include <limits>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <limits>
 
 /**
  * @namespace gcep
@@ -215,6 +219,6 @@ namespace gcep::ECS
          */
         std::vector<T> m_components;
     };
-}
+} // namespace gcep::ECS
 
-#include <Engine/Core/ECS/detail/component_pool.inl>
+#include <ECS/detail/component_pool.inl>

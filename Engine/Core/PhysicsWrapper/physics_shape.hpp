@@ -1,15 +1,16 @@
 #pragma once
 
-// Libs
+// Internals
+#include <Maths/vector3.hpp>
+
+// Externals
+#include <Jolt/Jolt.h>
+#include <Jolt/Core/Reference.h>
+
+// STL
 #include <memory>
 
-// External
-#include <Jolt/Jolt.h>
-#include "Jolt/Core/Reference.h"
-
-// Core
-#include "Engine/Core/Maths/vector3.hpp"
-
+// Forward declarations
 namespace JPH
 {
     class Shape;
@@ -128,5 +129,4 @@ namespace gcep
         EPhysicsShapeType m_type;               ///< Engine-level shape type.
         JPH::RefConst<JPH::Shape> m_shape;      ///< Underlying Jolt shape instance.
     };
-
 } // namespace gcep

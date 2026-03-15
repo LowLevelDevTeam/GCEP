@@ -1,6 +1,6 @@
 #include "object_layer_pair_filter_impl.hpp"
 
-// Core
+// Internals
 #include "bplayer_interface_impl.hpp"
 
 namespace gcep
@@ -12,4 +12,4 @@ namespace gcep
 
         return true;
     }
-} // gcep
+} // namespace gcep

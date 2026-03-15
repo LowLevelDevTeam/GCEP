@@ -1,10 +1,11 @@
 #pragma once
+
+// Internals
 #include <ECS/headers/component_registry.hpp>
 #include <Maths/vector3.hpp>
 
 namespace gcep::ECS
 {
-
     enum class EShapeType
     {
         CUBE,
@@ -48,4 +49,4 @@ namespace gcep::ECS
 
         static inline bool _gcep_registered = false;
     };
-}
+} // namespace gcep::ECS

@@ -1,10 +1,13 @@
 #pragma once
-#include <stdexcept>
+
+// Internals
+#include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
+#include <Scene/header/scene_manager.hpp>
+
+// STL
 #include <algorithm>
 #include <filesystem>
-#include <Engine/Core/Scene/header/scene_manager.hpp>
-
-#include "Engine/RHI/Vulkan/VulkanRHI.hpp"
+#include <stdexcept>
 
 namespace gcep::SLS
 {
@@ -58,4 +61,4 @@ namespace gcep::SLS
         if (!m_currentScene) return;
         m_currentScene->onUpdateRuntime(deltaTime);
     }
-}
+} // namespace gcep::SLS

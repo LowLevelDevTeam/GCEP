@@ -1,14 +1,14 @@
-#include "ObjParser.hpp"
+#include "obj_parser.hpp"
 
+// STL
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 
 namespace gcep::objParser
 {
-std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesystem::path& filepath)
+std::pair<attrib_t, std::vector<index_t>> loadObj(const std::filesystem::path& filepath)
 {
     assert(!filepath.string().empty() && "Invalid file path!");
     assert(filepath.extension() == ".obj" && "File must be .obj!");
@@ -293,4 +293,4 @@ std::pair<attrib_t, std::vector<index_t>> ObjLoader::loadObj(const std::filesyst
     return {attribs, indices};
 }
 
-} // Namespace gcep::objParser
+} // namespace gcep::objParser

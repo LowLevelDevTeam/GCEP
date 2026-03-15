@@ -38,8 +38,6 @@ namespace gcep::SER
         m_file.seekg(bytes, std::ios::cur);
     }
 
-
-
     inline void FileArchive::writeFloat(float val)
     {
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(float));
@@ -83,7 +81,6 @@ namespace gcep::SER
     {
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(int64_t));
     }
-
 
     inline void FileArchive::writeSize(uint32_t val)
     {
@@ -181,5 +178,4 @@ namespace gcep::SER
         m_file.read(name.data(), len);
         return name;
     }
-}
-
+} // namespace gcep::SER
