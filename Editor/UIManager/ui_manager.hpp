@@ -352,7 +352,7 @@ namespace gcep
         bool& m_reloadApp;
 
         /// @brief Reference to the application's close flag (set when the user requests exit).
-        bool& m_closeApp;
+        bool& m_isRunning;
 
         /// @brief Non-owning pointer to the RHI mesh list. Set via @c setInfos().
         std::vector<rhi::vulkan::Mesh>* m_meshData = nullptr;

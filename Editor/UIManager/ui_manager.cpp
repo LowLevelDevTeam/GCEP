@@ -23,7 +23,7 @@ namespace gcep
     UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager, bool& reload, bool& close)
         : m_physicsSystem(PhysicsSystem::getInstance()),
           m_reloadApp(reload),
-          m_closeApp(close),
+          m_isRunning(close),
           m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath),
           m_currentScenePath(pl::ProjectLoader::instance().getProjectInfo().startScene.string())
     {
@@ -240,7 +240,8 @@ namespace gcep
                 }
                 if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
                 {
-                    m_closeApp = true;
+                    m_isRunning = false;
+                    m_reloadApp = true;
                 }
                 ImGui::EndMenu();
             }
@@ -890,7 +891,8 @@ namespace gcep
         }
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
         {
-            m_closeApp = true;
+            m_isRunning = false;
+            m_reloadApp = true;
         }
     }
 

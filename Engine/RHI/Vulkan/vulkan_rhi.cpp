@@ -280,7 +280,7 @@ namespace gcep::rhi::vulkan
                 m_lightSystem.getSpotLights().back().id = id;
                 m_lightSystem.getSpotLights().back().name = "Spot light / id = " + std::to_string(id);
                 m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).position = {pos.x, pos.y, pos.z};
-                m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).name     = "Point light / id = " + std::to_string(id);
+                m_ECSRegistry->getComponent<ECS::SpotLightComponent>(id).name     = "Spot light / id = " + std::to_string(id);
             };
         }
     }

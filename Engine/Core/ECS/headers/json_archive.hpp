@@ -35,6 +35,7 @@ namespace gcep::SER
         void endEntity();
 
         // Scalaires
+        void writeBool  (const std::string& key, bool     val);
         void writeFloat (const std::string& key, float    val);
         void writeDouble(const std::string& key, double   val);
         void writeUint8 (const std::string& key, uint8_t  val);
@@ -79,6 +80,7 @@ namespace gcep::SER
             uint32_t id = 0;
             const rapidjson::Value* obj = nullptr;
 
+            bool     readBool (const std::string& key) const;
             float    readFloat (const std::string& key) const;
             double   readDouble(const std::string& key) const;
             uint8_t  readUint8 (const std::string& key) const;

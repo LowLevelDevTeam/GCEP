@@ -11,6 +11,7 @@
 
 namespace gcep::SER
 {
+    inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, bool     v) { ar.writeBool  (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, float    v) { ar.writeFloat (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, double   v) { ar.writeDouble(key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, uint8_t  v) { ar.writeUint8 (key, v); }
@@ -82,6 +83,7 @@ namespace gcep::SER
         ar.writeString(key, str);
     }
 
+    inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, bool&     v) { v = ed.readBool  (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, float&    v) { v = ed.readFloat (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, double&   v) { v = ed.readDouble(key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, uint8_t&  v) { v = ed.readUint8 (key); }

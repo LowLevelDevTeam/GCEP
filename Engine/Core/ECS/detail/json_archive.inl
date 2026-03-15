@@ -84,6 +84,11 @@ namespace gcep::SER
         m_currentEntity = nullptr;
     }
 
+    inline void JsonWriteArchive::writeBool(const std::string& key, bool val)
+    {
+        m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val), m_alloc);
+    }
+
     inline void JsonWriteArchive::writeFloat(const std::string& key, float val)
     {
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val), m_alloc);
@@ -185,6 +190,11 @@ namespace gcep::SER
     }
 
     // ── EntityData readers ────────────────────────────────────────────────────
+
+    inline bool JsonReadArchive::EntityData::readBool(const std::string& key) const
+    {
+        return (*obj)[key.c_str()].GetBool();
+    }
 
     inline float JsonReadArchive::EntityData::readFloat(const std::string& key) const
     {

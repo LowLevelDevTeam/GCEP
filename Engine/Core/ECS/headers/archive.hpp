@@ -26,6 +26,7 @@ namespace gcep::SER
         virtual void writeFloat(float val)   = 0;
         virtual void writeDouble(double val) = 0;
 
+        virtual void writeBool(bool val)       = 0;
         virtual void writeUint8(uint8_t val)   = 0;
         virtual void writeUint16(uint16_t val) = 0;
         virtual void writeUint32(uint32_t val) = 0;
@@ -38,6 +39,8 @@ namespace gcep::SER
 
         virtual void writeSize(uint32_t val) = 0;
         virtual void writeName(const std::string& name) = 0;
+
+        virtual bool   readBool()   = 0;
 
         virtual float  readFloat()  = 0;
         virtual double readDouble() = 0;
@@ -69,6 +72,7 @@ namespace gcep::SER
         void writeFloat(float val)   override;
         void writeDouble(double val) override;
 
+        void writeBool(bool val)       override;
         void writeUint8(uint8_t val)   override;
         void writeUint16(uint16_t val) override;
         void writeUint32(uint32_t val) override;
@@ -81,6 +85,8 @@ namespace gcep::SER
 
         void writeSize(uint32_t val) override;
         void writeName(const std::string& name) override;
+
+        bool  readBool()   override;
 
         float  readFloat()  override;
         double readDouble() override;

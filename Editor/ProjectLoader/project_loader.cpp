@@ -16,18 +16,30 @@
 #include <iostream>
 
 // Project
+#include <config.hpp>
 #include <Editor/Helpers.hpp>
 #include <Editor/ContentBrowser/content_browser.hpp>
 
 namespace gcep::pl
 {
 
-static std::filesystem::path getAppDataPath()
+static std::filesystem::path getBasePath()
 {
-    const char* appData = std::getenv("APPDATA");
-    std::filesystem::path base = appData
-        ? std::filesystem::path(appData) / "GCEngine"
-        : std::filesystem::current_path() / "GCEngine";
+    std::filesystem::path base;
+
+#ifdef _WIN32
+    const char* userProfile = std::getenv("USERPROFILE");
+    if (userProfile)
+        base = std::filesystem::path(userProfile) / "Documents" / "GCEngine";
+#else
+    const char* home = std::getenv("HOME");
+    if (home)
+        base = std::filesystem::path(home) / "GCEngine";
+#endif
+
+    if (base.empty())
+        base = std::filesystem::current_path() / "GCEngine";
+
     if (!std::filesystem::exists(base))
         std::filesystem::create_directories(base);
     return base;
@@ -63,7 +75,7 @@ void ProjectLoader::loadProject(const std::filesystem::path& projFile)
     };
 
     m_info.projectName = getString("name",       projFile.stem().string().c_str());
-    m_info.version     = getString("version",    "1.0");
+    m_info.version     = getString("version",    config::engineVersion.data());
     m_info.createdAt   = getString("created_at", nowISO8601().c_str());
 
     if (d.HasMember("start_scene") && d["start_scene"].IsString())
@@ -237,7 +249,7 @@ void ProjectLoader::drawUI(bool& stillSelecting)
         }
         else
         {
-            std::filesystem::path projectPath = getAppDataPath() / m_projectName;
+            std::filesystem::path projectPath = getBasePath() / m_projectName;
             std::filesystem::create_directories(projectPath / "Content");
             std::filesystem::create_directories(projectPath / "Content" / "Scenes");
             m_info.projectPath = projectPath;

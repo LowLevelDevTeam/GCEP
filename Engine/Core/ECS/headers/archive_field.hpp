@@ -7,6 +7,7 @@
 namespace gcep::SER
 {
     // ── Scalaires ─────────────────────────────────────────────────────────────
+    inline void archiveWrite(IArchive& ar, bool     v) { ar.writeBool(v);  }
     inline void archiveWrite(IArchive& ar, uint8_t  v) { ar.writeUint8(v);  }
     inline void archiveWrite(IArchive& ar, uint16_t v) { ar.writeUint16(v); }
     inline void archiveWrite(IArchive& ar, uint32_t v) { ar.writeUint32(v); }
@@ -62,6 +63,7 @@ namespace gcep::SER
     archiveWrite(IArchive& ar, const T& v) {}
 
     // ── Lecture ───────────────────────────────────────────────────────────────
+    inline void archiveRead(IArchive& ar, bool&     v) { v = ar.readBool();   }
     inline void archiveRead(IArchive& ar, uint8_t&  v) { v = ar.readUint8();  }
     inline void archiveRead(IArchive& ar, uint16_t& v) { v = ar.readUint16(); }
     inline void archiveRead(IArchive& ar, uint32_t& v) { v = ar.readUint32(); }

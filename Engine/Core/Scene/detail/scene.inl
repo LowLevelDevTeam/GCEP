@@ -43,8 +43,6 @@ namespace gcep::SLS
     inline void Scene::load(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
         clear();
-
-        clear();
         std::string basePath = path.substr(0, path.find_last_of('.'));
 
         #ifdef GCEP_EDITOR
