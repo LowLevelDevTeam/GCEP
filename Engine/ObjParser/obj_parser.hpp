@@ -31,5 +31,8 @@ namespace gcep::objParser
         std::vector<float> normals;
     } attrib_t;
 
+    /// @brief Parses a wavefront OBJ file and returns packed data
+    ///
+    /// @param filepath File path to the concerned wavefront OBJ file.
     std::pair<attrib_t, std::vector<index_t>> loadObj(const std::filesystem::path& filepath);
 } // namespace gcep::objParser
