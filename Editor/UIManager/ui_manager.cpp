@@ -24,7 +24,8 @@ namespace gcep
         : m_physicsSystem(PhysicsSystem::getInstance()),
           m_reloadApp(reload),
           m_closeApp(close),
-          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath)
+          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath),
+          m_currentScenePath(pl::ProjectLoader::instance().getProjectInfo().startScene.string())
     {
         m_window       = window;
         m_audioSystem  = gcep::AudioSystem::getInstance();
@@ -882,7 +883,14 @@ namespace gcep
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
         {
             if (m_sceneManager && !m_currentScenePath.empty())
+            {
+                pl::ProjectLoader::instance().saveProject();
                 m_sceneManager->current().save(m_currentScenePath);
+            }
+        }
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        {
+            m_closeApp = true;
         }
     }
 
