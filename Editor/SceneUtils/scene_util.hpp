@@ -8,7 +8,7 @@
 
 // Internals
 #include <ECS/Components/components.hpp>
-#include <Engine/RHI/Mesh/Mesh.hpp>
+#include <Engine/RHI/Mesh/mesh.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
 #include <Scene/header/scene.hpp>
 

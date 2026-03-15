@@ -12,7 +12,7 @@
 #include <Editor/ProjectLoader/project_loader.hpp>
 #include <Editor/SceneUtils/scene_util.hpp>
 #include <Engine/Audio/audio_system.hpp>
-#include <Engine/RHI/Mesh/Mesh.hpp>
+#include <Engine/RHI/Mesh/mesh.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <Editor/ContentBrowser/content_browser.hpp>
 #include <PhysicsWrapper/physics_system.hpp>
