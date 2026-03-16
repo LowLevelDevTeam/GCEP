@@ -17,6 +17,8 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
@@ -83,7 +85,8 @@ namespace gcep
 			*m_objectVsBroadPhaseLayerFilter,
 			*m_objectLayerPairFilter
 			);
-
+    	m_contactListener = std::make_unique<PhysicsContactListener>();
+		m_physicsSystem->SetContactListener(m_contactListener.get());
     	m_physicsSystem->SetGravity(JPH::Vec3(0, 0, -9.81f));
     }
 
@@ -178,8 +181,9 @@ namespace gcep
 			position,
 			rotation,
 			motionType,
-			static_cast<int>(data.layers)
+			static_cast<JPH::ObjectLayer>(data.layers)
     	);
+    	bodySettings.mIsSensor = data.isTrigger;
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	    JPH::Body* body = bodyInterface.CreateBody(bodySettings);

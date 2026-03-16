@@ -29,6 +29,8 @@ namespace gcep::ECS
 
     struct PhysicsComponent
     {
+        bool isTrigger = false;
+
         EShapeType  shapeType  = EShapeType::CUBE;
         EMotionType motionType = EMotionType::STATIC;
         ELayers     layers     = ELayers::NON_MOVING;

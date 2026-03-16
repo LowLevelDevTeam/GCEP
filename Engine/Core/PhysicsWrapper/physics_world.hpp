@@ -4,6 +4,8 @@
 #include "Layers/bplayer_interface_impl.hpp"
 #include "Layers/object_layer_pair_filter_impl.hpp"
 #include "Layers/object_vs_broad_phase_layer_filter_impl.hpp"
+#include "raycast_hit.hpp"
+#include "physics_contact_listener.hpp"
 
 #include <ECS/Components/physics_component.hpp>
 #include <ECS/Components/transform.hpp>
@@ -141,6 +143,8 @@ namespace gcep
         std::unique_ptr<BPlayerInterfaceImpl> m_broadPhaseLayerInterface;   ///< Broad-phase collision layer interface.
         std::unique_ptr<ObjectLayerPairFilterImpl> m_objectLayerPairFilter; ///< Filter for object-object collisions.
         std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> m_objectVsBroadPhaseLayerFilter; ///< Filter for object-broadphase collisions.
+
+        std::unique_ptr<PhysicsContactListener> m_contactListener;
 
         // ======================
         // Shape cache
