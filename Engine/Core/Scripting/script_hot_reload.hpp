@@ -1,19 +1,20 @@
 ﻿#pragma once
 
-#include "ScriptInterface.hpp"
-#include <Engine/Core/ECS/headers/component_registry.hpp>
+// Internals
+#include "script_interface.hpp"
+#include <ECS/headers/component_registry.hpp>
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+// STL
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <functional>
-#include <cstdlib>
-#include <cstdio>
-#include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-
-// @brief cross platform library loading
+/// @brief cross platform library loading
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -37,23 +38,22 @@
     #endif
 #endif
 
-// @brief loaded script data
-
 using FnCreate   = ScriptInstance(*)();
 using FnDestroy  = void(*)(ScriptInstance);
 using FnOnStart  = void(*)(ScriptInstance, const ScriptContext*);
 using FnOnUpdate = void(*)(ScriptInstance,const ScriptContext*);
 using FnOnEnd    = void(*)(ScriptInstance,const ScriptContext*);
 
+/// @brief Loaded script data
 struct LoadedScript
 {
     std::string name;
     std::string sourcePath;
     std::string libPath;
     LibHandle handle     = nullptr;
-    FnCreate     create  = nullptr;
-    FnDestroy    destroy = nullptr;
-    FnOnStart    onStart = nullptr;
+    FnCreate    create   = nullptr;
+    FnDestroy   destroy  = nullptr;
+    FnOnStart   onStart  = nullptr;
     FnOnUpdate  onUpdate = nullptr;
     FnOnEnd     onEnd    = nullptr;
 
@@ -62,11 +62,9 @@ struct LoadedScript
 
     static inline bool _gcep_registered =
         false;
-
 };
 
-// @brief ECS script component
-
+/// @brief ECS script component
 struct ScriptComponent
 {
     std::string scriptName;
@@ -75,7 +73,6 @@ struct ScriptComponent
     int loadedScriptIndex   = -1;
     static inline bool _gcep_registered =
         gcep::ECS::ComponentRegistry::instance().reg<ScriptComponent>();
-
 };
 
 class ScriptHotReloadManager
@@ -221,7 +218,7 @@ class ScriptHotReloadManager
             destroyInstance(*comp);
         }
 
-        loadOrReloadScript(script->sourcePath);
+        loadOrReloadScripts(script->sourcePath);
 
         for (auto* comp : activeComponents) {
             if (comp->scriptName != name) continue;
