@@ -209,6 +209,8 @@ void ProjectLoader::drawUI(bool& stillSelecting)
     if (ImGui::Button("Open project"))
     {
         const char* filters[] = { "*.gcproj" };
+        #ifdef _WIN32
+        // On Windows, start the file dialog in the AppData directory where projects are stored.
         if (auto path = tinyfd_openFileDialog("Open a project",
             std::filesystem::current_path().string().c_str(), 1, filters, "GC Project", 0);
             path != nullptr)
@@ -220,6 +222,20 @@ void ProjectLoader::drawUI(bool& stillSelecting)
             stillSelecting = false;
             loadProject(p);
         }
+        #else
+        // On other platforms, start the file dialog in the current working directory.
+        if (auto path = tinyfd_openFileDialog("Open a project",
+            std::filesystem::current_path().string().c_str(), 1, filters, "GC Project", 0);
+            path != nullptr)        
+            {
+            std::filesystem::path p(path);
+            m_info.projectPath = p.parent_path();
+            m_info.contentPath = m_info.projectPath / "Content";
+            std::filesystem::create_directories(m_info.contentPath);
+            stillSelecting = false;
+            loadProject(p);
+            }
+        #endif
     }
 
     ImGui::InputText("Project name", m_projectName, sizeof(m_projectName));
