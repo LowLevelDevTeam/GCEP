@@ -232,7 +232,12 @@ void ProjectLoader::drawUI(bool& stillSelecting)
         }
         else
         {
+            #ifdef _WIN32
+            // On Windows, sanitize the project name to avoid invalid characters in the path.
             std::filesystem::path projectPath = getAppDataPath() / m_projectName;
+            #else
+            std::filesystem::path projectPath = std::filesystem::current_path() / m_projectName;
+            #endif
             std::filesystem::create_directories(projectPath / "Content");
             std::filesystem::create_directories(projectPath / "Content" / "Scenes");
             m_info.projectPath = projectPath;
