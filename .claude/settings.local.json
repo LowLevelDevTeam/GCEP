@@ -5,7 +5,8 @@
       "Bash(find:*)",
       "mcp__ide__getDiagnostics",
       "Bash(cd:*)",
-      "Bash(cmd.exe /c \"cmake --build cmake-build-debug 2>&1\" | tail -80)"
+      "Bash(cmd.exe /c \"cmake --build cmake-build-debug 2>&1\" | tail -80)",
+      "Bash(sort find:*)"
     ]
   }
 }
