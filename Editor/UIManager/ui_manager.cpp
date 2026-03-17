@@ -31,12 +31,32 @@ namespace gcep
         m_audioSystem  = gcep::AudioSystem::getInstance();
         m_sceneManager = manager;
         m_registry     = &m_sceneManager->current().getRegistry();
+
+        // Initialise the script hot-reload manager and bind it to the panel.
+        // Scripts live in <project>/Scripts, compiled libs go to <project>/Scripts/bin.
+        const auto& projectInfo = pl::ProjectLoader::instance().getProjectInfo();
+        const std::string scriptsDir  = projectInfo.contentPath.generic_string() + "/Scripts";
+        const std::string buildDir    = projectInfo.contentPath.generic_string() + "/Scripts/bin";
+        const std::string includeDir  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting";
+        // CMAKE_BINARY_DIR is exposed via the config.hpp macro GCE_BUILD_DIR if available,
+        // otherwise fall back to PROJECT_ROOT/build (the conventional out-of-source dir).
+        #ifdef GCE_BUILD_DIR
+            const std::string cmakeBuildDir = GCE_BUILD_DIR;
+        #else
+            const std::string cmakeBuildDir = std::string(PROJECT_ROOT) + "/build";
+        #endif
+        m_scriptManager.init(scriptsDir, buildDir, includeDir);
+        m_scriptPanel.setManager(&m_scriptManager, m_registry);
+        m_scriptPanel.setScriptsDir(scriptsDir);
+        m_scriptPanel.setBuildDir(cmakeBuildDir);
+
         initConsole();
         Log::info("UiManager initialized successfully");
     }
 
     UiManager::~UiManager()
     {
+        m_scriptManager.shutdown();
         shutdownConsole();
         Log::info("UiManager destroyed");
     }
@@ -50,6 +70,7 @@ namespace gcep
     {
         m_sceneManager = sceneManager;
         m_registry     = &sceneManager->current().getRegistry();
+        m_scriptPanel.setRegistry(m_registry);
     }
 
     void UiManager::setInfos(rhi::vulkan::InitInfos* infos)
@@ -184,6 +205,7 @@ namespace gcep
         ImGui::DockBuilderDockWindow("Scene Hierarchy",  dockIdHierarchy);
         ImGui::DockBuilderDockWindow("Entity properties", dockIdProperties);
         ImGui::DockBuilderDockWindow("Audio control",    dockIdProperties);
+        ImGui::DockBuilderDockWindow("Script Manager",   dockIdProperties);
         ImGui::DockBuilderDockWindow("Viewport",         dockIdViewport);
         ImGui::DockBuilderDockWindow("Console",          dockIdConsole);
         ImGui::DockBuilderDockWindow("ContentDrawer",    dockIdContent);
@@ -219,6 +241,7 @@ namespace gcep
     {
         ImGuizmo::BeginFrame();
         handleGizmoInput();
+        m_scriptManager.pollForChanges();
     }
 
     void UiManager::drawMainMenuBar()
@@ -278,6 +301,7 @@ namespace gcep
                     m_pRHI->setSimulationStarted(true);
                     m_physicsSystem.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
                     m_physicsSystem.startSimulation();
+                    m_scriptPanel.onSimulationStart();
                 }
                 ImGui::SameLine();
                 if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
@@ -300,6 +324,7 @@ namespace gcep
                     m_simulationState = SimulationState::STOPPED;
                     m_pRHI->setSimulationStarted(false);
                     m_physicsSystem.stopSimulation();
+                    m_scriptPanel.onSimulationStop();
                 }
                 ImGui::SameLine();
                 std::string simStatus = "Simulation status: ";
@@ -318,6 +343,7 @@ namespace gcep
             {
                 auto& registry = SLS::SceneManager::instance().current().getRegistry();
                 m_physicsSystem.update(io.DeltaTime);
+                m_scriptPanel.onSimulationUpdate(io.DeltaTime);
             }
 
             ImVec2 availSize = ImGui::GetContentRegionAvail();
@@ -629,47 +655,7 @@ namespace gcep
         ImGui::Checkbox("Is Trigger", &physics.isTrigger);
         ImGui::PopFont();
 
-        ImGui::SeparatorText("Scripting");
-        ImGui::PushFont(io.Fonts->Fonts[0]);
-        if (ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
-        {
-            std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
-            std::string outputDir  = std::string(PROJECT_ROOT) + "/Scripts";
-            std::string outputPath = outputDir + "/Script" + std::to_string(mesh->id) + ".cpp";
-
-            std::filesystem::create_directories(outputDir);
-
-            std::ifstream scriptFileModel(modelPath, std::ios::binary);
-            if (!scriptFileModel.is_open())
-            {
-                std::cerr << "Failed to open script model: " << modelPath
-                          << " (cwd: " << std::filesystem::current_path() << ")" << std::endl;
-            }
-            else
-            {
-                std::string modelContent((std::istreambuf_iterator<char>(scriptFileModel)),
-                                          std::istreambuf_iterator<char>());
-
-                const std::string scriptName  = "Script" + std::to_string(mesh->id);
-                const std::string placeholder = "SCRIPT_NAME";
-                auto pos = modelContent.find(placeholder);
-                if (pos != std::string::npos)
-                    modelContent.replace(pos, placeholder.size(), scriptName);
-
-                std::ofstream scriptFile(outputPath, std::ios::binary);
-                if (!scriptFile.is_open())
-                    std::cerr << "Failed to create script file: " << outputPath << std::endl;
-                else
-                {
-                    scriptFile << modelContent;
-                    if (scriptFile.good())
-                        std::cout << "Script created: " << outputPath << std::endl;
-                    else
-                        std::cerr << "Error writing script file: " << outputPath << std::endl;
-                }
-            }
-        }
-        ImGui::PopFont();
+        m_scriptPanel.drawEntityScriptSection(mesh->id, m_simulationState);
     }
 
     void UiManager::showSpotLightInfos(rhi::vulkan::SpotLight* spot)
@@ -867,6 +853,7 @@ namespace gcep
         drawConsole();
         drawBottomBar();
         m_contentBrowser.render();
+        m_scriptPanel.drawManagerWindow();
 
         if (m_showDemoWindow)
             ImGui::ShowDemoWindow(&m_showDemoWindow);

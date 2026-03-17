@@ -11,6 +11,8 @@
 #include <Editor/Helpers.hpp>
 #include <Editor/ProjectLoader/project_loader.hpp>
 #include <Editor/SceneUtils/scene_util.hpp>
+#include <Editor/UIManager/script_panel.hpp>
+#include <Engine/Core/Scripting/script_hot_reload.hpp>
 #include <Engine/Audio/audio_system.hpp>
 #include <Engine/RHI/Mesh/mesh.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
@@ -448,5 +450,14 @@ namespace gcep
 
         /// @brief When true, the Settings panel is visible.
         bool m_showSettings = false;
+
+        // ── Scripting ─────────────────────────────────────────────────────────────
+
+        /// @brief Owns the script hot-reload manager. Initialised in the constructor
+        ///        using project paths from ProjectLoader.
+        ScriptHotReloadManager m_scriptManager;
+
+        /// @brief Self-contained scripting panel (entity section + docked manager window).
+        ScriptPanel m_scriptPanel;
     };
 } // namespace gcep
