@@ -3,6 +3,7 @@
 // Internals
 #include "script_interface.hpp"
 #include <config.hpp>
+#include <ECS/Components/script_component.hpp>
 #include <ECS/headers/component_registry.hpp>
 #include <ECS/headers/registry.hpp>
 #include <Log/log.hpp>
@@ -73,18 +74,6 @@ namespace gcep
             false;
     };
 
-    /// @brief ECS script component
-    struct ScriptComponent
-    {
-        std::string    scriptName;
-        ScriptInstance instance          = nullptr; ///< DLL symbol, do not store, can change.
-        bool           started           = false;
-        int            loadedScriptIndex = -1;
-        ECS::EntityID  entityId          = ECS::INVALID_VALUE;
-        static inline bool _gcep_registered =
-            gcep::ECS::ComponentRegistry::instance().reg<ScriptComponent>();
-    };
-
     class ScriptHotReloadManager
     {
     public:
@@ -96,12 +85,12 @@ namespace gcep
         std::vector<std::string> getAvailableScriptNames() const;
         LoadedScript*            getScript(const std::string& name);
 
-        void createInstance (ScriptComponent& comp, gcep::ECS::Registry* registry = nullptr);
-        void destroyInstance(ScriptComponent& comp, gcep::ECS::Registry* registry = nullptr);
+        void createInstance (gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry = nullptr);
+        void destroyInstance(gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry = nullptr);
 
-        void callOnStart (ScriptComponent& comp, const ScriptContext& ctx);
-        void callOnUpdate(ScriptComponent& comp, const ScriptContext& ctx);
-        void callOnEnd   (ScriptComponent& comp, const ScriptContext& ctx);
+        void callOnStart (gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx);
+        void callOnUpdate(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx);
+        void callOnEnd   (gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx);
 
         /// @brief Builds a ScriptContext with ECS function pointers wired up.
         /// Call this instead of constructing ScriptContext manually.
@@ -109,7 +98,7 @@ namespace gcep
                                   gcep::ECS::Registry* registry) const;
 
         void hotReload(const std::string& name,
-                       std::vector<ScriptComponent*>& activeComponents,
+                       std::vector<gcep::ECS::ScriptComponent*>& activeComponents,
                        std::function<ScriptContext(unsigned int entityId)> makeCtx);
 
     private:

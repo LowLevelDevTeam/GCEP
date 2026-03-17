@@ -13,7 +13,7 @@ namespace gcep::panel
     struct AttachedScript
     {
         std::string     scriptName;
-        ScriptComponent comp;
+        ECS::ScriptComponent comp;
     };
 
     /// @brief Shared state between EntityScriptPanel and ScriptManagerPanel.

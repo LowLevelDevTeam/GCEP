@@ -1,0 +1,1 @@
+cmake -B build_windows

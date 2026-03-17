@@ -75,7 +75,7 @@ namespace gcep
         return s.valid ? &s : nullptr;
     }
 
-    void ScriptHotReloadManager::createInstance(ScriptComponent& comp, gcep::ECS::Registry* registry)
+    void ScriptHotReloadManager::createInstance(gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry)
     {
         auto* script = getScript(comp.scriptName);
         if (!script || !script->create) return;
@@ -87,19 +87,19 @@ namespace gcep
         if(!registry) return;
 
         // Sync back into the ECS component if a registry is provided
-        if (!registry->hasComponent<ScriptComponent>(comp.entityId))
+        if (!registry->hasComponent<gcep::ECS::ScriptComponent>(comp.entityId))
         {
-            auto& c = registry->addComponent<ScriptComponent>(comp.entityId);
+            auto& c = registry->addComponent<gcep::ECS::ScriptComponent>(comp.entityId);
             c = comp;
         }
         else
         {
-            auto& c = registry->getComponent<ScriptComponent>(comp.entityId);
+            auto& c = registry->getComponent<gcep::ECS::ScriptComponent>(comp.entityId);
             c = comp;
         }
     }
 
-    void ScriptHotReloadManager::destroyInstance(ScriptComponent& comp, gcep::ECS::Registry* registry)
+    void ScriptHotReloadManager::destroyInstance(gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry)
     {
         auto* script = getScript(comp.scriptName);
         if (script && script->destroy && comp.instance)
@@ -112,13 +112,13 @@ namespace gcep
         if(!registry) return;
 
         // Sync back into the ECS component if a registry is provided
-        if (registry->hasComponent<ScriptComponent>(comp.entityId))
+        if (registry->hasComponent<gcep::ECS::ScriptComponent>(comp.entityId))
         {
-            registry->removeComponent<ScriptComponent>(comp.entityId);
+            registry->removeComponent<gcep::ECS::ScriptComponent>(comp.entityId);
         }
     }
 
-    void ScriptHotReloadManager::callOnStart(ScriptComponent& comp, const ScriptContext& ctx)
+    void ScriptHotReloadManager::callOnStart(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
     {
         if (comp.started) return;
         auto* script = getScript(comp.scriptName);
@@ -129,7 +129,7 @@ namespace gcep
         }
     }
 
-    void ScriptHotReloadManager::callOnUpdate(ScriptComponent& comp, const ScriptContext& ctx)
+    void ScriptHotReloadManager::callOnUpdate(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
     {
         auto* script = getScript(comp.scriptName);
         if (script && script->onUpdate && comp.instance)
@@ -138,7 +138,7 @@ namespace gcep
         }
     }
 
-    void ScriptHotReloadManager::callOnEnd(ScriptComponent& comp, const ScriptContext& ctx)
+    void ScriptHotReloadManager::callOnEnd(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
     {
         auto* script = getScript(comp.scriptName);
         if (script && script->onEnd && comp.instance)
@@ -158,7 +158,7 @@ namespace gcep
     }
 
     void ScriptHotReloadManager::hotReload(const std::string& name,
-                                           std::vector<ScriptComponent*>& activeComponents,
+                                           std::vector<gcep::ECS::ScriptComponent*>& activeComponents,
                                            std::function<ScriptContext(gcep::ECS::EntityID entityId)> makeCtx)
     {
         auto* script = getScript(name);

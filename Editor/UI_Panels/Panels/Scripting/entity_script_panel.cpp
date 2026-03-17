@@ -169,7 +169,7 @@ namespace gcep::panel
 
     void EntityScriptPanel::registerEntry(ECS::EntityID entityId, const std::string& scriptName)
     {
-        auto& component      = m_state.registry->addComponent<ScriptComponent>(entityId);
+        auto& component      = m_state.registry->addComponent<ECS::ScriptComponent>(entityId);
         component.entityId   = entityId;
         component.scriptName = scriptName;
         component.started    = false;
