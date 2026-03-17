@@ -109,8 +109,7 @@ namespace gcep::panel
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
-            // Récupération du chemin de la scène via UiManager
-            gcep::SLS::SceneManager::instance().saveScene(ctx.currentScenePath);
+            gcep::SLS::SceneManager::instance().saveScene(gcep::SLS::UiManager::instance().getCurrentScenePath());
         }
         ImGui::SameLine();
 
