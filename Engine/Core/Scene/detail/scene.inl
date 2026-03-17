@@ -104,6 +104,9 @@ namespace gcep::SLS
 
         removeParent(id);
         m_registry.destroyEntity(id);
+        Log::info(std::to_string(id) + " destroyed");
+
+
     }
 
     inline std::vector<ECS::EntityID> Scene::getChildren(ECS::EntityID parent)

@@ -11,6 +11,13 @@ namespace gcep::SER
         else
             mode |= std::ios::in;
 
+        if (isWriting)
+        {
+            const auto parent = std::filesystem::path(filename).parent_path();
+            if (!parent.empty())
+                std::filesystem::create_directories(parent);
+        }
+
         m_file.open(filename, mode);
         if (!m_file.is_open())
             throw std::runtime_error("Failed to open file: " + filename);

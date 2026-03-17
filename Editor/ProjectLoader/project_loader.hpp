@@ -16,6 +16,7 @@
 // STL
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace gcep::pl
 {
@@ -136,6 +137,14 @@ namespace gcep::pl
         /// restarts @c m_autoSaveTimer.
         void saveProject();
 
+        /// @brief Loads a project from @p projFile and makes it the active project.
+        ///
+        /// Call this from the project browser panel to switch to another project.
+        /// Triggers a full engine reload when combined with @c EditorContext::reloadRequested.
+        ///
+        /// @param projFile  Absolute path to a @c .gcepproj file.
+        void openProject(const std::filesystem::path& projFile) { loadProject(projFile); }
+
         /// @brief Marks the project as modified, starting the debounce timer.
         ///
         /// The next @c update() that clears the debounce window will trigger an
@@ -161,6 +170,14 @@ namespace gcep::pl
         /// @brief Returns a copy of the current project metadata.
         /// @returns A value copy of @c m_info.
         [[nodiscard]] ProjectInfo getProjectInfo() const { return m_info; }
+
+    private:
+        void refreshBrowserUI();
+        void drawBrowserUI(bool& stillSelecting);
+
+
+
+
 
         ProjectLoader(const ProjectLoader&)            = delete;
         ProjectLoader& operator=(const ProjectLoader&) = delete;
@@ -199,11 +216,20 @@ namespace gcep::pl
         /// @brief Non-owning pointer to the application window used for dialog parenting.
         GLFWwindow* m_window = nullptr;
 
+        // File browser state (used in drawUI)
+        std::filesystem::path              m_browserPath;
+        std::vector<std::filesystem::path> m_browserFiles;
+        std::filesystem::path              m_browserSelected;
+        bool                               m_browserInitialized = false;
+
         /// @brief All metadata and settings for the currently open project.
         ProjectInfo m_info;
 
         /// @brief Temporary buffer for the project name text input widget.
         char m_projectName[256] = {};
+
+        /// @brief Directory in which the new project will be created.
+        std::filesystem::path m_createPath;
 
         /// @brief True when the project has unsaved changes.
         bool m_dirty = false;

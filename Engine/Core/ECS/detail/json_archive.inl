@@ -36,6 +36,10 @@ namespace gcep::SER
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
         m_doc.Accept(writer);
 
+        const auto parent = std::filesystem::path(m_filename).parent_path();
+        if (!parent.empty())
+            std::filesystem::create_directories(parent);
+
         std::ofstream file(m_filename, std::ios::out | std::ios::trunc);
         if (!file.is_open())
             throw std::runtime_error("JsonWriteArchive: cannot open file: " + m_filename);

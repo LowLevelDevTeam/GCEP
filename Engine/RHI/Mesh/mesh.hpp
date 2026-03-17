@@ -4,7 +4,7 @@
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_texture.hpp>
 #include <ECS/Components/physics_component.hpp>
-#include <ECS/Components/transform.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include <ECS/headers/entity_component.hpp>
 #include <PhysicsWrapper/physics_shape.hpp>
 

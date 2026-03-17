@@ -53,6 +53,18 @@ namespace gcep::ECS
         entry.ensurePool  = [](Registry& r) { (void)r.template getPool<T>(); };
         entry.deserialize = [](Registry& r, EntityID e, ::gcep::SER::IArchive& a) { r.template getPool<T>().deserializeEntity(e, a); };
 
+        entry.serializeEntityJson = [](Registry& r, EntityID e, ::gcep::SER::JsonWriteArchive& ar)
+        {
+            auto& pool = r.template getPool<T>();
+            const auto& entities = pool.getEntities();
+            if (std::ranges::find(entities, e) == entities.end()) return;
+            ar.beginPool(demangle(typeid(T).name()));
+            ar.beginEntity(0); // prefab canonical ID
+            ::gcep::SER::JsonComponentSerializer<T>::serialize(ar, pool.get(e));
+            ar.endEntity();
+            ar.endPool();
+        };
+
         entry.serializeJson = [](Registry& r, ::gcep::SER::JsonWriteArchive& ar)
         {
             auto& pool = r.template getPool<T>();

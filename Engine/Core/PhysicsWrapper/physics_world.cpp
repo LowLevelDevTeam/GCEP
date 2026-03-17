@@ -3,7 +3,7 @@
 // Internals
 #include "physics_shape.hpp"
 #include <ECS/Components/physics_component.hpp>
-#include <ECS/Components/transform.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include <Maths/Utils/vector3_convertor.hpp>
 
 // Externals
@@ -175,13 +175,18 @@ namespace gcep
     	JPH::RVec3 position(pos.x, pos.y, pos.z);
     	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
+    	// Layer auto-dérivé du motion type
+    	const JPH::ObjectLayer objectLayer = (motionType == JPH::EMotionType::Static)
+    		? Layers::NON_MOVING
+    		: Layers::MOVING;
+
     	// Body creation
     	JPH::BodyCreationSettings bodySettings(
     		shape->getJoltShape(),
 			position,
 			rotation,
 			motionType,
-			static_cast<JPH::ObjectLayer>(data.layers)
+			objectLayer
     	);
     	bodySettings.mIsSensor = data.isTrigger;
 

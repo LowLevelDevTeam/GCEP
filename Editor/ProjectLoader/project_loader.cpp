@@ -14,11 +14,13 @@
 #include <iomanip>
 #include <ctime>
 #include <iostream>
+#include <ranges>
 
 // Project
+#include <algorithm>
 #include <config.hpp>
 #include <Editor/Helpers.hpp>
-#include <Editor/ContentBrowser/content_browser.hpp>
+#include <font_awesome.hpp>
 
 namespace gcep::pl
 {
@@ -28,9 +30,9 @@ static std::filesystem::path getBasePath()
     std::filesystem::path base;
 
 #ifdef _WIN32
-    const char* userProfile = std::getenv("USERPROFILE");
-    if (userProfile)
-        base = std::filesystem::path(userProfile) / "Documents" / "GCEngine";
+    const char* appData = std::getenv("APPDATA"); // %APPDATA% = AppData\Roaming
+    if (appData)
+        base = std::filesystem::path(appData) / "GCEngine";
 #else
     const char* home = std::getenv("HOME");
     if (home)
@@ -216,40 +218,133 @@ void ProjectLoader::update(double deltaTime)
     }
 }
 
-void ProjectLoader::drawUI(bool& stillSelecting)
+void ProjectLoader::refreshBrowserUI()
 {
-    ImGui::Begin("Project Loader", nullptr,
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+    m_browserFiles.clear();
 
-    ImGui::Text("Select a project to open:");
+    if (!std::filesystem::is_directory(m_browserPath))
+        m_browserPath = getBasePath();
 
-    if (ImGui::Button("Open project"))
+    // Recursive scan for .gcproj files
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(
+            m_browserPath, std::filesystem::directory_options::skip_permission_denied))
     {
-        const char* filters[] = { "*.gcproj" };
-        if (auto path = tinyfd_openFileDialog("Open a project",
-            std::filesystem::current_path().string().c_str(), 1, filters, "GC Project", 0);
-            path != nullptr)
-        {
-            std::filesystem::path p(path);
-            m_info.projectPath = p.parent_path();
-            m_info.contentPath = m_info.projectPath / "Content";
-            std::filesystem::create_directories(m_info.contentPath);
-            stillSelecting = false;
-            loadProject(p);
-        }
+        if (entry.is_regular_file() && entry.path().extension() == ".gcproj")
+            m_browserFiles.push_back(entry.path());
     }
 
-    ImGui::InputText("Project name", m_projectName, sizeof(m_projectName));
+    std::ranges::sort(m_browserFiles, [](const auto& a, const auto& b){ return a.stem() < b.stem(); });
+}
 
-    if (ImGui::Button("Create project"))
+void ProjectLoader::drawBrowserUI(bool& stillSelecting)
+{
+    const ImGuiIO& io      = ImGui::GetIO();
+    ImFont* bigFont        = (io.Fonts->Fonts.Size > 1) ? io.Fonts->Fonts[1] : io.Fonts->Fonts[0];
+    constexpr float CELL   = 80.0f;
+    constexpr float CELL_H = 90.0f;
+
+    ImGui::TextDisabled("Scanning: %s", m_browserPath.string().c_str());
+    ImGui::SameLine();
+    if (ImGui::SmallButton((std::string(ICON_FA_REFRESH) + "##rescan").c_str()))
+        refreshBrowserUI();
+    ImGui::Spacing();
+
+    if (m_browserFiles.empty())
+    {
+        ImGui::TextDisabled("No projects found.");
+        return;
+    }
+
+    ImGui::BeginChild("##BrowserScroll", ImVec2(0, 0), false);
+
+    const int colNb = std::max(1, (int)(ImGui::GetContentRegionAvail().x / CELL));
+    if (!ImGui::BeginTable("##BrowserTable", colNb))
+    {
+        ImGui::EndChild();
+        return;
+    }
+
+    for (const auto& file : m_browserFiles)
+    {
+        ImGui::TableNextColumn();
+        const std::string name   = file.stem().string();
+        const bool        sel    = (m_browserSelected == file);
+        const std::string cellId = "##proj_" + file.string();
+        const ImVec2      pos    = ImGui::GetCursorPos();
+
+        if (ImGui::Selectable(cellId.c_str(), sel, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(CELL, CELL_H)))
+        {
+            m_browserSelected = file;
+            if (ImGui::IsMouseDoubleClicked(0))
+            {
+                m_info.projectPath = file.parent_path();
+                m_info.contentPath = m_info.projectPath / "Content";
+                std::filesystem::create_directories(m_info.contentPath);
+                loadProject(file);
+                stillSelecting = false;
+            }
+        }
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("%s", file.string().c_str());
+
+        ImGui::SetCursorPos(pos);
+        const float iw = bigFont->CalcTextSizeA(24.0f, FLT_MAX, 0, ICON_FA_GAMEPAD).x;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (CELL - iw) * 0.5f);
+        ImGui::PushFont(bigFont);
+        ImGui::Text("%s", ICON_FA_GAMEPAD);
+        ImGui::PopFont();
+        const float lw = ImGui::CalcTextSize(name.c_str()).x;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0f, (CELL - lw) * 0.5f));
+        ImGui::TextUnformatted(name.c_str());
+    }
+
+    ImGui::EndTable();
+    ImGui::EndChild();
+}
+
+void ProjectLoader::drawUI(bool& stillSelecting)
+{
+    if (!m_browserInitialized)
+    {
+        m_browserPath        = getBasePath();
+        m_createPath         = getBasePath();
+        m_browserInitialized = true;
+        refreshBrowserUI();
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(700, 520), ImGuiCond_Once);
+    ImGui::Begin("Project Loader", nullptr, ImGuiWindowFlags_NoCollapse);
+
+    // ── Top: create / open via dialog ─────────────────────────────────────────
+    ImGui::SeparatorText("New project");
+    ImGui::SetNextItemWidth(220.0f);
+    ImGui::InputText("Name", m_projectName, sizeof(m_projectName));
+    ImGui::SameLine();
+
+    // Location picker
+    const std::string createPathStr = m_createPath.string();
+    ImGui::SetNextItemWidth(200.0f);
+    ImGui::InputText("##CreatePath", const_cast<char*>(createPathStr.c_str()), createPathStr.size() + 1,
+                     ImGuiInputTextFlags_ReadOnly);
+    ImGui::SameLine();
+    if (ImGui::Button((std::string(ICON_FA_FOLDER_OPEN_O) + "##loc").c_str()))
+    {
+        if (auto picked = tinyfd_selectFolderDialog("Choose project location",
+                m_createPath.string().c_str());
+            picked != nullptr)
+        {
+            m_createPath = picked;
+        }
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Create"))
     {
         if (m_projectName[0] == '\0')
-        {
             ImGui::OpenPopup("Error");
-        }
         else
         {
-            std::filesystem::path projectPath = getBasePath() / m_projectName;
+            std::filesystem::path projectPath = m_createPath / m_projectName;
             std::filesystem::create_directories(projectPath / "Content");
             std::filesystem::create_directories(projectPath / "Content" / "Scenes");
             m_info.projectPath = projectPath;
@@ -258,9 +353,34 @@ void ProjectLoader::drawUI(bool& stillSelecting)
             m_info.startScene  = projectPath / "Content" / "Scenes" / "default.gcmap";
             m_info.createdAt   = nowISO8601();
             writeProjectFile();
+            // Refresh browser so the new project appears
+            m_browserPath = m_createPath;
+            refreshBrowserUI();
             stillSelecting = false;
         }
     }
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Open project");
+    if (ImGui::Button((std::string(ICON_FA_FOLDER_OPEN_O) + " Browse...").c_str()))
+    {
+        const char* filters[] = { "*.gcproj" };
+        if (auto path = tinyfd_openFileDialog("Open a project",
+            m_browserPath.string().c_str(), 1, filters, "GC Project", 0);
+            path != nullptr)
+        {
+            std::filesystem::path p(path);
+            m_info.projectPath = p.parent_path();
+            m_info.contentPath = m_info.projectPath / "Content";
+            std::filesystem::create_directories(m_info.contentPath);
+            loadProject(p);
+            stillSelecting = false;
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Projects");
+    drawBrowserUI(stillSelecting);
 
     if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {

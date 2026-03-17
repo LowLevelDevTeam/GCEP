@@ -7,6 +7,7 @@
 /// @date 2026-02-17
 
 // Internals
+#include <Editor/UI_Panels/ipanel.hpp>
 #include <Editor/ProjectLoader/project_loader.hpp>
 
 // Externals
@@ -37,7 +38,7 @@ namespace gcep::editor
     /// @par Ownership
     /// @c ContentBrowser holds no heap resources beyond the @c std::vector caches
     /// that are refreshed on directory change.
-    class ContentBrowser
+    class ContentBrowser : public panel::IPanel
     {
     public:
         /// @brief Constructs the browser rooted at @p defaultPath.
@@ -53,7 +54,7 @@ namespace gcep::editor
         ///
         /// Calls @c renderBackButton(), then @c folderTable(). Must be called from
         /// within an active Dear ImGui window.
-        void render();
+        void draw() override;
 
     private:
         /// @brief Renders the two-column icon grid for the current directory.

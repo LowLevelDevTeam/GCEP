@@ -14,7 +14,7 @@ namespace gcep::ECS
         m_idGenerator.forceID(entity);
     }
 
-    inline void Registry::destroyEntity(EntityID entity)
+    inline void Registry:: destroyEntity(EntityID entity)
     {
         if (m_idGenerator.isValid(entity))
         {
