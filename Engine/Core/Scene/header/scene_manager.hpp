@@ -17,7 +17,7 @@ namespace gcep::SLS
 
         Scene& current();
 
-        void saveScene(const std::string &path);
+        void saveScene();
 
         void loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi);
 

@@ -50,18 +50,21 @@ namespace gcep::SLS
         void removeParent(ECS::EntityID child);
 
         void load(const std::string& filename, rhi::vulkan::VulkanRHI* rhi);
-        void save(const std::string& filename);
+        void save();
         void clear();
 
 
         ECS::Registry& getRegistry()       { return m_registry; }
         const ECS::Registry& getRegistry() const { return m_registry; }
         const std::string&   getName()     const { return m_name;     }
+        const std::string&   getPath()     const { return m_path;     }
+        void                 setPath(const std::string& path) { m_path = path; }
         void setName(const std::string& name) { m_name = name; }
         void setSceneSettings(const SceneSettings& settings) { m_settings = settings; }
         SceneSettings& getSceneSettings() { return m_settings; }
     private:
         std::string m_name;
+        std::string m_path;
         ECS::Registry m_registry;
         SceneSettings m_settings;
     };

@@ -312,8 +312,15 @@ void ProjectLoader::drawUI(bool& stillSelecting)
         refreshBrowserUI();
     }
 
-    ImGui::SetNextWindowSize(ImVec2(700, 520), ImGuiCond_Once);
-    ImGui::Begin("Project Loader", nullptr, ImGuiWindowFlags_NoCollapse);
+    const ImGuiViewport* vp = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(vp->WorkPos, ImGuiCond_Always);
+    ImGui::SetNextWindowSize(vp->WorkSize, ImGuiCond_Always);
+    ImGui::Begin("Project Loader", nullptr,
+        ImGuiWindowFlags_NoCollapse   |
+        ImGuiWindowFlags_NoMove       |
+        ImGuiWindowFlags_NoResize     |
+        ImGuiWindowFlags_NoTitleBar   |
+        ImGuiWindowFlags_NoBringToFrontOnFocus);
 
     // ── Top: create / open via dialog ─────────────────────────────────────────
     ImGui::SeparatorText("New project");
