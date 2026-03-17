@@ -1,6 +1,7 @@
 #include "viewport_panel.hpp"
 
 #include <Editor/UI_Panels/editor_context.hpp>
+#include <Engine/Core/Scene/header/scene_manager.hpp>
 #include <Editor/Prefab/prefab_system.hpp>
 #include <PhysicsWrapper/physics_system.hpp>
 #include <Scene/header/scene_manager.hpp>
@@ -108,6 +109,8 @@ namespace gcep::panel
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
+            // Récupération du chemin de la scène via UiManager
+            gcep::SLS::SceneManager::instance().saveScene(ctx.currentScenePath);
         }
         ImGui::SameLine();
 
