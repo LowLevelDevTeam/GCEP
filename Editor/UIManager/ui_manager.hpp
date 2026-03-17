@@ -9,7 +9,7 @@
 // Internals
 #include <Editor/ProjectLoader/project_loader.hpp>
 #include <Editor/UI_Panels/editor_context.hpp>
-#include <Editor/UI_Panels/Panels/Viewport/viewport_panel.hpp>
+#include <Editor/UI_Panels/Panels/ViewPort/viewport_panel.hpp>
 #include <Editor/UI_Panels/Panels/SceneSettings/scene_settings_panel.hpp>
 #include <Editor/UI_Panels/Panels/SceneHierarchy/scene_hierarchy_panel.hpp>
 #include <Editor/UI_Panels/Panels/Inspector/inspector_panel.hpp>

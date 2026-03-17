@@ -3,7 +3,7 @@
 // Internals
 #include "physics_shape.hpp"
 #include <ECS/Components/physics_component.hpp>
-#include <ECS/Components/transform.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include <Maths/Utils/vector3_convertor.hpp>
 
 // Externals
