@@ -9,6 +9,7 @@
 // STL
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
