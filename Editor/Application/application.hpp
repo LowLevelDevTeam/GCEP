@@ -6,6 +6,7 @@
 #include <Editor/ImGUIManager/imgui_manager.hpp>
 #include <Editor/Inputs/inputs.hpp>
 #include <Editor/UIManager/ui_manager.hpp>
+#include <PhysicsWrapper/physics_system.hpp>
 #include <Editor/Window/window.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
 #include <Log/log.hpp>

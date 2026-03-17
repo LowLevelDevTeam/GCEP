@@ -31,6 +31,10 @@ namespace gcep::editor
     ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
                              const std::string& path, glm::vec3 pos);
 
+    /// @brief Attaches a mesh to an existing entity (does not create a new entity).
+    void attachMesh(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
+                    ECS::EntityID id, const std::string& path);
+
     /// @brief Spawns a unit cube primitive into @p scene at position @p pos.
     ///
     /// @param scene  Target scene that will own the new entity.

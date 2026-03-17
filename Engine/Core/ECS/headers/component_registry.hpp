@@ -35,6 +35,7 @@ namespace gcep::ECS
             std::function<void(Registry&)>                                                   ensurePool;
             std::function<void(Registry&, EntityID, SER_IArchive&)>                          deserialize;
             std::function<void(Registry&, SER_JsonWriteArchive&)>                            serializeJson;
+            std::function<void(Registry&, EntityID, SER_JsonWriteArchive&)>                  serializeEntityJson;
             std::function<void(Registry&, EntityID, const SER_JsonReadArchive::EntityData&)> deserializeJson;
         };
 

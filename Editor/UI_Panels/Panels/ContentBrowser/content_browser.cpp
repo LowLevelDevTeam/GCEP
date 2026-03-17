@@ -19,7 +19,7 @@ namespace gcep::editor
         refreshFolder();
     }
 
-    void ContentBrowser::render()
+    void ContentBrowser::draw()
     {
         ImGui::Begin("ContentDrawer");
         folderTable();
@@ -175,7 +175,7 @@ namespace gcep::editor
     {
         std::string icon = std::filesystem::is_empty(entry) ? ICON_FA_FOLDER_O : ICON_FA_FOLDER_OPEN_O;
         bool isSelected = (m_selectedPath == entry);
-        std::string id = "##dir_" + entry.string(); // plus safe que label seul
+        std::string id = "##dir_" + entry.string();
         ImVec2 pos = ImGui::GetCursorPos();
 
         if (ImGui::Selectable(id.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(64, 80)))
@@ -202,10 +202,10 @@ namespace gcep::editor
     {
         std::string icon = getFileIcon(entry);
         bool isSelected = (m_selectedPath == entry);
-        std::string id = "##file_" + entry.string();
+        std::string selectableId = "##file_" + entry.string();
         ImVec2 pos = ImGui::GetCursorPos();
 
-        if (ImGui::Selectable(id.c_str(), isSelected, 0, ImVec2(64, 80)))
+        if (ImGui::Selectable(selectableId.c_str(), isSelected, 0, ImVec2(64, 80)))
             m_selectedPath = entry;
 
         renderDragSource(entry);

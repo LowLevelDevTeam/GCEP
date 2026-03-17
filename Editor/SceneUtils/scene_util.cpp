@@ -28,6 +28,24 @@ namespace gcep::editor
     // Public — asset
     // ─────────────────────────────────────────────────────────────────────────────
 
+    void attachMesh(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
+                    ECS::EntityID id, const std::string& path)
+    {
+        auto& registry = scene.getRegistry();
+
+        if (!registry.hasComponent<ECS::PhysicsComponent>(id))
+        {
+            auto& pc      = registry.addComponent<ECS::PhysicsComponent>(id);
+            pc.motionType = ECS::EMotionType::STATIC;
+            pc.layers     = ECS::ELayers::NON_MOVING;
+            pc.shapeType  = ECS::EShapeType::CUBE;
+        }
+
+        auto& tc = registry.getComponent<ECS::Transform>(id);
+        const glm::vec3 pos = { tc.position.x, tc.position.y, tc.position.z };
+        rhi->spawnAsset(const_cast<char*>(path.c_str()), id, pos);
+    }
+
     ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
                              const std::string& path, glm::vec3 pos)
     {
