@@ -31,15 +31,13 @@ namespace gcep
     UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager, bool& reload, bool& close)
         : m_reloadApp(reload),
           m_isRunning(close),
-          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath),
-          m_currentScenePath(pl::ProjectLoader::instance().getProjectInfo().startScene.string())
+          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath)
     {
         m_window       = window;
         m_sceneManager = manager;
 
         auto& ctx      = editor::EditorContext::get();
         ctx.registry   = &m_sceneManager->current().getRegistry();
-
         editor::registerEngineDrawers();
 
         Log::info("UiManager initialized successfully");
@@ -139,10 +137,10 @@ namespace gcep
             {
                 if (ImGui::MenuItem((std::string(ICON_FA_FLOPPY_O) + " Save scene").c_str(), "Ctrl+S"))
                 {
-                    if (m_sceneManager && !m_currentScenePath.empty())
+                    if (m_sceneManager && !m_sceneManager->current().getPath().empty())
                     {
                         pl::ProjectLoader::instance().saveProject();
-                        m_sceneManager->current().save(m_currentScenePath);
+                        m_sceneManager->current().save();
                     }
                 }
                 if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
@@ -346,10 +344,10 @@ namespace gcep
         // ── Global keyboard shortcuts ─────────────────────────────────────────────
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
         {
-            if (m_sceneManager && !m_currentScenePath.empty())
+            if (m_sceneManager && !m_sceneManager->current().getPath().empty())
             {
                 pl::ProjectLoader::instance().saveProject();
-                m_sceneManager->current().save(m_currentScenePath);
+                m_sceneManager->current().save();
             }
         }
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
