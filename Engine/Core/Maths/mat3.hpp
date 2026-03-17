@@ -1,11 +1,11 @@
 #pragma once
 
-// STL
-#include <cmath>
-
-// Core
+// Internals
 #include "vector2.hpp"
 #include "vector3.hpp"
+
+// STL
+#include <cmath>
 
 namespace gcep
 {
@@ -180,6 +180,6 @@ namespace gcep
          */
         static T ToRadians(T degrees);
     };
-} // gcep
+} // namespace gcep
 
 #include "mat3.inl"

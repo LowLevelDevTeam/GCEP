@@ -1,37 +1,36 @@
 #include "physics_world.hpp"
 
-#include <memory>
-#include <iostream>
+// Internals
+#include "physics_shape.hpp"
+#include <ECS/Components/physics_component.hpp>
+#include <ECS/Components/transform.hpp>
+#include <Maths/Utils/vector3_convertor.hpp>
 
-//LIB
-
+// Externals
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-
-#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
-#include <Jolt/Physics/Body/BodyLock.h>
-
-#include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
 
-// Core
-#include "physics_shape.hpp"
-#include <Engine/Core/ECS/Components/physics_component.hpp>
-#include <Engine/Core/ECS/Components/transform.hpp>
-#include "Jolt/Physics/Collision/Shape/ScaledShape.h"
-#include "Maths/Utils/vector3_convertor.hpp"
+// STL
+#include <memory>
+#include <iostream>
 
 namespace gcep
 {
-
     PhysicsWorld::PhysicsWorld()
     {
        // Register allocation hook.
@@ -86,7 +85,8 @@ namespace gcep
 			*m_objectVsBroadPhaseLayerFilter,
 			*m_objectLayerPairFilter
 			);
-
+    	m_contactListener = std::make_unique<PhysicsContactListener>();
+		m_physicsSystem->SetContactListener(m_contactListener.get());
     	m_physicsSystem->SetGravity(JPH::Vec3(0, 0, -9.81f));
     }
 
@@ -181,8 +181,9 @@ namespace gcep
 			position,
 			rotation,
 			motionType,
-			static_cast<int>(data.layers)
+			static_cast<JPH::ObjectLayer>(data.layers)
     	);
+    	bodySettings.mIsSensor = data.isTrigger;
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	    JPH::Body* body = bodyInterface.CreateBody(bodySettings);
@@ -360,4 +361,4 @@ namespace gcep
     	m_shapeCache[key] = shape;
     	return shape;
 	}
-}
+} // namespace gcep

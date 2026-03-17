@@ -1,13 +1,17 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <functional>
+
+// Internals
 #include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/json_archive.hpp>
 
-#include "json_archive.hpp"
+// STL
+#include <functional>
+#include <string>
+#include <vector>
 
-// Forward déclarations pour éviter les inclusions circulaires
-namespace gcep::SER {
+// Forward declarations
+namespace gcep::SER
+{
     class IArchive;
     class JsonWriteArchive;
     class JsonReadArchive;
@@ -26,11 +30,12 @@ namespace gcep::ECS
     public:
         struct Entry
         {
-            uint32_t     typeID;
-            std::string  name;
-            std::function<void(Registry&)>                                                    ensurePool;
+            uint32_t    typeID;
+            std::string name;
+            std::function<void(Registry&)>                                                   ensurePool;
             std::function<void(Registry&, EntityID, SER_IArchive&)>                          deserialize;
             std::function<void(Registry&, SER_JsonWriteArchive&)>                            serializeJson;
+            std::function<void(Registry&, EntityID, SER_JsonWriteArchive&)>                  serializeEntityJson;
             std::function<void(Registry&, EntityID, const SER_JsonReadArchive::EntityData&)> deserializeJson;
         };
 
@@ -50,8 +55,6 @@ namespace gcep::ECS
 
         std::vector<Entry> m_entries;
     };
-
-
-}
+} // namespace gcep::ECS
 
 #include <ECS/detail/component_registry.inl>

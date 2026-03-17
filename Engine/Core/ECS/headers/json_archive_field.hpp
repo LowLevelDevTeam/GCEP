@@ -1,14 +1,17 @@
 #pragma once
+
+// Internals
+#include <ECS/headers/archive_field.hpp>
 #include <ECS/headers/json_archive.hpp>
-#include <Maths/vector2.hpp>
-#include <Maths/vector3.hpp>
-#include <Maths/quaternion.hpp>
 #include <Maths/mat3.hpp>
 #include <Maths/mat4.hpp>
-#include <ECS/headers/ArchiveField.hpp>
+#include <Maths/quaternion.hpp>
+#include <Maths/vector2.hpp>
+#include <Maths/vector3.hpp>
 
 namespace gcep::SER
 {
+    inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, bool     v) { ar.writeBool  (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, float    v) { ar.writeFloat (key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, double   v) { ar.writeDouble(key, v); }
     inline void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, uint8_t  v) { ar.writeUint8 (key, v); }
@@ -82,9 +85,19 @@ namespace gcep::SER
         ar.writeString(key, str);
     }
 
+    template<typename T>
+    void archiveWriteJson(JsonWriteArchive& ar, const std::string& key, const T* ptr)
+    {
+        if (ptr == nullptr)
+        {
+            ar.writeInt8(key + ".__isNull", true);
+            return;
+        }
+        ar.writeInt8(key + ".__isNull", false);
+        archiveWriteJson(ar, key, *ptr); // délègue au cas T
+    }
 
-
-
+    inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, bool&     v) { v = ed.readBool  (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, float&    v) { v = ed.readFloat (key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, double&   v) { v = ed.readDouble(key); }
     inline void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, uint8_t&  v) { v = ed.readUint8 (key); }
@@ -126,4 +139,10 @@ namespace gcep::SER
     template<typename T>
     std::enable_if_t<!std::is_enum_v<T>>
     archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T& v) {}
-}
+
+    template<typename T>
+    void archiveReadJson(const JsonReadArchive::EntityData& ed, const std::string& key, T*& ptr)
+    {
+        ptr = nullptr;
+    }
+} // namespace gcep::SER

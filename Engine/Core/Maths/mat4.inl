@@ -6,7 +6,6 @@
 
 namespace gcep
 {
-
     // Constructors
     template <typename T>
     Mat4<T>::Mat4()
@@ -523,4 +522,4 @@ namespace gcep
     {
         return !(*this == other);
     }
-} // gcep
+} // namespace gcep

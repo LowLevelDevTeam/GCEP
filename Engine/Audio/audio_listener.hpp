@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Engine/Core/Maths/vector3.hpp"
+// Internals
+#include <Maths/vector3.hpp>
 
 namespace gcep
 {
@@ -22,4 +23,4 @@ namespace gcep
         Vector3<float> m_forward{0.0f, 0.0f, -1.0f};
         Vector3<float> m_up{0.0f, 1.0f, 0.0f};
     };
-} // gcep
+} // namespace gcep

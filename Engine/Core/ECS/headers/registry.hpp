@@ -1,10 +1,12 @@
 #pragma once
-#include <Log/Log.hpp>
-#include "component_pool.hpp"
-#include "entity_component.hpp"
-#include "view_finder.hpp"
-#include  "entity_component.hpp"
 
+// Internals
+#include <ECS/headers/component_pool.hpp>
+#include <ECS/headers/entity_component.hpp>
+#include <ECS/headers/view_finder.hpp>
+#include <Log/log.hpp>
+
+// STL
 #include <memory>
 
 /**
@@ -124,8 +126,7 @@ namespace gcep::ECS
         /** @brief Internal logic for removing an entity and its associated data. */
         void removeEntity(EntityID toRemove);
     };
-
-}
+} // namespace gcep::ECS
 
 #include <Engine/Core/ECS/detail/registry.inl>
 #include <Engine/Core/ECS/detail/view_finder.inl>

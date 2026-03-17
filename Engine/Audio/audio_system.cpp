@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <iostream>
 
-// Libs
-#include <glm/glm.hpp>
-
 namespace gcep
 {
     AudioSystem* AudioSystem::s_instance = nullptr;

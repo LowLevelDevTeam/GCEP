@@ -37,4 +37,4 @@ namespace gcep
         uint32_t m_sampleRate = 0;
     };
 
-} // gcep
+} // namespace gcep

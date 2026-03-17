@@ -1,11 +1,11 @@
 #pragma once
-#include "Engine/RHI/Vulkan/VulkanRHI.hpp"
-#include <Log/Log.hpp>
 
+// Internals
+#include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
+#include <Log/log.hpp>
 
 namespace gcep::SLS
 {
-
     inline Scene::Scene(const std::string& name) : m_name(name)
     {
         m_registry.getPool<ECS::Transform>().reserve(1000);
@@ -18,12 +18,10 @@ namespace gcep::SLS
         clear();
     }
 
-
     inline void Scene::onUpdateEditor(float deltaTime)
     {
         onRender();
         m_registry.update();
-
     }
 
     inline void Scene::onUpdateRuntime(float deltaTime)
@@ -42,11 +40,8 @@ namespace gcep::SLS
         return entity;
     }
 
-
     inline void Scene::load(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
-        clear();
-
         clear();
         std::string basePath = path.substr(0, path.find_last_of('.'));
 
@@ -100,7 +95,6 @@ namespace gcep::SLS
         binSnapshot.serializeAll(ar);
     }
 
-
     inline void Scene::destroyEntity(ECS::EntityID id)
     {
         for (auto child : getChildren(id))
@@ -110,6 +104,9 @@ namespace gcep::SLS
 
         removeParent(id);
         m_registry.destroyEntity(id);
+        Log::info(std::to_string(id) + " destroyed");
+
+
     }
 
     inline std::vector<ECS::EntityID> Scene::getChildren(ECS::EntityID parent)
@@ -195,7 +192,6 @@ namespace gcep::SLS
         childHierarchy.nextSibling = ECS::INVALID_VALUE;
     }
 
-
     inline void Scene::clear()
     {
         for (auto& pool : m_registry.getPools())
@@ -208,6 +204,5 @@ namespace gcep::SLS
             }
         }
         m_registry.update();
-
     }
-}
+} // namespace gcep::SLS

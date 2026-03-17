@@ -1,5 +1,6 @@
 #pragma once
 
+// STL
 #include <cmath>
 #include <numbers>
 
@@ -145,6 +146,6 @@ namespace gcep
          */
         static Vector2 MoveTowards(const Vector2& current, const Vector2& target, T maxDistanceDelta);
     };
-} // gcep
+} // namespace gcep
 
 #include "vector2.inl"

@@ -1,8 +1,7 @@
 #pragma once
 
-// Libs
-#include "glm/fwd.hpp"
-
+// Externals
+#include <glm/fwd.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
@@ -80,4 +79,4 @@ namespace gcep
         /// Internal mapping from object layers to broadphase layers.
         JPH::BroadPhaseLayer m_ObjectToBroadPhase[Layers::NUM_LAYERS];
     };
-}
+} // namespace gcep

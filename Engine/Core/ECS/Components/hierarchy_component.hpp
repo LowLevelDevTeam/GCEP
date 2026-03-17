@@ -1,5 +1,7 @@
 #pragma once
-#include <Engine/Core/ECS/headers/component_registry.hpp>
+
+// Internals
+#include <ECS/headers/component_registry.hpp>
 
 namespace gcep::ECS
 {
@@ -12,4 +14,4 @@ namespace gcep::ECS
         static inline bool _gcep_registered =
         gcep::ECS::ComponentRegistry::instance().reg<HierarchyComponent>();
     };
-}
+} // namespace gcep::ECS

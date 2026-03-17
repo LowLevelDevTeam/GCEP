@@ -1,8 +1,12 @@
 #pragma once
+
+// Internals
+#include <Scene/header/scene.hpp>
+
+// STL
 #include <memory>
 #include <string>
 #include <vector>
-#include <Engine/Core/Scene/header/scene.hpp>
 
 namespace gcep::SLS
 {
@@ -31,6 +35,6 @@ namespace gcep::SLS
         std::unique_ptr<Scene>   m_currentScene;
         std::vector<std::string> m_sceneList;
     };
-}
+} // namespace gcep::SLS
 
-#include <Engine/Core/Scene/detail/scene_manager.inl>
+#include <Scene/detail/scene_manager.inl>

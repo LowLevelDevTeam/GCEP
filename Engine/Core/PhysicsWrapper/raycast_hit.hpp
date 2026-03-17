@@ -1,12 +1,14 @@
 #pragma once
 
+// Internals
+#include <Maths/vector3.hpp>
+
+// Externals
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
-#include "Engine/Core/Maths/vector3.hpp"
-
-namespace gcep {
-
+namespace gcep
+{
     /**
      * @struct RaycastHit
      * @brief Represents the result of a physics raycast.

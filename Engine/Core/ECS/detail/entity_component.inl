@@ -1,7 +1,4 @@
 #pragma once
-#include <Engine/Core/ECS/headers/entity_component.hpp>
-
-
 
 namespace gcep::ECS
 {
@@ -72,9 +69,11 @@ namespace gcep::ECS
         element.active = true;
         element.version = version;
 
-        if (nextAvailable == index) {
+        if (nextAvailable == index)
+        {
             nextAvailable = element.nextfreeID;
-        } else {
+        } else
+        {
             EntityID curr = nextAvailable;
             while (curr != INVALID_VALUE && elements[curr].nextfreeID != index)
                 curr = elements[curr].nextfreeID;
@@ -84,6 +83,4 @@ namespace gcep::ECS
 
         return id;
     }
-
-}
-
+} // namespace gcep::ECS

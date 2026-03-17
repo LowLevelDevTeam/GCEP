@@ -1,6 +1,6 @@
 #pragma once
 
-// Libs
+// Externals
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>

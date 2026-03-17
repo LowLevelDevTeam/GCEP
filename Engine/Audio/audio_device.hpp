@@ -1,10 +1,10 @@
 #pragma once
 
+// Externals
+#include <miniaudio.h>
+
 // STL
 #include <memory>
-
-// Libs
-#include <miniaudio.h>
 
 namespace gcep
 {
@@ -112,4 +112,4 @@ namespace gcep
         /** Number of output channels configured for this device */
         uint32_t m_channels = 0;
     };
-} // gcep
+} // namespace gcep

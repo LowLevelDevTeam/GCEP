@@ -11,6 +11,13 @@ namespace gcep::SER
         else
             mode |= std::ios::in;
 
+        if (isWriting)
+        {
+            const auto parent = std::filesystem::path(filename).parent_path();
+            if (!parent.empty())
+                std::filesystem::create_directories(parent);
+        }
+
         m_file.open(filename, mode);
         if (!m_file.is_open())
             throw std::runtime_error("Failed to open file: " + filename);
@@ -38,7 +45,10 @@ namespace gcep::SER
         m_file.seekg(bytes, std::ios::cur);
     }
 
-
+    inline void FileArchive::writeBool(bool val)
+    {
+        m_file.write(reinterpret_cast<const char*>(&val), sizeof(bool));
+    }
 
     inline void FileArchive::writeFloat(float val)
     {
@@ -84,7 +94,6 @@ namespace gcep::SER
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(int64_t));
     }
 
-
     inline void FileArchive::writeSize(uint32_t val)
     {
         m_file.write(reinterpret_cast<const char*>(&val), sizeof(uint32_t));
@@ -95,6 +104,13 @@ namespace gcep::SER
         uint32_t len = static_cast<uint32_t>(name.size());
         m_file.write(reinterpret_cast<const char*>(&len), sizeof(uint32_t));
         m_file.write(name.data(), name.size());
+    }
+
+    inline bool FileArchive::readBool()
+    {
+        bool val;
+        m_file.read(reinterpret_cast<char*>(&val), sizeof(bool));
+        return val;
     }
 
     inline float FileArchive::readFloat()
@@ -181,5 +197,4 @@ namespace gcep::SER
         m_file.read(name.data(), len);
         return name;
     }
-}
-
+} // namespace gcep::SER

@@ -1,11 +1,11 @@
 #pragma once
 
-// Jolt
+// Internals
+#include <Maths/quaternion.hpp>
+
+// Externals
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Quat.h>
-
-// Engine
-#include "Engine/Core/Maths/quaternion.hpp"
 
 // STL
 #include <type_traits>
@@ -55,4 +55,4 @@ namespace gcep
         }
 
     };
-}
+} // namespace gcep

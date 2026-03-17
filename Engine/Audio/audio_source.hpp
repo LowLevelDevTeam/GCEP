@@ -1,11 +1,11 @@
 #pragma once
 
+// Internals
+#include "audio_buffer.hpp"
+#include <Maths/vector3.hpp>
+
 // STL
 #include <memory>
-
-// Core
-#include "audio_buffer.hpp"
-#include "Engine/Core/Maths/vector3.hpp"
 
 namespace gcep
 {

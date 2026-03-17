@@ -1,6 +1,9 @@
 #pragma once
-#include "entity_component.hpp"
 
+// Internals
+#include <ECS/headers/entity_component.hpp>
+
+// STL
 #include <tuple>
 #include <vector>
 
@@ -58,7 +61,7 @@ namespace gcep::ECS
              */
             Iterator& operator++()
             {
-                do 
+                do
                 {
                     m_currentEntity++;
                 } while (m_currentEntity != m_lastEntity && !m_view.match(*m_currentEntity));
@@ -103,8 +106,5 @@ namespace gcep::ECS
         Registry& m_registry;                  ///< Reference to the central Registry.
         IPool* m_smallestPool = nullptr;       ///< Pool used as the iteration base (optimization).
         std::tuple<ComponentPool<Args>*...> m_pools; ///< Cached pointers to component pools.
-
-
     };
-}
-
+} // namespace gcep::ECS

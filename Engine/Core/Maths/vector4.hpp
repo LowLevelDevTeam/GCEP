@@ -1,27 +1,27 @@
 #pragma once
 
+// STL
 #include <cmath>
 #include <numbers>
 
-
-namespace gcep::mth {
-
-            /**
-     * @class Vector4
-     * @brief Represents a 4D mathematical vector with common arithmetic operations.
-     *
-     * Provides a complete set of vector operations such as addition, subtraction,
-     * normalization, dot product, interpolation, and reflection.
-     * Commonly used for homogeneous coordinates (XYZW) in 3D graphics.
-     *
-     * @tparam T Numeric type (float, double, int, etc.)
-     *
-     * @code
-     * math::Vector4<float> a(1.0f, 0.0f, 0.0f, 1.0f);
-     * math::Vector4<float> b(0.0f, 1.0f, 0.0f, 1.0f);
-     * float dot = a.Dot(b); // 0.0f
-     * @endcode
-     */
+namespace gcep
+{
+    /**
+    * @class Vector4
+    * @brief Represents a 4D mathematical vector with common arithmetic operations.
+    *
+    * Provides a complete set of vector operations such as addition, subtraction,
+    * normalization, dot product, interpolation, and reflection.
+    * Commonly used for homogeneous coordinates (XYZW) in 3D graphics.
+    *
+    * @tparam T Numeric type (float, double, int, etc.)
+    *
+    * @code
+    * math::Vector4<float> a(1.0f, 0.0f, 0.0f, 1.0f);
+    * math::Vector4<float> b(0.0f, 1.0f, 0.0f, 1.0f);
+    * float dot = a.Dot(b); // 0.0f
+    * @endcode
+    */
     template<typename T>
     class Vector4
     {
@@ -160,6 +160,4 @@ namespace gcep::mth {
          */
         static T Angle(const Vector4& a, const Vector4& b);
     };
-
-}
-
+} // namespace gcep

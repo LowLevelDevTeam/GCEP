@@ -1,11 +1,11 @@
 #include "audio_mixer.hpp"
 
-// STL
-#include <algorithm>
-
-// Core
+// Internals
 #include "audio_buffer.hpp"
 #include "audio_voice.hpp"
+
+// STL
+#include <algorithm>
 
 namespace gcep
 {

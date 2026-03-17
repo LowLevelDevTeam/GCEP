@@ -1,11 +1,14 @@
 #pragma once
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
 
+// Externals
 #include <Externals/rapidjson/prettywriter.h>
 #include <Externals/rapidjson/stringbuffer.h>
 #include <Externals/rapidjson/istreamwrapper.h>
+
+// STL
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 
 namespace gcep::SER
 {
@@ -32,6 +35,10 @@ namespace gcep::SER
         rapidjson::StringBuffer buf;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
         m_doc.Accept(writer);
+
+        const auto parent = std::filesystem::path(m_filename).parent_path();
+        if (!parent.empty())
+            std::filesystem::create_directories(parent);
 
         std::ofstream file(m_filename, std::ios::out | std::ios::trunc);
         if (!file.is_open())
@@ -79,6 +86,11 @@ namespace gcep::SER
     inline void JsonWriteArchive::endEntity()
     {
         m_currentEntity = nullptr;
+    }
+
+    inline void JsonWriteArchive::writeBool(const std::string& key, bool val)
+    {
+        m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val), m_alloc);
     }
 
     inline void JsonWriteArchive::writeFloat(const std::string& key, float val)
@@ -131,7 +143,6 @@ namespace gcep::SER
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val), m_alloc);
     }
 
-
     inline void JsonWriteArchive::writeString(const std::string& key, const std::string& val)
     {
         m_currentEntity->AddMember(rapidjson::Value(key.c_str(), m_alloc), rapidjson::Value(val.c_str(), m_alloc), m_alloc);
@@ -140,7 +151,6 @@ namespace gcep::SER
     {
         m_doc.AddMember("scene_name", rapidjson::Value(name.c_str(), m_alloc), m_alloc);
     }
-
 
     inline JsonReadArchive::JsonReadArchive(const std::string& filename)
     {
@@ -184,6 +194,11 @@ namespace gcep::SER
     }
 
     // ── EntityData readers ────────────────────────────────────────────────────
+
+    inline bool JsonReadArchive::EntityData::readBool(const std::string& key) const
+    {
+        return (*obj)[key.c_str()].GetBool();
+    }
 
     inline float JsonReadArchive::EntityData::readFloat(const std::string& key) const
     {
@@ -244,4 +259,4 @@ namespace gcep::SER
             return m_doc["scene_name"].GetString();
         return "Unnamed Scene";
     }
-}
+} // namespace gcep::SER

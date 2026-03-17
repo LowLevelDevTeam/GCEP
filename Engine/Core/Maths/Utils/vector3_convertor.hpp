@@ -1,11 +1,11 @@
 #pragma once
 
-// Jolt
+// Internals
+#include <Maths/vector3.hpp>
+
+// Externals
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Vec3.h>
-
-// Engine
-#include "Engine/Core/Maths/vector3.hpp"
 
 // STL
 #include <type_traits>
@@ -54,4 +54,4 @@ namespace gcep
         //=================
         // TODO: add glm conversion
     };
-} // gcep
+} // namespace gcep

@@ -31,7 +31,6 @@ namespace gcep::ECS
     template<typename... Args>
     View<Args...>::View(Registry& registry) : m_registry(registry), m_smallestPool(nullptr)
     {
-
         m_pools = std::make_tuple(&m_registry.getPool<Args>()...);
 
         size_t minSize = std::numeric_limits<size_t>::max();
@@ -58,7 +57,6 @@ namespace gcep::ECS
         }, m_pools);
     }
 
-
     template<typename ... Args>
     typename View<Args...>::Iterator View<Args...>::begin()
     {
@@ -68,8 +66,6 @@ namespace gcep::ECS
         const auto& entities = m_smallestPool->getEntities();
         return Iterator{entities.data(), entities.data() + entities.size(), *this};
     }
-
-
 
     template<typename ... Args>
     typename View<Args...>::Iterator View<Args...>::end()
@@ -92,4 +88,4 @@ namespace gcep::ECS
     }
 
 #pragma endregion
-}
+} // namespace gcep::ECS

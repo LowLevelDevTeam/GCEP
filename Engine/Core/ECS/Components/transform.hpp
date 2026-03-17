@@ -1,7 +1,9 @@
 #pragma once
-#include <Engine/Core/Maths/vector3.hpp>
-#include <Engine/Core/Maths/quaternion.hpp>
-#include <Engine/Core/ECS/headers/component_registry.hpp>
+
+// Internals
+#include <Maths/vector3.hpp>
+#include <Maths/quaternion.hpp>
+#include <ECS/headers/component_registry.hpp>
 
 namespace gcep::ECS
 {
@@ -15,4 +17,4 @@ namespace gcep::ECS
         static inline bool _gcep_registered =
             ComponentRegistry::instance().reg<Transform>();
     };
-}
+} // namespace gcep::ECS

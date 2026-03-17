@@ -1,10 +1,14 @@
 #pragma once
+
+// Internals
 #include <ECS/headers/json_archive.hpp>
-#include  <ECS/headers/json_archive_field.hpp>
+#include <ECS/headers/json_archive_field.hpp>
 
+// Externals
 #include <boost/pfr.hpp>
-#include <string>
 
+// STL
+#include <string>
 
 namespace gcep::SER
 {
@@ -33,4 +37,4 @@ namespace gcep::SER
             return component;
         }
     };
-}
+} // namespace gcep::SER

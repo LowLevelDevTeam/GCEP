@@ -1,12 +1,12 @@
 #pragma once
 
+// Internals
+#include "audio.hpp"
+
 // STL
 #include <memory>
 #include <unordered_map>
 #include <vector>
-
-// Core
-#include "audio.hpp"
 
 namespace gcep
 {
@@ -46,4 +46,4 @@ namespace gcep
 
         std::vector<AudioVoice> m_voiceBuffer;
     };
-} // gcep
+} // namespace gcep

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string_view>
+// STL
 #include <cstdint>
+#include <string_view>
 
 namespace gcep::config
 {
@@ -85,4 +86,4 @@ namespace gcep::config
     #pragma message("Your C++ version might not support C++20 features used inside this engine.")
 #endif
 
-} // Namespace gcep::config
+} // namespace gcep::config

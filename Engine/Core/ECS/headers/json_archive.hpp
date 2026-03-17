@@ -1,18 +1,21 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <cstdint>
-#include <vector>
-#include <stdexcept>
 
+// Externals
 #include <Externals/rapidjson/document.h>
 #include <Externals/rapidjson/prettywriter.h>
 #include <Externals/rapidjson/stringbuffer.h>
 #include <Externals/rapidjson/istreamwrapper.h>
 
+// STL
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 namespace gcep::SER
 {
-
     class JsonWriteArchive
     {
     public:
@@ -33,6 +36,7 @@ namespace gcep::SER
         void endEntity();
 
         // Scalaires
+        void writeBool  (const std::string& key, bool     val);
         void writeFloat (const std::string& key, float    val);
         void writeDouble(const std::string& key, double   val);
         void writeUint8 (const std::string& key, uint8_t  val);
@@ -61,9 +65,6 @@ namespace gcep::SER
     };
 
 
-
-
-
     class JsonReadArchive
     {
     public:
@@ -80,6 +81,7 @@ namespace gcep::SER
             uint32_t id = 0;
             const rapidjson::Value* obj = nullptr;
 
+            bool     readBool (const std::string& key) const;
             float    readFloat (const std::string& key) const;
             double   readDouble(const std::string& key) const;
             uint8_t  readUint8 (const std::string& key) const;
@@ -113,7 +115,6 @@ namespace gcep::SER
         void parse();
 
     };
-}
+} // namespace gcep::SER
 
-
-#include <Engine/Core/ECS/detail/json_archive.inl>
+#include <ECS/detail/json_archive.inl>

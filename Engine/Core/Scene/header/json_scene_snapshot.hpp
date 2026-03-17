@@ -1,6 +1,8 @@
 #pragma once
-#include <Engine/Core/ECS/headers/json_archive.hpp>
-#include <Engine/Core/ECS/headers/component_registry.hpp>
+
+// Internals
+#include <ECS/headers/json_archive.hpp>
+#include <ECS/headers/component_registry.hpp>
 
 namespace gcep::SLS
 {
@@ -19,4 +21,4 @@ namespace gcep::SLS
     };
 }
 
-//#include <Engine/Core/Scene/detail/json_scene_snapshot.inl>
+// .inl include in scene.hpp

@@ -198,4 +198,4 @@ namespace gcep
     {
         return degrees * static_cast<T>(std::numbers::pi_v<float> / 180.0);
     }
-} // gcep
+} // namespace gcep

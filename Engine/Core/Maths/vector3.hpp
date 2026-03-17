@@ -168,6 +168,6 @@ namespace gcep
          */
         static T Angle(const Vector3& a, const Vector3& b);
     };
-} // gcep
+} // namespace gcep
 
 #include "vector3.inl"

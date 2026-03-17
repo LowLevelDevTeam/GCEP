@@ -322,4 +322,4 @@ namespace gcep
 
         return euler;
     }
-} // gcep
+} // namespace gcep

@@ -1,10 +1,14 @@
 #include "physics_system.hpp"
-#include "physics_world.hpp"
-#include <Engine/Core/ECS/Components/physics_component.hpp>
-#include <Engine/Core/ECS/Components/transform.hpp>
-#include "Maths/Utils/vector3_convertor.hpp"
-#include "Maths/Utils/quaternion_convertor.hpp"
 
+// Internals
+#include <ECS/Components/physics_component.hpp>
+#include <ECS/Components/transform.hpp>
+#include <Log/log.hpp>
+#include <Maths/Utils/quaternion_convertor.hpp>
+#include <Maths/Utils/vector3_convertor.hpp>
+#include <PhysicsWrapper/physics_world.hpp>
+
+// STL
 #include <memory>
 #include <iostream>
 
@@ -12,13 +16,14 @@ namespace gcep
 {
     PhysicsSystem::PhysicsSystem()
     {
-        std::cout << "Physics System created\n";
         init();
+        Log::info("Physics System created");
     }
 
     PhysicsSystem::~PhysicsSystem()
     {
         shutdown();
+        Log::info("Physics system destroyed");
     }
 
     PhysicsSystem& PhysicsSystem::getInstance()
@@ -211,5 +216,4 @@ namespace gcep
     {
         return m_world->raycast(origin, direction, maxDistance);
     }
-
-} // gcep
+} // namespace gcep

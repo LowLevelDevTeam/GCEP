@@ -1,8 +1,5 @@
 #include "bplayer_interface_impl.hpp"
 
-// STL
-#include <string>
-
 namespace gcep
 {
     BPlayerInterfaceImpl::BPlayerInterfaceImpl()
@@ -32,5 +29,4 @@ namespace gcep
         }
     }
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
-
-} // gcep
+} // namespace gcep
