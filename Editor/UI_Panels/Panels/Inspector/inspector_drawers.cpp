@@ -117,9 +117,9 @@ namespace gcep::editor
 
         reg.registerDrawer<ECS::CameraComponent>([](ECS::CameraComponent& c)
         {
-            drawField(c.fovYDeg,       "FOV Y");
-            drawField(c.nearZ,         "Near Z");
-            drawField(c.farZ,          "Far Z");
+            //drawField(c.fovYDeg,       "FOV Y");
+            //drawField(c.nearZ,         "Near Z");
+            //drawField(c.farZ,          "Far Z");
             ImGui::Checkbox("Is Main Camera", &c.isMainCamera);
         });
     }
