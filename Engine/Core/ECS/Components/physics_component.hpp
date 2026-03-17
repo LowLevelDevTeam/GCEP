@@ -21,19 +21,12 @@ namespace gcep::ECS
         KINEMATIC
     };
 
-    enum class ELayers
-    {
-        NON_MOVING,
-        MOVING
-    };
-
     struct PhysicsComponent
     {
         bool isTrigger = false;
 
         EShapeType  shapeType  = EShapeType::CUBE;
         EMotionType motionType = EMotionType::STATIC;
-        ELayers     layers     = ELayers::NON_MOVING;
 
         static inline bool _gcep_registered =
             ComponentRegistry::instance().reg<PhysicsComponent>();
