@@ -114,6 +114,14 @@ namespace gcep::editor
         {
             drawField(t.name, "Name");
         }, /*removable=*/false);
+
+        reg.registerDrawer<ECS::CameraComponent>([](ECS::CameraComponent& c)
+        {
+            drawField(c.fovYDeg,       "FOV Y");
+            drawField(c.nearZ,         "Near Z");
+            drawField(c.farZ,          "Far Z");
+            ImGui::Checkbox("Is Main Camera", &c.isMainCamera);
+        });
     }
 
 } // namespace gcep::editor
