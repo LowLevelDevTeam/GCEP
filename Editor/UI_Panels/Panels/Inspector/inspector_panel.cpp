@@ -5,10 +5,13 @@
 #include <Editor/SceneUtils/scene_util.hpp>
 #include <Editor/Prefab/prefab_system.hpp>
 #include <Scene/header/scene_manager.hpp>
+#include <ECS/Components/hierarchy_component.hpp>
 #include <config.hpp>
 #include <tinyfiledialogs.h>
 #include <font_awesome.hpp>
 #include <imgui.h>
+
+#include <ECS/Components/transform.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -29,40 +32,33 @@ namespace gcep::panel
         }
 
         const ECS::EntityID id = ctx.selection.getSelectedEntityID();
+        auto& reg = editor::InspectorRegistry::get();
 
-        // ECS components — drawn automatically via InspectorRegistry
-        editor::InspectorRegistry::get().drawAll(*ctx.registry, id);
+        reg.drawComponentAdder(*ctx.registry, id);
+        ImGui::SameLine();
+        reg.drawComponentRemover(*ctx.registry, id);
 
-        // RHI extras (texture, LOD, scripting) — only for mesh entities
+        reg.drawComponent<ECS::Transform>(*ctx.registry, id);
+
         rhi::vulkan::Mesh* mesh = ctx.pRHI->findMesh(id);
         const bool hasLight = ctx.pRHI->getLightSystem().findSpotLight(id) ||
                               ctx.pRHI->getLightSystem().findPointLight(id);
         if (mesh)
-            drawRHIExtras(mesh);
-        else if (!hasLight)
-            drawAttachMesh(id);
-
-        // Add component button
-        ImGui::Spacing();
-        editor::InspectorRegistry::get().drawComponentAdder(*ctx.registry, id);
-
-        // Save as prefab
-        ImGui::Spacing();
-        ImGui::Separator();
-        if (ImGui::Button((std::string(ICON_FA_FLOPPY_O) + " Save as Prefab...").c_str()))
         {
-            const char* filters[] = { "*.gcprefab" };
-            const char* outPath = tinyfd_saveFileDialog("Save Prefab",
-                std::filesystem::current_path().string().c_str(), 1, filters, "GCEP Prefab");
-            if (outPath)
-            {
-                std::string meshPath;
-                if (mesh) meshPath = mesh->objPath().string();
-                editor::PrefabSystem::save(*ctx.registry, id, meshPath, outPath);
-            }
+            if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                drawRHIExtras(mesh);
+        }
+        else if (!hasLight)
+        {
+            if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                drawAttachMesh(id);
         }
 
-        // Gizmo controls — hidden while simulation is running
+        reg.drawAllExcept<ECS::Transform>(*ctx.registry, id);
+
+        ImGui::SeparatorText("Entity actions");
+        drawEntityActions(id, mesh);
+
         if (ctx.simulationState != SimulationState::PLAYING)
         {
             ImGui::SeparatorText("Gizmo controls");
@@ -174,13 +170,9 @@ namespace gcep::panel
     {
         auto& ctx = editor::EditorContext::get();
 
-        ImGui::SeparatorText("Mesh");
-
         if (ImGui::BeginMenu("Attach primitive"))
         {
             auto& scene = SLS::SceneManager::instance().current();
-            auto& tc    = ctx.registry->getComponent<ECS::Transform>(id);
-            const glm::vec3 pos = { tc.position.x, tc.position.y, tc.position.z };
 
             if (ImGui::MenuItem("Cube"))      editor::attachMesh(scene, ctx.pRHI, id, "Assets/Models/cube.obj");
             if (ImGui::MenuItem("Sphere"))    editor::attachMesh(scene, ctx.pRHI, id, "Assets/Models/sphere.obj");
@@ -201,6 +193,47 @@ namespace gcep::panel
             {
                 auto& scene = SLS::SceneManager::instance().current();
                 editor::attachMesh(scene, ctx.pRHI, id, path);
+            }
+        }
+    }
+
+    void InspectorPanel::drawEntityActions(ECS::EntityID id, rhi::vulkan::Mesh* mesh)
+    {
+        auto& ctx   = editor::EditorContext::get();
+        auto& scene = SLS::SceneManager::instance().current();
+
+        // Save as prefab
+        if (ImGui::Button((std::string(ICON_FA_FLOPPY_O) + " Save as Prefab...").c_str()))
+        {
+            const char* filters[] = { "*.gcprefab" };
+            const char* outPath = tinyfd_saveFileDialog("Save Prefab",
+                std::filesystem::current_path().string().c_str(), 1, filters, "GCEP Prefab");
+            if (outPath)
+            {
+                std::string meshPath;
+                if (mesh) meshPath = mesh->objPath().string();
+                editor::PrefabSystem::save(*ctx.registry, id, meshPath, outPath);
+            }
+        }
+
+        // Add child
+        ImGui::SameLine();
+        if (ImGui::Button((std::string(ICON_FA_PLUS) + " Add child").c_str()))
+        {
+            const ECS::EntityID child = scene.createEntity("Entity");
+            scene.setParent(child, id);
+            ctx.selection.select(child);
+        }
+
+        // Detach from parent — only shown when entity has a parent
+        if (ctx.registry->hasComponent<ECS::HierarchyComponent>(id))
+        {
+            const auto& hier = ctx.registry->getComponent<ECS::HierarchyComponent>(id);
+            if (hier.parent != ECS::INVALID_VALUE)
+            {
+                ImGui::SameLine();
+                if (ImGui::Button((std::string(ICON_FA_CHAIN_BROKEN) + " Detach from parent").c_str()))
+                    scene.removeParent(id);
             }
         }
     }

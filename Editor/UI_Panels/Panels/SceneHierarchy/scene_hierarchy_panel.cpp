@@ -16,10 +16,6 @@
 
 namespace gcep::panel
 {
-    // ─────────────────────────────────────────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────────────────────────────────────────
-
     std::string SceneHierarchyPanel::getEntityLabel(ECS::EntityID id) const
     {
         auto& ctx = editor::EditorContext::get();

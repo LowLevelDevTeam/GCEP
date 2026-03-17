@@ -16,6 +16,7 @@ namespace gcep::panel
         void drawGizmoControls();
         void drawRHIExtras(rhi::vulkan::Mesh* mesh);
         static void drawAttachMesh(ECS::EntityID id);
+        static void drawEntityActions(ECS::EntityID id, rhi::vulkan::Mesh* mesh);
     };
 
 } // namespace gcep::panel
