@@ -143,43 +143,8 @@ macro(astcenc_set_properties ASTCENC_TARGET_NAME ASTCENC_VENEER_TYPE)
             # Use pthreads on Linux/macOS
             $<$<PLATFORM_ID:Linux,Darwin>:-pthread>
 
-            # MSVC compiler defines
-            $<${is_msvc_fe}:/EHsc>
-            $<$<AND:$<BOOL:${ASTCENC_WERROR}>,${is_msvc_fe}>:/WX>
-            $<${is_msvccl}:/wd4324>
-
-            # G++ and Clang++ compiler defines
-            $<${is_gnu_fe}:-Wall>
-            $<${is_gnu_fe}:-Wextra>
-            $<${is_gnu_fe}:-Wpedantic>
-            $<$<AND:$<BOOL:${ASTCENC_WERROR}>,${is_gnu_fe}>:-Werror>
-            $<${is_gnu_fe}:-Wshadow>
-            $<${is_gnu_fe}:-Wdouble-promotion>
-            $<${is_clang}:-Wdocumentation>
-
-            # Hide noise thrown up by Clang 10 and clang-cl
-            $<${is_gnu_fe}:-Wno-unknown-warning-option>
-            $<${is_gnu_fe}:-Wno-c++98-compat-pedantic>
-            $<${is_gnu_fe}:-Wno-c++98-c++11-compat-pedantic>
-            $<${is_gnu_fe}:-Wno-float-equal>
-            $<${is_gnu_fe}:-Wno-deprecated-declarations>
-            $<${is_gnu_fe}:-Wno-atomic-implicit-seq-cst>
-            $<${is_clang}:-Wno-overriding-option>
-
-            # Clang 10 also throws up warnings we need to investigate (ours)
-            $<${is_gnu_fe}:-Wno-cast-align>
-            $<${is_gnu_fe}:-Wno-sign-conversion>
-            $<${is_gnu_fe}:-Wno-implicit-int-conversion>
-            $<${is_gnu_fe}:-Wno-shift-sign-overflow>
-            $<${is_gnu_fe}:-Wno-format-nonliteral>
-            $<${is_gnu_fe}:-Wno-reserved-identifier>
-            $<${is_gnu_fe}:-Wno-cast-function-type>
-
             # Force DWARF4 for Valgrind profiling
-            $<$<AND:$<PLATFORM_ID:Linux,Darwin>,${is_clang}>:-gdwarf-4>
-
-            # Disable non-portable Windows.h warning (fixing it fails builds on MinGW)
-            $<$<AND:$<PLATFORM_ID:Windows>,${is_clang}>:-Wno-nonportable-system-include-path>)
+            $<$<AND:$<PLATFORM_ID:Linux,Darwin>,${is_clang}>:-gdwarf-4>)
 
     target_link_options(${ASTCENC_TARGET_NAME}
         PRIVATE
@@ -355,8 +320,7 @@ macro(astcenc_set_properties ASTCENC_TARGET_NAME ASTCENC_VENEER_TYPE)
             PRIVATE
                 $<${is_clangcl}:-msse2>
                 $<${is_gnu_fe}:-msse2>
-                $<${is_gnu_fe}:-mno-sse4.1>
-                $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                $<${is_gnu_fe}:-mno-sse4.1>)
 
     elseif(${ASTCENC_ISA_SIMD} MATCHES "sse4.1")
         target_compile_definitions(${ASTCENC_TARGET_NAME}
@@ -374,14 +338,12 @@ macro(astcenc_set_properties ASTCENC_TARGET_NAME ASTCENC_VENEER_TYPE)
             target_compile_options(${ASTCENC_TARGET_NAME}
                 PRIVATE
                     $<${is_gnu_fe}:-msse2>
-                    $<${is_gnu_fe}:-mno-sse4.1>
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                    $<${is_gnu_fe}:-mno-sse4.1>)
         else()
             target_compile_options(${ASTCENC_TARGET_NAME}
                 PRIVATE
                     $<${is_clangcl}:-msse4.1 -mpopcnt>
-                    $<${is_gnu_fe}:-msse4.1 -mpopcnt>
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                    $<${is_gnu_fe}:-msse4.1 -mpopcnt>)
         endif()
 
     elseif(${ASTCENC_ISA_SIMD} MATCHES "avx2")
@@ -403,15 +365,13 @@ macro(astcenc_set_properties ASTCENC_TARGET_NAME ASTCENC_VENEER_TYPE)
             target_compile_options(${ASTCENC_TARGET_NAME}
                 PRIVATE
                     $<${is_gnu_fe}:-msse2>
-                    $<${is_gnu_fe}:-mno-sse4.1>
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                    $<${is_gnu_fe}:-mno-sse4.1>)
         else()
             target_compile_options(${ASTCENC_TARGET_NAME}
                 PRIVATE
                     $<${is_msvc_fe}:/arch:AVX2>
                     $<${is_clangcl}:-mavx2 -mpopcnt -mf16c>
-                    $<${is_gnu_fe}:-mavx2 -mpopcnt -mf16c>
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                    $<${is_gnu_fe}:-mavx2 -mpopcnt -mf16c>)
         endif()
 
         # Non-invariant builds enable us to loosen the compiler constraints on
@@ -431,45 +391,15 @@ macro(astcenc_set_properties ASTCENC_TARGET_NAME ASTCENC_VENEER_TYPE)
             PRIVATE)
 
         if (${ASTCENC_VENEER_TYPE} GREATER 0)
-            target_compile_options(${ASTCENC_TARGET_NAME}
-                PRIVATE
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
         else()
             target_compile_options(${ASTCENC_TARGET_NAME}
                 PRIVATE
                     $<${is_clangcl}:-mcpu=native -march=native>
-                    $<${is_gnu_fe}:-mcpu=native -march=native>
-                    $<${is_gnu_fe}:-Wno-unused-command-line-argument>)
+                    $<${is_gnu_fe}:-mcpu=native -march=native>)
         endif()
     endif()
 
 endmacro()
-
-string(CONCAT EXTERNAL_CXX_FLAGS
-       " $<${is_gnu_fe}: -fno-strict-aliasing>"
-       " $<${is_gnu_fe}: -Wno-pedantic>"
-       " $<${is_gnu_fe}: -Wno-unused-parameter>"
-       " $<${is_gnu_fe}: -Wno-old-style-cast>"
-       " $<${is_gnu_fe}: -Wno-double-promotion>"
-       " $<${is_gnu_fe}: -Wno-zero-as-null-pointer-constant>"
-       " $<${is_gnu_fe}: -Wno-disabled-macro-expansion>"
-       " $<${is_gnu_fe}: -Wno-reserved-id-macro>"
-       " $<${is_gnu_fe}: -Wno-extra-semi-stmt>"
-       " $<${is_gnu_fe}: -Wno-implicit-fallthrough>"
-       " $<${is_gnu_fe}: -Wno-tautological-type-limit-compare>"
-       " $<${is_gnu_fe}: -Wno-cast-qual>"
-       " $<${is_gnu_fe}: -Wno-reserved-identifier>"
-       " $<${is_clang}: -Wno-missing-prototypes>"
-       " $<${is_gnu_fe}: -Wno-missing-field-initializers>"
-       " $<${is_gnu_fe}: -Wno-suggest-override>"
-       " $<${is_gnu_fe}: -Wno-used-but-marked-unused>"
-       " $<${is_gnu_fe}: -Wno-noexcept-type>"
-       " $<${is_gnu_fe}: -Wno-comma>"
-       " $<${is_gnu_fe}: -Wno-c99-extensions>")
-
-set_source_files_properties(astcenccli_image_external.cpp
-    PROPERTIES
-        COMPILE_FLAGS ${EXTERNAL_CXX_FLAGS})
 
 astcenc_set_properties(${ASTCENC_TARGET}-static OFF)
 
@@ -487,7 +417,7 @@ if(${ASTCENC_SHAREDLIB})
     target_compile_options(${ASTCENC_TARGET}-shared
         PRIVATE
             $<${is_gnu_fe}:-fvisibility=hidden>
-            $<${is_msvc_fe}:/W4>)
+    )
 
     if(NOT ${ASTCENC_UNIVERSAL_BUILD})
         install(TARGETS ${ASTCENC_TARGET}-shared)
@@ -498,18 +428,6 @@ if(${ASTCENC_CLI})
     astcenc_set_properties(${ASTCENC_TARGET}-veneer1 1)
     astcenc_set_properties(${ASTCENC_TARGET}-veneer2 2)
     astcenc_set_properties(${ASTCENC_TARGET} 0)
-
-    target_compile_options(${ASTCENC_TARGET}-veneer1
-        PRIVATE
-            $<${is_msvc_fe}:/W3>)
-
-    target_compile_options(${ASTCENC_TARGET}-veneer2
-        PRIVATE
-            $<${is_msvc_fe}:/W3>)
-
-    target_compile_options(${ASTCENC_TARGET}
-        PRIVATE
-            $<${is_msvc_fe}:/W3>)
 
     string(TIMESTAMP astcencoder_YEAR "%Y")
 

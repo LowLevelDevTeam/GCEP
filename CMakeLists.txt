@@ -51,13 +51,6 @@ if(WIN32 AND CMAKE_BUILD_TYPE MATCHES "^(Release|MinSizeRel)$")
     endif()
 endif()
 
-# Subdirectories
-add_subdirectory(Engine)
-add_subdirectory(Editor)
-add_subdirectory(Externals)
-add_subdirectory(Scripts)
-# add_subdirectory(UnitTests)  # TODO: uncomment when ready
-
 # Shared externals interface library
 add_library(GCExternals INTERFACE)
 target_include_directories(GCExternals INTERFACE
@@ -80,6 +73,13 @@ target_include_directories(GCExternals INTERFACE
     ${Vulkan_INCLUDE_DIRS}
 )
 
+# Subdirectories
+add_subdirectory(Engine)
+add_subdirectory(Editor)
+add_subdirectory(Externals)
+add_subdirectory(Scripts)
+# add_subdirectory(UnitTests)  # TODO: uncomment when ready
+
 # Engine static lib (for unit tests)
 add_library(GCEngineLib STATIC ${ENGINE_SOURCE})
 target_link_libraries(GCEngineLib PRIVATE GCExternals)
@@ -90,6 +90,9 @@ add_slang_shader_target(Shaders SOURCES ${SHADER_SOURCES})
 copy_textures(Textures)
 
 # Global defines
-target_compile_definitions(GCEngine PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+target_compile_definitions(GCEngine PRIVATE
+    PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
+    GCE_BUILD_DIR="${CMAKE_BINARY_DIR}"
+)
 
 add_dependencies(GCEngine Shaders Textures)
