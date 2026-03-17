@@ -20,16 +20,32 @@ namespace gcep::editor
         {
             auto drawVec3 = [](Vector3<float>& v, const char* label, ImVec4 color)
             {
+                const float totalWidth  = ImGui::GetContentRegionAvail().x;
+                const float labelWidth  = ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x;
+                const float xyzWidth    = ImGui::CalcTextSize("X").x + 2.0f;
+                const float fieldWidth  = (totalWidth - labelWidth - xyzWidth * 3.0f - ImGui::GetStyle().ItemSpacing.x * 5.0f) / 3.0f;
+
                 ImGui::TextColored(color, "%s", label);
+
+                const std::string base = std::string("##") + label;
+
                 ImGui::SameLine();
-                float data[3] = { v.x, v.y, v.z };
-                const std::string id = std::string("##") + label;
-                if (ImGui::DragFloat3(id.c_str(), data, 0.1f))
-                {
-                    v.x = data[0];
-                    v.y = data[1];
-                    v.z = data[2];
-                }
+                ImGui::TextColored({ 0.95f, 0.2f, 0.2f, 1.f }, "X");
+                ImGui::SameLine(0, 2);
+                ImGui::SetNextItemWidth(fieldWidth);
+                ImGui::DragFloat((base + "X").c_str(), &v.x, 0.1f);
+
+                ImGui::SameLine();
+                ImGui::TextColored({ 0.2f, 0.85f, 0.2f, 1.f }, "Y");
+                ImGui::SameLine(0, 2);
+                ImGui::SetNextItemWidth(fieldWidth);
+                ImGui::DragFloat((base + "Y").c_str(), &v.y, 0.1f);
+
+                ImGui::SameLine();
+                ImGui::TextColored({ 0.2f, 0.5f, 0.95f, 1.f }, "Z");
+                ImGui::SameLine(0, 2);
+                ImGui::SetNextItemWidth(fieldWidth);
+                ImGui::DragFloat((base + "Z").c_str(), &v.z, 0.1f);
             };
 
             drawVec3(t.position,     "Position", { 0.9f, 0.3f, 0.3f, 1.f });
