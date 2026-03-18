@@ -44,14 +44,16 @@ namespace
         if (foo)
         {
             auto& physicsSystem = context->physicsSystem;
-            auto& physicsComp = context->registry->getComponent<gcep::ECS::PhysicsComponent>(0);
+            if (context->registry->hasComponent<gcep::ECS::PhysicsComponent>(0)) {
+                auto& physicsComp = context->registry->getComponent<gcep::ECS::PhysicsComponent>(0);
 
-            // z = 0 -> cr�pe
-            //physicsComp.force = gcep::Vector3<float>{1.0f, 1.0f, 0.0f};
-            // modifie la scale
-            //physicsComp.force += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
-            //physicsComp.angularImpulse += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
-            //foo = false;
+                // z = 0 -> crpe
+                //physicsComp.force = gcep::Vector3<float>{1.0f, 1.0f, 0.0f};
+                // modifie la scale
+                //physicsComp.force += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
+                //physicsComp.angularImpulse += gcep::Vector3<float>{0.0f, 0.0f, 10.0f};
+                //foo = false;
+            }
         }
     }
 

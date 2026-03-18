@@ -41,9 +41,11 @@ namespace gcep::editor
             pc.shapeType  = ECS::EShapeType::CUBE;
         }
 
-        auto& tc = registry.getComponent<ECS::Transform>(id);
-        const glm::vec3 pos = { tc.position.x, tc.position.y, tc.position.z };
-        rhi->spawnAsset(const_cast<char*>(path.c_str()), id, pos);
+        if (registry.hasComponent<ECS::Transform>(id)) {
+            auto& tc = registry.getComponent<ECS::Transform>(id);
+            const glm::vec3 pos = { tc.position.x, tc.position.y, tc.position.z };
+            rhi->spawnAsset(const_cast<char*>(path.c_str()), id, pos);
+        }
     }
 
     ECS::EntityID spawnAsset(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi,
@@ -113,10 +115,12 @@ namespace gcep::editor
     ECS::EntityID spawnSuzanne(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
     {
         auto  id = spawnAsset(scene, rhi, "Assets/Models/suzanne.obj", pos);
-        auto& tc = scene.getRegistry().getComponent<ECS::Transform>(id);
-        tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, glm::pi<float>() / 2.0f };
-        glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
-        tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+        if (scene.getRegistry().hasComponent<ECS::Transform>(id)) {
+            auto& tc = scene.getRegistry().getComponent<ECS::Transform>(id);
+            tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, glm::pi<float>() / 2.0f };
+            glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
+            tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
+        }
         return id;
     }
 

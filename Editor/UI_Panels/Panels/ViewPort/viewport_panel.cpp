@@ -298,6 +298,8 @@ namespace gcep::panel
         auto& ctx = editor::EditorContext::get();
         if (!ctx.registry->hasComponent<ECS::PointLightComponent>(light.id))
             return;
+        if (!ctx.registry->hasComponent<ECS::PointLightComponent>(light.id))
+            return;
         auto& pos = ctx.registry->getComponent<ECS::PointLightComponent>(light.id).position;
 
         glm::mat4 view       = ctx.camera->getViewMatrix();
@@ -327,6 +329,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoSpotLight(rhi::vulkan::SpotLight& light)
     {
         auto& ctx    = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::SpotLightComponent>(light.id))
+            return;
         if (!ctx.registry->hasComponent<ECS::SpotLightComponent>(light.id))
             return;
         auto& oldDir = ctx.registry->getComponent<ECS::SpotLightComponent>(light.id).direction;
@@ -405,6 +409,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoTransform(ECS::EntityID id)
     {
         auto& ctx = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::Transform>(id))
+            return;
         if (!ctx.registry->hasComponent<ECS::Transform>(id))
             return;
         auto& tc  = ctx.registry->getComponent<ECS::Transform>(id);

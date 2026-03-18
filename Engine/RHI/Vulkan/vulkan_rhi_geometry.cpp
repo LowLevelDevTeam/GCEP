@@ -151,7 +151,7 @@ namespace gcep::rhi::vulkan
         data.firstIndex   = firstIndex;
         data.indexCount   = mesh.getNumIndices();
         data.vertexOffset = vertexOffset;
-        data.textureIndex = mesh.texture()->getBindlessIndex();
+        data.textureIndex = mesh.texture()->hasTexture() ? mesh.texture()->getBindlessIndex() : 0;
         data.transform    = mesh.getTransform();
         data.aabbMin      = mesh.getAABBMin();
         data.aabbMax      = mesh.getAABBMax();
@@ -187,7 +187,7 @@ namespace gcep::rhi::vulkan
         auto& mesh = meshes[meshIndex];
         auto& data = m_meshData[meshIndex];
 
-        data.textureIndex = mesh.texture()->getBindlessIndex();
+        data.textureIndex = mesh.texture()->hasTexture() ? mesh.texture()->getBindlessIndex() : 0;
         data.transform    = mesh.getTransform();
         data.aabbMin      = mesh.getAABBMin();
         data.aabbMax      = mesh.getAABBMax();

@@ -185,8 +185,10 @@ namespace gcep::rhi::vulkan
 
         meshes.emplace_back();
         auto& mesh     = meshes.back();
-        mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+        if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
+            mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
+            mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
         mesh.id        = id;
         mesh.name      = std::filesystem::path(filepath).filename().string() + " / id = " + std::to_string(id);
 
@@ -205,16 +207,21 @@ namespace gcep::rhi::vulkan
         if (!m_ECSRegistry->hasComponent<ECS::MeshComponent>(id))
         {
             m_ECSRegistry->addComponent<ECS::MeshComponent>(id, filepath);
-            m_ECSRegistry->getComponent<ECS::Transform>(id).position = { pos.x, pos.y, pos.z };
-            m_ECSRegistry->getComponent<ECS::Transform>(id).scale    = halfExtents;
+            if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
+                m_ECSRegistry->getComponent<ECS::Transform>(id).position = { pos.x, pos.y, pos.z };
+            if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
+                m_ECSRegistry->getComponent<ECS::Transform>(id).scale    = halfExtents;
         }
         else
         {
-            m_ECSRegistry->getComponent<ECS::MeshComponent>(id).filePath = filepath;
+            if (m_ECSRegistry->hasComponent<ECS::MeshComponent>(id))
+                m_ECSRegistry->getComponent<ECS::MeshComponent>(id).filePath = filepath;
         }
 
-        mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+        if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
+            mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
+        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
+            mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
     }
 
     void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID id, glm::vec3 pos)
