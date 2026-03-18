@@ -31,14 +31,37 @@ namespace gcep
     UiManager::UiManager(GLFWwindow* window, SLS::SceneManager* manager, bool& reload, bool& close)
         : m_reloadApp(reload),
           m_isRunning(close),
-          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath)
+          m_contentBrowser(pl::ProjectLoader::instance().getProjectInfo().contentPath),
+          m_scriptState{},
+          m_scriptManagerPanel(m_scriptState),
+          m_inspector(m_scriptState)
     {
         m_window       = window;
         m_sceneManager = manager;
 
+        editor::registerEngineDrawers();
+
+        const auto& projectInfo = pl::ProjectLoader::instance().getProjectInfo();
+        const std::string scriptsDir  = projectInfo.contentPath.generic_string() + "/Scripts";
+        const std::string buildDir    = projectInfo.contentPath.generic_string() + "/Scripts/bin";
+        const std::string includeDir  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting";
+
+        #ifdef GCE_BUILD_DIR
+            const std::string cmakeBuildDir = GCE_BUILD_DIR;
+        #else
+            const std::string cmakeBuildDir = std::string(PROJECT_ROOT) + "/build";
+        #endif
+
         auto& ctx      = editor::EditorContext::get();
         ctx.registry   = &m_sceneManager->current().getRegistry();
         editor::registerEngineDrawers();
+        ctx.m_scriptManager.init(scriptsDir, buildDir, includeDir);
+
+        m_scriptState.manager       = &ctx.m_scriptManager;
+        m_scriptState.registry      = ctx.registry;
+        m_scriptState.scriptsDir    = scriptsDir;
+        m_scriptState.cmakeBuildDir = cmakeBuildDir;
+        ctx.scriptManagerPanel      = &m_scriptManagerPanel;
 
         Log::info("UiManager initialized successfully");
     }
@@ -53,12 +76,6 @@ namespace gcep
     void UiManager::setCamera(Camera* pCamera)
     {
         editor::EditorContext::get().camera = pCamera;
-    }
-
-    void UiManager::setSceneManager(SLS::SceneManager* sceneManager)
-    {
-        m_sceneManager             = sceneManager;
-        editor::EditorContext::get().registry = &sceneManager->current().getRegistry();
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -116,6 +133,7 @@ namespace gcep
         ImGui::DockBuilderDockWindow("Scene Hierarchy",   dockIdHierarchy);
         ImGui::DockBuilderDockWindow("Entity properties", dockIdProperties);
         ImGui::DockBuilderDockWindow("Audio control",     dockIdProperties);
+        ImGui::DockBuilderDockWindow("Script Manager",    dockIdProperties);
         ImGui::DockBuilderDockWindow("Viewport",          dockIdViewport);
         ImGui::DockBuilderDockWindow("Console",           dockIdConsole);
         ImGui::DockBuilderDockWindow("ContentDrawer",     dockIdContent);
@@ -125,6 +143,10 @@ namespace gcep
         ImGui::DockBuilderGetNode(dockIdViewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
         ImGui::DockBuilderFinish(dockspaceId);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Per-frame
+    // ─────────────────────────────────────────────────────────────────────────────
 
     void UiManager::drawMainMenuBar()
     {
@@ -300,9 +322,11 @@ namespace gcep
             ImGui_ImplGlfw_Sleep(10);
             return;
         }
+        auto& ctx = editor::EditorContext::get();
 
         beginFrame();
         syncECSToRHI();
+        ctx.m_scriptManager.pollForChanges();
 
         const ImGuiViewport* viewport    = setupViewport();
         const ImGuiID        dockspaceId = getDockspaceID();
@@ -322,13 +346,13 @@ namespace gcep
         m_console.draw();
         m_contentBrowser.draw();
         m_projectBrowser.draw();
+        m_scriptManagerPanel.draw();
         drawBottomBar();
 
         if (m_showDemoWindow)
             ImGui::ShowDemoWindow(&m_showDemoWindow);
 
         // ── Push scene / camera UBOs ──────────────────────────────────────────────
-        auto& ctx      = editor::EditorContext::get();
         auto& settings = SLS::SceneManager::instance().current().getSceneSettings();
 
         ctx.sceneInfos.clearColor     = { settings.clearColor.x,     settings.clearColor.y,

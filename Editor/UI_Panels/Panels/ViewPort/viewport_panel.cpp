@@ -99,6 +99,7 @@ namespace gcep::panel
     {
         auto& ctx     = editor::EditorContext::get();
         auto& physics = PhysicsSystem::getInstance();
+        auto& scriptManager = ctx.m_scriptManager;
 
         ImGui::BeginMenuBar();
 
@@ -109,6 +110,7 @@ namespace gcep::panel
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
+            ctx.scriptManagerPanel->onSimulationStart();
         }
         ImGui::SameLine();
 
@@ -133,6 +135,7 @@ namespace gcep::panel
             ctx.simulationState = SimulationState::STOPPED;
             ctx.pRHI->setSimulationStarted(false);
             physics.stopSimulation();
+            ctx.scriptManagerPanel->onSimulationStop();
         }
         ImGui::SameLine();
 
@@ -143,7 +146,10 @@ namespace gcep::panel
 
         // Physics tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
+        {
             physics.update(ImGui::GetIO().DeltaTime);
+            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
+        }
 
         ImGui::EndMenuBar();
     }

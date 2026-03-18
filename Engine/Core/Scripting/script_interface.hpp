@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+/// @file script_interface.hpp
+/// @brief ABI contract between the engine and script DLLs.
+/// Keep this header free of engine includes - it must compile standalone.
+
 #ifdef _WIN32
     #define SCRIPT_API extern "C" __declspec(dllexport)
 #else
@@ -7,18 +11,14 @@
 #endif
 
 typedef void* ScriptInstance;
+typedef unsigned int EntityID;
 
-// @brief exposed values for scripts
-struct ScriptContext {
-    unsigned int entityId;
-    float        deltaTime;
-    void*        ecsWorld;
-    void*        inputManager;
+/// @brief Context passed to every script call.
+/// Do not store this pointer - it is valid only for the duration of the call.
+struct ScriptContext
+{
+    EntityID entityId;   ///< ECS ID of the entity this script is attached to.
+    float    deltaTime;  ///< Seconds since last frame.
+
+    void* registry;  ///< Opaque ECS::Registry*
 };
-
-// each scripts has to export those 5 functions :
-//   script_create   -> give script data
-//   script_destroy  -> release script data
-//   script_on_start -> called on start
-//   script_on_update-> called each frame
-//   script_on_end   -> called on destroy
