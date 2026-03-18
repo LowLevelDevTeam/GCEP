@@ -93,6 +93,7 @@ copy_textures(Textures)
 target_compile_definitions(GCEngine PRIVATE
     PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
     GCE_BUILD_DIR="${CMAKE_BINARY_DIR}"
+    NOMINMAX
 )
 
 add_dependencies(GCEngine Shaders Textures)

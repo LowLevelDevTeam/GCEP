@@ -139,7 +139,7 @@ namespace gcep::panel
 
                 int liveCount = 0;
                 for (auto& [eid, entry] : m_state.entityScripts)
-                    if (entry.scriptName == m_state.selectedScript && entry.comp.instance)
+                    if (entry.scriptName == m_state.selectedScript && entry.runtime.instance)
                         ++liveCount;
                 ImGui::LabelText("Live instances", "%d", liveCount);
             }
@@ -181,9 +181,9 @@ namespace gcep::panel
                 ImGui::TextUnformatted(entry.scriptName.c_str());
 
                 ImGui::TableSetColumnIndex(2);
-                if (!entry.comp.instance)
+                if (!entry.runtime.instance)
                     ImGui::TextColored({0.5f, 0.5f, 0.5f, 1.f}, "None");
-                else if (!entry.comp.started)
+                else if (!entry.runtime.started)
                     ImGui::TextColored({0.9f, 0.8f, 0.1f, 1.f}, "Pending");
                 else
                     ImGui::TextColored({0.2f, 0.9f, 0.2f, 1.f}, "Running");
@@ -199,7 +199,7 @@ namespace gcep::panel
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.65f, 0.1f, 0.1f, 1.f});
                 if (ImGui::SmallButton((std::string(ICON_FA_TIMES) + "##d").c_str()))
                 {
-                    m_state.manager->destroyInstance(entry.comp, m_state.registry);
+                    m_state.manager->destroyInstance(entry.comp, entry.runtime, m_state.registry);
                     ImGui::PopStyleColor();
                     ImGui::PopID();
                     it = m_state.entityScripts.erase(it);
@@ -230,7 +230,7 @@ namespace gcep::panel
         for (auto& [eid, entry] : m_state.entityScripts)
         {
             ScriptContext ctx = m_state.makeCtx(eid);
-            m_state.manager->callOnStart(entry.comp, ctx);
+            m_state.manager->callOnStart(entry.comp, entry.runtime, ctx);
         }
     }
 
@@ -241,7 +241,7 @@ namespace gcep::panel
         for (auto& [eid, entry] : m_state.entityScripts)
         {
             ScriptContext ctx = m_state.makeCtx(eid);
-            m_state.manager->callOnUpdate(entry.comp, ctx);
+            m_state.manager->callOnUpdate(entry.comp, entry.runtime, ctx);
         }
     }
 
@@ -251,7 +251,7 @@ namespace gcep::panel
         for (auto& [eid, entry] : m_state.entityScripts)
         {
             ScriptContext ctx = m_state.makeCtx(eid);
-            m_state.manager->callOnEnd(entry.comp, ctx);
+            m_state.manager->callOnEnd(entry.comp, entry.runtime, ctx);
         }
     }
 
@@ -262,20 +262,20 @@ namespace gcep::panel
         {
             if (!filter.empty() && name != filter) continue;
             for (auto& [eid, entry] : m_state.entityScripts)
-                if (entry.scriptName == name && entry.comp.instance)
+                if (entry.scriptName == name && entry.runtime.instance)
                 {
                     ScriptContext ctx = m_state.makeCtx(eid);
-                    m_state.manager->callOnEnd(entry.comp, ctx);
-                    m_state.manager->destroyInstance(entry.comp, m_state.registry);
+                    m_state.manager->callOnEnd(entry.comp, entry.runtime, ctx);
+                    m_state.manager->destroyInstance(entry.comp, entry.runtime, m_state.registry);
                 }
             m_state.manager->pollForChanges();
             for (auto& [eid, entry] : m_state.entityScripts)
                 if (entry.scriptName == name)
                 {
-                    entry.comp.started = false;
-                    m_state.manager->createInstance(entry.comp, m_state.registry);
+                    entry.runtime.started = false;
+                    m_state.manager->createInstance(entry.comp, entry.runtime, m_state.registry);
                     ScriptContext ctx = m_state.makeCtx(eid);
-                    m_state.manager->callOnStart(entry.comp, ctx);
+                    m_state.manager->callOnStart(entry.comp, entry.runtime, ctx);
                 }
         }
     }
