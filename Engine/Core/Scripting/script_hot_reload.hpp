@@ -42,9 +42,9 @@ namespace gcep::panel
     #include <dlfcn.h>
     using LibHandle = void*;
 
-    inline LibHandle   static lib_load(const char* path) { return dlopen(path, RTLD_NOW); }
-    inline void        static lib_unload(LibHandle h)    { if (h) dlclose(h); }
-    inline void*       static lib_symbol(LibHandle h, const char* name) { return dlsym(h, name); }
+    inline static LibHandle   lib_load(const char* path) { return dlopen(path, RTLD_NOW); }
+    inline static void        lib_unload(LibHandle h)    { if (h) dlclose(h); }
+    inline static void*       lib_symbol(LibHandle h, const char* name) { return dlsym(h, name); }
     #ifdef __APPLE__
         inline static std::string lib_extension() { return ".dylib"; }
     #else
