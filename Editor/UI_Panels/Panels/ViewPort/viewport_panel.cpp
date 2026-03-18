@@ -5,8 +5,10 @@
 #include <PhysicsWrapper/physics_system.hpp>
 #include <Scene/header/scene_manager.hpp>
 #include <Engine/Core/ECS/Components/transform.hpp>
+#include <ECS/Components/camera_component.hpp>
 #include <ECS/Components/point_light_component.hpp>
 #include <ECS/Components/spot_light_component.hpp>
+#include <Engine/CameraManager/camera_manager.hpp>
 #include <Maths/quaternion.hpp>
 #include <font_awesome.hpp>
 
@@ -144,10 +146,11 @@ namespace gcep::panel
         else if (ctx.simulationState == SimulationState::PAUSED)  simLabel = "Paused";
         ImGui::Text("Simulation: %s", simLabel);
 
-        // Physics tick while playing
+        // Physics, camera and scripting tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
         {
             physics.update(ImGui::GetIO().DeltaTime);
+            engine::CameraManager{}.update(ctx, ImGui::GetIO().DeltaTime);
             ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
         }
 

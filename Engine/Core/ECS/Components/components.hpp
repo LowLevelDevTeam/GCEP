@@ -10,3 +10,4 @@
 #include <ECS/Components/tag.hpp>
 #include <ECS/Components/transform.hpp>
 #include <ECS/Components/world_transform.hpp>
+#include <ECS/Components/camera_component.hpp>
