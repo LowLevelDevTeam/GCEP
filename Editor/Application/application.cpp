@@ -120,6 +120,9 @@ namespace gcep
 
     void Application::shutdown()
     {
+        pl::ProjectLoader::instance().saveProject();
+        SLS::SceneManager::instance().saveScene();
+
         m_physicsSystem->shutdown();
         m_input.reset();
         m_camera.reset();

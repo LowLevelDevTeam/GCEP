@@ -21,6 +21,7 @@
 
 // STL
 #include <cmath>
+#include <filesystem>
 #include <functional>
 #include <string>
 
@@ -62,6 +63,15 @@ namespace gcep
         m_scriptState.scriptsDir    = scriptsDir;
         m_scriptState.cmakeBuildDir = cmakeBuildDir;
         ctx.scriptManagerPanel      = &m_scriptManagerPanel;
+
+        // OS drag & drop — copy dropped files into the content browser's current folder
+        glfwSetDropCallback(m_window, [](GLFWwindow*, int count, const char** paths)
+        {
+            auto& ctx = editor::EditorContext::get();
+            ctx.droppedPaths.clear();
+            for (int i = 0; i < count; ++i)
+                ctx.droppedPaths.emplace_back(paths[i]);
+        });
 
         Log::info("UiManager initialized successfully");
     }
@@ -137,8 +147,8 @@ namespace gcep
         ImGui::DockBuilderDockWindow("Viewport",          dockIdViewport);
         ImGui::DockBuilderDockWindow("Console",           dockIdConsole);
         ImGui::DockBuilderDockWindow("ContentDrawer",     dockIdContent);
-        ImGui::DockBuilderDockWindow("Projects",          dockIdContent);
         ImGui::DockBuilderDockWindow("Settings",          dockIdRight);
+        ImGui::DockBuilderDockWindow("Performance",       dockIdRight);
 
         ImGui::DockBuilderGetNode(dockIdViewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
         ImGui::DockBuilderFinish(dockspaceId);
@@ -155,9 +165,10 @@ namespace gcep
         ImGui::PushFont(io.Fonts->Fonts[0]);
         if (ImGui::BeginMainMenuBar())
         {
+            // ── File ──────────────────────────────────────────────────────────────
             if (ImGui::BeginMenu((std::string(ICON_FA_FILE) + " File").c_str()))
             {
-                if (ImGui::MenuItem((std::string(ICON_FA_FLOPPY_O) + " Save scene").c_str(), "Ctrl+S"))
+                if (ImGui::MenuItem((std::string(ICON_FA_FLOPPY_O) + " Save Scene").c_str(), "Ctrl+S"))
                 {
                     if (m_sceneManager && !m_sceneManager->current().getPath().empty())
                     {
@@ -165,6 +176,10 @@ namespace gcep
                         m_sceneManager->current().save();
                     }
                 }
+                ImGui::Separator();
+                if (ImGui::MenuItem((std::string(ICON_FA_FOLDER_OPEN) + " Open Project").c_str()))
+                    m_reloadApp = true;
+                ImGui::Separator();
                 if (ImGui::MenuItem((std::string(ICON_FA_WINDOW_CLOSE) + " Exit").c_str(), "Ctrl+Q"))
                 {
                     m_isRunning = false;
@@ -172,13 +187,62 @@ namespace gcep
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu((std::string(ICON_FA_TASKS) + " Window").c_str()))
+
+            // ── View ─────────────────────────────────────────────────────────────
+            if (ImGui::BeginMenu((std::string(ICON_FA_EYE) + " View").c_str()))
             {
-                ImGui::MenuItem("Settings", nullptr, &m_showSettings);
+                ImGui::MenuItem("Viewport",        nullptr, &m_viewport.isVisible);
+                ImGui::MenuItem("Hierarchy",       nullptr, &m_hierarchy.isVisible);
+                ImGui::MenuItem("Inspector",       nullptr, &m_inspector.isVisible);
+                ImGui::MenuItem("Console",         nullptr, &m_console.isVisible);
+                ImGui::MenuItem("Content Browser", nullptr, &m_contentBrowser.isVisible);
+                ImGui::MenuItem("Script Manager",  nullptr, &m_scriptManagerPanel.isVisible);
+                ImGui::MenuItem("Audio",           nullptr, &m_audio.isVisible);
+                ImGui::MenuItem("Performance",     nullptr, &m_performance.isVisible);
+                ImGui::MenuItem("Settings",        nullptr, &m_settings.isVisible);
+                ImGui::Separator();
+                if (ImGui::MenuItem((std::string(ICON_FA_REFRESH) + " Reset Layout").c_str()))
+                    m_dockspaceInitialized = false;
                 ImGui::EndMenu();
             }
-            if (ImGui::Button("Reload engine"))
-                m_reloadApp = true;
+
+            // ── World ────────────────────────────────────────────────────────────
+            if (ImGui::BeginMenu((std::string(ICON_FA_GLOBE) + " World").c_str()))
+            {
+                if (ImGui::BeginMenu((std::string(ICON_FA_FOLDER_OPEN) + " Open Scene").c_str()))
+                {
+                    const auto& scenes = m_sceneManager->getSceneList();
+                    if (scenes.empty())
+                        ImGui::TextDisabled("No scenes registered");
+                    for (const auto& scenePath : scenes)
+                    {
+                        const std::string label = std::filesystem::path(scenePath).filename().string();
+                        if (ImGui::MenuItem(label.c_str()))
+                            m_pendingScenePath = scenePath;
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::Separator();
+                if (ImGui::MenuItem((std::string(ICON_FA_FLOPPY_O) + " Save Scene").c_str(), "Ctrl+S"))
+                {
+                    if (m_sceneManager && !m_sceneManager->current().getPath().empty())
+                    {
+                        pl::ProjectLoader::instance().saveProject();
+                        m_sceneManager->current().save();
+                    }
+                }
+                ImGui::EndMenu();
+            }
+
+            // ── Debug ────────────────────────────────────────────────────────────
+            if (ImGui::BeginMenu((std::string(ICON_FA_BUG) + " Debug").c_str()))
+            {
+                ImGui::MenuItem("ImGui Demo", nullptr, &m_showDemoWindow);
+                ImGui::Separator();
+                if (ImGui::MenuItem((std::string(ICON_FA_REFRESH) + " Reload Engine").c_str()))
+                    m_reloadApp = true;
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMainMenuBar();
         }
@@ -330,23 +394,32 @@ namespace gcep
 
         const ImGuiViewport* viewport    = setupViewport();
         const ImGuiID        dockspaceId = getDockspaceID();
-        static bool dockspaceInitialized = false;
-        if (!dockspaceInitialized)
+        if (!m_dockspaceInitialized)
         {
             initDockspace(dockspaceId, viewport);
-            dockspaceInitialized = true;
+            m_dockspaceInitialized = true;
+        }
+
+        // ── Scene switch requested from menu ──────────────────────────────────────
+        if (!m_pendingScenePath.empty())
+        {
+            m_sceneManager->loadScene(m_pendingScenePath, ctx.pRHI);
+            ctx.registry          = &m_sceneManager->current().getRegistry();
+            m_scriptState.registry = ctx.registry;
+            ctx.pRHI->setRegistry(ctx.registry);
+            m_pendingScenePath.clear();
         }
 
         // ── Panels ────────────────────────────────────────────────────────────────
-        m_viewport.draw();
-        if (m_showSettings) m_settings.draw();
-        m_hierarchy.draw();
-        m_inspector.draw();
-        m_audio.draw();
-        m_console.draw();
-        m_contentBrowser.draw();
-        m_projectBrowser.draw();
-        m_scriptManagerPanel.draw();
+        if (m_viewport.isVisible)        m_viewport.draw();
+        if (m_settings.isVisible)        m_settings.draw();
+        if (m_hierarchy.isVisible)       m_hierarchy.draw();
+        if (m_inspector.isVisible)       m_inspector.draw();
+        if (m_audio.isVisible)           m_audio.draw();
+        if (m_console.isVisible)         m_console.draw();
+        if (m_contentBrowser.isVisible)     m_contentBrowser.draw();
+        if (m_performance.isVisible)        m_performance.draw();
+        if (m_scriptManagerPanel.isVisible) m_scriptManagerPanel.draw();
         drawBottomBar();
 
         if (m_showDemoWindow)

@@ -16,6 +16,7 @@ namespace gcep::panel
     private:
         void drawSpawnMenu();
         void drawEntityNode(ECS::EntityID id);
+        void drawEntityContextMenu(ECS::EntityID id);
         void removeSelected();
 
         /// @brief Returns "icon name" for an entity, searching meshes and lights.

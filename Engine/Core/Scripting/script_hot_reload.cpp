@@ -1,6 +1,7 @@
 #include "script_hot_reload.hpp"
 
 // Externals
+#include <thread>
 #include <Editor/UI_Panels/Panels/Scripting/script_state.hpp>
 
 namespace gcep
@@ -198,6 +199,9 @@ namespace gcep
                 + " -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
                 + " -property installationPath > \"" + tmpFile + "\" 2>nul";
             std::system(query.c_str());
+
+            ///time for the command to happen
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             std::ifstream f(tmpFile);
             std::string installPath;

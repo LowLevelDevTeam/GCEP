@@ -8,6 +8,7 @@ namespace gcep::ECS
     struct MeshComponent
     {
         std::string filePath;
+        std::string texturePath;
         static inline bool _gcep_registered =
                 ComponentRegistry::instance().reg<MeshComponent>();
     };
