@@ -110,7 +110,7 @@ namespace gcep::panel
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
-            gcep::SLS::SceneManager::instance().saveScene(gcep::SLS::UiManager::instance().getCurrentScenePath());
+            gcep::SLS::SceneManager::instance().saveScene();
         }
         ImGui::SameLine();
 
@@ -133,8 +133,24 @@ namespace gcep::panel
             && ctx.simulationState != SimulationState::STOPPED)
         {
             ctx.simulationState = SimulationState::STOPPED;
-            ctx.pRHI->setSimulationStarted(false);
+            if (ctx.pRHI) ctx.pRHI->setSimulationStarted(false);
             physics.stopSimulation();
+            try {
+                // Check if current scene exists and path is valid
+                auto& sceneManager = SLS::SceneManager::instance();
+                std::string path;
+                try {
+                    path = sceneManager.current().getPath();
+                } catch (const std::exception& e) {
+                    // No current scene, skip loading
+                    return;
+                }
+                if (!path.empty() && ctx.pRHI) {
+                    sceneManager.loadScene(path, ctx.pRHI);
+                }
+            } catch (const std::exception& e) {
+                // Optionally log error
+            }
         }
         ImGui::SameLine();
 
@@ -189,6 +205,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoMesh(rhi::vulkan::Mesh& mesh)
     {
         auto& ctx  = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::Transform>(mesh.id))
+            return;
         auto& tc   = ctx.registry->getComponent<ECS::Transform>(mesh.id);
 
         glm::mat4 view       = ctx.camera->getViewMatrix();
@@ -278,6 +296,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoPointLight(rhi::vulkan::PointLight& light)
     {
         auto& ctx = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::PointLightComponent>(light.id))
+            return;
         auto& pos = ctx.registry->getComponent<ECS::PointLightComponent>(light.id).position;
 
         glm::mat4 view       = ctx.camera->getViewMatrix();
@@ -307,6 +327,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoSpotLight(rhi::vulkan::SpotLight& light)
     {
         auto& ctx    = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::SpotLightComponent>(light.id))
+            return;
         auto& oldDir = ctx.registry->getComponent<ECS::SpotLightComponent>(light.id).direction;
         auto& pos    = ctx.registry->getComponent<ECS::SpotLightComponent>(light.id).position;
 
@@ -383,6 +405,8 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoTransform(ECS::EntityID id)
     {
         auto& ctx = editor::EditorContext::get();
+        if (!ctx.registry->hasComponent<ECS::Transform>(id))
+            return;
         auto& tc  = ctx.registry->getComponent<ECS::Transform>(id);
 
         glm::mat4 view       = ctx.camera->getViewMatrix();
