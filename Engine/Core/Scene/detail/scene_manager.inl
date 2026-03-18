@@ -27,9 +27,9 @@ namespace gcep::SLS
         return *m_currentScene;
     }
 
-    inline void SceneManager::saveScene(const std::string& path)
+    inline void SceneManager::saveScene()
     {
-        m_currentScene->save(path);
+        m_currentScene->save();
     }
 
     inline void SceneManager::loadScene(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
@@ -37,9 +37,9 @@ namespace gcep::SLS
         m_currentScene = std::make_unique<Scene>();
 
         if (std::filesystem::exists(path))
-        {
             m_currentScene->load(path, rhi);
-        }
+        else
+            m_currentScene->setPath(path);
     }
 
     inline void SceneManager::registerScene(const std::string& path)

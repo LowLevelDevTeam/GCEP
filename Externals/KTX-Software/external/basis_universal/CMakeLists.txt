@@ -101,28 +101,17 @@ if (NOT MSVC)
 
     # Add common non-MSVC flags excluding -fPIC.
     add_compile_options(-fvisibility=hidden -fno-strict-aliasing -D_LARGEFILE64_SOURCE=1
-                        -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-unused-local-typedefs
-                        -Wno-unused-value -Wno-unused-parameter -Wno-unused-variable
-                        -Wno-misleading-indentation
-                        -Wno-maybe-uninitialized -Wno-unused-function
-                        -Wno-stringop-overflow -Wno-unknown-warning-option)
+                        -D_FILE_OFFSET_BITS=64)
     # Add -fPIC ONLY on non-Windows platforms
     if (NOT WIN32)
         add_compile_options(-fPIC)
     endif()
-
-    # AppleClang 14 raises this warning in zstd.cpp.
-    add_compile_options("$<$<AND:$<CXX_COMPILER_ID:Clang,AppleClang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,17>>:-Wno-bitwise-instead-of-logical>")
-
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder;-Wno-class-memaccess;-Wno-deprecated-copy>")
 
     add_compile_options($<$<NOT:$<BOOL:BASISU_BUILD_X64>>:-m32>)
     add_compile_definitions($<$<CONFIG:Debug>:_DEBUG>)
     if (EMSCRIPTEN)
         add_link_options("SHELL:-s ALLOW_MEMORY_GROWTH=1")
     endif()
-else()
-    add_compile_options("$<$<CXX_COMPILER_ID:Clang>:-Wno-unused-variable;-Wno-unused-function>")
 endif()
 
 # Define the source files for the static library

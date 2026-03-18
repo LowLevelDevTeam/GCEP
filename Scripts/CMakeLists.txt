@@ -1,11 +1,20 @@
-﻿file(GLOB_RECURSE GCENGINE_SCRIPTS_SOURCES CONFIGURE_DEPENDS
+﻿set(GCENGINE_SCRIPTS_PUBLIC_INCLUDE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Scripting
+)
+
+add_library(GCEngineScriptTemplate INTERFACE)
+target_include_directories(GCEngineScriptTemplate INTERFACE
+    ${GCENGINE_SCRIPTS_PUBLIC_INCLUDE}
+)
+
+file(GLOB_RECURSE GCENGINE_SCRIPTS_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
 file(GLOB_RECURSE GCENGINE_CORE_SOURCES CONFIGURE_DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/Layers/*.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/physics_shape.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/Maths/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/Layers/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Engine/Core/PhysicsWrapper/physics_shape.cpp
 )
 
 add_library(GCEngineScripts SHARED
@@ -38,4 +47,7 @@ set_target_properties(GCEngineScripts PROPERTIES
 
 add_custom_command(TARGET GCEngineScripts POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:GCEngine>/Scripts
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GCEngineScripts> $<TARGET_FILE_DIR:GCEngine>/Scripts)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:GCEngineScripts>
+        $<TARGET_FILE_DIR:GCEngine>/Scripts
+)

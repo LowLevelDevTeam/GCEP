@@ -51,8 +51,8 @@ namespace gcep::pl
         /// @brief Draw a thicker grid line every N cells. Default: 5.
         float gridThickEvery = 5.0f;
 
-        /// @brief Distance at which the infinite grid begins to fade out. Default: 50.
-        float gridFadeDistance = 50.0f;
+        /// @brief Distance at which the infinite grid begins to fade out. Default: 150.
+        float gridFadeDistance = 150.0f;
 
         /// @brief Width of the grid lines in pixels. Default: 1.
         float gridLineWidth = 1.0f;

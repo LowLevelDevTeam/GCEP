@@ -8,6 +8,6 @@
 #include <ECS/Components/script_component.hpp>
 #include <ECS/Components/spot_light_component.hpp>
 #include <ECS/Components/tag.hpp>
-#include <Engine/Core/ECS/Components/transform.hpp>
+#include <ECS/Components/transform.hpp>
 #include <ECS/Components/world_transform.hpp>
 #include <ECS/Components/camera_component.hpp>

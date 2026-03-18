@@ -1,13 +1,18 @@
 #pragma once
 
+// Internals
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <ECS/headers/registry.hpp>
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Editor/UI_Panels/selection_manager.hpp>
-#include <ImGuizmo.h>
+#include <Editor/UI_Panels/Panels/Scripting/script_manager_panel.hpp>
+#include <Scripting/script_hot_reload.hpp>
+
+// Externals
 #include <imgui.h>
+#include <ImGuizmo.h>
 
 namespace gcep::editor
 {
@@ -25,6 +30,10 @@ namespace gcep::editor
         SimulationState          simulationState = SimulationState::STOPPED;
         Camera*                  camera          = nullptr;
         UI::SelectionManager     selection;
+
+        // ── Scripting ─────────────────────────────────────────────────────────────
+        ScriptHotReloadManager m_scriptManager;
+        panel::ScriptManagerPanel* scriptManagerPanel = nullptr;
 
         // ── Scene / Render ────────────────────────────────────────────────────
         rhi::vulkan::SceneInfos  sceneInfos;

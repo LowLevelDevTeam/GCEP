@@ -101,16 +101,18 @@ namespace gcep::panel
     {
         auto& ctx     = editor::EditorContext::get();
         auto& physics = PhysicsSystem::getInstance();
+        auto& scriptManager = ctx.m_scriptManager;
 
         ImGui::BeginMenuBar();
 
         if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
         {
+            SLS::SceneManager::instance().current().save();
             ctx.simulationState = SimulationState::PLAYING;
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
-            
+            ctx.scriptManagerPanel->onSimulationStart();
         }
         ImGui::SameLine();
 
@@ -135,6 +137,7 @@ namespace gcep::panel
             ctx.simulationState = SimulationState::STOPPED;
             ctx.pRHI->setSimulationStarted(false);
             physics.stopSimulation();
+            ctx.scriptManagerPanel->onSimulationStop();
         }
         ImGui::SameLine();
 
@@ -143,11 +146,12 @@ namespace gcep::panel
         else if (ctx.simulationState == SimulationState::PAUSED)  simLabel = "Paused";
         ImGui::Text("Simulation: %s", simLabel);
 
-        // Physics and camera tick while playing
+        // Physics, camera and scripting tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
         {
             physics.update(ImGui::GetIO().DeltaTime);
             engine::CameraManager{}.update(ctx, ImGui::GetIO().DeltaTime);
+            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
         }
 
         ImGui::EndMenuBar();

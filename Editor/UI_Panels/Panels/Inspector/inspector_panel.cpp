@@ -57,6 +57,7 @@ namespace gcep::panel
         reg.drawAllExcept<ECS::Transform>(*ctx.registry, id);
 
         ImGui::SeparatorText("Entity actions");
+        m_scriptPanel.drawEntityScriptSection();
         drawEntityActions(id, mesh);
 
         if (ctx.simulationState != SimulationState::PLAYING)
@@ -134,35 +135,6 @@ namespace gcep::panel
             static float lodLevel = 0.0f;
             if (ImGui::SliderFloat("LOD Bias", &lodLevel, 0.0f, mesh->texture()->getMipLevels()))
                 mesh->texture()->setLodLevel(lodLevel);
-        }
-
-        ImGui::SeparatorText("Scripting");
-        if (ImGui::Button((std::string(ICON_FA_CODE) + " Add script").c_str()))
-        {
-            const std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/ScriptModel.cpp";
-            const std::string outputPath = std::string(PROJECT_ROOT) + "/Scripts/Script"
-                                         + std::to_string(mesh->id) + ".cpp";
-
-            std::filesystem::create_directories(std::string(PROJECT_ROOT) + "/Scripts");
-
-            std::ifstream scriptModel(modelPath, std::ios::binary);
-            if (!scriptModel.is_open())
-            {
-                std::cerr << "Failed to open script model: " << modelPath << std::endl;
-                return;
-            }
-
-            std::string content((std::istreambuf_iterator<char>(scriptModel)),
-                                  std::istreambuf_iterator<char>());
-
-            const std::string scriptName = "Script" + std::to_string(mesh->id);
-            auto pos = content.find("SCRIPT_NAME");
-            if (pos != std::string::npos)
-                content.replace(pos, 11, scriptName);
-
-            std::ofstream out(outputPath, std::ios::binary);
-            if (out.is_open())
-                out << content;
         }
     }
 

@@ -73,17 +73,13 @@ namespace gcep::editor
         reg.registerDrawer<ECS::PhysicsComponent>([](ECS::PhysicsComponent& p)
         {
             const char* motionLabels[] = { "Static", "Dynamic", "Kinematic" };
-            const char* layerLabels[]  = { "Non moving", "Moving" };
             const char* shapeLabels[]  = { "Cube", "Sphere", "Cylinder", "Capsule" };
 
             int motion = static_cast<int>(p.motionType);
-            int layer  = static_cast<int>(p.layers);
             int shape  = static_cast<int>(p.shapeType);
 
             if (ImGui::Combo("Motion Type", &motion, motionLabels, IM_ARRAYSIZE(motionLabels)))
                 p.motionType = static_cast<ECS::EMotionType>(motion);
-            if (ImGui::Combo("Layer",       &layer,  layerLabels,  IM_ARRAYSIZE(layerLabels)))
-                p.layers = static_cast<ECS::ELayers>(layer);
             if (ImGui::Combo("Shape",       &shape,  shapeLabels,  IM_ARRAYSIZE(shapeLabels)))
                 p.shapeType = static_cast<ECS::EShapeType>(shape);
 
