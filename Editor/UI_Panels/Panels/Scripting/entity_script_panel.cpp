@@ -172,15 +172,15 @@ namespace gcep::panel
         auto& component      = m_state.registry->addComponent<ECS::ScriptComponent>(entityId);
         component.entityId   = entityId;
         component.scriptName = scriptName;
-        component.started    = false;
 
         AttachedScript entry;
         entry.scriptName      = scriptName;
         entry.comp.scriptName = scriptName;
         entry.comp.entityId   = static_cast<unsigned int>(entityId);
+        entry.runtime.started = false;
 
         if (m_state.manager->getScript(scriptName))
-            m_state.manager->createInstance(entry.comp, m_state.registry);
+            m_state.manager->createInstance(entry.comp, entry.runtime, m_state.registry);
 
         m_state.entityScripts.emplace(entityId, std::move(entry));
     }
@@ -188,19 +188,19 @@ namespace gcep::panel
     void EntityScriptPanel::destroyInstance(AttachedScript& entry)
     {
         if (m_state.manager)
-            m_state.manager->destroyInstance(entry.comp, m_state.registry);
+            m_state.manager->destroyInstance(entry.comp, entry.runtime, m_state.registry);
     }
 
     void EntityScriptPanel::reloadScriptOnEntity(ECS::EntityID eid, AttachedScript& entry)
     {
         if (!m_state.manager) return;
         ScriptContext ctx = m_state.makeCtx(eid);
-        m_state.manager->callOnEnd(entry.comp, ctx);
-        m_state.manager->destroyInstance(entry.comp, m_state.registry);
-        entry.comp.started = false;
+        m_state.manager->callOnEnd(entry.comp, entry.runtime, ctx);
+        m_state.manager->destroyInstance(entry.comp, entry.runtime, m_state.registry);
+        entry.runtime.started = false;
         m_state.manager->pollForChanges();
-        m_state.manager->createInstance(entry.comp, m_state.registry);
-        m_state.manager->callOnStart(entry.comp, ctx);
+        m_state.manager->createInstance(entry.comp, entry.runtime, m_state.registry);
+        m_state.manager->callOnStart(entry.comp, entry.runtime, ctx);
     }
 
 } // namespace gcep::panel

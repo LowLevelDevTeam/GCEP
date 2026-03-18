@@ -1,5 +1,8 @@
 #include "script_hot_reload.hpp"
 
+// Externals
+#include <Editor/UI_Panels/Panels/Scripting/script_state.hpp>
+
 namespace gcep
 {
     void ScriptHotReloadManager::init(const std::string& scriptsDir, const std::string& buildDir, const std::string& includeDir)
@@ -75,79 +78,79 @@ namespace gcep
         return s.valid ? &s : nullptr;
     }
 
-    void ScriptHotReloadManager::createInstance(gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry)
+    void ScriptHotReloadManager::createInstance(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, ECS::Registry* registry)
     {
         auto* script = getScript(comp.scriptName);
         if (!script || !script->create) return;
 
-        comp.instance = script->create();
-        comp.loadedScriptIndex = static_cast<int>(m_nameToIndex[comp.scriptName]);
-        comp.started = false;
+        runtime.instance = script->create();
+        runtime.loadedScriptIndex = static_cast<int>(m_nameToIndex[comp.scriptName]);
+        runtime.started = false;
 
         if(!registry) return;
 
         // Sync back into the ECS component if a registry is provided
-        if (!registry->hasComponent<gcep::ECS::ScriptComponent>(comp.entityId))
+        if (!registry->hasComponent<ECS::ScriptComponent>(comp.entityId))
         {
-            auto& c = registry->addComponent<gcep::ECS::ScriptComponent>(comp.entityId);
+            auto& c = registry->addComponent<ECS::ScriptComponent>(comp.entityId);
             c = comp;
         }
         else
         {
-            auto& c = registry->getComponent<gcep::ECS::ScriptComponent>(comp.entityId);
+            auto& c = registry->getComponent<ECS::ScriptComponent>(comp.entityId);
             c = comp;
         }
     }
 
-    void ScriptHotReloadManager::destroyInstance(gcep::ECS::ScriptComponent& comp, gcep::ECS::Registry* registry)
+    void ScriptHotReloadManager::destroyInstance(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, ECS::Registry* registry)
     {
         auto* script = getScript(comp.scriptName);
-        if (script && script->destroy && comp.instance)
-            script->destroy(comp.instance);
+        if (script && script->destroy && runtime.instance)
+            script->destroy(runtime.instance);
 
-        comp.instance          = nullptr;
-        comp.started           = false;
-        comp.loadedScriptIndex = -1;
+        runtime.instance          = nullptr;
+        runtime.started           = false;
+        runtime.loadedScriptIndex = -1;
 
         if(!registry) return;
 
         // Sync back into the ECS component if a registry is provided
-        if (registry->hasComponent<gcep::ECS::ScriptComponent>(comp.entityId))
+        if (registry->hasComponent<ECS::ScriptComponent>(comp.entityId))
         {
-            registry->removeComponent<gcep::ECS::ScriptComponent>(comp.entityId);
+            registry->removeComponent<ECS::ScriptComponent>(comp.entityId);
         }
     }
 
-    void ScriptHotReloadManager::callOnStart(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
+    void ScriptHotReloadManager::callOnStart(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx)
     {
-        if (comp.started) return;
+        if (runtime.started) return;
         auto* script = getScript(comp.scriptName);
-        if (script && script->onStart && comp.instance)
+        if (script && script->onStart && runtime.instance)
         {
-            script->onStart(comp.instance, &ctx);
-            comp.started = true;
+            script->onStart(runtime.instance, &ctx);
+            runtime.started = true;
         }
     }
 
-    void ScriptHotReloadManager::callOnUpdate(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
-    {
-        auto* script = getScript(comp.scriptName);
-        if (script && script->onUpdate && comp.instance)
-        {
-            script->onUpdate(comp.instance, &ctx);
-        }
-    }
-
-    void ScriptHotReloadManager::callOnEnd(gcep::ECS::ScriptComponent& comp, const ScriptContext& ctx)
+    void ScriptHotReloadManager::callOnUpdate(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx)
     {
         auto* script = getScript(comp.scriptName);
-        if (script && script->onEnd && comp.instance)
+        if (script && script->onUpdate && runtime.instance)
         {
-            script->onEnd(comp.instance, &ctx);
+            script->onUpdate(runtime.instance, &ctx);
         }
     }
 
-    ScriptContext ScriptHotReloadManager::makeContext(gcep::ECS::EntityID entityId, float deltaTime, gcep::ECS::Registry* registry) const
+    void ScriptHotReloadManager::callOnEnd(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx)
+    {
+        auto* script = getScript(comp.scriptName);
+        if (script && script->onEnd && runtime.instance)
+        {
+            script->onEnd(runtime.instance, &ctx);
+        }
+    }
+
+    ScriptContext ScriptHotReloadManager::makeContext(ECS::EntityID entityId, float deltaTime, ECS::Registry* registry) const
     {
         ScriptContext ctx{};
         ctx.entityId  = entityId;
@@ -158,26 +161,26 @@ namespace gcep
     }
 
     void ScriptHotReloadManager::hotReload(const std::string& name,
-                                           std::vector<gcep::ECS::ScriptComponent*>& activeComponents,
-                                           std::function<ScriptContext(gcep::ECS::EntityID entityId)> makeCtx)
+                                           std::vector<panel::AttachedScript*>& activeScripts,
+                                           std::function<ScriptContext(ECS::EntityID entityId)> makeCtx)
     {
         auto* script = getScript(name);
         if (!script) return;
 
-        for (auto* comp : activeComponents) {
-            if (comp->scriptName != name || !comp->instance) continue;
-            ScriptContext ctx = makeCtx(comp->loadedScriptIndex);
-            callOnEnd(*comp, ctx);
-            destroyInstance(*comp);
+        for (auto* attached : activeScripts) {
+            if (attached->comp.scriptName != name || !attached->runtime.instance) continue;
+            ScriptContext ctx = makeCtx(attached->runtime.loadedScriptIndex);
+            callOnEnd(attached->comp, attached->runtime, ctx);
+            destroyInstance(attached->comp, attached->runtime);
         }
 
         loadOrReloadScripts(script->sourcePath);
 
-        for (auto* comp : activeComponents) {
-            if (comp->scriptName != name) continue;
-            createInstance(*comp);
+        for (auto* attached : activeScripts) {
+            if (attached->comp.scriptName != name) continue;
+            createInstance(attached->comp, attached->runtime);
             ScriptContext ctx = makeCtx(0);
-            callOnStart(*comp, ctx);
+            callOnStart(attached->comp, attached->runtime, ctx);
         }
     }
 
@@ -226,7 +229,7 @@ namespace gcep
             else
             {
                 Log::warn("vcvarsall.bat not found - cl.exe must already be on PATH");
-                Log::warn("If you are on Windows, make sure to have Visual Studio 17 or higher installed");
+                Log::warn("Make sure to have Visual Studio 17 or higher installed");
             }
 
             cmd = "cmd /C \"" + setup

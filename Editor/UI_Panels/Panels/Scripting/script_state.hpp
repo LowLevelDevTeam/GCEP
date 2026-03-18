@@ -14,6 +14,7 @@ namespace gcep::panel
     {
         std::string     scriptName;
         ECS::ScriptComponent comp;
+        ECS::ScriptRuntimeData runtime;
     };
 
     /// @brief Shared state between EntityScriptPanel and ScriptManagerPanel.
