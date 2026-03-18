@@ -14,6 +14,10 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+// STL
+#include <filesystem>
+#include <vector>
+
 namespace gcep::editor
 {
     struct EditorContext
@@ -50,6 +54,9 @@ namespace gcep::editor
 
         // ── App control ───────────────────────────────────────────────────────────
         bool                 reloadRequested     = false;
+
+        // ── OS drag & drop ────────────────────────────────────────────────────────
+        std::vector<std::filesystem::path> droppedPaths;
     };
 
 } // namespace gcep::editor

@@ -35,14 +35,16 @@ namespace gcep::editor
                                   + ImGui::GetStyle().FramePadding.x * 2.0f
                                   + ImGui::GetStyle().ItemSpacing.x;
 
-            auto drawVec3 = [&colorLabel, &white, columnX](Vector3<float>& v, const char* label, ImVec4 color)
+            constexpr ImVec4 grey = { 0.22f, 0.22f, 0.22f, 1.f };
+
+            auto drawVec3 = [&colorLabel, &white, &grey, columnX](Vector3<float>& v, const char* label, ImVec4 /*color*/)
             {
                 const float spacing    = ImGui::GetStyle().ItemSpacing.x;
                 const float btnW       = ImGui::CalcTextSize("X").x + ImGui::GetStyle().FramePadding.x * 2.0f;
                 const float totalWidth = ImGui::GetContentRegionAvail().x;
                 const float fieldWidth = (totalWidth - columnX - (btnW + 2.0f) * 3.0f - spacing * 2.0f) / 3.0f;
 
-                colorLabel(label, white, color);
+                colorLabel(label, grey, white);
 
                 const std::string base = std::string("##") + label;
 

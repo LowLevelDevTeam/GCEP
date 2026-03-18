@@ -62,7 +62,7 @@ namespace gcep
             std::string               m_currentLine;
         };
 
-        class ConsolePanel : IPanel
+        class ConsolePanel : public IPanel
         {
         public:
             ConsolePanel();

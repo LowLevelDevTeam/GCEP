@@ -123,23 +123,45 @@ namespace gcep::editor
         /// the user from navigating above the project root.
         void renderBackButton();
 
-    private:
-        /// @brief Number of columns used in the folder table (derived from panel width).
-        int m_folderSize;
+        void drawToolbar();
+        void drawFolderTree();
+        void drawFolderTreeNode(const std::filesystem::path& path);
+        void drawBreadcrumb();
+        void folderList();
+        void drawItemContextMenu(const std::filesystem::path& path);
+        void drawBackgroundContextMenu();
+        void drawRenameModal();
+        void drawCreateModal();
+        void processDroppedFiles();
 
-        /// @brief Topmost directory the browser is allowed to display. Never changes after construction.
+        void requestCreateFolder(const std::filesystem::path& parent);
+        void requestCreateFile(const std::filesystem::path& parent, const std::string& extension);
+        void createFolder(const std::filesystem::path& parent, const std::string& name);
+        void createFile(const std::filesystem::path& parent, const std::string& name, const std::string& extension);
+
+        enum class ViewMode { Grid, List };
+        ViewMode m_viewMode  = ViewMode::Grid;
+        int      m_folderSize;
+
         std::filesystem::path m_rootPath;
-
-        /// @brief Directory currently displayed. Changes when the user navigates.
         std::filesystem::path m_currentPath;
-
-        /// @brief Absolute path of the entry last clicked by the user. Empty if none.
         std::filesystem::path m_selectedPath;
 
-        /// @brief Sorted list of sub-directories in @c m_currentPath. Refreshed on navigation.
         std::vector<std::filesystem::path> m_directories;
-
-        /// @brief Sorted list of files in @c m_currentPath. Refreshed on navigation.
         std::vector<std::filesystem::path> m_files;
+
+        // Rename state
+        std::filesystem::path m_renamePath;
+        char                  m_renameBuffer[256] = {};
+        bool                  m_openRenameModal   = false;
+
+        // Create modal state
+        std::filesystem::path m_createParent;
+        std::string           m_createExtension;   // empty = folder
+        char                  m_createNameBuffer[256] = {};
+        bool                  m_openCreateModal    = false;
+
+        // Deferred delete (avoids invalidating iterators mid-loop)
+        std::filesystem::path m_pendingDelete;
     };
 } // namespace gcep::editor

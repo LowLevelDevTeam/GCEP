@@ -43,15 +43,27 @@ namespace gcep::panel
         rhi::vulkan::Mesh* mesh = ctx.pRHI->findMesh(id);
         const bool hasLight = ctx.pRHI->getLightSystem().findSpotLight(id) ||
                               ctx.pRHI->getLightSystem().findPointLight(id);
+        auto pushHeaderStyle = []()
+        {
+            ImGui::PushStyleColor(ImGuiCol_Header,        ImVec4(0.22f, 0.22f, 0.22f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.30f, 0.30f, 0.30f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive,  ImVec4(0.38f, 0.38f, 0.38f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f,   1.f,   1.f,   1.f));
+        };
+
         if (mesh)
         {
-            if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-                drawRHIExtras(mesh);
+            pushHeaderStyle();
+            const bool open = ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen);
+            ImGui::PopStyleColor(4);
+            if (open) drawRHIExtras(mesh);
         }
         else if (!hasLight)
         {
-            if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-                drawAttachMesh(id);
+            pushHeaderStyle();
+            const bool open = ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen);
+            ImGui::PopStyleColor(4);
+            if (open) drawAttachMesh(id);
         }
 
         reg.drawAllExcept<ECS::Transform>(*ctx.registry, id);
