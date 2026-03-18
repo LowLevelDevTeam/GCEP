@@ -49,11 +49,11 @@ namespace gcep
         for (auto entity : view)
         {
             auto& transform = view.get<ECS::Transform>(entity);
-            auto& physics   = view.get<ECS::PhysicsComponent>(entity);
+            auto& physics   = view.get<ECS::RigidBodyComponent>(entity);
             auto& runtime   = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
 
             JPH::BodyID bodyID;
-            m_world->createBody(transform, physics, bodyID);
+            m_world->createBody(transform, {}, {}, bodyID);
             runtime.bodyID = bodyID.GetIndexAndSequenceNumber();
         }
         m_world->m_physicsSystem->OptimizeBroadPhase();
@@ -92,6 +92,11 @@ namespace gcep
 
     void PhysicsSystem::syncPhysicsToTransforms(ECS::Registry& reg)
     {
+        auto spawnBody = [&](auto& collider, ECS::EntityID entity)
+        {
+            BodyCreateInfo info
+        }
+
         auto view = reg.view<ECS::Transform, ECS::PhysicsComponent, ECS::PhysicsRuntimeData>();
         auto& bodyInterface = m_world->m_physicsSystem->GetBodyInterface();
 
@@ -137,6 +142,11 @@ namespace gcep
                 JPH::EActivation::Activate
             );
         }
+    }
+
+    void PhysicsSystem::getColliderType(ECS::EntityID id)
+    {
+        if (entit)
     }
 
     void PhysicsSystem::syncPhysicsVelocitiesToComponents(ECS::Registry& reg)

@@ -23,6 +23,16 @@
 
 namespace gcep
 {
+    struct BodyCreateInfo
+    {
+        Vector3<float> offset        {};
+        bool           isTrigger     = false;
+        ECS::EMotionType    motionType    = ECS::EMotionType::STATIC;
+        float          mass          = 1.0f;
+        float          linearDamping = 0.f;
+        float          angularDamping= 0.05f;
+        bool           useGravity    = true;
+    };
     class PhysicsBody;
 
     /**
@@ -66,10 +76,15 @@ namespace gcep
          * @brief Creates a physics body from ECS components and registers it in the simulation.
          *
          * @param transform Reference to the entity's ECS::Transform.
-         * @param data Reference to the entity's PhysicsComponent.
-         * @param dataId Output parameter receiving the Jolt BodyID of the created body.
+         * @param shape
+         * @param info
+         * @param outBodyID Output parameter receiving the Jolt BodyID of the created body.
          */
-        void createBody(ECS::Transform& transform, ECS::PhysicsComponent& data, JPH::BodyID& dataId);
+        void createBody(ECS::Transform& transform,
+                  const JPH::ShapeRefC& shape,
+                  const BodyCreateInfo& info,
+                  JPH::BodyID& outBodyID);
+
 
         /**
          * @brief Destroys a physics body.
@@ -179,6 +194,10 @@ namespace gcep
                 return h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
             }
         };
+
+
+
+
 
         std::unordered_map<ShapeKey, std::weak_ptr<PhysicsShape>, ShapeKeyHasher> m_shapeCache; ///< Cache for all created shapes.
     };

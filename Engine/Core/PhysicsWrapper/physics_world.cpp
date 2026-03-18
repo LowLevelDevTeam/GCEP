@@ -115,92 +115,46 @@ namespace gcep
     }
 
 
-	void PhysicsWorld::createBody(ECS::Transform& transform, ECS::PhysicsComponent& data, JPH::BodyID& dataId)
+	void PhysicsWorld::createBody(ECS::Transform& transform,
+								const JPH::ShapeRefC& shape,
+								const BodyCreateInfo& info,
+								JPH::BodyID& outBodyID)
     {
-    	std::shared_ptr<PhysicsShape> shape;
-
-    	// Shape
-    	switch (data.shapeType)
-    	{
-    		case ECS::EShapeType::CUBE:
-    			shape = getOrCreateBox({1.f, 1.f, 1.f});
-    			break;
-    		case ECS::EShapeType::CYLINDER:
-    			shape = getOrCreateCylinder(0.5f, 0.5f);
-    			break;
-    		case ECS::EShapeType::SPHERE:
-    			shape = getOrCreateSphere(0.5f);
-    			break;
-    		case ECS::EShapeType::CAPSULE:
-    			shape = getOrCreateCapsule(0.5f, 0.5f);
-    			break;
-    		default:
-    			shape = getOrCreateBox({1.f, 1.f, 1.f});
-    			break;
-    	}
-
-    	bool isScaled = transform.scale != Vector3<float>(1.f,1.f,1.f);
-    	if (isScaled)
-    	{
-    		shape = getOrCreateScaled(shape, transform.scale);
-    	}
-
-    	if (!shape) return;
-
-    	// Motion type
-    	JPH::EMotionType motionType = JPH::EMotionType::Static;
-    	switch (data.motionType)
-    	{
-    		case ECS::EMotionType::STATIC:
-    		{
-    			motionType = JPH::EMotionType::Static;
-    			break;
-    		}
-    		case ECS::EMotionType::KINEMATIC:
-    		{
-    			motionType = JPH::EMotionType::Kinematic;
-    			break;
-    		}
-    		case ECS::EMotionType::DYNAMIC:
-    		{
-    			motionType = JPH::EMotionType::Dynamic;
-    			break;
-    		}
-    	}
-
-    	// Transform
     	const auto& pos = transform.position;
     	const auto& rot = transform.rotation;
 
-    	JPH::RVec3 position(pos.x, pos.y, pos.z);
-    	JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+    	JPH::RVec3 position(pos.x + info.offset.x,
+							pos.y + info.offset.y,
+							pos.z + info.offset.z);
+    	JPH::Quat  rotation(rot.x, rot.y, rot.z, rot.w);
 
-    	// Layer auto-dérivé du motion type
-    	const JPH::ObjectLayer objectLayer = (motionType == JPH::EMotionType::Static)
-    		? Layers::NON_MOVING
-    		: Layers::MOVING;
+    	JPH::EMotionType joltMotion = JPH::EMotionType::Static;
+    	switch (info.motionType)
+    	{
+    		case ECS::EMotionType::DYNAMIC:    joltMotion = JPH::EMotionType::Dynamic;    break;
+    		case ECS::EMotionType::KINEMATIC:  joltMotion = JPH::EMotionType::Kinematic;  break;
+    		default: break;
+    	}
 
-    	// Body creation
-    	JPH::BodyCreationSettings bodySettings(
-    		shape->getJoltShape(),
-			position,
-			rotation,
-			motionType,
-			objectLayer
-    	);
-    	bodySettings.mIsSensor = data.isTrigger;
+    	const JPH::ObjectLayer layer = (joltMotion == JPH::EMotionType::Static)
+			? Layers::NON_MOVING : Layers::MOVING;
+
+    	JPH::BodyCreationSettings settings(shape, position, rotation, joltMotion, layer);
+    	settings.mIsSensor        = info.isTrigger;
+    	settings.mMassPropertiesOverride.mMass = info.mass;
+    	settings.mLinearDamping   = info.linearDamping;
+    	settings.mAngularDamping  = info.angularDamping;
+    	settings.mGravityFactor   = info.useGravity ? 1.f : 0.f;
 
     	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-	    JPH::Body* body = bodyInterface.CreateBody(bodySettings);
-    	/*if (data.motionType != ECS::EMotionType::STATIC)
-    	{
-    		body->SetAngularVelocity(Vector3Convertor::ToJolt(data.angularVelocity));
-    		body->SetLinearVelocity(Vector3Convertor::ToJolt(data.linearVelocity));
-    	}*/
-	    JPH::EActivation activation = (motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate : JPH::EActivation::Activate;
-	    bodyInterface.AddBody(body->GetID(), activation);
-	    dataId = body->GetID();
+    	JPH::Body* body = bodyInterface.CreateBody(settings);
+
+    	const JPH::EActivation activation = (joltMotion == JPH::EMotionType::Static)
+			? JPH::EActivation::DontActivate : JPH::EActivation::Activate;
+    	bodyInterface.AddBody(body->GetID(), activation);
+    	outBodyID = body->GetID();
     }
+
 
     void PhysicsWorld::destroyBody(const JPH::BodyID &body_id) const
     {
