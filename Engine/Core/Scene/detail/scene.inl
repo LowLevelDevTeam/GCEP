@@ -42,6 +42,7 @@ namespace gcep::SLS
 
     inline void Scene::load(const std::string& path, rhi::vulkan::VulkanRHI* rhi)
     {
+        m_path = path;
         clear();
         std::string basePath = path.substr(0, path.find_last_of('.'));
 
@@ -83,13 +84,13 @@ namespace gcep::SLS
         }
     }
 
-    inline void Scene::save(const std::string& path)
+    inline void Scene::save()
     {
-        std::string jsonPath = path.substr(0, path.find_last_of('.')) + ".gcmap";
+        std::string jsonPath = m_path.substr(0, m_path.find_last_of('.')) + ".gcmap";
         JsonSnapShot jsonSnapshot(*this);
         jsonSnapshot.serializeAll(jsonPath);
 
-        std::string binPath = path.substr(0, path.find_last_of('.')) + ".gcmapb";
+        std::string binPath = m_path.substr(0, m_path.find_last_of('.')) + ".gcmapb";
         SER::FileArchive ar(binPath, true);
         binarySnapShot binSnapshot(*this);
         binSnapshot.serializeAll(ar);

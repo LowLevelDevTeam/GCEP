@@ -105,7 +105,6 @@ namespace gcep
         GLFWwindow*        m_window;
         bool&              m_reloadApp;
         bool&              m_isRunning;
-        std::string        m_currentScenePath;
         SLS::SceneManager* m_sceneManager = nullptr;
         bool               m_showDemoWindow = false;
         bool               m_showSettings   = false;

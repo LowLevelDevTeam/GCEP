@@ -105,6 +105,7 @@ namespace gcep::panel
 
         if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
         {
+            SLS::SceneManager::instance().current().save();
             ctx.simulationState = SimulationState::PLAYING;
             ctx.pRHI->setSimulationStarted(true);
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
