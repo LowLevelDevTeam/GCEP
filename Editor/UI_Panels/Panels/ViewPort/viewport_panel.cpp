@@ -138,6 +138,13 @@ namespace gcep::panel
             ctx.pRHI->setSimulationStarted(false);
             physics.stopSimulation();
             ctx.scriptManagerPanel->onSimulationStop();
+
+            const std::string scenePath = SLS::SceneManager::instance().current().getPath();
+            ctx.pRHI->clearScene();
+            SLS::SceneManager::instance().loadScene(scenePath, ctx.pRHI);
+            ctx.registry = &SLS::SceneManager::instance().current().getRegistry();
+            ctx.pRHI->setRegistry(ctx.registry);
+            ctx.selection.unselect();
         }
         ImGui::SameLine();
 

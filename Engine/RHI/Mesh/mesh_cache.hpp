@@ -53,6 +53,9 @@ namespace gcep::rhi
         void patchAfterCompaction(uint32_t removedVertexOffset, uint32_t removedFirstIndex,
                                   uint32_t removedVertexCount,  uint32_t removedIndexCount);
 
+        /// @brief Removes all cached entries (call when the GPU geometry buffers are reset).
+        void clear() { m_cache.clear(); }
+
         /// @brief Returns a read-only view of all entries, keyed by canonical path string.
         [[nodiscard]] const std::unordered_map<std::string, GeometryRegion>& all() const;
 

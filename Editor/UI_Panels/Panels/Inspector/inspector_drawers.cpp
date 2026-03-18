@@ -25,7 +25,8 @@ namespace gcep::editor
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, bg);
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,  bg);
                 ImGui::PushStyleColor(ImGuiCol_Text,          fg);
-                ImGui::SmallButton(text);
+                const float btnH = ImGui::GetFrameHeight();
+                ImGui::Button(text, ImVec2(0.f, btnH));
                 ImGui::PopStyleColor(4);
             };
 
@@ -49,19 +50,19 @@ namespace gcep::editor
                 const std::string base = std::string("##") + label;
 
                 ImGui::SameLine(columnX);
-                colorLabel("X", { 0.85f, 0.15f, 0.15f, 1.f }, white);
+                colorLabel(("X##bx_" + base).c_str(), { 0.85f, 0.15f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "X").c_str(), &v.x, 0.1f);
 
                 ImGui::SameLine();
-                colorLabel("Y", { 0.15f, 0.75f, 0.15f, 1.f }, white);
+                colorLabel(("Y##by_" + base).c_str(), { 0.15f, 0.75f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "Y").c_str(), &v.y, 0.1f);
 
                 ImGui::SameLine();
-                colorLabel("Z", { 0.15f, 0.35f, 0.85f, 1.f }, white);
+                colorLabel(("Z##bz_" + base).c_str(), { 0.15f, 0.35f, 0.85f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "Z").c_str(), &v.z, 0.1f);

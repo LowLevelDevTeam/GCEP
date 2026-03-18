@@ -36,7 +36,7 @@ namespace gcep::rhi::vulkan
     /// Incremented once per @c VulkanTexture::loadTexture() call. Thread-safe
     /// via @c std::atomic fetch-add. The value is used as the @c dstArrayElement
     /// when writing into the bindless descriptor set (set 1, binding 0).
-    static std::atomic<uint32_t> m_nextTextureSlot = 0;
+    static std::atomic<uint32_t> m_nextTextureSlot = 1; // slot 0 reserved as "no texture"
 
     /// @brief Manages the lifetime and GPU resources of a 2D Vulkan texture.
     ///
@@ -234,7 +234,7 @@ namespace gcep::rhi::vulkan
 
         std::shared_ptr<TextureData> m_data;
         vk::Format                   m_format = vk::Format::eR8G8B8A8Srgb; ///< Texel format (fixed at RGBA8 sRGB).
-        uint32_t                     m_bindlessIndex;
+        uint32_t                     m_bindlessIndex = 0;
 
         bool m_hasMipmaps = true;  ///< Whether a full mip chain was requested on load.
         bool m_hasTexture = false; ///< Set to @c true after @c loadTexture() completes.
