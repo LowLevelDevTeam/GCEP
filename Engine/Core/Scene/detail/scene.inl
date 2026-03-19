@@ -119,14 +119,20 @@ namespace gcep::SLS
         if (!m_registry.hasComponent<ECS::HierarchyComponent>(parent))
             return children;
 
+        if (!m_registry.hasComponent<ECS::HierarchyComponent>(parent))
+            return children;
         auto& parentHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(parent);
 
         ECS::EntityID current = parentHierarchy.firstChild;
         while (current != ECS::INVALID_VALUE)
         {
             children.push_back(current);
-            auto& h = m_registry.getComponent<ECS::HierarchyComponent>(current);
-            current = h.nextSibling;
+            if (m_registry.hasComponent<ECS::HierarchyComponent>(current)) {
+                auto& h = m_registry.getComponent<ECS::HierarchyComponent>(current);
+                current = h.nextSibling;
+            } else {
+                break;
+            }
         }
 
         return children;
@@ -153,13 +159,15 @@ namespace gcep::SLS
         auto& childHierarchy  = m_registry.getComponent<ECS::HierarchyComponent>(child);
         auto& parentHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(parent);
 
-        childHierarchy.parent = parent;  // ← THIS LINE WAS MISSING
+        childHierarchy.parent = parent;  //  THIS LINE WAS MISSING
 
         if (parentHierarchy.firstChild != ECS::INVALID_VALUE)
         {
-            auto& firstChildHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(parentHierarchy.firstChild);
-            firstChildHierarchy.prevSibling = child;
-            childHierarchy.nextSibling = parentHierarchy.firstChild;
+            if (m_registry.hasComponent<ECS::HierarchyComponent>(parentHierarchy.firstChild)) {
+                auto& firstChildHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(parentHierarchy.firstChild);
+                firstChildHierarchy.prevSibling = child;
+                childHierarchy.nextSibling = parentHierarchy.firstChild;
+            }
         }
 
         parentHierarchy.firstChild = child;
@@ -172,12 +180,15 @@ namespace gcep::SLS
         auto& childHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(child);
         if (childHierarchy.parent == ECS::INVALID_VALUE) return;
 
+        if (!m_registry.hasComponent<ECS::HierarchyComponent>(childHierarchy.parent)) return;
         auto& parentHierarchy = m_registry.getComponent<ECS::HierarchyComponent>(childHierarchy.parent);
 
         if (childHierarchy.prevSibling != ECS::INVALID_VALUE)
         {
-            auto& prev = m_registry.getComponent<ECS::HierarchyComponent>(childHierarchy.prevSibling);
-            prev.nextSibling = childHierarchy.nextSibling;
+            if (m_registry.hasComponent<ECS::HierarchyComponent>(childHierarchy.prevSibling)) {
+                auto& prev = m_registry.getComponent<ECS::HierarchyComponent>(childHierarchy.prevSibling);
+                prev.nextSibling = childHierarchy.nextSibling;
+            }
         }
         else
         {
@@ -186,8 +197,10 @@ namespace gcep::SLS
 
         if (childHierarchy.nextSibling != ECS::INVALID_VALUE)
         {
-            auto& next = m_registry.getComponent<ECS::HierarchyComponent>(childHierarchy.nextSibling);
-            next.prevSibling = childHierarchy.prevSibling;
+            if (m_registry.hasComponent<ECS::HierarchyComponent>(childHierarchy.nextSibling)) {
+                auto& next = m_registry.getComponent<ECS::HierarchyComponent>(childHierarchy.nextSibling);
+                next.prevSibling = childHierarchy.prevSibling;
+            }
         }
 
         childHierarchy.parent      = ECS::INVALID_VALUE;
@@ -207,5 +220,11 @@ namespace gcep::SLS
             }
         }
         m_registry.update();
+
+    #ifdef GCEP_EDITOR
+        gcep::editor::EditorContext::get().selection.unselect();
+        #include <Scripts/ScriptRegistryUtils.hpp>
+        gcep::scripting::clearScriptRegistry();
+    #endif
     }
 } // namespace gcep::SLS

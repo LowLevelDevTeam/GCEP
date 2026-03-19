@@ -368,10 +368,12 @@ namespace gcep
             }
             else
             {
-                mesh.transform = registry.getComponent<ECS::Transform>(mesh.id);
+                if (registry.hasComponent<ECS::Transform>(mesh.id))
+                    mesh.transform = registry.getComponent<ECS::Transform>(mesh.id);
             }
             mesh.transform.rotation.Normalize();
-            mesh.physics = registry.getComponent<ECS::PhysicsComponent>(mesh.id);
+            if (registry.hasComponent<ECS::PhysicsComponent>(mesh.id))
+                mesh.physics = registry.getComponent<ECS::PhysicsComponent>(mesh.id);
         }
     }
 
