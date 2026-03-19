@@ -35,8 +35,6 @@ namespace gcep::panel
                 m_state.manager->pollForChanges();
                 m_state.setStatus("Polled.");
             }
-            if (ImGui::MenuItem((std::string(ICON_FA_PLAY) + " Compile").c_str()))
-                compileScripts();
             if (ImGui::MenuItem((std::string(ICON_FA_FOLDER_OPEN) + " Open dir").c_str()))
                 openScriptsDir();
             ImGui::EndMenuBar();
@@ -74,22 +72,14 @@ namespace gcep::panel
                 ImGui::TableSetColumnIndex(0);
                 bool sel = (m_state.selectedScript == name);
 
-                if (m_state.renamingIndex < 0 && sel &&
-                    ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                {
-                    m_state.renamingIndex = 0;
-                    strncpy(m_state.renameBuffer, name.c_str(), sizeof(m_state.renameBuffer) - 1);
-                    m_state.renameBuffer[sizeof(m_state.renameBuffer) - 1] = '\0';
-                }
-
                 if (m_state.renamingIndex >= 0 && sel)
                 {
                     ImGui::SetNextItemWidth(-1.f);
                     ImGui::SetKeyboardFocusHere();
                     if (ImGui::InputText("##rename", m_state.renameBuffer,
-                            sizeof(m_state.renameBuffer),
-                            ImGuiInputTextFlags_EnterReturnsTrue |
-                            ImGuiInputTextFlags_EscapeClearsAll))
+                        sizeof(m_state.renameBuffer),
+                        ImGuiInputTextFlags_EnterReturnsTrue |
+                        ImGuiInputTextFlags_EscapeClearsAll))
                     {
                         renameScript(name, std::string(m_state.renameBuffer));
                         m_state.renamingIndex = -1;
@@ -100,11 +90,21 @@ namespace gcep::panel
                 else
                 {
                     if (ImGui::Selectable(name.c_str(), sel,
-                            ImGuiSelectableFlags_SpanAllColumns |
-                            ImGuiSelectableFlags_AllowOverlap))
+                        ImGuiSelectableFlags_SpanAllColumns |
+                        ImGuiSelectableFlags_AllowOverlap))
                         m_state.selectedScript = name;
+
                     if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("Double-click to rename");
+                    {
+                        ImGui::SetTooltip("Right-click to rename");
+
+                        if (m_state.renamingIndex < 0 && sel && ImGui::IsMouseClicked(1))
+                        {
+                            m_state.renamingIndex = 0;
+                            strncpy(m_state.renameBuffer, name.c_str(), sizeof(m_state.renameBuffer) - 1);
+                            m_state.renameBuffer[sizeof(m_state.renameBuffer) - 1] = '\0';
+                        }
+                    }
                 }
 
                 ImGui::TableSetColumnIndex(1);
@@ -318,6 +318,18 @@ namespace gcep::panel
             if (entry.scriptName == oldName)
             {
                 entry.scriptName      = newName;
+                entry.comp.scriptName = newName;
+            }
+
+        if (m_state.selectedScript == oldName)
+            m_state.selectedScript = newName;
+
+        m_state.manager->renameScript(oldName, newName);
+
+        for (auto& [eid, entry] : m_state.entityScripts)
+            if (entry.scriptName == oldName)
+            {
+                entry.scriptName = newName;
                 entry.comp.scriptName = newName;
             }
 
