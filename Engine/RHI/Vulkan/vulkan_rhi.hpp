@@ -146,21 +146,6 @@ namespace gcep::rhi::vulkan
 
         // Scene management
 
-        /// @brief Spawns a unit cube at @p pos and uploads it to the GPU.
-        ///
-        /// Creates an ECS entity, adds @c ECS::Transform and @c PhysicsComponent,
-        /// loads a built-in cube OBJ, and calls @c uploadSingleMesh(). The cube is
-        /// registered as a static non-moving body.
-        ///
-        /// @param pos  Initial world-space position. Defaults to the origin.
-        void spawnCone(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnCube(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnCylinder(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnIcosphere(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnSphere(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnSuzanne(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-        void spawnTorus(glm::vec3 pos = {0.0f, 0.0f, 0.0f});
-
         /// @brief Spawns an arbitrary OBJ asset at @p pos and uploads it to the GPU.
         ///
         /// Creates an ECS entity, loads the OBJ via @c VulkanMesh::loadMesh(),
@@ -352,12 +337,12 @@ namespace gcep::rhi::vulkan
 
         // Private subsystem declarations
         #include "vulkan_rhi_private_descriptors.hpp"
-#include "vulkan_rhi_private_geometry.hpp"
-#include "vulkan_rhi_private_pipelines.hpp"
-#include "vulkan_rhi_private_gizmos.hpp"
-#include "vulkan_rhi_private_offscreen.hpp"
-#include "vulkan_rhi_private_taa.hpp"
-#include "vulkan_rhi_private_helpers.hpp"
+        #include "vulkan_rhi_private_geometry.hpp"
+        #include "vulkan_rhi_private_pipelines.hpp"
+        #include "vulkan_rhi_private_gizmos.hpp"
+        #include "vulkan_rhi_private_offscreen.hpp"
+        #include "vulkan_rhi_private_taa.hpp"
+        #include "vulkan_rhi_private_helpers.hpp"
     };
 } // namespace gcep::rhi::vulkan
 

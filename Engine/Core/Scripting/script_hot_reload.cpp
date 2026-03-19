@@ -60,6 +60,32 @@ namespace gcep
         }
     }
 
+    void ScriptHotReloadManager::renameScript(const std::string& oldName, const std::string& newName)
+    {
+        auto it = m_nameToIndex.find(oldName);
+        if (it == m_nameToIndex.end()) return;
+
+        std::size_t idx = it->second;
+        LoadedScript& script = m_scripts[idx];
+
+        // Unload the old library
+        if (script.handle)
+        {
+            lib_unload(script.handle);
+            script.handle = nullptr;
+        }
+
+        // Update the script's own name/path fields
+        script.name = newName;
+        script.sourcePath = m_scriptsDir + "/" + newName + ".cpp";
+        script.libPath = m_buildDir + "/" + newName + lib_extension();
+        script.valid = false;
+
+        // Re-key the name map
+        m_nameToIndex.erase(it);
+        m_nameToIndex[newName] = idx;
+    }
+
     std::vector<std::string> ScriptHotReloadManager::getAvailableScriptNames() const
     {
         std::vector<std::string> names;
@@ -119,6 +145,7 @@ namespace gcep
         if (registry->hasComponent<ECS::ScriptComponent>(comp.entityId))
         {
             registry->removeComponent<ECS::ScriptComponent>(comp.entityId);
+            registry->update();
         }
     }
 
