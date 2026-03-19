@@ -91,15 +91,6 @@ namespace gcep
         ///          large spikes on the first frame or after a debugger break.
         [[nodiscard]] float computeDeltaTime();
 
-        /// @brief Initialises the Dear ImGui context and Vulkan/GLFW backends.
-        ///
-        /// Creates an @c ImGUIManager and calls its @c init() with the GLFW window
-        /// handle and the Vulkan initialisation info provided by the RHI.
-        void initImGUI();
-
-        /// @brief Shuts down the Dear ImGui backends and destroys the context.
-        void shutdownImGUI();
-
     private:
         /// @brief Current simulation state (STOPPED, PLAYING, or PAUSED).
         gcep::SimulationState m_simulationState = SimulationState::STOPPED;
