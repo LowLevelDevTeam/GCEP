@@ -124,7 +124,7 @@ namespace gcep::rhi::vulkan
             else
             {
                 m_vertices.emplace_back(vertex);
-                m_indices.emplace_back(m_indices.size());
+                m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1);
             }
         }
 
@@ -214,20 +214,26 @@ namespace gcep::rhi::vulkan
                 if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
                     const uint16_t* indices16 = reinterpret_cast<const uint16_t*>(indexData);
                     for (size_t i = 0; i < indexAccessor.count; i++) {
-                        Vertex vertex = m_vertices[indices16[i]];
-                        m_indices.push_back(uniqueVertices[vertex]);
+                        if (indices16[i] < m_vertices.size()) {
+                            Vertex vertex = m_vertices[indices16[i]];
+                            m_indices.push_back(uniqueVertices[vertex]);
+                        }
                     }
                 } else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
                     const uint32_t* indices32 = reinterpret_cast<const uint32_t*>(indexData);
                     for (size_t i = 0; i < indexAccessor.count; i++) {
-                        Vertex vertex = m_vertices[indices32[i]];
-                        m_indices.push_back(uniqueVertices[vertex]);
+                        if (indices32[i] < m_vertices.size()) {
+                            Vertex vertex = m_vertices[indices32[i]];
+                            m_indices.push_back(uniqueVertices[vertex]);
+                        }
                     }
                 } else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
                     const uint8_t* indices8 = reinterpret_cast<const uint8_t*>(indexData);
                     for (size_t i = 0; i < indexAccessor.count; i++) {
-                        Vertex vertex = m_vertices[indices8[i]];
-                        m_indices.push_back(uniqueVertices[vertex]);
+                        if (indices8[i] < m_vertices.size()) {
+                            Vertex vertex = m_vertices[indices8[i]];
+                            m_indices.push_back(uniqueVertices[vertex]);
+                        }
                     }
                 }
             }

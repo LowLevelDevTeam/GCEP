@@ -118,8 +118,8 @@ namespace gcep::rhi::vulkan
         /// to the GPU so the vertex and fragment shaders can index into the bindless
         /// array with @c textures[bindlessIndex].
         ///
-        /// @returns The assigned slot, or @c UINT32_MAX if the texture has not been loaded.
-        [[nodiscard]] uint32_t getBindlessIndex() const noexcept { return m_bindlessIndex; }
+        /// @returns The assigned slot, or 0 if the texture has not been loaded.
+        [[nodiscard]] uint32_t getBindlessIndex() const noexcept { return m_hasTexture ? m_bindlessIndex : 0; }
 
     private:
         /// @brief Loads pixel data from @p filepath into a device-local @c VkImage.

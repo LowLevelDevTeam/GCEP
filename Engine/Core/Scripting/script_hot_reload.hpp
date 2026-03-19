@@ -87,6 +87,7 @@ namespace gcep
         void init(const std::string& scriptsDir, const std::string& buildDir, const std::string& includeDir);
         void shutdown();
         void pollForChanges();
+        void renameScript(const std::string& oldName, const std::string& newName);
 
         std::vector<std::string> getAvailableScriptNames() const;
         LoadedScript*            getScript(const std::string& name);

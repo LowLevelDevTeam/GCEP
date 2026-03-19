@@ -56,7 +56,11 @@ namespace gcep::ECS
 
     template<ComponentConcept  T>
     T& ComponentPool<T>::get(EntityID entity) {
-        return m_components[m_sparse.get(entity)];
+        Index idx = m_sparse.get(entity);
+        if (idx == INVALID_VALUE || idx >= m_components.size()) {
+            throw std::out_of_range("ComponentPool::get: entity does not have component or index out of range");
+        }
+        return m_components[idx];
     }
 
     template<ComponentConcept  T>

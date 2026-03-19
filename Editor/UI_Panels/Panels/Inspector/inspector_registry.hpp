@@ -53,6 +53,7 @@ namespace gcep::editor
                 name,
                 [](ECS::Registry& registry, ECS::EntityID entity)
                 {
+                    if (!registry.hasComponent<T>(entity)) return;
                     auto& component = registry.getComponent<T>(entity);
                     boost::pfr::for_each_field(component, [](auto& field, auto idx)
                     {
@@ -95,6 +96,7 @@ namespace gcep::editor
                 name,
                 [fn](ECS::Registry& registry, ECS::EntityID entity)
                 {
+                    if (!registry.hasComponent<T>(entity)) return;
                     auto& component = registry.getComponent<T>(entity);
                     fn(component);
                 },

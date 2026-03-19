@@ -2,9 +2,6 @@
 
 /// @file camera.hpp
 /// @brief First-person editor camera driven by keyboard and mouse input.
-/// @authors Morgane Prevost, Dylan Hollemaert, Clément Bobeda, Najim Bakkali, Leo Grognet
-/// @version 1.4
-/// @date 2026-02-17
 
 // Internals
 #include <Editor/Inputs/inputs.hpp>

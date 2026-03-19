@@ -46,7 +46,7 @@ namespace gcep::panel
 
         const bool hasHierarchy = ctx.registry->hasComponent<ECS::HierarchyComponent>(id);
         const bool hasChildren  = hasHierarchy &&
-            ctx.registry->getComponent<ECS::HierarchyComponent>(id).firstChild != ECS::INVALID_VALUE;
+            (ctx.registry->hasComponent<ECS::HierarchyComponent>(id) && ctx.registry->getComponent<ECS::HierarchyComponent>(id).firstChild != ECS::INVALID_VALUE);
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow
                                  | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -67,11 +67,16 @@ namespace gcep::panel
 
         if (hasChildren && open)
         {
-            ECS::EntityID child = ctx.registry->getComponent<ECS::HierarchyComponent>(id).firstChild;
-            while (child != ECS::INVALID_VALUE)
-            {
-                drawEntityNode(child);
-                child = ctx.registry->getComponent<ECS::HierarchyComponent>(child).nextSibling;
+            if (ctx.registry->hasComponent<ECS::HierarchyComponent>(id)) {
+                ECS::EntityID child = ctx.registry->getComponent<ECS::HierarchyComponent>(id).firstChild;
+                while (child != ECS::INVALID_VALUE) {
+                    drawEntityNode(child);
+                    if (ctx.registry->hasComponent<ECS::HierarchyComponent>(child)) {
+                        child = ctx.registry->getComponent<ECS::HierarchyComponent>(child).nextSibling;
+                    } else {
+                        break;
+                    }
+                }
             }
             ImGui::TreePop();
         }

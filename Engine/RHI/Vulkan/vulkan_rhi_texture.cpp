@@ -60,7 +60,7 @@ namespace gcep::rhi::vulkan
         bool isKtx = false;
         int texWidth, texHeight, texChannels;
         void* pixels = nullptr;
-        ktxTexture* kTexture;
+        ktxTexture* kTexture = nullptr;
 
         if (filepath.extension().string().starts_with(".ktx"))
         {
@@ -134,10 +134,7 @@ namespace gcep::rhi::vulkan
         transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
         copyBufferToImage(stagingBuffer);
 
-        if(m_hasMipmaps)
-        {
-            generateMipmaps(isKtx, kTexture);
-        }
+        generateMipmaps(isKtx, kTexture);
     }
 
     void VulkanTexture::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,

@@ -66,6 +66,7 @@ namespace gcep
     {
         m_window        = &Window::getInstance();
         m_physicsSystem = &PhysicsSystem::getInstance();
+        m_physicsSystem->init();
         m_audioSystem   = AudioSystem::getInstance();
         m_window->initWindow();
         m_input = std::make_unique<InputSystem>(m_window->getGlfwWindow());

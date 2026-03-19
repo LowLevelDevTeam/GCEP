@@ -16,7 +16,6 @@ namespace gcep
 {
     PhysicsSystem::PhysicsSystem()
     {
-        init();
         Log::info("Physics System created");
     }
 

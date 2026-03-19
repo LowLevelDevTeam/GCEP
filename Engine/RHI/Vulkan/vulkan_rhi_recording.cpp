@@ -140,8 +140,8 @@ namespace gcep::rhi::vulkan
 
         if(!simulationStarted)
         {
-            m_gridPC.viewProj    = pc.camViewProj; // has jitter
-            m_gridPC.invViewProj = glm::inverse(m_unjitteredViewProj); // well, read the name
+            m_gridPC.viewProj    = pc.camViewProj;
+            m_gridPC.invViewProj = glm::inverse(m_unjitteredViewProj);
             recordGridPass();
         }
 
