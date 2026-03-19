@@ -16,7 +16,9 @@
 #include <Editor/UI_Panels/Panels/AudioControl/audio_control_panel.hpp>
 #include <Editor/UI_Panels/Panels/Console/console_panel.hpp>
 #include <Editor/UI_Panels/Panels/ContentBrowser/content_browser.hpp>
-#include <Editor/UI_Panels/Panels/ProjectBrowser/project_browser_panel.hpp>
+#include <Editor/UI_Panels/Panels/Performance/performance_panel.hpp>
+#include <Editor/UI_Panels/Panels/Scripting/script_manager_panel.hpp>
+#include <Engine/Core/Scripting/script_hot_reload.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <Scene/header/scene_manager.hpp>
 
@@ -74,9 +76,6 @@ namespace gcep
         /// @brief Stores the editor camera into EditorContext.
         void setCamera(Camera* pCamera);
 
-        /// @brief Updates the scene manager and registry references in EditorContext.
-        void setSceneManager(SLS::SceneManager* sceneManager);
-
         /// @brief No-op kept for API compatibility; ProjectLoader is a singleton.
         void setProjectLoader(pl::ProjectLoader*) {}
 
@@ -106,20 +105,23 @@ namespace gcep
         GLFWwindow*        m_window;
         bool&              m_reloadApp;
         bool&              m_isRunning;
-        SLS::SceneManager* m_sceneManager = nullptr;
-        bool               m_showDemoWindow = false;
-        bool               m_showSettings   = false;
+        SLS::SceneManager* m_sceneManager        = nullptr;
+        bool               m_dockspaceInitialized = false;
+        bool               m_showDemoWindow       = false;
+        std::string        m_pendingScenePath;
 
         // ── Panels ────────────────────────────────────────────────────────────────
 
-        panel::ViewportPanel       m_viewport;
-        panel::SceneSettingsPanel  m_settings;
-        panel::SceneHierarchyPanel m_hierarchy;
-        panel::InspectorPanel      m_inspector;
+        panel::ViewportPanel        m_viewport;
+        panel::SceneSettingsPanel   m_settings;
+        panel::SceneHierarchyPanel  m_hierarchy;
+        panel::InspectorPanel       m_inspector;
         panel::AudioControlPanel    m_audio;
         panel::ConsolePanel         m_console;
         editor::ContentBrowser      m_contentBrowser;
-        panel::ProjectBrowserPanel  m_projectBrowser;
+        panel::PerformancePanel     m_performance;
+        panel::ScriptState          m_scriptState;
+        panel::ScriptManagerPanel   m_scriptManagerPanel;
     };
 
 } // namespace gcep

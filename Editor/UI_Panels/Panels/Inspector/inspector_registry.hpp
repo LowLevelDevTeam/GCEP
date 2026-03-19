@@ -211,7 +211,15 @@ namespace gcep::editor
         void drawEntry(const Entry& entry, ECS::Registry& registry, ECS::EntityID entity)
         {
             if (!entry.has(registry, entity)) return;
-            if (ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+
+            ImGui::PushStyleColor(ImGuiCol_Header,        ImVec4(0.22f, 0.22f, 0.22f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.30f, 0.30f, 0.30f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive,  ImVec4(0.38f, 0.38f, 0.38f, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.f,   1.f,   1.f,   1.f));
+            const bool open = ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+            ImGui::PopStyleColor(4);
+
+            if (open)
                 entry.draw(registry, entity);
         }
 

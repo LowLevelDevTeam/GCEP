@@ -69,6 +69,8 @@ namespace gcep::SLS
                 if (!mc.filePath.empty())
                 {
                     rhi->spawnAsset(mc.filePath.data(), entity, {0,0,0});
+                    if (!mc.texturePath.empty())
+                        rhi->uploadTexture(entity, mc.texturePath.c_str(), true);
                 }
             }
             auto pointLightView = registry.view<ECS::PointLightComponent>();

@@ -6,6 +6,8 @@ namespace gcep::panel
     public:
         virtual ~IPanel() = default;
         virtual void draw() = 0;
+
+        bool isVisible = true;
     };
 }
 

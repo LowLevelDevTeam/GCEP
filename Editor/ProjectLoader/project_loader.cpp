@@ -351,16 +351,28 @@ void ProjectLoader::drawUI(bool& stillSelecting)
             ImGui::OpenPopup("Error");
         else
         {
-            std::filesystem::path projectPath = m_createPath / m_projectName;
-            std::filesystem::create_directories(projectPath / "Content");
-            std::filesystem::create_directories(projectPath / "Content" / "Scenes");
+            const std::filesystem::path projectPath = m_createPath / m_projectName;
+            const std::filesystem::path contentPath = projectPath / "Content";
+
+            // Default project structure
+            for (const auto& dir : {
+                "Scenes",
+                "Assets",
+                "Assets/Meshes",
+                "Assets/Textures",
+                "Assets/Materials",
+                "Scripts",
+                "Prefabs",
+                "Audio"
+            })
+                std::filesystem::create_directories(contentPath / dir);
+
             m_info.projectPath = projectPath;
             m_info.projectName = m_projectName;
-            m_info.contentPath = projectPath / "Content";
-            m_info.startScene  = projectPath / "Content" / "Scenes" / "default.gcmap";
+            m_info.contentPath = contentPath;
+            m_info.startScene  = contentPath / "Scenes" / "default.gcmap";
             m_info.createdAt   = nowISO8601();
             writeProjectFile();
-            // Refresh browser so the new project appears
             m_browserPath = m_createPath;
             refreshBrowserUI();
             stillSelecting = false;

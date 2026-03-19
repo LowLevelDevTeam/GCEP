@@ -185,6 +185,14 @@ namespace gcep::rhi::vulkan
         /// @param meshIndex  0-based index into @c meshes. Must be < @c meshes.size().
         void removeMesh(ECS::EntityID id);
 
+        /// @brief Removes all meshes and lights from the scene without destroying GPU buffers.
+        ///
+        /// Resets the CPU-side mesh/light vectors, the mesh cache, and the geometry
+        /// counters so the next @c spawnAsset() calls start fresh at offset 0.
+        /// The texture cache is preserved so textures are not re-uploaded.
+        /// Call before reloading a scene (e.g. on simulation stop).
+        void clearScene();
+
         /// @brief Loads or replaces the texture of the mesh identified by @p id.
         ///
         /// If @p path is already in the texture cache, the existing bindless slot is

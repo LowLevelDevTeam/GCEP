@@ -6,8 +6,10 @@
 #include <PhysicsWrapper/physics_system.hpp>
 #include <Scene/header/scene_manager.hpp>
 #include <Engine/Core/ECS/Components/transform.hpp>
+#include <ECS/Components/camera_component.hpp>
 #include <ECS/Components/point_light_component.hpp>
 #include <ECS/Components/spot_light_component.hpp>
+#include <Engine/CameraManager/camera_manager.hpp>
 #include <Maths/quaternion.hpp>
 #include <font_awesome.hpp>
 
@@ -100,6 +102,7 @@ namespace gcep::panel
     {
         auto& ctx     = editor::EditorContext::get();
         auto& physics = PhysicsSystem::getInstance();
+        auto& scriptManager = ctx.m_scriptManager;
 
         ImGui::BeginMenuBar();
 
@@ -111,6 +114,7 @@ namespace gcep::panel
             physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
             physics.startSimulation();
             gcep::SLS::SceneManager::instance().saveScene();
+            ctx.scriptManagerPanel->onSimulationStart();
         }
         ImGui::SameLine();
 
@@ -135,22 +139,14 @@ namespace gcep::panel
             ctx.simulationState = SimulationState::STOPPED;
             if (ctx.pRHI) ctx.pRHI->setSimulationStarted(false);
             physics.stopSimulation();
-            try {
-                // Check if current scene exists and path is valid
-                auto& sceneManager = SLS::SceneManager::instance();
-                std::string path;
-                try {
-                    path = sceneManager.current().getPath();
-                } catch (const std::exception& e) {
-                    // No current scene, skip loading
-                    return;
-                }
-                if (!path.empty() && ctx.pRHI) {
-                    sceneManager.loadScene(path, ctx.pRHI);
-                }
-            } catch (const std::exception& e) {
-                // Optionally log error
-            }
+            ctx.scriptManagerPanel->onSimulationStop();
+
+            const std::string scenePath = SLS::SceneManager::instance().current().getPath();
+            ctx.pRHI->clearScene();
+            SLS::SceneManager::instance().loadScene(scenePath, ctx.pRHI);
+            ctx.registry = &SLS::SceneManager::instance().current().getRegistry();
+            ctx.pRHI->setRegistry(ctx.registry);
+            ctx.selection.unselect();
         }
         ImGui::SameLine();
 
@@ -159,9 +155,13 @@ namespace gcep::panel
         else if (ctx.simulationState == SimulationState::PAUSED)  simLabel = "Paused";
         ImGui::Text("Simulation: %s", simLabel);
 
-        // Physics tick while playing
+        // Physics, camera and scripting tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
+        {
             physics.update(ImGui::GetIO().DeltaTime);
+            engine::CameraManager{}.update(ctx, ImGui::GetIO().DeltaTime);
+            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
+        }
 
         ImGui::EndMenuBar();
     }

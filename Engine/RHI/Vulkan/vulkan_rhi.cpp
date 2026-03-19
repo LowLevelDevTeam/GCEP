@@ -354,7 +354,8 @@ namespace gcep::rhi::vulkan
                    + " / id = " + std::to_string(id);
 
         mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
+            mesh.physics = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
 
         mesh.load(this, objPath);
 
@@ -365,7 +366,8 @@ namespace gcep::rhi::vulkan
         }
 
         mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
+        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
+            mesh.physics = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
     }
 
     void VulkanRHI::uploadTexture(ECS::EntityID id, const char* texPath, bool mipmaps)
@@ -376,7 +378,32 @@ namespace gcep::rhi::vulkan
         if (!mesh) return;
 
         mesh->texture()->loadTexture(this, texPath, mipmaps);
+
+        if (m_ECSRegistry && m_ECSRegistry->hasComponent<ECS::MeshComponent>(id))
+            m_ECSRegistry->getComponent<ECS::MeshComponent>(id).texturePath = texPath;
+
         Log::info(std::format("Loaded texture {}, mipmaps = {}", texPath, mipmaps));
+    }
+
+    void VulkanRHI::clearScene()
+    {
+        m_device.waitIdle();
+
+        meshes.clear();
+        m_meshData.clear();
+        m_indirectCommands.clear();
+        m_meshCache.clear();
+
+        m_vertexBytesFilled = 0;
+        m_indexBytesFilled  = 0;
+        m_totalVertexCount  = 0;
+        m_totalIndexCount   = 0;
+
+        std::memset(m_meshDataSSBOMapped,   0, sizeof(GPUMeshData)                    * MAX_MESHES);
+        std::memset(m_indirectBufferMapped, 0, sizeof(vk::DrawIndexedIndirectCommand) * MAX_MESHES);
+
+        m_lightSystem.getPointLights().clear();
+        m_lightSystem.getSpotLights().clear();
     }
 
     void VulkanRHI::setSimulationStarted(bool started)

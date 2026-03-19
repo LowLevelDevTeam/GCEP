@@ -37,7 +37,6 @@ namespace gcep::editor
         {
             auto& pc      = registry.addComponent<ECS::PhysicsComponent>(id);
             pc.motionType = ECS::EMotionType::STATIC;
-            pc.layers     = ECS::ELayers::NON_MOVING;
             pc.shapeType  = ECS::EShapeType::CUBE;
         }
 
@@ -57,7 +56,6 @@ namespace gcep::editor
 
         auto& pc      = scene.getRegistry().addComponent<ECS::PhysicsComponent>(id);
         pc.motionType = ECS::EMotionType::STATIC;
-        pc.layers     = ECS::ELayers::NON_MOVING;
         pc.shapeType  = ECS::EShapeType::CUBE;
 
         rhi->spawnAsset(const_cast<char*>(path.c_str()), id, pos);

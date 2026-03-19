@@ -1,13 +1,22 @@
 #pragma once
 
+// Internals
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <ECS/headers/registry.hpp>
 #include <Editor/Camera/camera.hpp>
 #include <Editor/Helpers.hpp>
 #include <Editor/UI_Panels/selection_manager.hpp>
-#include <ImGuizmo.h>
+#include <Editor/UI_Panels/Panels/Scripting/script_manager_panel.hpp>
+#include <Scripting/script_hot_reload.hpp>
+
+// Externals
 #include <imgui.h>
+#include <ImGuizmo.h>
+
+// STL
+#include <filesystem>
+#include <vector>
 
 namespace gcep::editor
 {
@@ -26,6 +35,10 @@ namespace gcep::editor
         Camera*                  camera          = nullptr;
         UI::SelectionManager     selection;
 
+        // ── Scripting ─────────────────────────────────────────────────────────────
+        ScriptHotReloadManager m_scriptManager;
+        panel::ScriptManagerPanel* scriptManagerPanel = nullptr;
+
         // ── Scene / Render ────────────────────────────────────────────────────
         rhi::vulkan::SceneInfos  sceneInfos;
         float                    camSpeed    = 5.0f;
@@ -41,6 +54,9 @@ namespace gcep::editor
 
         // ── App control ───────────────────────────────────────────────────────────
         bool                 reloadRequested     = false;
+
+        // ── OS drag & drop ────────────────────────────────────────────────────────
+        std::vector<std::filesystem::path> droppedPaths;
     };
 
 } // namespace gcep::editor

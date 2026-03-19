@@ -63,6 +63,8 @@ namespace gcep::panel
         if (ImGui::IsItemClicked())
             ctx.selection.select(id);
 
+        drawEntityContextMenu(id);
+
         if (hasChildren && open)
         {
             if (ctx.registry->hasComponent<ECS::HierarchyComponent>(id)) {
@@ -77,6 +79,31 @@ namespace gcep::panel
                 }
             }
             ImGui::TreePop();
+        }
+    }
+
+    void SceneHierarchyPanel::drawEntityContextMenu(ECS::EntityID id)
+    {
+        const std::string popupId = "ctx_entity_" + std::to_string(id);
+
+        if (ImGui::BeginPopupContextItem())
+        {
+            auto& ctx  = editor::EditorContext::get();
+            auto& scene = SLS::SceneManager::instance().current();
+
+            if (ImGui::MenuItem((std::string(ICON_FA_PLUS) + "Add Child").c_str()))
+            {
+                const ECS::EntityID child = scene.createEntity("Entity");
+                scene.setParent(child, id);
+                ctx.selection.select(child);
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem((std::string(ICON_FA_TRASH) +" Delete").c_str()))
+            {
+                ctx.selection.select(id);
+                removeSelected();
+            }
+            ImGui::EndPopup();
         }
     }
 
@@ -174,8 +201,9 @@ namespace gcep::panel
 
         ImGui::Begin("Scene Hierarchy");
 
-        ImGui::SeparatorText("Add objects");
-        drawSpawnMenu();
+        auto& scene = SLS::SceneManager::instance().current();
+        if (ImGui::Button((std::string(ICON_FA_PLUS) + " Add Entity").c_str()))
+            scene.createEntity("Entity");
 
         ImGui::SeparatorText("Scene tree");
 
@@ -199,22 +227,18 @@ namespace gcep::panel
             ImGui::TreePop();
         }
 
-        // Selection actions
-        if (ctx.selection.hasSelectedEntity())
+        // Clic droit sur fond vide
+        if (ImGui::BeginPopupContextWindow("ctx_hierarchy_bg",
+            ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
         {
-            const ECS::EntityID selectedId = ctx.selection.getSelectedEntityID();
-
-            if (ImGui::Button((std::string(ICON_FA_PLUS) + " Add child").c_str()))
-            {
-                auto& scene = SLS::SceneManager::instance().current();
-                const ECS::EntityID child = scene.createEntity("Entity");
-                scene.setParent(child, selectedId);
-                ctx.selection.select(child);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button((std::string(ICON_FA_TRASH) + " Remove selected").c_str()) || ImGui::IsKeyPressed(ImGuiKey_Delete))
-                removeSelected();
+            if (ImGui::MenuItem((std::string(ICON_FA_PLUS) + " Add Entity").c_str()))
+                scene.createEntity("Entity");
+            ImGui::EndPopup();
         }
+
+        // Delete shortcut
+        if (ctx.selection.hasSelectedEntity() && ImGui::IsKeyPressed(ImGuiKey_Delete))
+            removeSelected();
 
         // Deselect on empty click (not when clicking an item)
         if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())

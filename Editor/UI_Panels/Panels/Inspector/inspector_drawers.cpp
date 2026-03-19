@@ -25,7 +25,8 @@ namespace gcep::editor
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, bg);
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,  bg);
                 ImGui::PushStyleColor(ImGuiCol_Text,          fg);
-                ImGui::SmallButton(text);
+                const float btnH = ImGui::GetFrameHeight();
+                ImGui::Button(text, ImVec2(0.f, btnH));
                 ImGui::PopStyleColor(4);
             };
 
@@ -35,31 +36,33 @@ namespace gcep::editor
                                   + ImGui::GetStyle().FramePadding.x * 2.0f
                                   + ImGui::GetStyle().ItemSpacing.x;
 
-            auto drawVec3 = [&colorLabel, &white, columnX](Vector3<float>& v, const char* label, ImVec4 color)
+            constexpr ImVec4 grey = { 0.22f, 0.22f, 0.22f, 1.f };
+
+            auto drawVec3 = [&colorLabel, &white, &grey, columnX](Vector3<float>& v, const char* label, ImVec4 /*color*/)
             {
                 const float spacing    = ImGui::GetStyle().ItemSpacing.x;
                 const float btnW       = ImGui::CalcTextSize("X").x + ImGui::GetStyle().FramePadding.x * 2.0f;
                 const float totalWidth = ImGui::GetContentRegionAvail().x;
                 const float fieldWidth = (totalWidth - columnX - (btnW + 2.0f) * 3.0f - spacing * 2.0f) / 3.0f;
 
-                colorLabel(label, white, color);
+                colorLabel(label, grey, white);
 
                 const std::string base = std::string("##") + label;
 
                 ImGui::SameLine(columnX);
-                colorLabel("X", { 0.85f, 0.15f, 0.15f, 1.f }, white);
+                colorLabel(("X##bx_" + base).c_str(), { 0.85f, 0.15f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "X").c_str(), &v.x, 0.1f);
 
                 ImGui::SameLine();
-                colorLabel("Y", { 0.15f, 0.75f, 0.15f, 1.f }, white);
+                colorLabel(("Y##by_" + base).c_str(), { 0.15f, 0.75f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "Y").c_str(), &v.y, 0.1f);
 
                 ImGui::SameLine();
-                colorLabel("Z", { 0.15f, 0.35f, 0.85f, 1.f }, white);
+                colorLabel(("Z##bz_" + base).c_str(), { 0.15f, 0.35f, 0.85f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
                 ImGui::DragFloat((base + "Z").c_str(), &v.z, 0.1f);
@@ -73,17 +76,13 @@ namespace gcep::editor
         reg.registerDrawer<ECS::PhysicsComponent>([](ECS::PhysicsComponent& p)
         {
             const char* motionLabels[] = { "Static", "Dynamic", "Kinematic" };
-            const char* layerLabels[]  = { "Non moving", "Moving" };
             const char* shapeLabels[]  = { "Cube", "Sphere", "Cylinder", "Capsule" };
 
             int motion = static_cast<int>(p.motionType);
-            int layer  = static_cast<int>(p.layers);
             int shape  = static_cast<int>(p.shapeType);
 
             if (ImGui::Combo("Motion Type", &motion, motionLabels, IM_ARRAYSIZE(motionLabels)))
                 p.motionType = static_cast<ECS::EMotionType>(motion);
-            if (ImGui::Combo("Layer",       &layer,  layerLabels,  IM_ARRAYSIZE(layerLabels)))
-                p.layers = static_cast<ECS::ELayers>(layer);
             if (ImGui::Combo("Shape",       &shape,  shapeLabels,  IM_ARRAYSIZE(shapeLabels)))
                 p.shapeType = static_cast<ECS::EShapeType>(shape);
 
@@ -114,6 +113,14 @@ namespace gcep::editor
         {
             drawField(t.name, "Name");
         }, /*removable=*/false);
+
+        reg.registerDrawer<ECS::CameraComponent>([](ECS::CameraComponent& c)
+        {
+            //drawField(c.fovYDeg,       "FOV Y");
+            //drawField(c.nearZ,         "Near Z");
+            //drawField(c.farZ,          "Far Z");
+            ImGui::Checkbox("Is Main Camera", &c.isMainCamera);
+        });
     }
 
 } // namespace gcep::editor

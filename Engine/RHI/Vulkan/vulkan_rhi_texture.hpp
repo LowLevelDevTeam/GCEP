@@ -36,7 +36,7 @@ namespace gcep::rhi::vulkan
     /// Incremented once per @c VulkanTexture::loadTexture() call. Thread-safe
     /// via @c std::atomic fetch-add. The value is used as the @c dstArrayElement
     /// when writing into the bindless descriptor set (set 1, binding 0).
-    static std::atomic<uint32_t> m_nextTextureSlot = 0;
+    static std::atomic<uint32_t> m_nextTextureSlot = 1; // slot 0 reserved as "no texture"
 
     /// @brief Manages the lifetime and GPU resources of a 2D Vulkan texture.
     ///
