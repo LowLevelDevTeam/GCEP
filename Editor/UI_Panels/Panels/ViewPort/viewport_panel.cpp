@@ -102,11 +102,11 @@ namespace gcep::panel
     {
         auto& ctx     = editor::EditorContext::get();
         auto& physics = PhysicsSystem::getInstance();
-        auto& scriptManager = ctx.m_scriptManager;
 
         ImGui::BeginMenuBar();
 
-        if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
+        if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str())
+            && ctx.simulationState != SimulationState::PLAYING)
         {
             SLS::SceneManager::instance().current().save();
             ctx.simulationState = SimulationState::PLAYING;
