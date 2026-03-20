@@ -59,22 +59,8 @@ struct PlayerController
 
         auto tf = GET_TRANSFORM(go);
 
-// Temporary debug — remove once fixed
-std::cout << "entityId: "  << ctx->entityId  << "\n";
-std::cout << "ecs ptr: "   << ctx->ecs       << "\n";
-std::cout << "registry: "  << ctx->registry  << "\n";
-std::cout << "hasTransform: " 
-          << (ctx->ecs && ctx->registry 
-              ? ctx->ecs->hasComponent(ctx->registry, ctx->entityId, 0) 
-              : false) 
-          << "\n";
-void* raw = ctx->ecs->getComponent(ctx->registry, ctx->entityId, 0);
-std::cout << "raw transform ptr: " << raw << "\n";
-std::cout << "tf ptr: " << tf._ptr << "\n";
-std::cout << "tf bool: " << (bool)tf << "\n";
         if (!tf || !input.valid())
         {
-            std::cout << "tf is" << (!tf ? " not " : " ") << "valid" << std::endl;
             return;
         }
 
