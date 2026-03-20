@@ -1,0 +1,148 @@
+var annotated_dup =
+[
+    [ "gcep", "namespacegcep.html", [
+      [ "ECS", null, [
+        [ "CameraComponent", "structgcep_1_1ECS_1_1CameraComponent.html", "structgcep_1_1ECS_1_1CameraComponent" ],
+        [ "ComponentIDGenerator", "classgcep_1_1ECS_1_1ComponentIDGenerator.html", null ],
+        [ "ComponentPool", "structgcep_1_1ECS_1_1ComponentPool.html", "structgcep_1_1ECS_1_1ComponentPool" ],
+        [ "ComponentRegistry", "classgcep_1_1ECS_1_1ComponentRegistry.html", "classgcep_1_1ECS_1_1ComponentRegistry" ],
+        [ "entityElement", "structgcep_1_1ECS_1_1entityElement.html", "structgcep_1_1ECS_1_1entityElement" ],
+        [ "EntityIDGenerator", "classgcep_1_1ECS_1_1EntityIDGenerator.html", "classgcep_1_1ECS_1_1EntityIDGenerator" ],
+        [ "HierarchyComponent", "structgcep_1_1ECS_1_1HierarchyComponent.html", null ],
+        [ "IPool", "structgcep_1_1ECS_1_1IPool.html", "structgcep_1_1ECS_1_1IPool" ],
+        [ "MeshComponent", "structgcep_1_1ECS_1_1MeshComponent.html", null ],
+        [ "PagedAllocator", "classgcep_1_1ECS_1_1PagedAllocator.html", "classgcep_1_1ECS_1_1PagedAllocator" ],
+        [ "PhysicsComponent", "structgcep_1_1ECS_1_1PhysicsComponent.html", null ],
+        [ "PhysicsRuntimeData", "structgcep_1_1ECS_1_1PhysicsRuntimeData.html", null ],
+        [ "PointLightComponent", "structgcep_1_1ECS_1_1PointLightComponent.html", "structgcep_1_1ECS_1_1PointLightComponent" ],
+        [ "Registry", "classgcep_1_1ECS_1_1Registry.html", "classgcep_1_1ECS_1_1Registry" ],
+        [ "ScriptComponent", "structgcep_1_1ECS_1_1ScriptComponent.html", null ],
+        [ "ScriptRuntimeData", "structgcep_1_1ECS_1_1ScriptRuntimeData.html", null ],
+        [ "SpotLightComponent", "structgcep_1_1ECS_1_1SpotLightComponent.html", "structgcep_1_1ECS_1_1SpotLightComponent" ],
+        [ "Tag", "structgcep_1_1ECS_1_1Tag.html", null ],
+        [ "Transform", "structgcep_1_1ECS_1_1Transform.html", null ],
+        [ "View", "classgcep_1_1ECS_1_1View.html", "classgcep_1_1ECS_1_1View" ],
+        [ "WorldTransform", "structgcep_1_1ECS_1_1WorldTransform.html", null ]
+      ] ],
+      [ "editor", null, [
+        [ "ContentBrowser", "classgcep_1_1editor_1_1ContentBrowser.html", "classgcep_1_1editor_1_1ContentBrowser" ],
+        [ "EditorContext", "structgcep_1_1editor_1_1EditorContext.html", null ],
+        [ "InspectorRegistry", "classgcep_1_1editor_1_1InspectorRegistry.html", "classgcep_1_1editor_1_1InspectorRegistry" ],
+        [ "PrefabSystem", "classgcep_1_1editor_1_1PrefabSystem.html", null ]
+      ] ],
+      [ "engine", null, [
+        [ "CameraManager", "classgcep_1_1engine_1_1CameraManager.html", null ]
+      ] ],
+      [ "objParser", null, [
+        [ "attrib_t", "structgcep_1_1objParser_1_1attrib__t.html", null ],
+        [ "index_t", "structgcep_1_1objParser_1_1index__t.html", null ]
+      ] ],
+      [ "panel", null, [
+        [ "AttachedScript", "structgcep_1_1panel_1_1AttachedScript.html", null ],
+        [ "AudioControlPanel", "classgcep_1_1panel_1_1AudioControlPanel.html", null ],
+        [ "ConsolePanel", "classgcep_1_1panel_1_1ConsolePanel.html", null ],
+        [ "EntityScriptPanel", "classgcep_1_1panel_1_1EntityScriptPanel.html", null ],
+        [ "ImGuiConsoleBuffer", "classgcep_1_1panel_1_1ImGuiConsoleBuffer.html", "classgcep_1_1panel_1_1ImGuiConsoleBuffer" ],
+        [ "InspectorPanel", "classgcep_1_1panel_1_1InspectorPanel.html", null ],
+        [ "IPanel", "classgcep_1_1panel_1_1IPanel.html", null ],
+        [ "PerformancePanel", "classgcep_1_1panel_1_1PerformancePanel.html", null ],
+        [ "ProjectBrowserPanel", "classgcep_1_1panel_1_1ProjectBrowserPanel.html", "classgcep_1_1panel_1_1ProjectBrowserPanel" ],
+        [ "SceneHierarchyPanel", "classgcep_1_1panel_1_1SceneHierarchyPanel.html", null ],
+        [ "SceneSettingsPanel", "classgcep_1_1panel_1_1SceneSettingsPanel.html", null ],
+        [ "ScriptManagerPanel", "classgcep_1_1panel_1_1ScriptManagerPanel.html", null ],
+        [ "ScriptState", "structgcep_1_1panel_1_1ScriptState.html", null ],
+        [ "ViewportPanel", "classgcep_1_1panel_1_1ViewportPanel.html", "classgcep_1_1panel_1_1ViewportPanel" ]
+      ] ],
+      [ "pl", null, [
+        [ "ProjectInfo", "structgcep_1_1pl_1_1ProjectInfo.html", "structgcep_1_1pl_1_1ProjectInfo" ],
+        [ "ProjectLoader", "classgcep_1_1pl_1_1ProjectLoader.html", "classgcep_1_1pl_1_1ProjectLoader" ],
+        [ "ProjectSettings", "structgcep_1_1pl_1_1ProjectSettings.html", "structgcep_1_1pl_1_1ProjectSettings" ]
+      ] ],
+      [ "rhi", null, [
+        [ "vulkan", null, [
+          [ "ConePushConstants", "structgcep_1_1rhi_1_1vulkan_1_1ConePushConstants.html", null ],
+          [ "FrustumPlanes", "structgcep_1_1rhi_1_1vulkan_1_1FrustumPlanes.html", "structgcep_1_1rhi_1_1vulkan_1_1FrustumPlanes" ],
+          [ "GPULight", "structgcep_1_1rhi_1_1vulkan_1_1GPULight.html", "structgcep_1_1rhi_1_1vulkan_1_1GPULight" ],
+          [ "GPUMeshData", "structgcep_1_1rhi_1_1vulkan_1_1GPUMeshData.html", "structgcep_1_1rhi_1_1vulkan_1_1GPUMeshData" ],
+          [ "GridPushConstant", "structgcep_1_1rhi_1_1vulkan_1_1GridPushConstant.html", null ],
+          [ "InitInfos", "structgcep_1_1rhi_1_1vulkan_1_1InitInfos.html", null ],
+          [ "LightingPushConstants", "structgcep_1_1rhi_1_1vulkan_1_1LightingPushConstants.html", "structgcep_1_1rhi_1_1vulkan_1_1LightingPushConstants" ],
+          [ "LightMetaUBO", "structgcep_1_1rhi_1_1vulkan_1_1LightMetaUBO.html", "structgcep_1_1rhi_1_1vulkan_1_1LightMetaUBO" ],
+          [ "LightSystem", "classgcep_1_1rhi_1_1vulkan_1_1LightSystem.html", "classgcep_1_1rhi_1_1vulkan_1_1LightSystem" ],
+          [ "Mesh", "classgcep_1_1rhi_1_1vulkan_1_1Mesh.html", "classgcep_1_1rhi_1_1vulkan_1_1Mesh" ],
+          [ "PointLight", "structgcep_1_1rhi_1_1vulkan_1_1PointLight.html", "structgcep_1_1rhi_1_1vulkan_1_1PointLight" ],
+          [ "SceneInfos", "structgcep_1_1rhi_1_1vulkan_1_1SceneInfos.html", null ],
+          [ "SceneUBO", "structgcep_1_1rhi_1_1vulkan_1_1SceneUBO.html", "structgcep_1_1rhi_1_1vulkan_1_1SceneUBO" ],
+          [ "SpotLight", "structgcep_1_1rhi_1_1vulkan_1_1SpotLight.html", "structgcep_1_1rhi_1_1vulkan_1_1SpotLight" ],
+          [ "SpritePushConstants", "structgcep_1_1rhi_1_1vulkan_1_1SpritePushConstants.html", null ],
+          [ "TextureCacheEntry", "structgcep_1_1rhi_1_1vulkan_1_1TextureCacheEntry.html", null ],
+          [ "TextureData", "structgcep_1_1rhi_1_1vulkan_1_1TextureData.html", null ],
+          [ "UniformBufferObject", "structgcep_1_1rhi_1_1vulkan_1_1UniformBufferObject.html", "structgcep_1_1rhi_1_1vulkan_1_1UniformBufferObject" ],
+          [ "Vertex", "structgcep_1_1rhi_1_1vulkan_1_1Vertex.html", "structgcep_1_1rhi_1_1vulkan_1_1Vertex" ],
+          [ "VulkanCommandList", "classgcep_1_1rhi_1_1vulkan_1_1VulkanCommandList.html", "classgcep_1_1rhi_1_1vulkan_1_1VulkanCommandList" ],
+          [ "VulkanDevice", "classgcep_1_1rhi_1_1vulkan_1_1VulkanDevice.html", "classgcep_1_1rhi_1_1vulkan_1_1VulkanDevice" ],
+          [ "VulkanFrameContext", "structgcep_1_1rhi_1_1vulkan_1_1VulkanFrameContext.html", "structgcep_1_1rhi_1_1vulkan_1_1VulkanFrameContext" ],
+          [ "VulkanRHI", "classgcep_1_1rhi_1_1vulkan_1_1VulkanRHI.html", "classgcep_1_1rhi_1_1vulkan_1_1VulkanRHI" ],
+          [ "VulkanSwapchain", "classgcep_1_1rhi_1_1vulkan_1_1VulkanSwapchain.html", "classgcep_1_1rhi_1_1vulkan_1_1VulkanSwapchain" ],
+          [ "VulkanTexture", "classgcep_1_1rhi_1_1vulkan_1_1VulkanTexture.html", "classgcep_1_1rhi_1_1vulkan_1_1VulkanTexture" ]
+        ] ],
+        [ "GeometryRegion", "structgcep_1_1rhi_1_1GeometryRegion.html", "structgcep_1_1rhi_1_1GeometryRegion" ],
+        [ "MeshCache", "classgcep_1_1rhi_1_1MeshCache.html", "classgcep_1_1rhi_1_1MeshCache" ],
+        [ "SwapchainDesc", "structgcep_1_1rhi_1_1SwapchainDesc.html", "structgcep_1_1rhi_1_1SwapchainDesc" ]
+      ] ],
+      [ "SER", null, [
+        [ "BinarySerializer", "structgcep_1_1SER_1_1BinarySerializer.html", null ],
+        [ "FileArchive", "classgcep_1_1SER_1_1FileArchive.html", null ],
+        [ "IArchive", "classgcep_1_1SER_1_1IArchive.html", null ],
+        [ "JsonComponentSerializer", "structgcep_1_1SER_1_1JsonComponentSerializer.html", null ],
+        [ "JsonReadArchive", "classgcep_1_1SER_1_1JsonReadArchive.html", "classgcep_1_1SER_1_1JsonReadArchive" ],
+        [ "JsonWriteArchive", "classgcep_1_1SER_1_1JsonWriteArchive.html", null ]
+      ] ],
+      [ "SLS", null, [
+        [ "binarySnapShot", "classgcep_1_1SLS_1_1binarySnapShot.html", null ],
+        [ "JsonSnapShot", "classgcep_1_1SLS_1_1JsonSnapShot.html", null ],
+        [ "Scene", "classgcep_1_1SLS_1_1Scene.html", null ],
+        [ "SceneManager", "classgcep_1_1SLS_1_1SceneManager.html", null ],
+        [ "SceneSettings", "structgcep_1_1SLS_1_1SceneSettings.html", null ]
+      ] ],
+      [ "UI", null, [
+        [ "ImGuiManager", "classgcep_1_1UI_1_1ImGuiManager.html", "classgcep_1_1UI_1_1ImGuiManager" ],
+        [ "SelectionManager", "classgcep_1_1UI_1_1SelectionManager.html", null ]
+      ] ],
+      [ "Application", "classgcep_1_1Application.html", "classgcep_1_1Application" ],
+      [ "AudioBuffer", "classgcep_1_1AudioBuffer.html", null ],
+      [ "AudioDevice", "classgcep_1_1AudioDevice.html", "classgcep_1_1AudioDevice" ],
+      [ "AudioListener", "classgcep_1_1AudioListener.html", null ],
+      [ "AudioMixer", "classgcep_1_1AudioMixer.html", null ],
+      [ "AudioSource", "classgcep_1_1AudioSource.html", null ],
+      [ "AudioSystem", "classgcep_1_1AudioSystem.html", null ],
+      [ "AudioVoice", "structgcep_1_1AudioVoice.html", null ],
+      [ "BPlayerInterfaceImpl", "classgcep_1_1BPlayerInterfaceImpl.html", "classgcep_1_1BPlayerInterfaceImpl" ],
+      [ "Camera", "classgcep_1_1Camera.html", "classgcep_1_1Camera" ],
+      [ "InputSystem", "classgcep_1_1InputSystem.html", "classgcep_1_1InputSystem" ],
+      [ "LoadedScript", "structgcep_1_1LoadedScript.html", null ],
+      [ "Log", "classgcep_1_1Log.html", null ],
+      [ "LogChannel", "structgcep_1_1LogChannel.html", null ],
+      [ "Mat3", "classgcep_1_1Mat3.html", "classgcep_1_1Mat3" ],
+      [ "Mat4", "classgcep_1_1Mat4.html", "classgcep_1_1Mat4" ],
+      [ "ObjectLayerPairFilterImpl", "classgcep_1_1ObjectLayerPairFilterImpl.html", "classgcep_1_1ObjectLayerPairFilterImpl" ],
+      [ "ObjectVsBroadPhaseLayerFilterImpl", "classgcep_1_1ObjectVsBroadPhaseLayerFilterImpl.html", "classgcep_1_1ObjectVsBroadPhaseLayerFilterImpl" ],
+      [ "PhysicsShape", "classgcep_1_1PhysicsShape.html", "classgcep_1_1PhysicsShape" ],
+      [ "PhysicsSystem", "classgcep_1_1PhysicsSystem.html", "classgcep_1_1PhysicsSystem" ],
+      [ "PhysicsWorld", "classgcep_1_1PhysicsWorld.html", "classgcep_1_1PhysicsWorld" ],
+      [ "Quaternion", "classgcep_1_1Quaternion.html", "classgcep_1_1Quaternion" ],
+      [ "QuaternionConvertor", "classgcep_1_1QuaternionConvertor.html", null ],
+      [ "RaycastHit", "structgcep_1_1RaycastHit.html", "structgcep_1_1RaycastHit" ],
+      [ "RHI", "classgcep_1_1RHI.html", null ],
+      [ "ScriptHotReloadManager", "classgcep_1_1ScriptHotReloadManager.html", "classgcep_1_1ScriptHotReloadManager" ],
+      [ "UiManager", "classgcep_1_1UiManager.html", "classgcep_1_1UiManager" ],
+      [ "Vector2", "classgcep_1_1Vector2.html", "classgcep_1_1Vector2" ],
+      [ "Vector3", "classgcep_1_1Vector3.html", "classgcep_1_1Vector3" ],
+      [ "Vector3Convertor", "classgcep_1_1Vector3Convertor.html", null ],
+      [ "Vector4", "classgcep_1_1Vector4.html", "classgcep_1_1Vector4" ],
+      [ "Window", "classgcep_1_1Window.html", "classgcep_1_1Window" ]
+    ] ],
+    [ "PhysicsContactListener", "classPhysicsContactListener.html", null ],
+    [ "SCRIPT_NAME", "structSCRIPT__NAME.html", null ],
+    [ "ScriptContext", "structScriptContext.html", "structScriptContext" ]
+];
