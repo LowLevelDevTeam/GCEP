@@ -22,7 +22,7 @@ namespace gcep::panel
     class ScriptManagerPanel : public IPanel
     {
     public:
-        explicit ScriptManagerPanel(ScriptState& state) : m_state(state) {}
+        explicit ScriptManagerPanel(ScriptState& state);
 
         void draw() override;
 
@@ -30,6 +30,8 @@ namespace gcep::panel
         void onSimulationStart();
         void onSimulationUpdate(float dt);
         void onSimulationStop();
+
+        ScriptState& getState() { return m_state; }
 
     private:
         void reloadAllScripts(const std::string& filter = "");

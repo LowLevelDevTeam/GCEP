@@ -158,9 +158,10 @@ namespace gcep::panel
         // Physics, camera and scripting tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
         {
+            ctx.scriptManagerPanel->getState().inputSystem.update();
+            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
             physics.update(ImGui::GetIO().DeltaTime);
             engine::CameraManager{}.update(ctx, ImGui::GetIO().DeltaTime);
-            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
         }
 
         ImGui::EndMenuBar();

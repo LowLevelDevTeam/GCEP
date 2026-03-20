@@ -10,9 +10,13 @@
 
 namespace gcep::panel
 {
+    ScriptManagerPanel::ScriptManagerPanel(ScriptState &state) : m_state(state)
+    {}
+
     void ScriptManagerPanel::draw()
     {
         if (!m_state.manager) return;
+        m_state.manager->commitPending();
 
         if (!ImGui::Begin("Script Manager", nullptr, ImGuiWindowFlags_MenuBar))
         {
@@ -38,6 +42,11 @@ namespace gcep::panel
             if (ImGui::MenuItem((std::string(ICON_FA_FOLDER_OPEN) + " Open dir").c_str()))
                 openScriptsDir();
             ImGui::EndMenuBar();
+        }
+
+        if (m_state.manager->isCompiling())
+        {
+            ImGui::TextColored({0.9f, 0.8f, 0.1f, 1.f}, (std::string(ICON_FA_SPINNER) + " Compiling scripts...").c_str());
         }
 
         ImGui::SeparatorText("Loaded scripts");
@@ -237,6 +246,7 @@ namespace gcep::panel
     void ScriptManagerPanel::onSimulationUpdate(float dt)
     {
         if (!m_state.manager) return;
+        m_state.manager->commitPending();
         m_state.deltaTime = dt;
         for (auto& [eid, entry] : m_state.entityScripts)
         {
@@ -342,6 +352,7 @@ namespace gcep::panel
 
     void ScriptManagerPanel::compileScripts()
     {
+        assert(0 && "Don't call it yet, delete this line when Scripts/CMakeLists.txt is done");
         if (m_state.cmakeBuildDir.empty())
         {
             m_state.setStatus("ERROR: cmake build dir not set.");

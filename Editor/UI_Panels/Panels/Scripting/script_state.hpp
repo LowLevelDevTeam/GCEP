@@ -1,8 +1,9 @@
 #pragma once
 
 // Internals
-#include <Scripting/script_hot_reload.hpp>
 #include <ECS/headers/registry.hpp>
+#include <Editor/Inputs/inputs.hpp>
+#include <Scripting/script_hot_reload.hpp>
 
 // STL
 #include <string>
@@ -23,6 +24,7 @@ namespace gcep::panel
     {
         ScriptHotReloadManager* manager       = nullptr;
         ECS::Registry*          registry      = nullptr;
+        InputSystem             inputSystem;
         float                   deltaTime     = 0.f;
         std::string             scriptsDir;
         std::string             cmakeBuildDir;
@@ -45,10 +47,9 @@ namespace gcep::panel
             statusTimer = k_statusDuration;
         }
 
-        ScriptContext makeCtx(ECS::EntityID eid) const
+        ScriptContext makeCtx(ECS::EntityID eid)
         {
-            return manager->makeContext(
-                static_cast<unsigned int>(eid), deltaTime, registry);
+            return manager->makeContext(static_cast<unsigned int>(eid), deltaTime, registry, &inputSystem);
         }
     };
 

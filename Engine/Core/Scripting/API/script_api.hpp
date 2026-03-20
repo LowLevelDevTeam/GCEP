@@ -1,9 +1,9 @@
 #pragma once
 
 /// @file script_api.hpp
-/// @brief Public scripting API — the only header a user script needs to include.
+/// @brief Public scripting API.
 
-#include "script_interface.hpp"
+#include "script_object.hpp"
 
 // DECLARE_SCRIPT(DataType)
 #define DECLARE_SCRIPT(DataType)                                                  \

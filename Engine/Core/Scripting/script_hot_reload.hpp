@@ -1,22 +1,25 @@
 ﻿#pragma once
 
 // Internals
-#include "script_interface.hpp"
 #include <config.hpp>
 #include <ECS/Components/script_component.hpp>
 #include <ECS/headers/component_registry.hpp>
 #include <ECS/headers/registry.hpp>
 #include <Log/log.hpp>
+#include <Scripting/API/script_interface.hpp>
 
 // STL
 #include <algorithm>
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <functional>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -51,6 +54,12 @@ namespace gcep::panel
         inline static std::string lib_extension() { return ".so"; }
     #endif
 #endif
+
+// Forward declarations
+namespace gcep
+{
+    class InputSystem;
+}
 
 namespace gcep
 {
@@ -102,11 +111,19 @@ namespace gcep
         /// @brief Builds a ScriptContext with ECS function pointers wired up.
         /// Call this instead of constructing ScriptContext manually.
         ScriptContext makeContext(unsigned int entityId, float deltaTime,
-                                  ECS::Registry* registry) const;
+                                  ECS::Registry* registry, gcep::InputSystem* input = nullptr) const;
 
         void hotReload(const std::string& name,
                        std::vector<panel::AttachedScript*>& activeScripts,
                        std::function<ScriptContext(unsigned int entityId)> makeCtx);
+
+        /// @brief Commits scripts that finished background compilation to the main thread.
+        void commitPending();
+
+        /// @brief True while background compilation is in progress.
+        bool isCompiling() const { return m_compiling.load(); }
+
+        std::function<void(const std::string& scriptName)> m_onScriptReady;
 
     private:
 
@@ -121,8 +138,34 @@ namespace gcep
             static std::string findVcvarsall();
         #endif
 
-        bool compileScript      (const std::string& sourcePath, const std::string& outputPath);
-        void loadOrReloadScripts(const std::string& sourcePath);
+private:
+    // Synchronous compile only — no lib_load. Safe to call from any thread.
+    bool compileScript(const std::string& sourcePath, const std::string& outputPath);
+
+    // Main-thread only: lib_load + register into m_scripts.
+    // Called by commitPending().
+    void commitScript(const std::string& sourcePath);
+
+    // Schedules a compile on the worker thread then queues for commitScript.
+    // Replaces the old loadOrReloadScripts.
+    void scheduleReload(const std::string& sourcePath);
+
+    // Unloads the old handle synchronously (main thread).
+    // Must be called BEFORE scheduleReload for the same script.
+    void unloadScript(const std::string& name);
+
+        std::thread             m_compileThread;
+        std::atomic<bool>       m_compiling { false };
+        std::mutex              m_scriptsMutex;
+
+        // Scripts that finished compiling on the worker and need to be
+        // committed to m_scripts on the main thread next poll.
+        struct PendingScript
+        {
+            std::string sourcePath;
+        };
+        std::vector<PendingScript>  m_pendingLoads;
+        std::mutex                  m_pendingMutex;
     };
 
 } // namespace gcep
