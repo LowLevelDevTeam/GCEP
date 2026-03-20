@@ -50,7 +50,7 @@ namespace gcep
         JPH::ShapeSettings::ShapeResult result = settings.Create();
         if (result.HasError()) return nullptr;
 
-        auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::CAPSULE, result.Get());
+        auto newShape = std::make_shared<PhysicsShape>(EPhysicsShapeType::CYLINDER, result.Get());
         return newShape;
     }
 
