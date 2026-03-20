@@ -110,7 +110,7 @@ namespace gcep::panel
             return;
         }
 
-        const std::string scriptName = "Script_" + std::to_string(entityId);
+        const std::string scriptName = "Script_" + std::to_string(entityId & ECS::VALUE_MASK);
         const std::string outputPath = m_state.scriptsDir + "/" + scriptName + ".cpp";
         const std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/API/script_model.cpp";
 

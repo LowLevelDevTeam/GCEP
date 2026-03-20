@@ -146,6 +146,7 @@ namespace gcep::panel
             SLS::SceneManager::instance().loadScene(scenePath, ctx.pRHI);
             ctx.registry = &SLS::SceneManager::instance().current().getRegistry();
             ctx.pRHI->setRegistry(ctx.registry);
+            ctx.scriptManagerPanel->getState().registry = ctx.registry;
             ctx.selection.unselect();
         }
         ImGui::SameLine();

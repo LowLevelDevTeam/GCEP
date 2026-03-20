@@ -25,9 +25,7 @@ namespace gcep::ECS
 
     class Registry {
     public:
-        /**
-         * @begin Default destructor of the class.
-         */
+        Registry() { m_pools.resize(ComponentIDGenerator::count()); }
         ~Registry() = default;
 
         /**

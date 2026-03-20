@@ -93,11 +93,13 @@ namespace gcep::ECS
 			static std::uint32_t id = nextID(); // initialisé lazily
 			return id;
 		}
+
+		static std::uint32_t count() { return m_nextID; }
+
 	private:
 		static std::uint32_t nextID()
 		{
-			static std::uint32_t counter = 0; // garanti initialisé AVANT toute utilisation
-			return counter++;
+			return m_nextID++;
 		}
 
 		/** @brief Global counter incremented each time a new component type is encountered. */
