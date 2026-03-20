@@ -11,6 +11,8 @@
 #include <ECS/Components/transform.hpp>
 #include <PhysicsWrapper/physics_shape.hpp>
 #include <PhysicsWrapper/raycast_hit.hpp>
+#include <Maths/vector3.hpp>
+#include <Maths/Utils/vector3_convertor.hpp>
 
 // Externals
 #include <Jolt/Jolt.h>
@@ -25,14 +27,20 @@ namespace gcep
 {
     struct BodyCreateInfo
     {
-        Vector3<float> offset        {};
+
+        Vector3<float> position;
+        Quaternion rotation;
         bool           isTrigger     = false;
-        ECS::EMotionType    motionType    = ECS::EMotionType::STATIC;
+        float          friction      = 0.5f;
+        float          restitution   = 0.0f;
+        JPH::EMotionType motionType  = JPH::EMotionType::Static;
         float          mass          = 1.0f;
         float          linearDamping = 0.f;
         float          angularDamping= 0.05f;
-        bool           useGravity    = true;
+        float          gravityFactor = 1.f;
     };
+
+
     class PhysicsBody;
 
     /**
@@ -80,10 +88,7 @@ namespace gcep
          * @param info
          * @param outBodyID Output parameter receiving the Jolt BodyID of the created body.
          */
-        void createBody(ECS::Transform& transform,
-                  const JPH::ShapeRefC& shape,
-                  const BodyCreateInfo& info,
-                  JPH::BodyID& outBodyID);
+        JPH::BodyID createBody(const PhysicsShape& shape, const BodyCreateInfo& info);
 
 
         /**

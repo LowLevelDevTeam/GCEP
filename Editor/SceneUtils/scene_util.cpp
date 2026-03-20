@@ -33,12 +33,8 @@ namespace gcep::editor
     {
         auto& registry = scene.getRegistry();
 
-        if (!registry.hasComponent<ECS::PhysicsComponent>(id))
-        {
-            auto& pc      = registry.addComponent<ECS::PhysicsComponent>(id);
-            pc.motionType = ECS::EMotionType::STATIC;
-            pc.shapeType  = ECS::EShapeType::CUBE;
-        }
+        if (!registry.hasComponent<ECS::BoxColliderComponent>(id))
+            registry.addComponent<ECS::BoxColliderComponent>(id);
 
         if (registry.hasComponent<ECS::Transform>(id)) {
             auto& tc = registry.getComponent<ECS::Transform>(id);
@@ -54,9 +50,7 @@ namespace gcep::editor
             std::filesystem::path(path).stem().string()
         );
 
-        auto& pc      = scene.getRegistry().addComponent<ECS::PhysicsComponent>(id);
-        pc.motionType = ECS::EMotionType::STATIC;
-        pc.shapeType  = ECS::EShapeType::CUBE;
+        scene.getRegistry().addComponent<ECS::BoxColliderComponent>(id);
 
         rhi->spawnAsset(const_cast<char*>(path.c_str()), id, pos);
 
@@ -85,8 +79,8 @@ namespace gcep::editor
     ECS::EntityID spawnCylinder(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
     {
         auto  id = spawnAsset(scene, rhi, "Assets/Models/cylinder.obj", pos);
-        auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
-        pc.shapeType    = ECS::EShapeType::CYLINDER;
+        scene.getRegistry().removeComponent<ECS::BoxColliderComponent>(id);
+        scene.getRegistry().addComponent<ECS::CylinderColliderComponent>(id);
         auto& tc        = scene.getRegistry().getComponent<ECS::Transform>(id);
         tc.eulerRadians = { glm::pi<float>() / 2.0f, 0.0f, 0.0f };
         glm::quat q = glm::quat(glm::vec3(tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z));
@@ -96,17 +90,17 @@ namespace gcep::editor
 
     ECS::EntityID spawnIcosphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
     {
-        auto  id = spawnAsset(scene, rhi, "Assets/Models/icosphere.obj", pos);
-        auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
-        pc.shapeType = ECS::EShapeType::SPHERE;
+        auto id = spawnAsset(scene, rhi, "Assets/Models/icosphere.obj", pos);
+        scene.getRegistry().removeComponent<ECS::BoxColliderComponent>(id);
+        scene.getRegistry().addComponent<ECS::SphereColliderComponent>(id);
         return id;
     }
 
     ECS::EntityID spawnSphere(SLS::Scene& scene, rhi::vulkan::VulkanRHI* rhi, glm::vec3 pos)
     {
-        auto  id = spawnAsset(scene, rhi, "Assets/Models/sphere.obj", pos);
-        auto& pc = scene.getRegistry().getComponent<ECS::PhysicsComponent>(id);
-        pc.shapeType = ECS::EShapeType::SPHERE;
+        auto id = spawnAsset(scene, rhi, "Assets/Models/sphere.obj", pos);
+        scene.getRegistry().removeComponent<ECS::BoxColliderComponent>(id);
+        scene.getRegistry().addComponent<ECS::SphereColliderComponent>(id);
         return id;
     }
 

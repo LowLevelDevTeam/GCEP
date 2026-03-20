@@ -54,11 +54,15 @@ namespace gcep::panel
 
 namespace gcep
 {
-    using FnCreate   = ScriptInstance(*)();
-    using FnDestroy  = void(*)(ScriptInstance);
-    using FnOnStart  = void(*)(ScriptInstance, const ScriptContext*);
-    using FnOnUpdate = void(*)(ScriptInstance, const ScriptContext*);
-    using FnOnEnd    = void(*)(ScriptInstance, const ScriptContext*);
+    using FnCreate           = ScriptInstance(*)();
+    using FnDestroy          = void(*)(ScriptInstance);
+    using FnOnStart          = void(*)(ScriptInstance, const ScriptContext*);
+    using FnOnUpdate         = void(*)(ScriptInstance, const ScriptContext*);
+    using FnOnEnd            = void(*)(ScriptInstance, const ScriptContext*);
+    using FnOnCollisionEnter = void(*)(ScriptInstance, const ScriptContext*, const CollisionInfo*);
+    using FnOnCollisionExit  = void(*)(ScriptInstance, const ScriptContext*, const CollisionInfo*);
+    using FnOnTriggerEnter   = void(*)(ScriptInstance, const ScriptContext*, const CollisionInfo*);
+    using FnOnTriggerExit    = void(*)(ScriptInstance, const ScriptContext*, const CollisionInfo*);
 
     /// @brief Loaded script data
     struct LoadedScript
@@ -66,12 +70,16 @@ namespace gcep
         std::string name;
         std::string sourcePath;
         std::string libPath;
-        LibHandle handle     = nullptr;
-        FnCreate    create   = nullptr;
-        FnDestroy   destroy  = nullptr;
-        FnOnStart   onStart  = nullptr;
-        FnOnUpdate  onUpdate = nullptr;
-        FnOnEnd     onEnd    = nullptr;
+        LibHandle handle               = nullptr;
+        FnCreate           create      = nullptr;
+        FnDestroy          destroy     = nullptr;
+        FnOnStart          onStart     = nullptr;
+        FnOnUpdate         onUpdate    = nullptr;
+        FnOnEnd            onEnd       = nullptr;
+        FnOnCollisionEnter onCollisionEnter = nullptr;
+        FnOnCollisionExit  onCollisionExit  = nullptr;
+        FnOnTriggerEnter   onTriggerEnter   = nullptr;
+        FnOnTriggerExit    onTriggerExit    = nullptr;
 
         std::filesystem::file_time_type lastWriteTime;
         bool valid = false;
@@ -98,6 +106,11 @@ namespace gcep
         void callOnStart (ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx);
         void callOnUpdate(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx);
         void callOnEnd   (ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx);
+
+        void callOnCollisionEnter(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info);
+        void callOnCollisionExit (ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info);
+        void callOnTriggerEnter  (ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info);
+        void callOnTriggerExit   (ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info);
 
         /// @brief Builds a ScriptContext with ECS function pointers wired up.
         /// Call this instead of constructing ScriptContext manually.

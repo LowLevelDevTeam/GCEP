@@ -372,8 +372,6 @@ namespace gcep
                     mesh.transform = registry.getComponent<ECS::Transform>(mesh.id);
             }
             mesh.transform.rotation.Normalize();
-            if (registry.hasComponent<ECS::PhysicsComponent>(mesh.id))
-                mesh.physics = registry.getComponent<ECS::PhysicsComponent>(mesh.id);
         }
     }
 

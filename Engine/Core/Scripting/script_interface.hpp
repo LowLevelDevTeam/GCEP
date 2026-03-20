@@ -22,3 +22,16 @@ struct ScriptContext
 
     void* registry;  ///< Opaque ECS::Registry*
 };
+
+/// @brief Collision/trigger event data passed to onCollisionEnter/Exit and onTriggerEnter/Exit.
+/// Contact point and normal are only populated for Enter events (not available on Exit).
+struct CollisionInfo
+{
+    EntityID otherEntity; ///< ECS ID of the other entity involved in the collision.
+    float    contactX;    ///< World-space contact point X (Enter events only).
+    float    contactY;    ///< World-space contact point Y (Enter events only).
+    float    contactZ;    ///< World-space contact point Z (Enter events only).
+    float    normalX;     ///< Contact normal X, pointing away from otherEntity (Enter events only).
+    float    normalY;     ///< Contact normal Y (Enter events only).
+    float    normalZ;     ///< Contact normal Z (Enter events only).
+};

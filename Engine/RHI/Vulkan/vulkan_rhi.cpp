@@ -187,8 +187,6 @@ namespace gcep::rhi::vulkan
         auto& mesh     = meshes.back();
         if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
             mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
-            mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
         mesh.id        = id;
         mesh.name      = std::filesystem::path(filepath).filename().string() + " / id = " + std::to_string(id);
 
@@ -197,7 +195,6 @@ namespace gcep::rhi::vulkan
         {
             meshes.pop_back();
             m_ECSRegistry->removeComponent<ECS::Transform>(id);
-            m_ECSRegistry->removeComponent<ECS::PhysicsComponent>(id);
             m_ECSRegistry->update();
             return;
         }
@@ -220,8 +217,6 @@ namespace gcep::rhi::vulkan
 
         if (m_ECSRegistry->hasComponent<ECS::Transform>(id))
             mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
-            mesh.physics   = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
     }
 
     void VulkanRHI::spawnLight(gcep::rhi::vulkan::LightType type, ECS::EntityID id, glm::vec3 pos)
@@ -354,9 +349,6 @@ namespace gcep::rhi::vulkan
                    + " / id = " + std::to_string(id);
 
         mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
-            mesh.physics = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
-
         mesh.load(this, objPath);
 
         if (uploadSingleMesh(index) != 0)
@@ -366,8 +358,6 @@ namespace gcep::rhi::vulkan
         }
 
         mesh.transform = m_ECSRegistry->getComponent<ECS::Transform>(id);
-        if (m_ECSRegistry->hasComponent<ECS::PhysicsComponent>(id))
-            mesh.physics = m_ECSRegistry->getComponent<ECS::PhysicsComponent>(id);
     }
 
     void VulkanRHI::uploadTexture(ECS::EntityID id, const char* texPath, bool mipmaps)

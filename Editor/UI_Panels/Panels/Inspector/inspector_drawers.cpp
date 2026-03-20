@@ -73,21 +73,49 @@ namespace gcep::editor
             drawVec3(t.scale,        "Scale",    { 0.3f, 0.5f, 0.95f, 1.f });
         }, /*removable=*/false);
 
-        reg.registerDrawer<ECS::PhysicsComponent>([](ECS::PhysicsComponent& p)
+        reg.registerDrawer<ECS::BoxColliderComponent>([](ECS::BoxColliderComponent& c)
+  {
+      drawField(c.halfExtents, "Half Extents");
+      drawField(c.offset,      "Offset");
+      ImGui::Checkbox("Is Trigger", &c.isTrigger);
+  });
+
+        reg.registerDrawer<ECS::SphereColliderComponent>([](ECS::SphereColliderComponent& c)
+        {
+            ImGui::DragFloat("Radius", &c.radius, 0.01f, 0.001f, FLT_MAX);
+            drawField(c.offset, "Offset");
+            ImGui::Checkbox("Is Trigger", &c.isTrigger);
+        });
+
+        reg.registerDrawer<ECS::CapsuleColliderComponent>([](ECS::CapsuleColliderComponent& c)
+        {
+            ImGui::DragFloat("Radius",      &c.radius,     0.01f, 0.001f, FLT_MAX);
+            ImGui::DragFloat("Half Height", &c.halfHeight, 0.01f, 0.001f, FLT_MAX);
+            drawField(c.offset, "Offset");
+            ImGui::Checkbox("Is Trigger", &c.isTrigger);
+        });
+
+        reg.registerDrawer<ECS::CylinderColliderComponent>([](ECS::CylinderColliderComponent& c)
+        {
+            ImGui::DragFloat("Radius",      &c.radius,     0.01f, 0.001f, FLT_MAX);
+            ImGui::DragFloat("Half Height", &c.halfHeight, 0.01f, 0.001f, FLT_MAX);
+            drawField(c.offset, "Offset");
+            ImGui::Checkbox("Is Trigger", &c.isTrigger);
+        });
+
+        reg.registerDrawer<ECS::RigidBodyComponent>([](ECS::RigidBodyComponent& rb)
         {
             const char* motionLabels[] = { "Static", "Dynamic", "Kinematic" };
-            const char* shapeLabels[]  = { "Cube", "Sphere", "Cylinder", "Capsule" };
-
-            int motion = static_cast<int>(p.motionType);
-            int shape  = static_cast<int>(p.shapeType);
-
+            int motion = static_cast<int>(rb.motionType);
             if (ImGui::Combo("Motion Type", &motion, motionLabels, IM_ARRAYSIZE(motionLabels)))
-                p.motionType = static_cast<ECS::EMotionType>(motion);
-            if (ImGui::Combo("Shape",       &shape,  shapeLabels,  IM_ARRAYSIZE(shapeLabels)))
-                p.shapeType = static_cast<ECS::EShapeType>(shape);
+                rb.motionType = static_cast<ECS::EMotionType>(motion);
 
-            ImGui::Checkbox("Is Trigger", &p.isTrigger);
+            ImGui::DragFloat("Mass",            &rb.mass,           0.1f,  0.001f, FLT_MAX);
+            ImGui::DragFloat("Linear Damping",  &rb.linearDamping,  0.01f, 0.f,    1.f);
+            ImGui::DragFloat("Angular Damping", &rb.angularDamping, 0.01f, 0.f,    1.f);
+            ImGui::DragFloat("Gravity Factor", &rb.gravityFactor);
         });
+
 
         reg.registerDrawer<ECS::PointLightComponent>([](ECS::PointLightComponent& p)
         {

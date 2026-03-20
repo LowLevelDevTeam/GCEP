@@ -1,5 +1,8 @@
 #include "script_manager_panel.hpp"
 
+// Internals
+#include <PhysicsWrapper/physics_system.hpp>
+
 // Externals
 #include <font_awesome.hpp>
 #include <imgui.h>
@@ -238,10 +241,52 @@ namespace gcep::panel
     {
         if (!m_state.manager) return;
         m_state.deltaTime = dt;
+
+        onCollisionEvents();
+
         for (auto& [eid, entry] : m_state.entityScripts)
         {
             ScriptContext ctx = m_state.makeCtx(eid);
             m_state.manager->callOnUpdate(entry.comp, entry.runtime, ctx);
+        }
+    }
+
+    void ScriptManagerPanel::onCollisionEvents()
+    {
+        if (!m_state.manager) return;
+
+        auto& physics = PhysicsSystem::getInstance();
+
+        for (auto& e : physics.getEnterEvents())
+        {
+            auto it = m_state.entityScripts.find(static_cast<ECS::EntityID>(e.self));
+            if (it == m_state.entityScripts.end()) continue;
+
+            ScriptContext ctx = m_state.makeCtx(e.self);
+            CollisionInfo info{};
+            info.otherEntity = static_cast<EntityID>(e.other);
+            info.contactX = e.contactX; info.contactY = e.contactY; info.contactZ = e.contactZ;
+            info.normalX  = e.normalX;  info.normalY  = e.normalY;  info.normalZ  = e.normalZ;
+
+            if (e.isTrigger)
+                m_state.manager->callOnTriggerEnter(it->second.comp, it->second.runtime, ctx, info);
+            else
+                m_state.manager->callOnCollisionEnter(it->second.comp, it->second.runtime, ctx, info);
+        }
+
+        for (auto& e : physics.getExitEvents())
+        {
+            auto it = m_state.entityScripts.find(static_cast<ECS::EntityID>(e.self));
+            if (it == m_state.entityScripts.end()) continue;
+
+            ScriptContext ctx = m_state.makeCtx(e.self);
+            CollisionInfo info{};
+            info.otherEntity = static_cast<EntityID>(e.other);
+
+            if (e.isTrigger)
+                m_state.manager->callOnTriggerExit(it->second.comp, it->second.runtime, ctx, info);
+            else
+                m_state.manager->callOnCollisionExit(it->second.comp, it->second.runtime, ctx, info);
         }
     }
 

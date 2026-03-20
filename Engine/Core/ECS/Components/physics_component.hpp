@@ -6,30 +6,11 @@
 
 namespace gcep::ECS
 {
-    enum class EShapeType
-    {
-        CUBE,
-        SPHERE,
-        CYLINDER,
-        CAPSULE
-    };
-
     enum class EMotionType
     {
         STATIC,
         DYNAMIC,
         KINEMATIC
-    };
-
-    struct PhysicsComponent
-    {
-        bool isTrigger = false;
-
-        EShapeType  shapeType  = EShapeType::CUBE;
-        EMotionType motionType = EMotionType::STATIC;
-
-        static inline bool _gcep_registered =
-            ComponentRegistry::instance().reg<PhysicsComponent>();
     };
 
     struct PhysicsRuntimeData
@@ -51,7 +32,7 @@ namespace gcep::ECS
         float mass = 1.0f;
         float linearDamping = 0.0f;
         float angularDamping = 0.05f;
-        bool useGravity = false;
+        float gravityFactor = 1.0f;
         static inline bool _gcep_registered =
     ComponentRegistry::instance().reg<RigidBodyComponent>();
     };

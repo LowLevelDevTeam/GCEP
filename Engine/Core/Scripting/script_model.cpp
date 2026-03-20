@@ -31,6 +31,13 @@ struct SCRIPT_NAME
     {
         // Called when the simulation stops, or just before a hot-reload.
     }
+
+    // Physics events — override as needed.
+
+    void onCollisionEnter(const ScriptContext* ctx, const CollisionInfo* info) {}
+    void onCollisionExit (const ScriptContext* ctx, const CollisionInfo* info) {}
+    void onTriggerEnter  (const ScriptContext* ctx, const CollisionInfo* info) {}
+    void onTriggerExit   (const ScriptContext* ctx, const CollisionInfo* info) {}
 };
 
 // Do not delete this line.

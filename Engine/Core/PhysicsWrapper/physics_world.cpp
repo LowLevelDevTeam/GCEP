@@ -27,7 +27,6 @@
 
 // STL
 #include <memory>
-#include <iostream>
 
 namespace gcep
 {
@@ -109,50 +108,43 @@ namespace gcep
     	m_shapeCache.clear();
     }
 
-    void PhysicsWorld::step(float deltaTime) const
+	void PhysicsWorld::step(float deltaTime) const
     {
     	m_physicsSystem->Update(deltaTime, 1, m_tempAllocator.get(), m_jobSystem.get());
     }
 
 
-	void PhysicsWorld::createBody(ECS::Transform& transform,
-								const JPH::ShapeRefC& shape,
-								const BodyCreateInfo& info,
-								JPH::BodyID& outBodyID)
+
+	JPH::BodyID PhysicsWorld::createBody(const PhysicsShape& shape, const BodyCreateInfo& info)
     {
-    	const auto& pos = transform.position;
-    	const auto& rot = transform.rotation;
+    	JPH::BodyCreationSettings settings(
+		shape.getJoltShape(),  // ← getJoltShape() retourne JPH::RefConst<JPH::Shape>
+		JPH::RVec3(info.position.x, info.position.y, info.position.z),
+		JPH::Quat::sEulerAngles(JPH::Vec3(info.rotation.x, info.rotation.y, info.rotation.z)),
+		info.motionType,
+		info.motionType == JPH::EMotionType::Static ? Layers::NON_MOVING : Layers::MOVING
+		);
 
-    	JPH::RVec3 position(pos.x + info.offset.x,
-							pos.y + info.offset.y,
-							pos.z + info.offset.z);
-    	JPH::Quat  rotation(rot.x, rot.y, rot.z, rot.w);
+    	settings.mFriction          = info.friction;
+    	settings.mRestitution       = info.restitution;
+    	settings.mIsSensor          = info.isTrigger;
+    	settings.mLinearDamping     = info.linearDamping;
+    	settings.mAngularDamping    = info.angularDamping;
+    	settings.mGravityFactor     = info.gravityFactor;
 
-    	JPH::EMotionType joltMotion = JPH::EMotionType::Static;
-    	switch (info.motionType)
+    	if (info.motionType != JPH::EMotionType::Static)
     	{
-    		case ECS::EMotionType::DYNAMIC:    joltMotion = JPH::EMotionType::Dynamic;    break;
-    		case ECS::EMotionType::KINEMATIC:  joltMotion = JPH::EMotionType::Kinematic;  break;
-    		default: break;
+    		settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+    		settings.mMassPropertiesOverride.mMass = info.mass;
     	}
 
-    	const JPH::ObjectLayer layer = (joltMotion == JPH::EMotionType::Static)
-			? Layers::NON_MOVING : Layers::MOVING;
+    	JPH::BodyInterface &bodyInterface = m_physicsSystem->GetBodyInterface();
+    	JPH::EActivation activation = (info.motionType == JPH::EMotionType::Static)
+    		? JPH::EActivation::DontActivate
+    		: JPH::EActivation::Activate;
+    	JPH::BodyID id = bodyInterface.CreateAndAddBody(settings, activation);
 
-    	JPH::BodyCreationSettings settings(shape, position, rotation, joltMotion, layer);
-    	settings.mIsSensor        = info.isTrigger;
-    	settings.mMassPropertiesOverride.mMass = info.mass;
-    	settings.mLinearDamping   = info.linearDamping;
-    	settings.mAngularDamping  = info.angularDamping;
-    	settings.mGravityFactor   = info.useGravity ? 1.f : 0.f;
-
-    	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-    	JPH::Body* body = bodyInterface.CreateBody(settings);
-
-    	const JPH::EActivation activation = (joltMotion == JPH::EMotionType::Static)
-			? JPH::EActivation::DontActivate : JPH::EActivation::Activate;
-    	bodyInterface.AddBody(body->GetID(), activation);
-    	outBodyID = body->GetID();
+    	return id;
     }
 
 

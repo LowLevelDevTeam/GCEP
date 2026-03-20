@@ -30,6 +30,7 @@ namespace gcep::panel
         void onSimulationStart();
         void onSimulationUpdate(float dt);
         void onSimulationStop();
+        void onCollisionEvents();
 
     private:
         void reloadAllScripts(const std::string& filter = "");

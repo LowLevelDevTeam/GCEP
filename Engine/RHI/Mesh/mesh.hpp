@@ -140,7 +140,6 @@ namespace gcep::rhi::vulkan
         // ECS / editor state
 
         ECS::Transform transform; ///< ECS transform component (position, rotation, scale).
-        ECS::PhysicsComponent   physics;   ///< ECS physics component (motion type, layers, body).
         std::string        name = "Unknown"; ///< Name shown in the scene hierarchy.
         ECS::EntityID      id   = std::numeric_limits<ECS::EntityID>::max(); ///< ECS entity ID.
 

@@ -8,10 +8,22 @@
 
 // STL
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace gcep
 {
     class PhysicsWorld;
+
+    struct ScriptCollisionEvent
+    {
+        ECS::EntityID self;
+        ECS::EntityID other;
+        float contactX, contactY, contactZ;
+        float normalX,  normalY,  normalZ;
+        bool  isTrigger;
+    };
 
     /**
      * @class PhysicsSystem
@@ -127,6 +139,12 @@ namespace gcep
          */
         RaycastHit raycast(const Vector3<float>& origin, const Vector3<float>& direction, float maxDistance);
 
+        /// @brief Collision/trigger enter events produced by the last physics step.
+        const std::vector<ScriptCollisionEvent>& getEnterEvents() const { return m_enterEvents; }
+
+        /// @brief Collision/trigger exit events produced by the last physics step.
+        const std::vector<ScriptCollisionEvent>& getExitEvents()  const { return m_exitEvents; }
+
         //void addImpulse(const JPH::BodyID* bodyID, const Vector3<float> impulse) const;
         //void addForce(const JPH::BodyID* bodyID, const Vector3<float> force) const;
 
@@ -140,5 +158,10 @@ namespace gcep
 
     private:
         std::unique_ptr<PhysicsWorld> m_world; ///< Internal physics world instance.
+
+        std::unordered_map<uint32_t, ECS::EntityID> m_bodyToEntity;
+        std::unordered_set<uint32_t>                m_triggerBodies;
+        std::vector<ScriptCollisionEvent>           m_enterEvents;
+        std::vector<ScriptCollisionEvent>           m_exitEvents;
     };
 } // namespace gcep

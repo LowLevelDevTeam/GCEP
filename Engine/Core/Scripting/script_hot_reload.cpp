@@ -178,6 +178,34 @@ namespace gcep
         }
     }
 
+    void ScriptHotReloadManager::callOnCollisionEnter(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info)
+    {
+        auto* script = getScript(comp.scriptName);
+        if (script && script->onCollisionEnter && runtime.instance)
+            script->onCollisionEnter(runtime.instance, &ctx, &info);
+    }
+
+    void ScriptHotReloadManager::callOnCollisionExit(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info)
+    {
+        auto* script = getScript(comp.scriptName);
+        if (script && script->onCollisionExit && runtime.instance)
+            script->onCollisionExit(runtime.instance, &ctx, &info);
+    }
+
+    void ScriptHotReloadManager::callOnTriggerEnter(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info)
+    {
+        auto* script = getScript(comp.scriptName);
+        if (script && script->onTriggerEnter && runtime.instance)
+            script->onTriggerEnter(runtime.instance, &ctx, &info);
+    }
+
+    void ScriptHotReloadManager::callOnTriggerExit(ECS::ScriptComponent& comp, ECS::ScriptRuntimeData& runtime, const ScriptContext& ctx, const CollisionInfo& info)
+    {
+        auto* script = getScript(comp.scriptName);
+        if (script && script->onTriggerExit && runtime.instance)
+            script->onTriggerExit(runtime.instance, &ctx, &info);
+    }
+
     ScriptContext ScriptHotReloadManager::makeContext(ECS::EntityID entityId, float deltaTime, ECS::Registry* registry) const
     {
         ScriptContext ctx{};
@@ -354,14 +382,18 @@ namespace gcep
         script.sourcePath    = sourcePath;
         script.libPath       = libPath;
         script.handle        = handle;
-        script.create        = (FnCreate)   lib_symbol(handle, "scriptCreate");
-        script.destroy       = (FnDestroy)  lib_symbol(handle, "scriptDestroy");
-        script.onStart       = (FnOnStart)  lib_symbol(handle, "scriptOnStart");
-        script.onUpdate      = (FnOnUpdate) lib_symbol(handle, "scriptOnUpdate");
-        script.onEnd         = (FnOnEnd)    lib_symbol(handle, "scriptOnEnd");
-        script.lastWriteTime = currentWriteTime;
-        script.valid         = script.create && script.destroy
-                            && script.onStart && script.onUpdate && script.onEnd;
+        script.create            = (FnCreate)           lib_symbol(handle, "scriptCreate");
+        script.destroy           = (FnDestroy)          lib_symbol(handle, "scriptDestroy");
+        script.onStart           = (FnOnStart)          lib_symbol(handle, "scriptOnStart");
+        script.onUpdate          = (FnOnUpdate)         lib_symbol(handle, "scriptOnUpdate");
+        script.onEnd             = (FnOnEnd)            lib_symbol(handle, "scriptOnEnd");
+        script.onCollisionEnter  = (FnOnCollisionEnter) lib_symbol(handle, "scriptOnCollisionEnter");
+        script.onCollisionExit   = (FnOnCollisionExit)  lib_symbol(handle, "scriptOnCollisionExit");
+        script.onTriggerEnter    = (FnOnTriggerEnter)   lib_symbol(handle, "scriptOnTriggerEnter");
+        script.onTriggerExit     = (FnOnTriggerExit)    lib_symbol(handle, "scriptOnTriggerExit");
+        script.lastWriteTime     = currentWriteTime;
+        script.valid             = script.create && script.destroy
+                                && script.onStart && script.onUpdate && script.onEnd;
 
         if (!script.valid)
             Log::error(std::format("Missing exports in {}", sourcePath));

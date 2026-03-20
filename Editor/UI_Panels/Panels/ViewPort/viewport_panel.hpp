@@ -26,7 +26,6 @@ namespace gcep::panel
         void drawGizmoSpotLight(rhi::vulkan::SpotLight& light);
         void drawGizmoTransform(ECS::EntityID id);
         void handleGizmoInput();
-
         ImVec2          m_viewportSize    = { 800.f, 600.f };
         VkDescriptorSet* m_viewportTexture = nullptr;
     };
