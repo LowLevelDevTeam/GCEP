@@ -19,11 +19,11 @@ namespace gcep::ECS
     {
         if (hasComponent(entity))
         {
-            Index denseIndex = m_sparse.get(entity);
+            Index denseIndex = m_sparse.get(entity & VALUE_MASK);
             m_components[denseIndex] = T(std::forward<Args>(args)...);
             return m_components[denseIndex];
         }
-        m_sparse.get(entity) = static_cast<Index>(m_components.size());
+        m_sparse.get(entity & VALUE_MASK) = static_cast<Index>(m_components.size());
         m_dense.push_back(entity);
         m_components.emplace_back(std::forward<Args>(args)...);
         return m_components.back();
@@ -32,32 +32,33 @@ namespace gcep::ECS
     template <ComponentConcept  T>
     void ComponentPool<T>::removeComponent(EntityID entity)
     {
-        Index indexToRemove = m_sparse.get(entity);
+        Index indexToRemove = m_sparse.get(entity & VALUE_MASK);
         if (indexToRemove == INVALID_VALUE) return;
+        if (m_dense[indexToRemove] != entity) return;
 
         EntityID lastEntityID = m_dense.back();
         if (entity != lastEntityID) {
             m_dense[indexToRemove] = lastEntityID;
             m_components[indexToRemove] = std::move(m_components.back());
-            m_sparse.get(lastEntityID) = indexToRemove;
+            m_sparse.get(lastEntityID & VALUE_MASK) = indexToRemove;
         }
 
         m_dense.pop_back();
         m_components.pop_back();
 
-        m_sparse.get(entity) = INVALID_VALUE;
+        m_sparse.get(entity & VALUE_MASK) = INVALID_VALUE;
     }
 
     template <ComponentConcept  T>
     bool ComponentPool<T>::hasComponent(EntityID entity) const
     {
-        return m_sparse.get(entity) != INVALID_VALUE &&  m_sparse.get(entity) < m_dense.size() && m_dense[m_sparse.get(entity)] == entity;
+        return m_sparse.get(entity & VALUE_MASK) != INVALID_VALUE &&  m_sparse.get(entity& VALUE_MASK) < m_dense.size() && m_dense[m_sparse.get(entity& VALUE_MASK)] == entity;
     }
 
     template<ComponentConcept  T>
     T& ComponentPool<T>::get(EntityID entity) {
-        Index idx = m_sparse.get(entity);
-        if (idx == INVALID_VALUE || idx >= m_components.size()) {
+        Index idx = m_sparse.get(entity & VALUE_MASK);
+        if (idx == INVALID_VALUE || idx >= m_components.size() || m_dense[idx] != entity) {
             throw std::out_of_range("ComponentPool::get: entity does not have component or index out of range");
         }
         return m_components[idx];
@@ -65,7 +66,11 @@ namespace gcep::ECS
 
     template<ComponentConcept  T>
     const T & ComponentPool<T>::get(EntityID entity) const {
-        return m_components[m_sparse.get(entity)];
+        Index idx = m_sparse.get(entity & VALUE_MASK);
+        if (idx == INVALID_VALUE || idx >= m_components.size() || m_dense[idx] != entity) {
+            throw std::out_of_range("ComponentPool::get: entity does not have component or index out of range");
+        }
+        return m_components[idx];
     }
 
     template<ComponentConcept  T>

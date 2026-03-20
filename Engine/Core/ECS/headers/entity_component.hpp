@@ -20,6 +20,7 @@ namespace gcep::ECS
 	/** @brief Type used for internal indexing within component pools. */
 	using Index = std::uint32_t;
 
+	const std::uint32_t VALUE_MASK = 0xFFFFFF;
 	/**
 	 * @struct entityElement
 	 * @brief Represents an entity slot in the entity pool.
