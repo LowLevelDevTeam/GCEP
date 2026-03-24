@@ -524,6 +524,7 @@ namespace gcep::panel
 
             case ImGuizmo::SCALE:
             {
+                
                 glm::mat4 delta;
                 memcpy(glm::value_ptr(delta), deltaData, sizeof(float) * 16);
                 const glm::vec3 deltaScale = {
