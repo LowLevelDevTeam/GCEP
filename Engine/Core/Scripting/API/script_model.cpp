@@ -23,9 +23,9 @@ struct SCRIPT_NAME
         cam.setPosition(GET_TRANSFORM(go)->position);
         Input input(ctx);
         input.bindKey("sprintOn",  gcep::Key::LeftShift, gcep::TriggerOn::Pressed,
-            [](void* ud){ static_cast<PlayerController*>(ud)->sprint = true;  }, this);
+            [](void* ud){ static_cast<SCRIPT_NAME*>(ud)->sprint = true;  }, this);
         input.bindKey("sprintOff", gcep::Key::LeftShift, gcep::TriggerOn::Released,
-            [](void* ud){ static_cast<PlayerController*>(ud)->sprint = false; }, this);
+            [](void* ud){ static_cast<SCRIPT_NAME*>(ud)->sprint = false; }, this);
     }
 
     void onUpdate(const ScriptContext* ctx)
