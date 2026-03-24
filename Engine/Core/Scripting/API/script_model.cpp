@@ -1,15 +1,17 @@
-// PlayerController.cpp
 #include "script_api.hpp"
 #include "script_object.hpp"
+
 #include <cmath>
 
 static constexpr float k_speed  = 6.f;
 static constexpr float k_sprint = 2.2f;
 static constexpr float k_sens   = 0.12f;
+static constexpr float k_pi     = 3.14159265f;
 
 static float clamp(float v, float lo, float hi) { return v < lo ? lo : v > hi ? hi : v; }
+static float toRad(float d) { return d * (k_pi / 180.f); }
 
-struct PlayerController
+struct SCRIPT_NAME
 {
     bool sprint = false;
 
@@ -37,26 +39,27 @@ struct PlayerController
         auto cam = GET_CAMERA(go);
         if (!tf || !cam || !input.valid()) return;
 
-        // ── Scroll to change FOV ──────────────────────────────────────────────
+        // Scroll to change FOV
         const auto scroll = input.mouseScroll();
         cam.setFovY(clamp(cam.getFovY() - scroll.y * 2.f, 10.f, 120.f));
 
-        // ── Mouse look ────────────────────────────────────────────────────────
-        // Accumulate into the component's own pitch/yaw — no local copies needed.
+        // Mouse look
         const auto delta = input.mouseDelta();
-        cam.addYaw  ( delta.x * k_sens);
+        cam.addYaw  (-delta.x * k_sens);
         cam.addPitch(-delta.y * k_sens);
 
-        // Write the new orientation through the transform vtable so the
-        // rotation quaternion and editor Euler cache stay in sync.
-        tf.setRotationDeg(cam.getPitch(), cam.getYaw(), 0.f);
+        // Movement
+        const float yawRad = toRad(cam.getYaw());
+        const float fwdX =  std::cos(yawRad);
+        const float fwdY =  std::sin(yawRad);
+        const float rgtX =  fwdY;
+        const float rgtY = -fwdX;
 
-        // ── Movement ──────────────────────────────────────────────────────────
         float mx = 0.f, my = 0.f;
-        if (input.getKey(gcep::Key::W)) mx += 1.f;
-        if (input.getKey(gcep::Key::S)) mx -= 1.f;
-        if (input.getKey(gcep::Key::A)) my += 1.f;
-        if (input.getKey(gcep::Key::D)) my -= 1.f;
+        if (input.getKey(gcep::Key::W)) { mx += fwdX; my += fwdY; }
+        if (input.getKey(gcep::Key::S)) { mx -= fwdX; my -= fwdY; }
+        if (input.getKey(gcep::Key::A)) { mx -= rgtX; my -= rgtY; }
+        if (input.getKey(gcep::Key::D)) { mx += rgtX; my += rgtY; }
 
         const float len = std::sqrt(mx * mx + my * my);
         if (len > 1.f) { mx /= len; my /= len; }
@@ -67,13 +70,12 @@ struct PlayerController
         if (input.getKey(gcep::Key::E)) tf->position.z += speed * dt;
         if (input.getKey(gcep::Key::Q)) tf->position.z -= speed * dt;
 
-        // ── Reset ─────────────────────────────────────────────────────────────
+        // Reset
         if (input.getKeyDown(gcep::Key::R))
         {
             tf->position = { 0.f, 0.f, tf->position.z };
             cam.setPitch(0.f);
             cam.setYaw(0.f);
-            tf.setRotation(0.f, 0.f, 0.f);
         }
 
         cam.setPosition(tf->position);
@@ -85,4 +87,4 @@ struct PlayerController
     }
 };
 
-DECLARE_SCRIPT(PlayerController)
+DECLARE_SCRIPT(SCRIPT_NAME)
