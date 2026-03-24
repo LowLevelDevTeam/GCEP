@@ -291,43 +291,61 @@ namespace gcep
         return {};
     }
 
+    static std::string resolveBase()
+    {
+        namespace fs = std::filesystem;
+
+    #ifdef _WIN32
+        char exeBuf[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, exeBuf, MAX_PATH);
+        fs::path exeDir = fs::path(exeBuf).parent_path();
+    #elif defined(__APPLE__)
+        char exeBuf[PATH_MAX] = {};
+        uint32_t sz = PATH_MAX;
+        _NSGetExecutablePath(exeBuf, &sz);
+        fs::path exeDir = fs::path(exeBuf).parent_path();
+    #else
+        fs::path exeDir = fs::read_symlink("/proc/self/exe").parent_path();
+    #endif
+    
+        return (exeDir / "bin").lexically_normal().string();
+    }
+
     bool ScriptHotReloadManager::compileScript(const std::string& sourcePath, const std::string& outputPath)
     {
+        namespace fs = std::filesystem;
+
+        const std::string cxx = resolveCompiler();
+        if (cxx.empty())
+        {
+            Log::error("No bundled clang++ found. Place clang++ in <exe>/bin/.");
+            return false;
+        }
+
+        const std::string base        = resolveBase();
+        const std::string resourceDir = base + "/lib/clang/22";
+
         std::string cmd;
 
         #ifdef _WIN32
         {
-            // On Windows: use the bundled clang++ from <exe>/bin/.
-            const std::string cxx = resolveCompiler();
-            if (cxx.empty())
-            {
-                Log::error("No bundled clang++ found. Place clang++.exe in <exe>/bin/.");
-                return false;
-            }
-            // cmd /C ""<exe>/bin/clang++.exe" -std=c++20 -O2 -shared -fvisibility=hidden -I"m_includeDir" "sourcePath" -o "ouputPath""
             cmd = std::string("cmd /C ")
                 + "\""
                     + "\"" + cxx + "\""
                     + " -std=c++20 -O2 -shared -fvisibility=hidden"
-                    + " -I\"" + m_includeDir + "\""
-                    + " \"" + sourcePath + "\""
-                    + " -o \"" + outputPath + "\""
+                    + " -resource-dir \"" + resourceDir  + "\""
+                    + " -I\""             + m_includeDir + "\""
+                    + " \""               + sourcePath   + "\""
+                    + " -o \""            + outputPath   + "\""
                 + "\"";
         }
         #else
         {
-
-            const std::string cxx = resolveCompiler();
-            if (cxx.empty())
-            {
-                Log::error("No C++ compiler found. Set GCEP_CXX or place clang++ in <exe>/bin/.");
-                return false;
-            }
-
             cmd = "\"" + cxx + "\" -std=c++20 -O2 -shared -fPIC -fvisibility=hidden"
-                + " -I\"" + m_includeDir + "\""
-                + " \"" + sourcePath + "\""
-                + " -o \"" + outputPath + "\"";
+                + " -resource-dir \"" + resourceDir  + "\""
+                + " -I\""             + m_includeDir + "\""
+                + " \""               + sourcePath   + "\""
+                + " -o \""            + outputPath   + "\"";
         }
         #endif
 
