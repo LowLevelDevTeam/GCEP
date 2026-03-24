@@ -246,6 +246,7 @@ namespace gcep::panel
     void ScriptManagerPanel::onSimulationUpdate(float dt)
     {
         if (!m_state.manager) return;
+        m_state.inputSystem.update();
         m_state.manager->commitPending();
         m_state.deltaTime = dt;
         for (auto& [eid, entry] : m_state.entityScripts)

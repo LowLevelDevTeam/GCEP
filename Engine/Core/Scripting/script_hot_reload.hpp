@@ -29,6 +29,11 @@ namespace gcep::panel
     struct AttachedScript;
 }
 
+/// @brief _NSGetExecutablePath (macOS only)
+#ifdef __APPLE__
+    #include <mach-o/dyld.h>
+#endif
+
 /// @brief cross platform library loading
 #ifdef _WIN32
     #ifndef WIN32_LEAN_AND_MEAN
@@ -133,10 +138,6 @@ namespace gcep
 
         std::vector<LoadedScript>               m_scripts;
         std::unordered_map<std::string, size_t> m_nameToIndex;
-
-        #ifdef _WIN32
-            static std::string findVcvarsall();
-        #endif
 
 private:
     // Synchronous compile only — no lib_load. Safe to call from any thread.

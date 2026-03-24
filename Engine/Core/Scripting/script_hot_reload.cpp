@@ -188,7 +188,7 @@ namespace gcep
         if(!registry) return;
 
         // Sync back into the ECS component if a registry is provided
-        if (registry->hasComponent<ECS::ScriptComponent>(comp.entityId)) // Crashes when refreshing script, sometimes; TODO: Fix
+        if (registry->hasComponent<ECS::ScriptComponent>(comp.entityId))
         {
             registry->removeComponent<ECS::ScriptComponent>(comp.entityId);
         }
@@ -230,8 +230,9 @@ namespace gcep
         ctx.deltaTime = deltaTime;
         ctx.registry  = registry;
         ctx.ecs       = getScriptECSAPI();
-        ctx.input     = input;
-        ctx.inputApi  = input ? getScriptInputAPI() : nullptr;
+        ctx.input      = input;
+        ctx.inputApi   = input ? getScriptInputAPI() : nullptr;
+        ctx.cameraApi  = getScriptCameraAPI();
 
         return ctx;
     }
@@ -261,37 +262,34 @@ namespace gcep
         }
     }
 
+    static std::string resolveCompiler()
+    {
+        namespace fs = std::filesystem;
+
     #ifdef _WIN32
-        std::string ScriptHotReloadManager::findVcvarsall()
-        {
-            // vswhere is always at this fixed path since VS 2017
-            const char* vswhere = R"(%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe)";
-
-            // Write vswhere output to a temp file then read it back
-            const std::string tmpFile = std::string(std::getenv("TEMP") ? std::getenv("TEMP") : "C:\\Temp")
-                                      + "\\gce_vswhere.txt";
-
-            const std::string query = std::string("\"") + vswhere + "\""
-                + " -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-                + " -property installationPath > \"" + tmpFile + "\" 2>nul";
-            std::system(query.c_str());
-
-            ///time for the command to happen
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            std::ifstream f(tmpFile);
-            std::string installPath;
-            std::getline(f, installPath);
-
-            while (!installPath.empty() && (installPath.back() == '\r' ||
-                                            installPath.back() == '\n' ||
-                                            installPath.back() == ' '))
-                installPath.pop_back();
-
-            if (installPath.empty()) return {};
-            return installPath + R"(\VC\Auxiliary\Build\vcvarsall.bat)";
-        }
+        char exeBuf[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, exeBuf, MAX_PATH);
+        fs::path exeDir = fs::path(exeBuf).parent_path();
+        fs::path bundled = exeDir / "bin" / "clang++.exe";
+    #elif defined(__APPLE__)
+        char exeBuf[PATH_MAX] = {};
+        uint32_t sz = PATH_MAX;
+        _NSGetExecutablePath(exeBuf, &sz);
+        fs::path exeDir = fs::path(exeBuf).parent_path();
+        fs::path bundled = exeDir / "bin" / "clang++";
+    #else
+        fs::path exeDir = fs::read_symlink("/proc/self/exe").parent_path();
+        fs::path bundled = exeDir / "bin" / "clang++";
     #endif
+
+        if (fs::exists(bundled))
+            return bundled.string();
+
+        Log::error(std::format("Bundled compiler not found at '{}'. "
+                               "Place clang++ in <exe>/bin/ next to the engine binary.",
+                               bundled.string()));
+        return {};
+    }
 
     bool ScriptHotReloadManager::compileScript(const std::string& sourcePath, const std::string& outputPath)
     {
@@ -299,35 +297,38 @@ namespace gcep
 
         #ifdef _WIN32
         {
-            static const std::string vcvarsall = findVcvarsall();
-
-            std::string setup;
-            if (!vcvarsall.empty())
+            // On Windows: use the bundled clang++ from <exe>/bin/.
+            const std::string cxx = resolveCompiler();
+            if (cxx.empty())
             {
-                setup = "\"" + vcvarsall + "\" x64 >nul 2>&1 && ";
+                Log::error("No bundled clang++ found. Place clang++.exe in <exe>/bin/.");
+                return false;
             }
-            else
-            {
-                Log::warn("vcvarsall.bat not found - cl.exe must already be on PATH");
-                Log::warn("Make sure to have Visual Studio 17 or higher installed");
-            }
-
-            cmd = "cmd /C \"" + setup
-                + "cl /nologo /O2 /LD /EHsc /std:c++20"
-                + " /I\"" + m_includeDir + "\""
-                + " \"" + sourcePath + "\""
-                + " /Fe\"" + outputPath + "\""
-                + " /Fo\"" + m_buildDir + "/\""
-                + " /link /DLL /NOEXP /NOIMPLIB\"";
+            // cmd /C ""<exe>/bin/clang++.exe" -std=c++20 -O2 -shared -fvisibility=hidden -I"m_includeDir" "sourcePath" -o "ouputPath""
+            cmd = std::string("cmd /C ")
+                + "\""
+                    + "\"" + cxx + "\""
+                    + " -std=c++20 -O2 -shared -fvisibility=hidden"
+                    + " -I\"" + m_includeDir + "\""
+                    + " \"" + sourcePath + "\""
+                    + " -o \"" + outputPath + "\""
+                + "\"";
         }
-        #elif defined(__APPLE__)
-            cmd = "clang++ -std=c++20 -O2 -shared -fPIC -fvisibility=hidden "
-                  "-I\"" + m_includeDir + "\" "
-                  "\"" + sourcePath + "\" -o \"" + outputPath + "\"";
         #else
-            cmd = "g++ -std=c++20 -O2 -shared -fPIC -fvisibility=hidden "
-                  "-I\"" + m_includeDir + "\" "
-                  "\"" + sourcePath + "\" -o \"" + outputPath + "\"";
+        {
+
+            const std::string cxx = resolveCompiler();
+            if (cxx.empty())
+            {
+                Log::error("No C++ compiler found. Set GCEP_CXX or place clang++ in <exe>/bin/.");
+                return false;
+            }
+
+            cmd = "\"" + cxx + "\" -std=c++20 -O2 -shared -fPIC -fvisibility=hidden"
+                + " -I\"" + m_includeDir + "\""
+                + " \"" + sourcePath + "\""
+                + " -o \"" + outputPath + "\"";
+        }
         #endif
 
         Log::info(std::format("Compiling: {}", cmd));
@@ -339,7 +340,7 @@ namespace gcep
             return false;
         }
 
-        // Clean up build artifacts left by cl.exe
+        // Clean up build artifacts.
         const std::filesystem::path outDir(m_buildDir);
         const std::string           stem = std::filesystem::path(sourcePath).stem().string();
         for (const char* ext : { ".obj", ".lib", ".exp" })
@@ -356,7 +357,7 @@ namespace gcep
     {
         std::string name    = std::filesystem::path(sourcePath).stem().string();
         std::string libPath = m_buildDir + "/" + name + lib_extension();
-    
+
         // Update write-time stamp and mark invalid immediately so the UI
         // shows "compiling" rather than stale state
         auto it = m_nameToIndex.find(name);
@@ -379,7 +380,7 @@ namespace gcep
             m_nameToIndex[name] = m_scripts.size();
             m_scripts.push_back(std::move(stub));
         }
-    
+
         // Fire compile on a detached worker; result goes into m_pendingLoads
         m_compiling = true;
         std::thread([this, sourcePath, libPath]()
@@ -393,7 +394,7 @@ namespace gcep
             {
                 Log::error(std::format("scheduleReload: compile failed for {}", sourcePath));
             }
-    
+
             // Only clear the flag when ALL pending compiles are done.
             // Simple approach: recount — if nothing left pending we're idle.
             // (For a single-script reload this fires immediately.)

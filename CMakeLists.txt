@@ -18,6 +18,7 @@ endif()
 # Custom CMake modules
 include(CMake/compile_shaders.cmake)
 include(CMake/copy_textures.cmake)
+include(CMake/download_compiler.cmake)
 
 # Vulkan
 find_package(Vulkan 1.3 REQUIRED)

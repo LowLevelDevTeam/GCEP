@@ -7,24 +7,22 @@
 // Primitives
 
 struct ScriptVec3 { float x, y, z; };
-struct ScriptQuat { float w, x, y, z; }; // matches gcep::Quaternion(w,x,y,z)
+struct ScriptQuat { float w, x, y, z; };
 
 // Transform - mirrors gcep::ECS::Transform
 struct alignas(16) ScriptTransform
 {
-    alignas(16) ScriptVec3 position     { 0.f, 0.f, 0.f };
-    alignas(16) ScriptVec3 scale        { 1.f, 1.f, 1.f };
-    alignas(16) ScriptQuat rotation     { 1.f, 0.f, 0.f, 0.f };
-    alignas(16) ScriptVec3 eulerRadians { 0.f, 0.f, 0.f };
+    alignas(16) ScriptVec3 position { 0.f, 0.f, 0.f };
+    alignas(16) ScriptVec3 scale    { 1.f, 1.f, 1.f };
+    alignas(16) ScriptQuat rotation { 1.f, 0.f, 0.f, 0.f };
 };
 
 // WorldTransform, mirrors gcep::ECS::WorldTransform
 struct alignas(16) ScriptWorldTransform
 {
-    alignas(16) ScriptVec3 position     { 0.f, 0.f, 0.f };
-    alignas(16) ScriptVec3 scale        { 1.f, 1.f, 1.f };
-    alignas(16) ScriptQuat rotation     { 1.f, 0.f, 0.f, 0.f };
-    alignas(16) ScriptVec3 eulerRadians { 0.f, 0.f, 0.f };
+    alignas(16) ScriptVec3 position { 0.f, 0.f, 0.f };
+    alignas(16) ScriptVec3 scale    { 1.f, 1.f, 1.f };
+    alignas(16) ScriptQuat rotation { 1.f, 0.f, 0.f, 0.f };
 };
 
 // PhysicsComponent, mirrors gcep::ECS::PhysicsComponent
@@ -41,10 +39,19 @@ struct ScriptPhysicsComponent
 // CameraComponent, mirrors gcep::ECS::CameraComponent
 struct ScriptCameraComponent
 {
-    float fovYDeg     = 60.f;
-    float nearZ       = 0.01f;
-    float farZ        = 1000.f;
+    float fovYDeg      = 60.f;
+    float nearZ        = 0.01f;
+    float farZ         = 1000.f;
     bool  isMainCamera = true;
+
+    /// World-space eye position — write via ScriptCameraAPI helpers, not directly.
+    ScriptVec3 position = { 0.f, 0.f, 0.f };
+
+    /// Vertical rotation in degrees. Clamped to ±89° by the bridge.
+    float pitch = 0.f;
+
+    /// Horizontal rotation in degrees (0° = negative-X axis).
+    float yaw   = -180.f;
 };
 
 // PointLightComponent, mirrors gcep::ECS::PointLightComponent

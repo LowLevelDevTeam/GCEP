@@ -17,7 +17,7 @@ namespace gcep
 
         m_position       = { 5.0f, 0.0f, 2.0f };
         m_ubo.view       = glm::lookAt(m_position, { 0.0f, 0.0f, 0.0f }, glm::vec3(0.0f, 0.0f, 1.0f));
-        m_ubo.proj       = glm::perspective(glm::radians(60.0f), 1.f, 0.1f, 1000.0f);
+        m_ubo.proj       = glm::perspective(glm::radians(m_fovYDeg), 1.f, 0.1f, 1000.0f);
         m_ubo.proj[1][1] *= -1;
     }
 
@@ -114,7 +114,7 @@ namespace gcep
         m_right = glm::normalize(glm::cross(m_front, m_worldUp));
         m_up    = glm::normalize(glm::cross(m_right, m_front));
 
-        m_ubo.proj       = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 1000.0f);
+        m_ubo.proj       = glm::perspective(glm::radians(m_fovYDeg), aspect, 0.1f, 1000.0f);
         m_ubo.view       = glm::lookAt(m_position, m_position + m_front, m_up);
         m_ubo.proj[1][1] *= -1;
 
