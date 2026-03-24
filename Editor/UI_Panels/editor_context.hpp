@@ -2,6 +2,9 @@
 
 // Internals
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
+#ifdef JPH_DEBUG_RENDERER
+#include <PhysicsWrapper/PhysicsDebugRenderer.hpp>
+#endif
 #include <Engine/RHI/Vulkan/vulkan_rhi_data_types.hpp>
 #include <ECS/headers/registry.hpp>
 #include <Editor/Camera/camera.hpp>
@@ -51,6 +54,12 @@ namespace gcep::editor
         float                snapTranslation[3]  = { 0.5f, 0.5f, 0.5f };
         float                snapRotation        = 15.0f;
         float                snapScale           = 0.1f;
+
+        // ── Physics debug ─────────────────────────────────────────────────────────
+#ifdef JPH_DEBUG_RENDERER
+        gcep::jolt::PhysicsDebugRenderer* physicsDebugRenderer = nullptr;
+        bool                              showColliderDebug     = false;
+#endif
 
         // ── App control ───────────────────────────────────────────────────────────
         bool                 reloadRequested     = false;

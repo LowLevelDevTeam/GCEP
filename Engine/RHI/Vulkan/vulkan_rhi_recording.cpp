@@ -146,6 +146,7 @@ namespace gcep::rhi::vulkan
         }
 
         recordLightSpritePass(m_lastPointLights, m_lastSpotLights);
+        recordPhysicsDebugPass();
 
         cmd.endRendering();
 

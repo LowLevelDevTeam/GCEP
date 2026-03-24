@@ -516,8 +516,10 @@ namespace gcep::rhi::vulkan
         createGraphicsPipeline();     // Vertex / Fragment shader - general purpose
         createCullPipeline();         // Compute shader - Frustum culling
         createGridPipeline();         // Vertex / Fragment shader - editor grid
-        createLightSpritePipeline();  // Vertex / Fragment shader - light billboard sprites
-        createLightConePipeline();    // Vertex / Fragment shader - spot cone wireframe gizmo
+        createLightSpritePipeline();   // Vertex / Fragment shader - light billboard sprites
+        createLightConePipeline();     // Vertex / Fragment shader - spot cone wireframe gizmo
+        createPhysicsDebugPipelines(); // Vertex / Fragment shader - physics debug draw
+        initPhysicsDebugBuffers();     // Host-visible vertex buffers for debug lines + triangles
         // Offscreen render target must exist before the light system so image views are valid.
         createOffscreenResources(m_swapchainDesc.width, m_swapchainDesc.height);
         // Light system - init after offscreen images are ready.

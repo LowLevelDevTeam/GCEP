@@ -2,6 +2,9 @@
 
 // Internals
 #include <Editor/Camera/camera.hpp>
+#ifdef JPH_DEBUG_RENDERER
+#include <PhysicsWrapper/PhysicsDebugRenderer.hpp>
+#endif
 #include <Editor/Helpers.hpp>
 #include <Editor/ImGUIManager/imgui_manager.hpp>
 #include <Editor/Inputs/inputs.hpp>
@@ -124,6 +127,10 @@ namespace gcep
 
         /// @brief Non-owning pointer to the audio subsystem. Managed externally.
         AudioSystem* m_audioSystem = nullptr;
+
+#ifdef JPH_DEBUG_RENDERER
+        std::unique_ptr<gcep::jolt::PhysicsDebugRenderer> m_physicsDebugRenderer;
+#endif
 
         /// @brief Timestamp of the last frame start, as returned by @c glfwGetTime().
         double m_lastFrameTime = 0.0;

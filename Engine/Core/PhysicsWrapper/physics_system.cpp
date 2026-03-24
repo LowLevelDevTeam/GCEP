@@ -20,6 +20,11 @@ namespace gcep
         Log::info("Physics System created");
     }
 
+    JPH::PhysicsSystem* PhysicsSystem::getJoltPhysicsSystem() const
+    {
+        return m_world ? m_world->getJoltPhysicsSystem() : nullptr;
+    }
+
     PhysicsSystem::~PhysicsSystem()
     {
         shutdown();
@@ -42,38 +47,37 @@ namespace gcep
         m_world.reset();
     }
 
+    BodyCreateInfo PhysicsSystem::makeBodyCreateInfo(ECS::EntityID entity, bool isTrigger) const
+    {
+        auto& transform = registry->getComponent<ECS::Transform>(entity);
+        BodyCreateInfo info;
+        info.position  = transform.position;
+        info.rotation  = transform.rotation;
+        info.isTrigger = isTrigger;
+
+        if (registry->hasComponent<ECS::RigidBodyComponent>(entity))
+        {
+            auto& rb = registry->getComponent<ECS::RigidBodyComponent>(entity);
+            switch (rb.motionType)
+            {
+                case ECS::EMotionType::DYNAMIC:   info.motionType = JPH::EMotionType::Dynamic;   break;
+                case ECS::EMotionType::KINEMATIC: info.motionType = JPH::EMotionType::Kinematic; break;
+                default:                          info.motionType = JPH::EMotionType::Static;    break;
+            }
+            info.mass           = rb.mass;
+            info.linearDamping  = rb.linearDamping;
+            info.angularDamping = rb.angularDamping;
+            info.gravityFactor  = rb.gravityFactor;
+        }
+        else
+        {
+            info.motionType = JPH::EMotionType::Static;
+        }
+        return info;
+    }
+
     void PhysicsSystem::startSimulation()
     {
-
-        auto buildInfo = [&](ECS::EntityID entity, bool isTrigger) -> BodyCreateInfo
-        {
-            auto& transform = registry->getComponent<ECS::Transform>(entity);
-            BodyCreateInfo info;
-            info.position = transform.position;
-            info.rotation = transform.rotation;
-            info.isTrigger = isTrigger;
-
-            if (registry->hasComponent<ECS::RigidBodyComponent>(entity))
-            {
-                auto& rb = registry->getComponent<ECS::RigidBodyComponent>(entity);
-                switch (rb.motionType)
-                {
-                    case ECS::EMotionType::DYNAMIC:   info.motionType = JPH::EMotionType::Dynamic;   break;
-                    case ECS::EMotionType::KINEMATIC: info.motionType = JPH::EMotionType::Kinematic; break;
-                    default:                          info.motionType = JPH::EMotionType::Static;    break;
-                }
-                info.mass = rb.mass;
-                info.linearDamping = rb.linearDamping;
-                info.angularDamping = rb.angularDamping;
-
-                info.gravityFactor = rb.gravityFactor;
-            }
-            else
-            {
-                info.motionType = JPH::EMotionType::Static;
-            }
-            return info;
-        };
 
         m_bodyToEntity.clear();
         m_triggerBodies.clear();
@@ -85,6 +89,16 @@ namespace gcep
             if (isTrigger) m_triggerBodies.insert(key);
         };
 
+        auto initCommonCache = [&](ECS::EntityID entity, ECS::PhysicsRuntimeData& runtime)
+        {
+            auto& transform = registry->getComponent<ECS::Transform>(entity);
+            runtime.lastPhysicsPos   = transform.position;
+            runtime.lastPhysicsRot   = transform.rotation;
+            runtime.cachedMotionType = registry->hasComponent<ECS::RigidBodyComponent>(entity)
+                ? registry->getComponent<ECS::RigidBodyComponent>(entity).motionType
+                : ECS::EMotionType::STATIC;
+        };
+
         for (auto entity : registry->view<ECS::BoxColliderComponent>())
         {
             auto& col = registry->getComponent<ECS::BoxColliderComponent>(entity);
@@ -92,8 +106,11 @@ namespace gcep
             if (!shape) continue;
 
             auto& runtime = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
-            JPH::BodyID id = m_world->createBody(*shape, buildInfo(entity, col.isTrigger));
-            runtime.bodyID = id.GetIndexAndSequenceNumber();
+            JPH::BodyID id = m_world->createBody(*shape, makeBodyCreateInfo(entity, col.isTrigger));
+            runtime.bodyID            = id.GetIndexAndSequenceNumber();
+            runtime.cachedHalfExtents = col.halfExtents;
+            runtime.cachedIsTrigger   = col.isTrigger;
+            initCommonCache(entity, runtime);
             registerBody(entity, id, col.isTrigger);
         }
         for (auto entity : registry->view<ECS::SphereColliderComponent>())
@@ -103,8 +120,11 @@ namespace gcep
             if (!shape) continue;
 
             auto& runtime = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
-            JPH::BodyID id = m_world->createBody(*shape, buildInfo(entity, col.isTrigger));
-            runtime.bodyID = id.GetIndexAndSequenceNumber();
+            JPH::BodyID id = m_world->createBody(*shape, makeBodyCreateInfo(entity, col.isTrigger));
+            runtime.bodyID          = id.GetIndexAndSequenceNumber();
+            runtime.cachedRadius    = col.radius;
+            runtime.cachedIsTrigger = col.isTrigger;
+            initCommonCache(entity, runtime);
             registerBody(entity, id, col.isTrigger);
         }
 
@@ -115,8 +135,12 @@ namespace gcep
             if (!shape) continue;
 
             auto& runtime = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
-            JPH::BodyID id = m_world->createBody(*shape, buildInfo(entity, col.isTrigger));
-            runtime.bodyID = id.GetIndexAndSequenceNumber();
+            JPH::BodyID id = m_world->createBody(*shape, makeBodyCreateInfo(entity, col.isTrigger));
+            runtime.bodyID           = id.GetIndexAndSequenceNumber();
+            runtime.cachedRadius     = col.radius;
+            runtime.cachedHalfHeight = col.halfHeight;
+            runtime.cachedIsTrigger  = col.isTrigger;
+            initCommonCache(entity, runtime);
             registerBody(entity, id, col.isTrigger);
         }
 
@@ -127,8 +151,12 @@ namespace gcep
             if (!shape) continue;
 
             auto& runtime = registry->addComponent<ECS::PhysicsRuntimeData>(entity);
-            JPH::BodyID id = m_world->createBody(*shape, buildInfo(entity, col.isTrigger));
-            runtime.bodyID = id.GetIndexAndSequenceNumber();
+            JPH::BodyID id = m_world->createBody(*shape, makeBodyCreateInfo(entity, col.isTrigger));
+            runtime.bodyID           = id.GetIndexAndSequenceNumber();
+            runtime.cachedRadius     = col.radius;
+            runtime.cachedHalfHeight = col.halfHeight;
+            runtime.cachedIsTrigger  = col.isTrigger;
+            initCommonCache(entity, runtime);
             registerBody(entity, id, col.isTrigger);
         }
 
@@ -137,6 +165,7 @@ namespace gcep
 
     void PhysicsSystem::update(float dt)
     {
+        refreshBodies(*registry);
         syncTransformsToPhysics(*registry);
         applyForces(*registry);
         syncComponentsVelocitiesToPhysics(*registry);
@@ -179,6 +208,100 @@ namespace gcep
 
         syncPhysicsToTransforms(*registry);
         syncPhysicsVelocitiesToComponents(*registry);
+    }
+
+    void PhysicsSystem::refreshBodies(ECS::Registry& reg)
+    {
+        auto currentMotionType = [&](ECS::EntityID entity) -> ECS::EMotionType
+        {
+            return reg.hasComponent<ECS::RigidBodyComponent>(entity)
+                ? reg.getComponent<ECS::RigidBodyComponent>(entity).motionType
+                : ECS::EMotionType::STATIC;
+        };
+
+        auto rebuildBody = [&](ECS::EntityID entity, std::shared_ptr<PhysicsShape> shape, bool isTrigger)
+        {
+            if (!shape) return;
+            auto& runtime = reg.getComponent<ECS::PhysicsRuntimeData>(entity);
+
+            JPH::BodyID oldID(runtime.bodyID);
+            if (!oldID.IsInvalid())
+            {
+                const uint32_t oldKey = oldID.GetIndexAndSequenceNumber();
+                m_bodyToEntity.erase(oldKey);
+                m_triggerBodies.erase(oldKey);
+                m_world->destroyBody(oldID);
+            }
+
+            JPH::BodyID newID = m_world->createBody(*shape, makeBodyCreateInfo(entity, isTrigger));
+            const uint32_t newKey = newID.GetIndexAndSequenceNumber();
+            runtime.bodyID = newKey;
+            m_bodyToEntity[newKey] = entity;
+            if (isTrigger) m_triggerBodies.insert(newKey);
+
+            // Reset teleport baseline so the new body isn't immediately teleported
+            auto& transform       = reg.getComponent<ECS::Transform>(entity);
+            runtime.lastPhysicsPos = transform.position;
+            runtime.lastPhysicsRot = transform.rotation;
+        };
+
+        for (auto entity : reg.view<ECS::BoxColliderComponent, ECS::PhysicsRuntimeData>())
+        {
+            auto& col     = reg.getComponent<ECS::BoxColliderComponent>(entity);
+            auto& runtime = reg.getComponent<ECS::PhysicsRuntimeData>(entity);
+            const ECS::EMotionType motion = currentMotionType(entity);
+            if (col.halfExtents != runtime.cachedHalfExtents || col.isTrigger != runtime.cachedIsTrigger || motion != runtime.cachedMotionType)
+            {
+                rebuildBody(entity, m_world->getOrCreateBox(col.halfExtents), col.isTrigger);
+                runtime.cachedHalfExtents = col.halfExtents;
+                runtime.cachedIsTrigger   = col.isTrigger;
+                runtime.cachedMotionType  = motion;
+            }
+        }
+
+        for (auto entity : reg.view<ECS::SphereColliderComponent, ECS::PhysicsRuntimeData>())
+        {
+            auto& col     = reg.getComponent<ECS::SphereColliderComponent>(entity);
+            auto& runtime = reg.getComponent<ECS::PhysicsRuntimeData>(entity);
+            const ECS::EMotionType motion = currentMotionType(entity);
+            if (col.radius != runtime.cachedRadius || col.isTrigger != runtime.cachedIsTrigger || motion != runtime.cachedMotionType)
+            {
+                rebuildBody(entity, m_world->getOrCreateSphere(col.radius), col.isTrigger);
+                runtime.cachedRadius    = col.radius;
+                runtime.cachedIsTrigger = col.isTrigger;
+                runtime.cachedMotionType = motion;
+            }
+        }
+
+        for (auto entity : reg.view<ECS::CapsuleColliderComponent, ECS::PhysicsRuntimeData>())
+        {
+            auto& col     = reg.getComponent<ECS::CapsuleColliderComponent>(entity);
+            auto& runtime = reg.getComponent<ECS::PhysicsRuntimeData>(entity);
+            const ECS::EMotionType motion = currentMotionType(entity);
+            if (col.radius != runtime.cachedRadius || col.halfHeight != runtime.cachedHalfHeight || col.isTrigger != runtime.cachedIsTrigger || motion != runtime.cachedMotionType)
+            {
+                rebuildBody(entity, m_world->getOrCreateCapsule(col.halfHeight, col.radius), col.isTrigger);
+                runtime.cachedRadius     = col.radius;
+                runtime.cachedHalfHeight = col.halfHeight;
+                runtime.cachedIsTrigger  = col.isTrigger;
+                runtime.cachedMotionType = motion;
+            }
+        }
+
+        for (auto entity : reg.view<ECS::CylinderColliderComponent, ECS::PhysicsRuntimeData>())
+        {
+            auto& col     = reg.getComponent<ECS::CylinderColliderComponent>(entity);
+            auto& runtime = reg.getComponent<ECS::PhysicsRuntimeData>(entity);
+            const ECS::EMotionType motion = currentMotionType(entity);
+            if (col.radius != runtime.cachedRadius || col.halfHeight != runtime.cachedHalfHeight || col.isTrigger != runtime.cachedIsTrigger || motion != runtime.cachedMotionType)
+            {
+                rebuildBody(entity, m_world->getOrCreateCylinder(col.halfHeight, col.radius), col.isTrigger);
+                runtime.cachedRadius     = col.radius;
+                runtime.cachedHalfHeight = col.halfHeight;
+                runtime.cachedIsTrigger  = col.isTrigger;
+                runtime.cachedMotionType = motion;
+            }
+        }
     }
 
     void PhysicsSystem::stopSimulation()
@@ -227,6 +350,10 @@ namespace gcep
             transform.position = Vector3Convertor::FromJolt(pos);
             transform.rotation = QuaternionConvertor::FromJolt(rot);
             transform.eulerRadians = transform.rotation.ToEuler();
+
+            // Save what physics wrote so we can detect user-initiated teleports next frame
+            runtime.lastPhysicsPos = transform.position;
+            runtime.lastPhysicsRot = transform.rotation;
         }
     }
 
@@ -241,10 +368,25 @@ namespace gcep
             auto& physics   = view.get<ECS::RigidBodyComponent>(entity);
             auto& runtime   = view.get<ECS::PhysicsRuntimeData>(entity);
 
-            if (physics.motionType != ECS::EMotionType::KINEMATIC) continue;
-
             JPH::BodyID bodyID(runtime.bodyID);
             if (bodyID.IsInvalid()) continue;
+
+            if (physics.motionType == ECS::EMotionType::DYNAMIC)
+            {
+                // Teleport only if the user changed the transform in the inspector
+                if (transform.position != runtime.lastPhysicsPos || transform.rotation != runtime.lastPhysicsRot)
+                {
+                    bodyInterface.SetPositionAndRotation(
+                        bodyID,
+                        Vector3Convertor::ToJolt(transform.position),
+                        QuaternionConvertor::ToJolt(transform.rotation),
+                        JPH::EActivation::Activate
+                    );
+                    runtime.lastPhysicsPos = transform.position;
+                    runtime.lastPhysicsRot = transform.rotation;
+                }
+                continue;
+            }
 
             bodyInterface.SetPositionAndRotation(
                 bodyID,

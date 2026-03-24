@@ -155,6 +155,9 @@ namespace gcep
          */
         std::shared_ptr<PhysicsShape> getOrCreateScaled(std::shared_ptr<PhysicsShape> baseShape, Vector3<float> scale);
 
+        /// @brief Returns the underlying Jolt PhysicsSystem for advanced queries (e.g. DrawBodies).
+        JPH::PhysicsSystem* getJoltPhysicsSystem() const { return m_physicsSystem.get(); }
+
     private:
         std::shared_ptr<JPH::PhysicsSystem> m_physicsSystem;
 

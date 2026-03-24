@@ -2,6 +2,10 @@
 
 // Internals
 #include <config.hpp>
+#include <PhysicsWrapper/physics_system.hpp>
+#ifdef JPH_DEBUG_RENDERER
+#include <Jolt/Physics/Body/BodyManager.h>
+#endif
 #include <Editor/Camera/camera.hpp>
 #include <Editor/UI_Panels/Panels/Inspector/inspector_registry.hpp>
 #include <ECS/Components/components.hpp>
@@ -238,6 +242,11 @@ namespace gcep
             if (ImGui::BeginMenu((std::string(ICON_FA_BUG) + " Debug").c_str()))
             {
                 ImGui::MenuItem("ImGui Demo", nullptr, &m_showDemoWindow);
+#ifdef JPH_DEBUG_RENDERER
+                ImGui::Separator();
+                ImGui::MenuItem((std::string(ICON_FA_CUBES) + " Collider Debug").c_str(),
+                    nullptr, &editor::EditorContext::get().showColliderDebug);
+#endif
                 ImGui::Separator();
                 if (ImGui::MenuItem((std::string(ICON_FA_REFRESH) + " Reload Engine").c_str()))
                     m_reloadApp = true;
@@ -437,6 +446,34 @@ namespace gcep
         ctx.pRHI->updateSceneUBO(&ctx.sceneInfos, ctx.camera->m_position);
         if (ctx.viewportSize.x != 0 && ctx.viewportSize.y != 0)
             ctx.pRHI->updateCameraUBO(ctx.camera->update(ctx.viewportSize.x / ctx.viewportSize.y, ctx.camSpeed));
+
+        // ── Physics debug draw ────────────────────────────────────────────────────
+#ifdef JPH_DEBUG_RENDERER
+        {
+            if (ctx.showColliderDebug && ctx.physicsDebugRenderer && ctx.pRHI)
+            {
+                ctx.physicsDebugRenderer->beginFrame();
+                JPH::PhysicsSystem* joltSys = gcep::PhysicsSystem::getInstance().getJoltPhysicsSystem();
+                if (joltSys)
+                {
+                    JPH::BodyManager::DrawSettings drawSettings;
+                    drawSettings.mDrawShape          = true;
+                    drawSettings.mDrawShapeWireframe = true;
+                    joltSys->DrawBodies(drawSettings, ctx.physicsDebugRenderer);
+                }
+                const auto& lineVerts = ctx.physicsDebugRenderer->getLineVertices();
+                const auto& triVerts  = ctx.physicsDebugRenderer->getTriVertices();
+                ctx.pRHI->flushPhysicsDebugData(
+                    lineVerts.data(), static_cast<uint32_t>(lineVerts.size()),
+                    triVerts.data(),  static_cast<uint32_t>(triVerts.size())
+                );
+            }
+            else if (ctx.pRHI)
+            {
+                ctx.pRHI->flushPhysicsDebugData(nullptr, 0, nullptr, 0);
+            }
+        }
+#endif
 
         // ── Global keyboard shortcuts ─────────────────────────────────────────────
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))

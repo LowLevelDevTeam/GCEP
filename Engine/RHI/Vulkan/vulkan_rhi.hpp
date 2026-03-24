@@ -123,6 +123,22 @@ namespace gcep::rhi::vulkan
         /// @param cameraPos  World-space camera position for specular highlight computation.
         void updateSceneUBO(rhi::vulkan::SceneInfos* upstr, glm::vec3 cameraPos);
 
+        /// @brief Uploads physics debug vertices into the GPU-mapped buffers for this frame.
+        ///
+        /// Must be called BEFORE @c drawFrame(). The data is produced by
+        /// @c JPH::PhysicsSystem::DrawBodies() via PhysicsDebugRenderer. Both vertex arrays
+        /// must contain tightly-packed DebugVertex entries (16 bytes each: vec3 + uint32_t).
+        ///
+        /// At most @c kDebugLineBufferSize / @c kDebugTriBufferSize bytes are copied;
+        /// excess data is silently truncated and a warning is logged.
+        ///
+        /// @param inLineData       Pointer to line vertex data (2 verts per segment).
+        /// @param inLineVertCount  Number of line vertices.
+        /// @param inTriData        Pointer to triangle vertex data (3 verts per triangle).
+        /// @param inTriVertCount   Number of triangle vertices.
+        void flushPhysicsDebugData(const void* inLineData, uint32_t inLineVertCount,
+                                   const void* inTriData,  uint32_t inTriVertCount);
+
         /// @brief Defers an offscreen render target resize to the next frame boundary.
         ///
         /// Safe to call at any time, including while a frame is being recorded.
@@ -343,6 +359,7 @@ namespace gcep::rhi::vulkan
         #include "vulkan_rhi_private_offscreen.hpp"
         #include "vulkan_rhi_private_taa.hpp"
         #include "vulkan_rhi_private_helpers.hpp"
+        #include "vulkan_rhi_private_physics_debug.hpp"
     };
 } // namespace gcep::rhi::vulkan
 

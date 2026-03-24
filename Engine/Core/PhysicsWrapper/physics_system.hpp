@@ -145,6 +145,10 @@ namespace gcep
         /// @brief Collision/trigger exit events produced by the last physics step.
         const std::vector<ScriptCollisionEvent>& getExitEvents()  const { return m_exitEvents; }
 
+        /// @brief Returns the underlying Jolt PhysicsSystem, or nullptr if not initialized.
+        /// Used by the editor debug renderer to call DrawBodies().
+        JPH::PhysicsSystem* getJoltPhysicsSystem() const;
+
         //void addImpulse(const JPH::BodyID* bodyID, const Vector3<float> impulse) const;
         //void addForce(const JPH::BodyID* bodyID, const Vector3<float> force) const;
 
@@ -157,6 +161,12 @@ namespace gcep
         ECS::Registry* registry;
 
     private:
+        /// @brief Builds a BodyCreateInfo from the entity's transform and RigidBodyComponent.
+        BodyCreateInfo makeBodyCreateInfo(ECS::EntityID entity, bool isTrigger) const;
+
+        /// @brief Detects collider property changes and rebuilds the Jolt body if needed.
+        void refreshBodies(ECS::Registry& reg);
+
         std::unique_ptr<PhysicsWorld> m_world; ///< Internal physics world instance.
 
         std::unordered_map<uint32_t, ECS::EntityID> m_bodyToEntity;

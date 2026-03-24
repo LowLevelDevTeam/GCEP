@@ -266,4 +266,42 @@ namespace gcep::rhi::vulkan
         float     _pad[2];
     };
     static_assert(sizeof(ConePushConstants) <= 128, "ConePushConstants exceeds push constant limit");
+
+    // ============================================================================
+    // Physics debug renderer
+    // ============================================================================
+
+    /// @brief Minimal vertex for physics debug drawing: world-space position + packed RGBA color.
+    ///
+    /// Kept at 16 bytes so the vertex buffer stays cache-friendly.
+    /// The color is stored as R8G8B8A8_UNORM — Vulkan unpacks it to float4 in the shader automatically.
+    /// Binary layout is compatible with PhysicsDebugRenderer::DebugVertex (Vector3<float> + uint32_t).
+    struct DebugVertex
+    {
+        glm::vec3 position;    // 12 bytes — world-space XYZ
+        uint32_t  color;       //  4 bytes — R8G8B8A8_UNORM packed
+
+        static vk::VertexInputBindingDescription getBindingDescription()
+        {
+            return {0, sizeof(DebugVertex), vk::VertexInputRate::eVertex};
+        }
+
+        static std::array<vk::VertexInputAttributeDescription, 2> getAttributeDescriptions()
+        {
+            return {{
+                {0, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(DebugVertex, position))},
+                {1, 0, vk::Format::eR8G8B8A8Unorm,   static_cast<uint32_t>(offsetof(DebugVertex, color))},
+            }};
+        }
+    };
+    static_assert(sizeof(DebugVertex) == 16, "DebugVertex must be 16 bytes");
+
+    /// @brief Push-constant block for both debug line and triangle pipelines.
+    /// Only the unjittered viewProj is needed — all vertices are already in world space.
+    struct DebugPushConstants
+    {
+        glm::mat4 viewProj; // 64 bytes
+    };
+    static_assert(sizeof(DebugPushConstants) <= 128, "DebugPushConstants exceeds push constant limit");
+
 } // namespace gcep::rhi::vulkan

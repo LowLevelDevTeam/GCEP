@@ -2,6 +2,7 @@
 
 // Internals
 #include <ECS/headers/component_registry.hpp>
+#include <Maths/quaternion.hpp>
 #include <Maths/vector3.hpp>
 
 namespace gcep::ECS
@@ -22,6 +23,17 @@ namespace gcep::ECS
         Vector3<float> impulse         { 0.f, 0.f, 0.f };
         Vector3<float> torque          { 0.f, 0.f, 0.f };
         Vector3<float> angularImpulse  { 0.f, 0.f, 0.f };
+
+        // Shape / motion cache — used to detect changes during simulation
+        Vector3<float> cachedHalfExtents { 0.f, 0.f, 0.f }; // BoxCollider
+        float          cachedRadius      = 0.f;               // Sphere, Capsule, Cylinder
+        float          cachedHalfHeight  = 0.f;               // Capsule, Cylinder
+        bool           cachedIsTrigger   = false;
+        EMotionType    cachedMotionType  = EMotionType::STATIC;
+
+        // Last transform written by physics — used to detect editor teleport requests on DYNAMIC bodies
+        Vector3<float> lastPhysicsPos { 0.f, 0.f, 0.f };
+        Quaternion     lastPhysicsRot;
 
         static inline bool _gcep_registered = false;
     };

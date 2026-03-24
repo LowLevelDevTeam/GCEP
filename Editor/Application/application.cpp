@@ -2,6 +2,7 @@
 
 // Internals
 #include <Editor/ProjectLoader/project_loader.hpp>
+#include <Editor/UI_Panels/editor_context.hpp>
 
 // Externals
 #include <GLFW/glfw3.h>
@@ -81,6 +82,11 @@ namespace gcep
         m_rhi = std::make_unique<rhi::vulkan::VulkanRHI>(swapDesc);
         m_rhi->setWindow(m_window->getGlfwWindow());
         m_rhi->initRHI();
+
+#ifdef JPH_DEBUG_RENDERER
+        m_physicsDebugRenderer = std::make_unique<gcep::jolt::PhysicsDebugRenderer>();
+        editor::EditorContext::get().physicsDebugRenderer = m_physicsDebugRenderer.get();
+#endif
 
         m_imguiManager = std::make_unique<UI::ImGuiManager>();
         m_imguiManager->init(m_window->getGlfwWindow(), m_rhi->getUIInitInfo());

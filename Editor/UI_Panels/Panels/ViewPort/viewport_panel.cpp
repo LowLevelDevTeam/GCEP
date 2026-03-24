@@ -93,7 +93,10 @@ namespace gcep::panel
         );
 
         if (ctx.simulationState != SimulationState::PLAYING)
+        {
+            ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
             drawGizmo();
+        }
 
         ImGui::End();
     }
@@ -106,7 +109,8 @@ namespace gcep::panel
 
         ImGui::BeginMenuBar();
 
-        if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str()))
+        if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str())
+            && ctx.simulationState == SimulationState::STOPPED)
         {
             SLS::SceneManager::instance().current().save();
             ctx.simulationState = SimulationState::PLAYING;
