@@ -175,10 +175,6 @@ namespace gcep::pl
         void refreshBrowserUI();
         void drawBrowserUI(bool& stillSelecting);
 
-
-
-
-
         ProjectLoader(const ProjectLoader&)            = delete;
         ProjectLoader& operator=(const ProjectLoader&) = delete;
 

@@ -53,12 +53,10 @@ namespace gcep
             }
         }
 
-        // ── Keys: roll curr → prev, sample new curr ───────────────────────────────
         m_prevKeys = m_currKeys;
         for (auto& [key, _] : m_prevKeys)
             m_currKeys[key] = glfwKeyDown(key);
 
-        // ── Mouse buttons ─────────────────────────────────────────────────────────
         m_prevMouse = m_currMouse;
         for (auto& [btn, _] : m_prevMouse)
             m_currMouse[btn] = glfwMouseDown(btn);
@@ -95,8 +93,6 @@ namespace gcep
         }
     }
 
-    // ── Polling ───────────────────────────────────────────────────────────────
-
     KeyState InputSystem::computeState(bool prev, bool curr) const
     {
         if (!prev && !curr)   return KeyState::Up;
@@ -121,7 +117,11 @@ namespace gcep
         bool curr = glfwKeyDown(key);
         // const_cast: lazy init of tracking maps on first query
         auto& self = const_cast<InputSystem&>(*this);
-        if (!m_currKeys.count(key)) { self.m_prevKeys[key] = false; self.m_currKeys[key] = curr; }
+        if (!m_currKeys.count(key))
+        {
+            self.m_prevKeys[key] = false;
+            self.m_currKeys[key] = curr;
+        }
         return computeState(m_prevKeys.at(key), m_currKeys.at(key));
     }
 
@@ -134,21 +134,35 @@ namespace gcep
     {
         bool curr = glfwMouseDown(btn);
         auto& self = const_cast<InputSystem&>(*this);
-        if (!m_currMouse.count(btn)) { self.m_prevMouse[btn] = false; self.m_currMouse[btn] = curr; }
+        if (!m_currMouse.count(btn))
+        {
+            self.m_prevMouse[btn] = false;
+            self.m_currMouse[btn] = curr;
+        }
         return computeState(m_prevMouse.at(btn), m_currMouse.at(btn)) == KeyState::Pressed;
     }
+
     bool InputSystem::isMouseHeld(int btn) const
     {
         bool curr = glfwMouseDown(btn);
         auto& self = const_cast<InputSystem&>(*this);
-        if (!m_currMouse.count(btn)) { self.m_prevMouse[btn] = false; self.m_currMouse[btn] = curr; }
+        if (!m_currMouse.count(btn))
+        {
+            self.m_prevMouse[btn] = false;
+            self.m_currMouse[btn] = curr;
+        }
         return computeState(m_prevMouse.at(btn), m_currMouse.at(btn)) == KeyState::Held;
     }
+
     bool InputSystem::isMouseReleased(int btn) const
     {
         bool curr = glfwMouseDown(btn);
         auto& self = const_cast<InputSystem&>(*this);
-        if (!m_currMouse.count(btn)) { self.m_prevMouse[btn] = false; self.m_currMouse[btn] = curr; }
+        if (!m_currMouse.count(btn))
+        {
+            self.m_prevMouse[btn] = false;
+            self.m_currMouse[btn] = curr;
+        }
         return computeState(m_prevMouse.at(btn), m_currMouse.at(btn)) == KeyState::Released;
     }
 
@@ -158,7 +172,11 @@ namespace gcep
     {
         for (auto& [n, b] : m_bindings)
         {
-            if (n == name) { b = { key, trigger, InputDevice::Keyboard, std::move(callback) }; return; }
+            if (n == name)
+            {
+                b = { key, trigger, InputDevice::Keyboard, std::move(callback) };
+                return;
+            }
         }
         m_bindings.push_back({ name, { key, trigger, InputDevice::Keyboard, std::move(callback) } });
     }
@@ -167,7 +185,11 @@ namespace gcep
     {
         for (auto& [n, b] : m_bindings)
         {
-            if (n == name) { b = { button, trigger, InputDevice::Mouse, std::move(callback) }; return; }
+            if (n == name)
+            {
+                b = { button, trigger, InputDevice::Mouse, std::move(callback) };
+                return;
+            }
         }
         m_bindings.push_back({ name, { button, trigger, InputDevice::Mouse, std::move(callback) } });
     }
@@ -185,7 +207,7 @@ namespace gcep
         m_bindings.clear();
     }
 
-    // ── Scroll callback ───────────────────────────────────────────────────────
+    // Scroll callback
 
     void InputSystem::scrollCallback(GLFWwindow*, double xoff, double yoff)
     {

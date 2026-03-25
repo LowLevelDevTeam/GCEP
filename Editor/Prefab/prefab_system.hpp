@@ -3,12 +3,15 @@
 /// @file prefab_system.hpp
 /// @brief Save and instantiate entity prefabs (.gcprefab).
 
+// Internals
 #include <ECS/headers/registry.hpp>
 #include <Engine/RHI/Vulkan/vulkan_rhi.hpp>
 #include <Scene/header/scene.hpp>
 
+// Externals
 #include <glm/vec3.hpp>
 
+// STL
 #include <filesystem>
 #include <string>
 
