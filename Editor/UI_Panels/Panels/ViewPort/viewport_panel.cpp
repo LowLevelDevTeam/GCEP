@@ -105,7 +105,6 @@ namespace gcep::panel
     {
         auto& ctx     = editor::EditorContext::get();
         auto& physics = PhysicsSystem::getInstance();
-        auto& scriptManager = ctx.m_scriptManager;
 
         ImGui::BeginMenuBar();
 
@@ -486,6 +485,7 @@ namespace gcep::panel
 
             case ImGuizmo::SCALE:
             {
+                
                 glm::mat4 delta;
                 memcpy(glm::value_ptr(delta), deltaData, sizeof(float) * 16);
                 const glm::vec3 deltaScale = {
