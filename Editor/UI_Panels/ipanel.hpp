@@ -1,13 +1,13 @@
 #pragma once
+
 namespace gcep::panel
 {
-
-    class IPanel {
+    class IPanel
+    {
     public:
         virtual ~IPanel() = default;
         virtual void draw() = 0;
 
         bool isVisible = true;
     };
-}
-
+} // namespace gcep::panel

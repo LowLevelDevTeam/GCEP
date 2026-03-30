@@ -38,7 +38,8 @@ namespace gcep::editor
 
             constexpr ImVec4 grey = { 0.22f, 0.22f, 0.22f, 1.f };
 
-            auto drawVec3 = [&colorLabel, &white, &grey, columnX](Vector3<float>& v, const char* label, ImVec4 /*color*/)
+            // Draws a Vec3 row and returns true if any component was changed.
+            auto drawVec3 = [&colorLabel, &white, &grey, columnX](Vector3<float>& v, const char* label) -> bool
             {
                 const float spacing    = ImGui::GetStyle().ItemSpacing.x;
                 const float btnW       = ImGui::CalcTextSize("X").x + ImGui::GetStyle().FramePadding.x * 2.0f;
@@ -48,29 +49,50 @@ namespace gcep::editor
                 colorLabel(label, grey, white);
 
                 const std::string base = std::string("##") + label;
+                bool changed = false;
 
                 ImGui::SameLine(columnX);
                 colorLabel(("X##bx_" + base).c_str(), { 0.85f, 0.15f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
-                ImGui::DragFloat((base + "X").c_str(), &v.x, 0.1f);
+                changed |= ImGui::DragFloat((base + "X").c_str(), &v.x, 0.1f);
 
                 ImGui::SameLine();
                 colorLabel(("Y##by_" + base).c_str(), { 0.15f, 0.75f, 0.15f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
-                ImGui::DragFloat((base + "Y").c_str(), &v.y, 0.1f);
+                changed |= ImGui::DragFloat((base + "Y").c_str(), &v.y, 0.1f);
 
                 ImGui::SameLine();
                 colorLabel(("Z##bz_" + base).c_str(), { 0.15f, 0.35f, 0.85f, 1.f }, white);
                 ImGui::SameLine(0, 2);
                 ImGui::SetNextItemWidth(fieldWidth);
-                ImGui::DragFloat((base + "Z").c_str(), &v.z, 0.1f);
+                changed |= ImGui::DragFloat((base + "Z").c_str(), &v.z, 0.1f);
+
+                return changed;
             };
 
-            drawVec3(t.position,     "Position", { 0.9f, 0.3f, 0.3f, 1.f });
-            drawVec3(t.eulerRadians, "Rotation", { 0.3f, 0.85f, 0.3f, 1.f });
-            drawVec3(t.scale,        "Scale",    { 0.3f, 0.5f, 0.95f, 1.f });
+            // Sync display cache from the authoritative quaternion every frame
+            // so the UI always reflects the true rotation (e.g. after gizmo edits).
+            {
+                const glm::quat q(t.rotation.w, t.rotation.x, t.rotation.y, t.rotation.z);
+                const glm::vec3 e = glm::eulerAngles(q);
+                t.eulerRadians = { e.x, e.y, e.z };
+            }
+
+            drawVec3(t.position, "Position");
+            drawVec3(t.scale,    "Scale");
+
+            // Rotation: edit eulerRadians in the UI, but always write back through
+            // the quaternion so t.rotation stays the single source of truth.
+            if (drawVec3(t.eulerRadians, "Rotation"))
+            {
+                const glm::quat q = glm::quat(glm::vec3(t.eulerRadians.x, t.eulerRadians.y, t.eulerRadians.z));
+                t.rotation = Quaternion(q.w, q.x, q.y, q.z);
+                t.rotation.Normalize();
+                const glm::vec3 e = glm::eulerAngles(q);
+                t.eulerRadians = { e.x, e.y, e.z };
+            }
         }, /*removable=*/false);
 
         reg.registerDrawer<ECS::PhysicsComponent>([](ECS::PhysicsComponent& p)

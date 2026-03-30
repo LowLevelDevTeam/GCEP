@@ -45,7 +45,7 @@ namespace gcep
         const auto& projectInfo = pl::ProjectLoader::instance().getProjectInfo();
         const std::string scriptsDir  = projectInfo.contentPath.generic_string() + "/Scripts";
         const std::string buildDir    = projectInfo.contentPath.generic_string() + "/Scripts/bin";
-        const std::string includeDir  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting";
+        const std::string includeDir  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/API";
 
         #ifdef GCE_BUILD_DIR
             const std::string cmakeBuildDir = GCE_BUILD_DIR;
@@ -59,6 +59,16 @@ namespace gcep
         ctx.m_scriptManager.init(scriptsDir, buildDir, includeDir);
 
         m_scriptState.manager       = &ctx.m_scriptManager;
+        m_scriptState.manager->m_onScriptReady = [this](const std::string& name)
+        {
+            for (auto& [eid, entry] : m_scriptState.entityScripts)
+            {
+                if (entry.scriptName != name || entry.runtime.instance) continue;
+                m_scriptState.manager->createInstance(entry.comp, entry.runtime, m_scriptState.registry);
+                ScriptContext ctx = m_scriptState.makeCtx(eid);
+                m_scriptState.manager->callOnStart(entry.comp, entry.runtime, ctx);
+            }
+        };
         m_scriptState.registry      = ctx.registry;
         m_scriptState.scriptsDir    = scriptsDir;
         m_scriptState.cmakeBuildDir = cmakeBuildDir;
@@ -143,12 +153,12 @@ namespace gcep
         ImGui::DockBuilderDockWindow("Scene Hierarchy",   dockIdHierarchy);
         ImGui::DockBuilderDockWindow("Entity properties", dockIdProperties);
         ImGui::DockBuilderDockWindow("Audio control",     dockIdProperties);
-        ImGui::DockBuilderDockWindow("Script Manager",    dockIdProperties);
         ImGui::DockBuilderDockWindow("Viewport",          dockIdViewport);
         ImGui::DockBuilderDockWindow("Console",           dockIdConsole);
         ImGui::DockBuilderDockWindow("ContentDrawer",     dockIdContent);
         ImGui::DockBuilderDockWindow("Settings",          dockIdRight);
         ImGui::DockBuilderDockWindow("Performance",       dockIdRight);
+        ImGui::DockBuilderDockWindow("Script Manager",    dockIdRight);
 
         ImGui::DockBuilderGetNode(dockIdViewport)->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
         ImGui::DockBuilderFinish(dockspaceId);

@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Warnings disable
+set(INTERPROCEDURAL_OPTIMIZATION OFF)
+
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
@@ -15,6 +18,7 @@ endif()
 # Custom CMake modules
 include(CMake/compile_shaders.cmake)
 include(CMake/copy_textures.cmake)
+include(CMake/download_compiler.cmake)
 
 # Vulkan
 find_package(Vulkan 1.3 REQUIRED)
@@ -77,7 +81,7 @@ target_include_directories(GCExternals INTERFACE
 add_subdirectory(Engine)
 add_subdirectory(Editor)
 add_subdirectory(Externals)
-add_subdirectory(Scripts)
+# add_subdirectory(Scripts)    # Pending
 # add_subdirectory(UnitTests)  # TODO: uncomment when ready
 
 # Engine static lib (for unit tests)

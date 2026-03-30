@@ -1,7 +1,9 @@
 #pragma once
 
+// Internals
 #include <Editor/UI_Panels/ipanel.hpp>
 
+// STL
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -9,7 +11,7 @@
 namespace gcep::panel
 {
     /// @class ProjectBrowserPanel
-    /// @brief Lists all .gcepproj files found in the root directory and one level
+    /// @brief Lists all .gcproj files found in the root directory and one level
     ///        of sub-directories. Double-clicking a project loads it and requests
     ///        an engine reload via EditorContext::reloadRequested.
     ///        Also embeds a ContentBrowser-style file navigator to locate projects anywhere.

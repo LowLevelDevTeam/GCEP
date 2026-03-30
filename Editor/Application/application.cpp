@@ -69,7 +69,7 @@ namespace gcep
         m_physicsSystem->init();
         m_audioSystem   = AudioSystem::getInstance();
         m_window->initWindow();
-        m_input = std::make_unique<InputSystem>(m_window->getGlfwWindow());
+        m_input = std::make_unique<InputSystem>();
 
         int fbWidth = 0, fbHeight = 0;
         glfwGetFramebufferSize(m_window->getGlfwWindow(), &fbWidth, &fbHeight);

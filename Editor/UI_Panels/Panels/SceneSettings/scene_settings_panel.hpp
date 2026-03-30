@@ -1,5 +1,6 @@
 #pragma once
 
+// Internals
 #include <Editor/UI_Panels/ipanel.hpp>
 #include <Editor/UI_Panels/editor_context.hpp>
 

@@ -7,17 +7,17 @@ namespace gcep
 {
     Camera::Camera(InputSystem* inputs, Window* window) : m_window(window)
     {
-        inputs->addTrackedKey(GLFW_KEY_W,             std::bind(&Camera::moveForward,  this));
-        inputs->addTrackedKey(GLFW_KEY_S,             std::bind(&Camera::moveBackward, this));
-        inputs->addTrackedKey(GLFW_KEY_A,             std::bind(&Camera::moveLeft,     this));
-        inputs->addTrackedKey(GLFW_KEY_D,             std::bind(&Camera::moveRight,    this));
-        inputs->addTrackedKey(GLFW_KEY_SPACE,         std::bind(&Camera::moveUp,       this));
-        inputs->addTrackedKey(GLFW_KEY_LEFT_SHIFT,    std::bind(&Camera::moveDown,     this));
-        inputs->addTrackedKey(GLFW_MOUSE_BUTTON_LEFT, std::bind(&Camera::rotate,       this));
+        inputs->addBinding("Forward",     gcep::Key::W,            gcep::TriggerOn::Held, [this] { Camera::moveForward();  });
+        inputs->addBinding("Backward",    gcep::Key::S,            gcep::TriggerOn::Held, [this] { Camera::moveBackward(); });
+        inputs->addBinding("Left",        gcep::Key::A,            gcep::TriggerOn::Held, [this] { Camera::moveLeft();     });
+        inputs->addBinding("Right",       gcep::Key::D,            gcep::TriggerOn::Held, [this] { Camera::moveRight();    });
+        inputs->addBinding("Up",          gcep::Key::Space,        gcep::TriggerOn::Held, [this] { Camera::moveUp();       });
+        inputs->addBinding("Down",        gcep::Key::LeftShift,    gcep::TriggerOn::Held, [this] { Camera::moveDown();     });
+        inputs->addMouseBinding("Rotate", gcep::MouseButton::Left, gcep::TriggerOn::Held, [this] { Camera::rotate();       });
 
         m_position       = { 5.0f, 0.0f, 2.0f };
         m_ubo.view       = glm::lookAt(m_position, { 0.0f, 0.0f, 0.0f }, glm::vec3(0.0f, 0.0f, 1.0f));
-        m_ubo.proj       = glm::perspective(glm::radians(45.0f), 1.f, 0.1f, 1000.0f);
+        m_ubo.proj       = glm::perspective(glm::radians(m_fovYDeg), 1.f, 0.1f, 1000.0f);
         m_ubo.proj[1][1] *= -1;
     }
 
@@ -114,7 +114,7 @@ namespace gcep
         m_right = glm::normalize(glm::cross(m_front, m_worldUp));
         m_up    = glm::normalize(glm::cross(m_right, m_front));
 
-        m_ubo.proj       = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10000.0f);
+        m_ubo.proj       = glm::perspective(glm::radians(m_fovYDeg), aspect, 0.1f, 1000.0f);
         m_ubo.view       = glm::lookAt(m_position, m_position + m_front, m_up);
         m_ubo.proj[1][1] *= -1;
 

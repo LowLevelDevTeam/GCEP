@@ -199,8 +199,8 @@ namespace gcep::editor
 
         struct Entry
         {
-            uint32_t                                                 typeID;
-            std::string                                              name;
+            uint32_t                                                typeID;
+            std::string                                             name;
             std::function<void(ECS::Registry&, ECS::EntityID)>      draw;   ///< Renders fields only (no header).
             std::function<void(ECS::Registry&, ECS::EntityID)>      add;
             std::function<bool(ECS::Registry&, ECS::EntityID)>      has;

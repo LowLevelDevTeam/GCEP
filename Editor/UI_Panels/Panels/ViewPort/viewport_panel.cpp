@@ -1,24 +1,25 @@
 #include "viewport_panel.hpp"
 
-#include <Editor/UI_Panels/editor_context.hpp>
-#include <Engine/Core/Scene/header/scene_manager.hpp>
-#include <Editor/Prefab/prefab_system.hpp>
-#include <PhysicsWrapper/physics_system.hpp>
-#include <Scene/header/scene_manager.hpp>
-#include <Engine/Core/ECS/Components/transform.hpp>
+// Internals
+#include <ECS/Components/transform.hpp>
 #include <ECS/Components/camera_component.hpp>
 #include <ECS/Components/point_light_component.hpp>
 #include <ECS/Components/spot_light_component.hpp>
+#include <Editor/Prefab/prefab_system.hpp>
+#include <Editor/UI_Panels/editor_context.hpp>
 #include <Engine/CameraManager/camera_manager.hpp>
 #include <Maths/quaternion.hpp>
-#include <font_awesome.hpp>
+#include <Scene/header/scene_manager.hpp>
 
+// Externals
 #define GLM_ENABLE_EXPERIMENTAL
+#include <font_awesome.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+// STL
 #include <cmath>
 #include <cstring>
 #include <filesystem>
@@ -108,46 +109,28 @@ namespace gcep::panel
         if (ImGui::Button((std::string(ICON_FA_PLAY) + " Play").c_str())
             && ctx.simulationState != SimulationState::PLAYING)
         {
-            SLS::SceneManager::instance().current().save();
-            ctx.simulationState = SimulationState::PLAYING;
-            ctx.pRHI->setSimulationStarted(true);
-            physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
-            physics.startSimulation();
-            gcep::SLS::SceneManager::instance().saveScene();
-            ctx.scriptManagerPanel->onSimulationStart();
+            startSimulation(ctx, physics);
         }
         ImGui::SameLine();
 
         if (ImGui::Button((std::string(ICON_FA_PAUSE) + " Pause").c_str()))
         {
-            if (ctx.simulationState == SimulationState::PLAYING)
-            {
-                ctx.simulationState = SimulationState::PAUSED;
-                ctx.pRHI->setSimulationStarted(false);
-            }
-            else if (ctx.simulationState == SimulationState::PAUSED)
-            {
-                ctx.simulationState = SimulationState::PLAYING;
-                ctx.pRHI->setSimulationStarted(true);
-            }
+            pauseSimulation(ctx);
         }
         ImGui::SameLine();
 
-        if (ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str())
-            && ctx.simulationState != SimulationState::STOPPED)
-        {
-            ctx.simulationState = SimulationState::STOPPED;
-            if (ctx.pRHI) ctx.pRHI->setSimulationStarted(false);
-            physics.stopSimulation();
-            ctx.scriptManagerPanel->onSimulationStop();
+        const bool stopPressed   = ImGui::Button((std::string(ICON_FA_STOP) + " Stop").c_str())
+                                   && ctx.simulationState != SimulationState::STOPPED;
+        const bool stopRequested = ctx.simulationState == SimulationState::PAUSED
+                                   && ImGui::IsKeyPressed(ImGuiKey_Escape);
+        const bool escPressed    = ctx.simulationState == SimulationState::PLAYING
+                                   && ImGui::IsKeyPressed(ImGuiKey_Escape);
 
-            const std::string scenePath = SLS::SceneManager::instance().current().getPath();
-            ctx.pRHI->clearScene();
-            SLS::SceneManager::instance().loadScene(scenePath, ctx.pRHI);
-            ctx.registry = &SLS::SceneManager::instance().current().getRegistry();
-            ctx.pRHI->setRegistry(ctx.registry);
-            ctx.selection.unselect();
-        }
+        if (stopPressed || stopRequested)
+            stopSimulation(ctx, physics);
+        if(escPressed)
+            pauseSimulation(ctx);
+
         ImGui::SameLine();
 
         const char* simLabel = "Stopped";
@@ -155,15 +138,72 @@ namespace gcep::panel
         else if (ctx.simulationState == SimulationState::PAUSED)  simLabel = "Paused";
         ImGui::Text("Simulation: %s", simLabel);
 
-        // Physics, camera and scripting tick while playing
         if (ctx.simulationState == SimulationState::PLAYING)
         {
-            physics.update(ImGui::GetIO().DeltaTime);
-            engine::CameraManager{}.update(ctx, ImGui::GetIO().DeltaTime);
-            ctx.scriptManagerPanel->onSimulationUpdate(ImGui::GetIO().DeltaTime);
+            const float dt = ImGui::GetIO().DeltaTime;
+            ctx.scriptManagerPanel->onSimulationUpdate(dt);
+            physics.update(dt);
+            engine::CameraManager{}.update(ctx, dt);
         }
 
         ImGui::EndMenuBar();
+    }
+
+    static void getCursorBack()
+    {
+        glfwSetInputMode(Window::getInstance().getGlfwWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+    }
+
+    static void hideCursor()
+    {
+        glfwSetInputMode(Window::getInstance().getGlfwWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    }
+
+    void ViewportPanel::startSimulation(editor::EditorContext& ctx, PhysicsSystem& physics)
+    {
+        SLS::SceneManager::instance().saveScene();
+        hideCursor();
+        ctx.simulationState = SimulationState::PLAYING;
+        ctx.pRHI->setSimulationStarted(true);
+        physics.setRegistry(&SLS::SceneManager::instance().current().getRegistry());
+        physics.startSimulation();
+        ctx.scriptManagerPanel->onSimulationStart();
+    }
+
+    void ViewportPanel::pauseSimulation(editor::EditorContext& ctx)
+    {
+        if (ctx.simulationState == SimulationState::PLAYING)
+        {
+            getCursorBack();
+            ctx.simulationState = SimulationState::PAUSED;
+            ctx.pRHI->setSimulationStarted(false);
+        }
+        else if (ctx.simulationState == SimulationState::PAUSED)
+        {
+            hideCursor();
+            ctx.simulationState = SimulationState::PLAYING;
+            ctx.pRHI->setSimulationStarted(true);
+        }
+    }
+
+    void ViewportPanel::stopSimulation(editor::EditorContext& ctx, PhysicsSystem& physics)
+    {
+        ctx.simulationState = SimulationState::STOPPED;
+        getCursorBack();
+        ctx.pRHI->setSimulationStarted(false);
+        physics.stopSimulation();
+        ctx.scriptManagerPanel->onSimulationStop();
+
+        const std::string scenePath = SLS::SceneManager::instance().current().getPath();
+        ctx.pRHI->clearScene();
+        SLS::SceneManager::instance().loadScene(scenePath, ctx.pRHI);
+        ctx.registry = &SLS::SceneManager::instance().current().getRegistry();
+        ctx.pRHI->setRegistry(ctx.registry);
+        ctx.scriptManagerPanel->getState().registry = ctx.registry;
+        ctx.selection.unselect();
+        ctx.camera->m_fovYDeg = 60.0f;
     }
 
     void ViewportPanel::handleGizmoInput()
@@ -231,8 +271,7 @@ namespace gcep::panel
             snapPtr = snapValues;
         }
 
-        const glm::vec3 oldRotation = { tc.eulerRadians.x, tc.eulerRadians.y, tc.eulerRadians.z };
-        const glm::vec3 oldScale    = { tc.scale.x,        tc.scale.y,        tc.scale.z        };
+        const glm::vec3 oldScale = { tc.scale.x, tc.scale.y, tc.scale.z };
 
         float     deltaData[16];
         glm::mat4 identityDelta = glm::mat4(1.0f);
@@ -266,14 +305,12 @@ namespace gcep::panel
                 glm::vec4 perspective;
                 glm::quat rotation;
                 glm::decompose(newModel, scale, rotation, position, skew, perspective);
-                tc.position     = { position.x, position.y, position.z };
-                tc.rotation     = Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
+                tc.position = { position.x, position.y, position.z };
+                tc.rotation = Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
                 tc.rotation.Normalize();
-                tc.eulerRadians = {
-                    glm::eulerAngles(rotation).x,
-                    glm::eulerAngles(rotation).y,
-                    glm::eulerAngles(rotation).z
-                };
+                // Sync display cache from the authoritative quaternion.
+                const glm::vec3 e = glm::eulerAngles(rotation);
+                tc.eulerRadians = { e.x, e.y, e.z };
                 break;
             }
 
@@ -285,8 +322,11 @@ namespace gcep::panel
                     glm::length(glm::vec3(delta[2]))
                 };
                 const glm::vec3 newScale = oldScale * deltaScale;
-                tc.scale        = { newScale.x,    newScale.y,    newScale.z    };
-                tc.eulerRadians = { oldRotation.x, oldRotation.y, oldRotation.z };
+                tc.scale = { newScale.x, newScale.y, newScale.z };
+                // Re-derive from rotation quaternion (source of truth), not from the stale cache.
+                const glm::quat q(tc.rotation.w, tc.rotation.x, tc.rotation.y, tc.rotation.z);
+                const glm::vec3 e = glm::eulerAngles(q);
+                tc.eulerRadians = { e.x, e.y, e.z };
                 break;
             }
             default: break;
@@ -296,8 +336,6 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoPointLight(rhi::vulkan::PointLight& light)
     {
         auto& ctx = editor::EditorContext::get();
-        if (!ctx.registry->hasComponent<ECS::PointLightComponent>(light.id))
-            return;
         if (!ctx.registry->hasComponent<ECS::PointLightComponent>(light.id))
             return;
         auto& pos = ctx.registry->getComponent<ECS::PointLightComponent>(light.id).position;
@@ -329,8 +367,6 @@ namespace gcep::panel
     void ViewportPanel::drawGizmoSpotLight(rhi::vulkan::SpotLight& light)
     {
         auto& ctx    = editor::EditorContext::get();
-        if (!ctx.registry->hasComponent<ECS::SpotLightComponent>(light.id))
-            return;
         if (!ctx.registry->hasComponent<ECS::SpotLightComponent>(light.id))
             return;
         auto& oldDir = ctx.registry->getComponent<ECS::SpotLightComponent>(light.id).direction;
@@ -411,8 +447,6 @@ namespace gcep::panel
         auto& ctx = editor::EditorContext::get();
         if (!ctx.registry->hasComponent<ECS::Transform>(id))
             return;
-        if (!ctx.registry->hasComponent<ECS::Transform>(id))
-            return;
         auto& tc  = ctx.registry->getComponent<ECS::Transform>(id);
 
         glm::mat4 view       = ctx.camera->getViewMatrix();
@@ -473,10 +507,12 @@ namespace gcep::panel
                 glm::vec4 perspective;
                 glm::quat q;
                 glm::decompose(newModel, s, q, p, skew, perspective);
-                tc.position     = { p.x, p.y, p.z };
-                tc.rotation     = Quaternion(q.w, q.x, q.y, q.z);
+                tc.position = { p.x, p.y, p.z };
+                tc.rotation = Quaternion(q.w, q.x, q.y, q.z);
                 tc.rotation.Normalize();
-                tc.eulerRadians = { glm::eulerAngles(q).x, glm::eulerAngles(q).y, glm::eulerAngles(q).z };
+                // Sync display cache from the authoritative quaternion.
+                const glm::vec3 e = glm::eulerAngles(q);
+                tc.eulerRadians = { e.x, e.y, e.z };
                 break;
             }
 
@@ -491,6 +527,10 @@ namespace gcep::panel
                     glm::length(glm::vec3(delta[2]))
                 };
                 tc.scale = { scale.x * deltaScale.x, scale.y * deltaScale.y, scale.z * deltaScale.z };
+                // Re-derive from rotation quaternion (source of truth), not from the stale cache.
+                const glm::quat q(tc.rotation.w, tc.rotation.x, tc.rotation.y, tc.rotation.z);
+                const glm::vec3 e = glm::eulerAngles(q);
+                tc.eulerRadians = { e.x, e.y, e.z };
                 break;
             }
             default: break;
