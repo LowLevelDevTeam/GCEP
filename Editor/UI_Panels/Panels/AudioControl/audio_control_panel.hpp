@@ -1,9 +1,11 @@
 #pragma once
 
+// Internals
 #include <Editor/UI_Panels/ipanel.hpp>
 #include <Engine/Audio/audio_system.hpp>
 #include <Engine/Audio/audio_source.hpp>
 
+// STL
 #include <memory>
 #include <vector>
 

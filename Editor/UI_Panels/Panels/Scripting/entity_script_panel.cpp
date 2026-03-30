@@ -110,10 +110,9 @@ namespace gcep::panel
             return;
         }
 
-        const std::string scriptName = "Script_" + std::to_string(entityId);
+        const std::string scriptName = "Script_" + std::to_string(entityId & ECS::VALUE_MASK);
         const std::string outputPath = m_state.scriptsDir + "/" + scriptName + ".cpp";
-        const std::string modelPath  = std::string(PROJECT_ROOT)
-                                     + "/Engine/Core/Scripting/script_model.cpp";
+        const std::string modelPath  = std::string(PROJECT_ROOT) + "/Engine/Core/Scripting/API/script_model.cpp";
 
         std::filesystem::create_directories(m_state.scriptsDir);
 
@@ -127,7 +126,7 @@ namespace gcep::panel
         std::ifstream in(modelPath, std::ios::binary);
         if (!in.is_open())
         {
-            std::cerr << "[EntityScriptPanel] Cannot open model: " << modelPath << "\n";
+            Log::error(std::format("Cannot open script model: {}", modelPath));
             m_state.setStatus("ERROR: model not found.");
             return;
         }
@@ -143,14 +142,14 @@ namespace gcep::panel
         std::ofstream out(outputPath, std::ios::binary);
         if (!out.is_open())
         {
-            std::cerr << "[EntityScriptPanel] Cannot write: " << outputPath << "\n";
+            Log::error(std::format("Cannot write: {}", outputPath));
             m_state.setStatus("ERROR: write failed.");
             return;
         }
         out << src;
         out.close();
 
-        std::cout << "[EntityScriptPanel] Created: " << outputPath << "\n";
+        Log::info(std::format("Created: {}", outputPath));
         m_state.manager->pollForChanges();
         registerEntry(entityId, scriptName);
         m_state.setStatus("Created & attached: " + scriptName);

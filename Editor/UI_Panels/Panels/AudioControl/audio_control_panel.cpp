@@ -1,9 +1,13 @@
 #include "audio_control_panel.hpp"
 
+// Internals
 #include <Editor/Helpers.hpp>
-#include <tinyfiledialogs.h>
-#include <imgui.h>
 
+// Externals
+#include <imgui.h>
+#include <tinyfiledialogs.h>
+
+// STL
 #include <filesystem>
 #include <string>
 

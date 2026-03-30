@@ -1,18 +1,20 @@
 #include "inspector_panel.hpp"
 
+// Internals
+#include <ECS/Components/hierarchy_component.hpp>
 #include <Editor/UI_Panels/editor_context.hpp>
 #include <Editor/UI_Panels/Panels/Inspector/inspector_registry.hpp>
 #include <Editor/SceneUtils/scene_util.hpp>
 #include <Editor/Prefab/prefab_system.hpp>
+#include <Engine/Core/ECS/Components/transform.hpp>
 #include <Scene/header/scene_manager.hpp>
-#include <ECS/Components/hierarchy_component.hpp>
-#include <config.hpp>
-#include <tinyfiledialogs.h>
+
+// Externals
 #include <font_awesome.hpp>
 #include <imgui.h>
+#include <tinyfiledialogs.h>
 
-#include <Engine/Core/ECS/Components/transform.hpp>
-
+// STL
 #include <filesystem>
 #include <fstream>
 

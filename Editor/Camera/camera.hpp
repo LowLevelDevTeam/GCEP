@@ -88,6 +88,9 @@ namespace gcep
         /// @brief Horizontal rotation angle, in degrees. 0 = negative-X direction.
         float m_yaw = -180.0f;
 
+        /// @brief Horizontal Field Of View, in degrees.
+        float m_fovYDeg = 60.0f;
+
     private:
         /// @brief Moves the camera in the @c m_front direction, scaled by @c m_camSpeed.
         void moveForward();
