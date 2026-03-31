@@ -56,11 +56,14 @@ if(WIN32)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|aarch64")
         set(_gcep_dl_url            "https://dylan-hollemaert.fr/downloads/clang++/windows/ARM64/clang++.exe")
         set(_gcep_clang_headers_url "https://dylan-hollemaert.fr/downloads/clang++/windows/ARM64/clang-headers.tar.gz")
+		set(_gcep_linker_url        "https://dylan-hollemaert.fr/downloads/clang++/windows/ARM64/lld-link.exe")
     else()
         set(_gcep_dl_url            "https://dylan-hollemaert.fr/downloads/clang++/windows/x64/clang++.exe")
         set(_gcep_clang_headers_url "https://dylan-hollemaert.fr/downloads/clang++/windows/x64/clang-headers.tar.gz")
+		set(_gcep_linker_url        "https://dylan-hollemaert.fr/downloads/clang++/windows/x64/lld-link.exe")
     endif()
     set(_gcep_bin_name "clang++.exe")
+	set(_gcep_lld_name "lld-link.exe")
 elseif(APPLE)
     set(_gcep_dl_url            "https://dylan-hollemaert.fr/downloads/clang++/macos/clang++")
     set(_gcep_clang_headers_url "https://dylan-hollemaert.fr/downloads/clang++/macos/clang-headers.tar.gz")
@@ -78,11 +81,15 @@ endif()
 
 # Paths
 set(_gcep_bin_path          "${CMAKE_BINARY_DIR}/bin/${_gcep_bin_name}")
+if(WIN32)
+	set(_gcep_lld_path          "${CMAKE_BINARY_DIR}/bin/${_gcep_lld_name}")
+endif()
 set(_gcep_clang_headers_dir "${CMAKE_BINARY_DIR}/bin/lib/clang/22/include")
 
 # Download clang++ binary
 if(NOT EXISTS "${_gcep_bin_path}")
     message(STATUS "[GCEP] clang++ not found, downloading to ${_gcep_bin_path}")
+    message(STATUS "[GCEP] lld-link not found, downloading to ${_gcep_lld_path}")
     file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     _gcep_download("${_gcep_dl_url}" "${_gcep_bin_path}" "clang++")
     if(NOT WIN32)
@@ -91,6 +98,9 @@ if(NOT EXISTS "${_gcep_bin_path}")
                 OWNER_READ OWNER_WRITE OWNER_EXECUTE
                 GROUP_READ GROUP_EXECUTE
                 WORLD_READ WORLD_EXECUTE)
+	else()
+		_gcep_download("${_gcep_linker_url}" "${_gcep_lld_path}" "lld-link")
+		message(STATUS "[GCEP] lld-link ready at ${_gcep_lld_path}")
     endif()
     message(STATUS "[GCEP] clang++ ready at ${_gcep_bin_path}")
 else()
@@ -101,4 +111,7 @@ _gcep_download_and_extract("clang-resource-headers" "${_gcep_clang_headers_url}"
 
 # Expose paths for the rest of the build
 set(GCEP_COMPILER     "${_gcep_bin_path}"                      CACHE FILEPATH "Bundled clang++ for script compilation" FORCE)
+if(WIN32)
+	set(GCEP_LINKER       "${_gcep_lld_path}"                      CACHE FILEPATH "Bundled lld-link for script compilation" FORCE)
+endif()
 set(GCEP_RESOURCE_DIR "${CMAKE_BINARY_DIR}/bin/lib/clang/22"   CACHE PATH     "Clang resource dir"                     FORCE)
